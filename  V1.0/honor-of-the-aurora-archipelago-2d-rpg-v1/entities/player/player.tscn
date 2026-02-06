@@ -1,0 +1,103 @@
+[gd_scene load_steps=14 format=3 uid="uid://b8jf00t6kxum2"]
+
+[ext_resource type="Script" uid="uid://d2yxlcc3750s3" path="res://entities/player/player.gd" id="1_abrql"]
+[ext_resource type="Texture2D" uid="uid://dy8fnp4plwxfs" path="res://Warrior_Blue.png" id="1_symyc"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_abrql"]
+radius = 26.5707
+
+[sub_resource type="Animation" id="Animation_sglur"]
+length = 0.6
+loop_mode = 1
+step = 0.1
+
+[sub_resource type="Animation" id="Animation_abrql"]
+resource_name = "idle"
+length = 0.45
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("WarriorBlue:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.0057, 0.1, 0.2, 0.3, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 4, 5]
+}
+
+[sub_resource type="Animation" id="Animation_bls4j"]
+resource_name = "run"
+length = 0.6
+loop_mode = 1
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("WarriorBlue:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [6, 7, 8, 9, 10, 10, 11]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_bls4j"]
+_data = {
+&"RESET": SubResource("Animation_sglur"),
+&"idle": SubResource("Animation_abrql"),
+&"run": SubResource("Animation_bls4j")
+}
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_abrql"]
+animation = &"idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_sglur"]
+animation = &"run"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_bls4j"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_fkugw"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_8fjmc"]
+advance_mode = 0
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_qiwj3"]
+states/idle/node = SubResource("AnimationNodeAnimation_abrql")
+states/idle/position = Vector2(330.667, 100.519)
+states/run/node = SubResource("AnimationNodeAnimation_sglur")
+states/run/position = Vector2(460, 107.333)
+transitions = ["Start", "idle", SubResource("AnimationNodeStateMachineTransition_bls4j"), "run", "idle", SubResource("AnimationNodeStateMachineTransition_fkugw"), "idle", "run", SubResource("AnimationNodeStateMachineTransition_8fjmc")]
+
+[node name="Player" type="CharacterBody2D"]
+position = Vector2(-1, 0)
+script = ExtResource("1_abrql")
+
+[node name="WarriorBlue" type="Sprite2D" parent="."]
+position = Vector2(-2, -32)
+texture = ExtResource("1_symyc")
+hframes = 6
+vframes = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_abrql")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(-2, 0)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+reset_on_save = false
+libraries = {
+&"": SubResource("AnimationLibrary_bls4j")
+}
+
+[node name="AnimationTree" type="AnimationTree" parent="."]
+reset_on_save = false
+tree_root = SubResource("AnimationNodeStateMachine_qiwj3")
+anim_player = NodePath("../AnimationPlayer")
