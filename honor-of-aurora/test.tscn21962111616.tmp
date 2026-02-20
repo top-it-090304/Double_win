@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://bwvhi65n8ntdw"]
+
+[ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_8uh7m"]
+[ext_resource type="PackedScene" uid="uid://dr1fit5f1q2ii" path="res://ally/worrier/scenes/worrier_base.tscn" id="2_6uqi0"]
+
+[node name="test" type="Node2D"]
+
+[node name="EnemyBase" parent="." instance=ExtResource("1_8uh7m")]
+position = Vector2(158, 128)
+
+[node name="PlayerBase" parent="." instance=ExtResource("2_6uqi0")]
+position = Vector2(778, 427)

@@ -7,7 +7,9 @@
 radius = 22.0
 height = 56.0
 
-[node name="PlayerBase" type="CharacterBody2D"]
+[node name="PlayerBase" type="CharacterBody2D" groups=["player"]]
+collision_layer = 2
+collision_mask = 3
 script = ExtResource("1_oqrjc")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
