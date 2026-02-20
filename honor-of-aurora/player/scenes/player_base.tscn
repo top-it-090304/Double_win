@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://dr1fit5f1q2ii"]
+
+[ext_resource type="Script" uid="uid://d1ryb1r4otkas" path="res://player/scripts/player_base.gd" id="1_oqrjc"]
+[ext_resource type="SpriteFrames" uid="uid://d5rjcohv0wqu" path="res://player/resources/black_worrier_frame.tres" id="2_oqrjc"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_oqrjc"]
+radius = 22.0
+height = 56.0
+
+[node name="PlayerBase" type="CharacterBody2D"]
+script = ExtResource("1_oqrjc")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(1, 9)
+shape = SubResource("CapsuleShape2D_oqrjc")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2_oqrjc")
+animation = &"shield"
+frame_progress = 0.766532
