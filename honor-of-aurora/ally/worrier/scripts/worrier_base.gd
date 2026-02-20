@@ -63,7 +63,7 @@ func change_state(new_state: State):
 				attack_index = (attack_index + 1) % 2
 				anim_name = "attack_1" if attack_index == 0 else "attack_2"
 			
-			if last_dir.x < 0:
+			if last_dir.x < 0 or last_dir.y > 0:
 				anim.flip_h = true
 			else:
 				anim.flip_h = false

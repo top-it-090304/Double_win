@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://bmerpvjsmlavi"]
+
+[ext_resource type="PackedScene" uid="uid://dr1fit5f1q2ii" path="res://ally/worrier/scenes/worrier_base.tscn" id="1_cigjw"]
+[ext_resource type="SpriteFrames" uid="uid://dy25lhvf40foh" path="res://ally/worrier/resources/yellow_worrier_frame.tres" id="2_nwner"]
+
+[node name="player_blue" instance=ExtResource("1_cigjw")]
+
+[node name="AnimatedSprite2D" parent="." index="1"]
+sprite_frames = ExtResource("2_nwner")
+frame_progress = 0.0
