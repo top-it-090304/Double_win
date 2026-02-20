@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://boqm24tmoensu"]
+
+[ext_resource type="PackedScene" uid="uid://dr1fit5f1q2ii" path="res://player/scenes/player_base.tscn" id="1_5dbwl"]
+[ext_resource type="SpriteFrames" uid="uid://10j811ysomny" path="res://player/resources/purple_worrier_frame.tres" id="2_2p6ku"]
+
+[node name="player_blue" instance=ExtResource("1_5dbwl")]
+
+[node name="AnimatedSprite2D" parent="." index="1"]
+sprite_frames = ExtResource("2_2p6ku")
+frame_progress = 0.0
