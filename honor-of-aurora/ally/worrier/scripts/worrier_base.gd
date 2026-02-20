@@ -14,6 +14,8 @@ var health: int
 var attack_index = 0
 
 func _ready():
+	add_to_group("player")
+	
 	health = max_health
 	anim.connect("animation_finished", _on_anim_finished)
 
@@ -39,7 +41,8 @@ func _physics_process(delta):
 	
 	if Input.is_action_just_pressed("attack") and state not in [State.ATTACK, State.SHIELD]:
 		change_state(State.ATTACK)
-	if Input.is_action_just_pressed("shield") and state not in [State.ATTACK, State.SHIELD]:
+	# Разрешаем вход в щит из любого состояния, кроме щита (в том числе из атаки)
+	if Input.is_action_just_pressed("shield") and state != State.SHIELD:
 		change_state(State.SHIELD)
 	if state == State.SHIELD and Input.is_action_just_released("shield"):
 		back_to_movement()
@@ -71,6 +74,8 @@ func change_state(new_state: State):
 			anim.play(anim_name)
 		
 		State.SHIELD:
+			# При входе в щит останавливаем движение и запускаем анимацию
+			velocity = Vector2.ZERO
 			if anim.sprite_frames.has_animation("shield"):
 				anim.play("shield")
 			else:
@@ -93,3 +98,11 @@ func update_anim():
 			anim.play("run")
 			if velocity.x != 0:
 				anim.flip_h = velocity.x < 0
+
+func take_damage(amount):
+	health -= amount
+	if health <= 0:
+		die()
+
+func die():
+	queue_free()
