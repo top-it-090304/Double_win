@@ -438,4 +438,4 @@ animations = [{
 
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = SubResource("SpriteFrames_6uqn3")
-animation = &"dead"
+animation = &"idle"
