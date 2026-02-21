@@ -1,12 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://bwvhi65n8ntdw"]
+[gd_scene load_steps=2 format=3 uid="uid://bwvhi65n8ntdw"]
 
 [ext_resource type="PackedScene" uid="uid://dr1fit5f1q2ii" path="res://ally/worrier/scenes/worrier_base.tscn" id="2_6uqi0"]
-[ext_resource type="PackedScene" uid="uid://dj02d5ulpk30j" path="res://enemies/turtle/turtle.tscn" id="2_8uh7m"]
 
 [node name="test" type="Node2D"]
 
 [node name="PlayerBase" parent="." instance=ExtResource("2_6uqi0")]
 position = Vector2(746, 315)
-
-[node name="Turtle" parent="." instance=ExtResource("2_8uh7m")]
-position = Vector2(251, 355)
