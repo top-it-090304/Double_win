@@ -7,4 +7,4 @@
 
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = ExtResource("2_wwo8a")
-animation = &"run"
+animation = &"idle"

@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://bwvhi65n8ntdw"]
+[gd_scene load_steps=5 format=3 uid="uid://bwvhi65n8ntdw"]
 
 [ext_resource type="PackedScene" uid="uid://dr1fit5f1q2ii" path="res://ally/worrier/scenes/worrier_base.tscn" id="2_6uqi0"]
 [ext_resource type="PackedScene" uid="uid://dnpvnopyaj0hq" path="res://enemies/lizard/lizard.tscn" id="2_8uh7m"]
+[ext_resource type="PackedScene" uid="uid://ogkghrj413uo" path="res://enemies/lancer/lancertscn.tscn" id="3_ppyta"]
+[ext_resource type="PackedScene" uid="uid://ce2n65nel32t" path="res://enemies/minotaur/minotaur.tscn" id="4_ykrsh"]
 
 [node name="test" type="Node2D"]
 
@@ -10,3 +12,9 @@ position = Vector2(746, 315)
 
 [node name="Lizard" parent="." instance=ExtResource("2_8uh7m")]
 position = Vector2(340, 332)
+
+[node name="Lancer" parent="." instance=ExtResource("3_ppyta")]
+position = Vector2(308, 126)
+
+[node name="Minotaur" parent="." instance=ExtResource("4_ykrsh")]
+position = Vector2(527, 596)
