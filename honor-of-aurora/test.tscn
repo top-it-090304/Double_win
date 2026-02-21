@@ -1,48 +1,44 @@
-[gd_scene load_steps=12 format=3 uid="uid://bwvhi65n8ntdw"]
+[gd_scene load_steps=11 format=3 uid="uid://c4v6mrx7s23sj"]
 
-[ext_resource type="PackedScene" uid="uid://dr1fit5f1q2ii" path="res://ally/worrier/scenes/worrier_base.tscn" id="2_6uqi0"]
-[ext_resource type="PackedScene" uid="uid://dnpvnopyaj0hq" path="res://enemies/lizard/lizard.tscn" id="2_8uh7m"]
-[ext_resource type="PackedScene" uid="uid://ogkghrj413uo" path="res://enemies/lancer/lancertscn.tscn" id="3_ppyta"]
-[ext_resource type="PackedScene" uid="uid://ce2n65nel32t" path="res://enemies/minotaur/minotaur.tscn" id="4_ykrsh"]
-[ext_resource type="PackedScene" uid="uid://dj02d5ulpk30j" path="res://enemies/turtle/turtle.tscn" id="5_77dp3"]
-[ext_resource type="PackedScene" uid="uid://25v8rvuctncn" path="res://enemies/troll/troll.tscn" id="6_5tkv4"]
-[ext_resource type="PackedScene" uid="uid://c5k78x3q2x2xd" path="res://enemies/thief/thief.tscn" id="7_0m0f1"]
-[ext_resource type="PackedScene" uid="uid://bqogemphbywdf" path="res://enemies/spider/spider.tscn" id="8_b0q6j"]
-[ext_resource type="PackedScene" uid="uid://0qs4m0ayosm4" path="res://enemies/snake/Snake.tscn" id="9_mhym6"]
-[ext_resource type="PackedScene" uid="uid://c3s3o5kxeefw2" path="res://enemies/skull/skull.tscn" id="10_a3se8"]
-[ext_resource type="PackedScene" uid="uid://b2gtfnb8cpv1i" path="res://enemies/panda/panda.tscn" id="11_uty7l"]
+[ext_resource type="PackedScene" uid="uid://bmerpvjsmlavi" path="res://ally/worrier/scenes/variants/yellow_worrier.tscn" id="1_8uh7m"]
+[ext_resource type="PackedScene" uid="uid://ogkghrj413uo" path="res://enemies/lancer/lancertscn.tscn" id="2_8uh7m"]
+[ext_resource type="PackedScene" uid="uid://ce2n65nel32t" path="res://enemies/minotaur/minotaur.tscn" id="3_00tp4"]
+[ext_resource type="PackedScene" uid="uid://bwyy7fy1fhke0" path="res://enemies/paddle fish/PaddleFish.tscn" id="4_77dp3"]
+[ext_resource type="PackedScene" uid="uid://c3s3o5kxeefw2" path="res://enemies/skull/skull.tscn" id="5_5tkv4"]
+[ext_resource type="PackedScene" uid="uid://0qs4m0ayosm4" path="res://enemies/snake/Snake.tscn" id="6_0m0f1"]
+[ext_resource type="PackedScene" uid="uid://dj02d5ulpk30j" path="res://enemies/turtle/turtle.tscn" id="7_b0q6j"]
+[ext_resource type="PackedScene" uid="uid://25v8rvuctncn" path="res://enemies/troll/troll.tscn" id="8_mhym6"]
+[ext_resource type="PackedScene" uid="uid://c5k78x3q2x2xd" path="res://enemies/thief/thief.tscn" id="9_a3se8"]
+[ext_resource type="PackedScene" uid="uid://bqogemphbywdf" path="res://enemies/spider/spider.tscn" id="10_uty7l"]
 
-[node name="test" type="Node2D"]
+[node name="Node2D" type="Node2D"]
 
-[node name="PlayerBase" parent="." instance=ExtResource("2_6uqi0")]
-position = Vector2(746, 315)
+[node name="player_blue" parent="." instance=ExtResource("1_8uh7m")]
+position = Vector2(252, 259)
 
-[node name="Lizard" parent="." instance=ExtResource("2_8uh7m")]
-position = Vector2(340, 332)
+[node name="Lancer" parent="." instance=ExtResource("2_8uh7m")]
+position = Vector2(699, 303)
 
-[node name="Lancer" parent="." instance=ExtResource("3_ppyta")]
-position = Vector2(308, 126)
+[node name="Minotaur" parent="." instance=ExtResource("3_00tp4")]
+position = Vector2(463, 433)
 
-[node name="Minotaur" parent="." instance=ExtResource("4_ykrsh")]
-position = Vector2(527, 596)
+[node name="EnemyBase" parent="." instance=ExtResource("4_77dp3")]
+position = Vector2(539, 125)
 
-[node name="Turtle" parent="." instance=ExtResource("5_77dp3")]
-position = Vector2(152, 549)
+[node name="Skull" parent="." instance=ExtResource("5_5tkv4")]
+position = Vector2(76, 468)
 
-[node name="Troll" parent="." instance=ExtResource("6_5tkv4")]
-position = Vector2(944, 518)
+[node name="Snake" parent="." instance=ExtResource("6_0m0f1")]
+position = Vector2(122, 35)
 
-[node name="Thief" parent="." instance=ExtResource("7_0m0f1")]
-position = Vector2(482, 407)
+[node name="Turtle" parent="." instance=ExtResource("7_b0q6j")]
+position = Vector2(751, 444)
 
-[node name="Spider" parent="." instance=ExtResource("8_b0q6j")]
-position = Vector2(1082, 161)
+[node name="Troll" parent="." instance=ExtResource("8_mhym6")]
+position = Vector2(891, 156)
 
-[node name="Snake" parent="." instance=ExtResource("9_mhym6")]
-position = Vector2(523, 105)
+[node name="Thief" parent="." instance=ExtResource("9_a3se8")]
+position = Vector2(556, 217)
 
-[node name="Skull" parent="." instance=ExtResource("10_a3se8")]
-position = Vector2(665, 713)
-
-[node name="Panda" parent="." instance=ExtResource("11_uty7l")]
-position = Vector2(334, 668)
+[node name="Spider" parent="." instance=ExtResource("10_uty7l")]
+position = Vector2(343, 382)
