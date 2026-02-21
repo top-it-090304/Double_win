@@ -1,0 +1,21 @@
+[gd_resource type="TileSet" load_steps=3 format=3 uid="uid://b6qnntv2bkb0o"]
+
+[ext_resource type="Texture2D" uid="uid://ro551bebcsaj" path="res://Asets/Environment/Terrain/Bridge/Bridge_All.png" id="1_e040g"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_06iew"]
+texture = ExtResource("1_e040g")
+texture_region_size = Vector2i(64, 64)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+2:1/0 = 0
+0:2/0 = 0
+1:2/0 = 0
+0:3/0 = 0
+2:3/0 = 0
+
+[resource]
+tile_size = Vector2i(64, 64)
+sources/0 = SubResource("TileSetAtlasSource_06iew")
