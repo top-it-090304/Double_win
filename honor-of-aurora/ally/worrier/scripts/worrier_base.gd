@@ -112,7 +112,10 @@ func update_anim():
 			anim.play("dead")
 
 func take_damage(amount):
-	health -= amount
+	var final_damage = amount
+	if state == State.SHIELD:
+		final_damage = int(amount * 0.2)  # урон снижается на 80%
+	health -= final_damage
 	health_bar.value = health
 	if health <= 0 and state != State.DEATH:
 		die()
