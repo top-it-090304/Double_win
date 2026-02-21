@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://bdyaaaea7vcs4"]
+[gd_scene load_steps=40 format=3 uid="uid://bdyaaaea7vcs4"]
 
 [ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_5wrw3"]
 [ext_resource type="Texture2D" uid="uid://b36imitvwnjne" path="res://Asets/Enemy/Enemy Pack/Bear/Bear_Attack.png" id="2_aasxw"]
@@ -73,6 +73,18 @@ region = Rect2(384, 0, 64, 64)
 [sub_resource type="AtlasTexture" id="AtlasTexture_i6i7x"]
 atlas = ExtResource("3_378v5")
 region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5wrw3"]
+atlas = ExtResource("4_gpxni")
+region = Rect2(0, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aasxw"]
+atlas = ExtResource("4_gpxni")
+region = Rect2(256, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_378v5"]
+atlas = ExtResource("4_gpxni")
+region = Rect2(512, 0, 256, 256)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_gg5sh"]
 atlas = ExtResource("4_gpxni")
@@ -156,9 +168,9 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_yndhs")
 }],
-"loop": true,
+"loop": false,
 "name": &"attack",
-"speed": 5.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -187,6 +199,20 @@ animations = [{
 }],
 "loop": false,
 "name": &"dead",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5wrw3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aasxw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_378v5")
+}],
+"loop": false,
+"name": &"hit",
 "speed": 10.0
 }, {
 "frames": [{
@@ -243,4 +269,4 @@ animations = [{
 
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = SubResource("SpriteFrames_yy6c3")
-animation = &"idle"
+animation = &"run"

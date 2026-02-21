@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://pkwk7p3dmtwo"]
+[gd_scene load_steps=40 format=3 uid="uid://pkwk7p3dmtwo"]
 
 [ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_fm6uc"]
 [ext_resource type="Texture2D" uid="uid://btmefnb0bo7ee" path="res://Asets/Enemy/Enemy Pack/Gnome/Gnome_Attack.png" id="2_iw6gb"]
@@ -65,6 +65,22 @@ region = Rect2(384, 0, 64, 64)
 [sub_resource type="AtlasTexture" id="AtlasTexture_bhut3"]
 atlas = ExtResource("3_5d7cn")
 region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pxn3u"]
+atlas = ExtResource("3_pxn3u")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5d7cn"]
+atlas = ExtResource("3_pxn3u")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mef68"]
+atlas = ExtResource("3_pxn3u")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q7nx8"]
+atlas = ExtResource("3_pxn3u")
+region = Rect2(960, 0, 192, 192)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_lwkid"]
 atlas = ExtResource("3_pxn3u")
@@ -181,6 +197,23 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_pxn3u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5d7cn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mef68")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q7nx8")
+}],
+"loop": false,
+"name": &"hit",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_lwkid")
 }, {
 "duration": 1.0,
@@ -236,4 +269,4 @@ animations = [{
 
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = SubResource("SpriteFrames_iw0yg")
-animation = &"idle"
+animation = &"hit"

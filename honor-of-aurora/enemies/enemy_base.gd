@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-enum State { PATROL, CHASE, ATTACK, DEATH }
+enum State { PATROL, CHASE, ATTACK, DEATH, HIT }
 var state: State = State.PATROL
 
 @onready var anim = $AnimatedSprite
@@ -10,7 +10,7 @@ var state: State = State.PATROL
 @export var speed: float = 100.0
 @export var health: int = 50
 @export var attack_damage: int = 5
-@export var attack_cooldown: float = 1.0
+@export var attack_cooldown: float = 5.0
 @export var detection_radius: float = 500.0
 @export var patrol_change_time: float = 2.0
 
@@ -19,6 +19,8 @@ var can_attack: bool = true
 var last_dir: Vector2 = Vector2.DOWN
 var patrol_dir: Vector2
 var patrol_timer: float = 0.0
+
+var attack_cooldown_timer: Timer
 
 func _ready():
 	add_to_group("enemy")
@@ -29,11 +31,16 @@ func _ready():
 	attack_area.connect("body_entered", _on_attack_area_entered)
 	anim.connect("animation_finished", _on_anim_finished)
 	
+
+	attack_cooldown_timer = Timer.new()
+	attack_cooldown_timer.one_shot = true
+	attack_cooldown_timer.timeout.connect(_on_attack_cooldown_timeout)
+	add_child(attack_cooldown_timer)
+	
 	randomize()
 	patrol_dir = Vector2.RIGHT.rotated(randf_range(0, TAU))
 
 func _physics_process(delta):
-	
 	match state:
 		State.PATROL:
 			velocity = patrol_dir * speed
@@ -43,13 +50,13 @@ func _physics_process(delta):
 				patrol_dir = Vector2.RIGHT.rotated(randf_range(0, TAU))
 			if is_on_wall():
 				patrol_dir = patrol_dir.rotated(randf_range(PI/4, PI/2))
+		
 		State.CHASE:
 			if player:
 				if attack_area.overlaps_body(player):
 					velocity = Vector2.ZERO
 					if can_attack:
 						start_attack()
-				
 				else:
 					var direction = (player.global_position - global_position).normalized()
 					last_dir = direction
@@ -57,23 +64,24 @@ func _physics_process(delta):
 					update_animation()
 			else:
 				state = State.PATROL
-				
+		
 		State.ATTACK:
 			velocity = Vector2.ZERO
+		
+		State.HIT:
+			velocity = Vector2.ZERO
+		
 		State.DEATH:
 			velocity = Vector2.ZERO
 	
 	move_and_slide()
 	update_animation()
 
-
 func _on_detection_area_entered(body):
 	if body.is_in_group("player"):
 		player = body
-		if state != State.ATTACK and state != State.DEATH:
-
+		if state != State.ATTACK and state != State.DEATH and state != State.HIT:
 			state = State.CHASE
-
 
 func _on_detection_area_exited(body):
 	if body == player:
@@ -82,7 +90,7 @@ func _on_detection_area_exited(body):
 			state = State.PATROL
 
 func _on_attack_area_entered(body):
-	if body == player and can_attack and state != State.ATTACK and state != State.DEATH:
+	if body == player and can_attack and state != State.ATTACK and state != State.DEATH and state != State.HIT:
 		start_attack()
 
 func start_attack():
@@ -94,6 +102,7 @@ func start_attack():
 		last_dir = dir
 		anim.flip_h = (dir.x < 0)
 	anim.play("attack")
+	attack_cooldown_timer.start(attack_cooldown)
 
 func apply_damage():
 	if player and attack_area.overlaps_body(player):
@@ -106,8 +115,24 @@ func _on_anim_finished():
 			state = State.CHASE
 		else:
 			state = State.PATROL
-		await get_tree().create_timer(attack_cooldown).timeout
-		can_attack = true
+
+	
+	elif anim.animation == "hit":
+		if player:
+			if attack_area.overlaps_body(player):
+				if can_attack:
+					start_attack()
+				else:
+					state = State.CHASE
+			elif detection_area.overlaps_body(player):
+				state = State.CHASE
+			else:
+				state = State.PATROL
+		else:
+			state = State.PATROL
+
+func _on_attack_cooldown_timeout():
+	can_attack = true
 
 func update_animation():
 	match state:
@@ -120,6 +145,8 @@ func update_animation():
 				anim.play("idle")
 		State.ATTACK:
 			pass
+		State.HIT:
+			pass
 		State.DEATH:
 			anim.play("dead")
 
@@ -131,3 +158,16 @@ func take_damage(amount):
 		$CollisionShape2D.set_deferred("disabled", true)
 		await anim.animation_finished
 		queue_free()
+	else:
+		var has_hit_anim = anim.sprite_frames.has_animation("hit")
+		
+		if state == State.ATTACK:
+			pass
+		elif state == State.HIT and has_hit_anim:
+			anim.play("hit")
+		elif state != State.DEATH:
+			if has_hit_anim:
+				state = State.HIT
+				anim.play("hit")
+			else:
+				pass
