@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://dhqxx64bsnlm5"]
+
+[ext_resource type="PackedScene" uid="uid://bdyaaaea7vcs4" path="res://enemies/bear/bear.tscn" id="1_8nqel"]
+
+[node name="EnemyBase" instance=ExtResource("1_8nqel")]
+
+[node name="AnimatedSprite" parent="." index="0"]
+animation = &"attack"
+frame = 0
+frame_progress = 0.0

@@ -1,8 +1,9 @@
-[gd_scene load_steps=26 format=3 uid="uid://bwyy7fy1fhke0"]
+[gd_scene load_steps=37 format=3 uid="uid://bwyy7fy1fhke0"]
 
 [ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_tcwee"]
 [ext_resource type="Texture2D" uid="uid://cut5jg5ixci16" path="res://Asets/Enemy/Enemy Pack/Paddle Fish/PaddleFish_Attack.png" id="2_s2gau"]
 [ext_resource type="Texture2D" uid="uid://dkel8to43asw7" path="res://Asets/Enemy/Enemy Pack/Paddle Fish/PaddleFish_Idle.png" id="3_bbjkl"]
+[ext_resource type="Texture2D" uid="uid://cs6irs3maxpip" path="res://Asets/Unit_pack/Particle FX/Dust_02.png" id="3_s2gau"]
 [ext_resource type="Texture2D" uid="uid://cd660gna7iewj" path="res://Asets/Enemy/Enemy Pack/Paddle Fish/PaddleFish_Run.png" id="4_elcoa"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_d82ex"]
@@ -28,6 +29,46 @@ region = Rect2(768, 0, 192, 192)
 [sub_resource type="AtlasTexture" id="AtlasTexture_t6p5g"]
 atlas = ExtResource("2_s2gau")
 region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bbjkl"]
+atlas = ExtResource("3_s2gau")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_elcoa"]
+atlas = ExtResource("3_s2gau")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_udakc"]
+atlas = ExtResource("3_s2gau")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fow6l"]
+atlas = ExtResource("3_s2gau")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vhldg"]
+atlas = ExtResource("3_s2gau")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k42nb"]
+atlas = ExtResource("3_s2gau")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_iissl"]
+atlas = ExtResource("3_s2gau")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mvjup"]
+atlas = ExtResource("3_s2gau")
+region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bblam"]
+atlas = ExtResource("3_s2gau")
+region = Rect2(512, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ryism"]
+atlas = ExtResource("3_s2gau")
+region = Rect2(576, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_613rs"]
 atlas = ExtResource("3_bbjkl")
@@ -112,6 +153,41 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_bbjkl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_elcoa")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_udakc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fow6l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vhldg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k42nb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_iissl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mvjup")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bblam")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ryism")
+}],
+"loop": false,
+"name": &"dead",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_613rs")
 }, {
 "duration": 1.0,
@@ -167,4 +243,4 @@ animations = [{
 
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = SubResource("SpriteFrames_udakc")
-animation = &"run"
+animation = &"dead"

@@ -1,6 +1,7 @@
-[gd_resource type="SpriteFrames" load_steps=33 format=3 uid="uid://ctasu1p11e5fu"]
+[gd_resource type="SpriteFrames" load_steps=44 format=3 uid="uid://ctasu1p11e5fu"]
 
 [ext_resource type="Texture2D" uid="uid://66q6vbby0w6f" path="res://Asets/Environment/Factions/Goblins/Troops/Torch/Yellow/Torch_Yellow.png" id="1_hvwba"]
+[ext_resource type="Texture2D" uid="uid://cs6irs3maxpip" path="res://Asets/Unit_pack/Particle FX/Dust_02.png" id="2_ffpdr"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ffpdr"]
 atlas = ExtResource("1_hvwba")
@@ -73,6 +74,46 @@ region = Rect2(768, 768, 192, 192)
 [sub_resource type="AtlasTexture" id="AtlasTexture_0fnhi"]
 atlas = ExtResource("1_hvwba")
 region = Rect2(960, 768, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c44t7"]
+atlas = ExtResource("2_ffpdr")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d5a0u"]
+atlas = ExtResource("2_ffpdr")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mmcup"]
+atlas = ExtResource("2_ffpdr")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rhnfo"]
+atlas = ExtResource("2_ffpdr")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ojv62"]
+atlas = ExtResource("2_ffpdr")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j80bq"]
+atlas = ExtResource("2_ffpdr")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f72gj"]
+atlas = ExtResource("2_ffpdr")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jws3y"]
+atlas = ExtResource("2_ffpdr")
+region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eunm2"]
+atlas = ExtResource("2_ffpdr")
+region = Rect2(512, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e7v7l"]
+atlas = ExtResource("2_ffpdr")
+region = Rect2(576, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_nf5js"]
 atlas = ExtResource("1_hvwba")
@@ -196,6 +237,41 @@ animations = [{
 "loop": true,
 "name": &"attack_up",
 "speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c44t7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d5a0u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mmcup")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rhnfo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ojv62")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j80bq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f72gj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jws3y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eunm2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e7v7l")
+}],
+"loop": false,
+"name": &"dead",
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,

@@ -1,6 +1,7 @@
-[gd_resource type="SpriteFrames" load_steps=33 format=3 uid="uid://ddo3mfwmngmog"]
+[gd_resource type="SpriteFrames" load_steps=44 format=3 uid="uid://ddo3mfwmngmog"]
 
 [ext_resource type="Texture2D" uid="uid://dl87ornuo5tpb" path="res://Asets/Environment/Factions/Goblins/Troops/Torch/Red/Torch_Red.png" id="1_670x5"]
+[ext_resource type="Texture2D" uid="uid://cs6irs3maxpip" path="res://Asets/Unit_pack/Particle FX/Dust_02.png" id="2_kns2t"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_kns2t"]
 atlas = ExtResource("1_670x5")
@@ -73,6 +74,46 @@ region = Rect2(768, 768, 192, 192)
 [sub_resource type="AtlasTexture" id="AtlasTexture_b65f8"]
 atlas = ExtResource("1_670x5")
 region = Rect2(960, 768, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2c3md"]
+atlas = ExtResource("2_kns2t")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0lrqh"]
+atlas = ExtResource("2_kns2t")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_amipg"]
+atlas = ExtResource("2_kns2t")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_27hwv"]
+atlas = ExtResource("2_kns2t")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xpprx"]
+atlas = ExtResource("2_kns2t")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eouxr"]
+atlas = ExtResource("2_kns2t")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y6eji"]
+atlas = ExtResource("2_kns2t")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rugst"]
+atlas = ExtResource("2_kns2t")
+region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d8nny"]
+atlas = ExtResource("2_kns2t")
+region = Rect2(512, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_minir"]
+atlas = ExtResource("2_kns2t")
+region = Rect2(576, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_y1yfs"]
 atlas = ExtResource("1_670x5")
@@ -196,6 +237,41 @@ animations = [{
 "loop": true,
 "name": &"attack_up",
 "speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2c3md")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0lrqh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_amipg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_27hwv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xpprx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eouxr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y6eji")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rugst")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d8nny")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_minir")
+}],
+"loop": false,
+"name": &"dead",
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,

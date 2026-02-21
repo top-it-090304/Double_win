@@ -1,6 +1,7 @@
-[gd_resource type="SpriteFrames" load_steps=34 format=3 uid="uid://bi1lsmmblu6jm"]
+[gd_resource type="SpriteFrames" load_steps=45 format=3 uid="uid://bi1lsmmblu6jm"]
 
 [ext_resource type="Texture2D" uid="uid://by0hcmd0vgxdb" path="res://Asets/Environment/Factions/Goblins/Troops/Torch/Blue/Torch_Blue.png" id="1_maxwm"]
+[ext_resource type="Texture2D" uid="uid://cs6irs3maxpip" path="res://Asets/Unit_pack/Particle FX/Dust_02.png" id="2_uhvqs"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_uhvqs"]
 atlas = ExtResource("1_maxwm")
@@ -77,6 +78,46 @@ region = Rect2(768, 768, 192, 192)
 [sub_resource type="AtlasTexture" id="AtlasTexture_01mwd"]
 atlas = ExtResource("1_maxwm")
 region = Rect2(960, 768, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1wbj7"]
+atlas = ExtResource("2_uhvqs")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4fdfj"]
+atlas = ExtResource("2_uhvqs")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6cmhw"]
+atlas = ExtResource("2_uhvqs")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0wphs"]
+atlas = ExtResource("2_uhvqs")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_feyr7"]
+atlas = ExtResource("2_uhvqs")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mnsu5"]
+atlas = ExtResource("2_uhvqs")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0bvm8"]
+atlas = ExtResource("2_uhvqs")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6khh4"]
+atlas = ExtResource("2_uhvqs")
+region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7t50k"]
+atlas = ExtResource("2_uhvqs")
+region = Rect2(512, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m7wbj"]
+atlas = ExtResource("2_uhvqs")
+region = Rect2(576, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_rr448"]
 atlas = ExtResource("1_maxwm")
@@ -203,6 +244,41 @@ animations = [{
 "loop": true,
 "name": &"attack_up",
 "speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1wbj7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4fdfj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6cmhw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0wphs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_feyr7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mnsu5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0bvm8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6khh4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7t50k")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_m7wbj")
+}],
+"loop": false,
+"name": &"dead",
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,

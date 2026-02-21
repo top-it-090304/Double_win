@@ -21,6 +21,7 @@ var patrol_dir: Vector2
 var patrol_timer: float = 0.0
 
 func _ready():
+	add_to_group("enemy")
 	$DetectionArea/DetectionShape.shape.radius = detection_radius
 	
 	detection_area.connect("body_entered", _on_detection_area_entered)
@@ -120,13 +121,13 @@ func update_animation():
 		State.ATTACK:
 			pass
 		State.DEATH:
-			anim.play("death")
+			anim.play("dead")
 
 func take_damage(amount):
 	health -= amount
 	if health <= 0 and state != State.DEATH:
 		state = State.DEATH
-		anim.play("death")
+		anim.play("dead")
 		$CollisionShape2D.set_deferred("disabled", true)
 		await anim.animation_finished
 		queue_free()
