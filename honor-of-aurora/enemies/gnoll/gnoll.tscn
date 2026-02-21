@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://c7gatci350lcy"]
+
+[ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_f42h8"]
+[ext_resource type="SpriteFrames" uid="uid://bui8xoif372al" path="res://enemies/gnoll/gnoll_frames.tres" id="2_bw7hb"]
+
+[node name="Gnoll" instance=ExtResource("1_f42h8")]
+
+[node name="AnimatedSprite" parent="." index="0"]
+sprite_frames = ExtResource("2_bw7hb")

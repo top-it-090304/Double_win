@@ -1,0 +1,178 @@
+[gd_scene load_steps=27 format=3 uid="uid://pkwk7p3dmtwo"]
+
+[ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_fm6uc"]
+[ext_resource type="Texture2D" uid="uid://btmefnb0bo7ee" path="res://Asets/Enemy/Enemy Pack/Gnome/Gnome_Attack.png" id="2_iw6gb"]
+[ext_resource type="Texture2D" uid="uid://mwm7idcnlulf" path="res://Asets/Enemy/Enemy Pack/Gnome/Gnome_Idle.png" id="3_pxn3u"]
+[ext_resource type="Texture2D" uid="uid://cits4a3v1tebo" path="res://Asets/Enemy/Enemy Pack/Gnome/Gnome_Run.png" id="4_5d7cn"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tvgw0"]
+atlas = ExtResource("2_iw6gb")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2aabh"]
+atlas = ExtResource("2_iw6gb")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_os6b0"]
+atlas = ExtResource("2_iw6gb")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ckmxy"]
+atlas = ExtResource("2_iw6gb")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g5ndi"]
+atlas = ExtResource("2_iw6gb")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jkgjf"]
+atlas = ExtResource("2_iw6gb")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dnv1l"]
+atlas = ExtResource("2_iw6gb")
+region = Rect2(1152, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lwkid"]
+atlas = ExtResource("3_pxn3u")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x0eg8"]
+atlas = ExtResource("3_pxn3u")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q276k"]
+atlas = ExtResource("3_pxn3u")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_thlj3"]
+atlas = ExtResource("3_pxn3u")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lepgu"]
+atlas = ExtResource("3_pxn3u")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2o5ww"]
+atlas = ExtResource("3_pxn3u")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_py5ry"]
+atlas = ExtResource("3_pxn3u")
+region = Rect2(1152, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q7yq0"]
+atlas = ExtResource("3_pxn3u")
+region = Rect2(1344, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j783w"]
+atlas = ExtResource("4_5d7cn")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2saaf"]
+atlas = ExtResource("4_5d7cn")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q7bgo"]
+atlas = ExtResource("4_5d7cn")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_04yql"]
+atlas = ExtResource("4_5d7cn")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yjovw"]
+atlas = ExtResource("4_5d7cn")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4hvgf"]
+atlas = ExtResource("4_5d7cn")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_iw0yg"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tvgw0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2aabh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_os6b0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ckmxy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g5ndi")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jkgjf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dnv1l")
+}],
+"loop": false,
+"name": &"attack",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lwkid")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x0eg8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q276k")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_thlj3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lepgu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2o5ww")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_py5ry")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q7yq0")
+}],
+"loop": false,
+"name": &"idle",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j783w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2saaf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q7bgo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_04yql")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yjovw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4hvgf")
+}],
+"loop": false,
+"name": &"run",
+"speed": 10.0
+}]
+
+[node name="Gnome" instance=ExtResource("1_fm6uc")]
+
+[node name="AnimatedSprite" parent="." index="0"]
+sprite_frames = SubResource("SpriteFrames_iw0yg")
+frame = 6
+frame_progress = 1.0
