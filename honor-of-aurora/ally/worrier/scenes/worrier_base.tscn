@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://dr1fit5f1q2ii"]
+[gd_scene load_steps=6 format=3 uid="uid://dr1fit5f1q2ii"]
 
 [ext_resource type="Script" uid="uid://d1ryb1r4otkas" path="res://ally/worrier/scripts/worrier_base.gd" id="1_oqrjc"]
 [ext_resource type="SpriteFrames" uid="uid://d5rjcohv0wqu" path="res://ally/worrier/resources/black_worrier_frame.tres" id="2_oqrjc"]
+[ext_resource type="PackedScene" uid="uid://cnpf1px7wa4c4" path="res://ui/hp_bar/hp_bar.tscn" id="3_j1p54"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_oqrjc"]
 radius = 22.0
@@ -29,3 +30,9 @@ frame_progress = 1.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea"]
 shape = SubResource("CircleShape2D_ycnn0")
+
+[node name="Background" parent="." instance=ExtResource("3_j1p54")]
+offset_left = -108.0
+offset_top = -87.0
+offset_right = 104.0
+offset_bottom = -47.0

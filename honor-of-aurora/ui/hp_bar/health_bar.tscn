@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://dsfthu7psukj1"]
+
+[ext_resource type="PackedScene" uid="uid://cnpf1px7wa4c4" path="res://ui/hp_bar/hp_bar.tscn" id="1_kkfdg"]
+
+[node name="HealthBar" type="Node2D"]
+
+[node name="Background" parent="." instance=ExtResource("1_kkfdg")]

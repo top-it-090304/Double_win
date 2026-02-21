@@ -10,6 +10,8 @@ var last_dir: Vector2 = Vector2.DOWN
 
 @onready var attack_area = $AttackArea
 @onready var anim = $AnimatedSprite2D
+@onready var health_bar = $Background/TextureProgressBar
+
 var health: int
 
 var attack_index = 0
@@ -19,6 +21,9 @@ func _ready():
 	
 	health = max_health
 	anim.connect("animation_finished", _on_anim_finished)
+	
+	health_bar.max_value = max_health
+	health_bar.value = health
 
 func _physics_process(delta):
 	var dir = Vector2.ZERO
@@ -108,6 +113,7 @@ func update_anim():
 
 func take_damage(amount):
 	health -= amount
+	health_bar.value = health
 	if health <= 0 and state != State.DEATH:
 		die()
 
