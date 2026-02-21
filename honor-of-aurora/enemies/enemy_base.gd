@@ -10,7 +10,7 @@ var state: State = State.PATROL
 @export var speed: float = 100.0
 @export var health: int = 50
 @export var attack_damage: int = 5
-@export var attack_cooldown: float = 5.0
+@export var attack_cooldown: float = 2.0
 @export var detection_radius: float = 500.0
 @export var patrol_change_time: float = 2.0
 
