@@ -66,15 +66,6 @@ func _physics_process(delta):
 	update_animation()
 
 
-
-
-
-
-
-
-
-
-
 func _on_detection_area_entered(body):
 	if body.is_in_group("player"):
 		player = body
@@ -90,9 +81,7 @@ func _on_detection_area_exited(body):
 			state = State.PATROL
 
 func _on_attack_area_entered(body):
-	print("AttackArea entered by: ", body.name, " (player? ", body == player, ") can_attack=", can_attack, " state=", state)
 	if body == player and can_attack and state != State.ATTACK and state != State.DEATH:
-		print("--> Starting attack!")
 		start_attack()
 
 func start_attack():

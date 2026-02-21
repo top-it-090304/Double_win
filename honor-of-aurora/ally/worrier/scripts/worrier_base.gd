@@ -41,7 +41,6 @@ func _physics_process(delta):
 	
 	if Input.is_action_just_pressed("attack") and state not in [State.ATTACK, State.SHIELD]:
 		change_state(State.ATTACK)
-	# Разрешаем вход в щит из любого состояния, кроме щита (в том числе из атаки)
 	if Input.is_action_just_pressed("shield") and state != State.SHIELD:
 		change_state(State.SHIELD)
 	if state == State.SHIELD and Input.is_action_just_released("shield"):
@@ -74,7 +73,6 @@ func change_state(new_state: State):
 			anim.play(anim_name)
 		
 		State.SHIELD:
-			# При входе в щит останавливаем движение и запускаем анимацию
 			velocity = Vector2.ZERO
 			if anim.sprite_frames.has_animation("shield"):
 				anim.play("shield")
