@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://boc0wtrvbyllx"]
+
+[ext_resource type="PackedScene" uid="uid://cigrmjctdfdkm" path="res://enemies/goblin/torch/torch_base.tscn" id="1_hp31u"]
+[ext_resource type="SpriteFrames" uid="uid://dlcen43stlyo2" path="res://enemies/goblin/torch/resources/purple_torch_frames.tres" id="2_oxtx5"]
+
+[node name="PurpleTorch" instance=ExtResource("1_hp31u")]
+
+[node name="AnimatedSprite" parent="." index="0"]
+sprite_frames = ExtResource("2_oxtx5")
+frame = 0
+frame_progress = 0.0

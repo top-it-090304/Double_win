@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://dl3gaaghy83eq"]
+
+[ext_resource type="PackedScene" uid="uid://cigrmjctdfdkm" path="res://enemies/goblin/torch/torch_base.tscn" id="1_bbrqt"]
+[ext_resource type="SpriteFrames" uid="uid://ctasu1p11e5fu" path="res://enemies/goblin/torch/resources/yellow_torch_frames.tres" id="2_xjhxq"]
+
+[node name="YellowTorch" instance=ExtResource("1_bbrqt")]
+
+[node name="AnimatedSprite" parent="." index="0"]
+sprite_frames = ExtResource("2_xjhxq")
+frame = 0
+frame_progress = 0.0
