@@ -1,9 +1,10 @@
-[gd_resource type="SpriteFrames" load_steps=71 format=3 uid="uid://d5hrymqoa8gu"]
+[gd_resource type="SpriteFrames" load_steps=82 format=3 uid="uid://d5hrymqoa8gu"]
 
 [ext_resource type="Texture2D" uid="uid://dni4j8rb1xn7w" path="res://Asets/Enemy/Enemy Pack/Troll/Troll_Attack.png" id="1_61cpq"]
 [ext_resource type="Texture2D" uid="uid://rw81g4ylufgs" path="res://Asets/Enemy/Enemy Pack/Troll/Troll_ClubPart1.png" id="2_7a7u3"]
 [ext_resource type="Texture2D" uid="uid://dawf006tyrpqg" path="res://Asets/Enemy/Enemy Pack/Troll/Troll_ClubPart2.png" id="3_c2t07"]
 [ext_resource type="Texture2D" uid="uid://b6pw4474qmucm" path="res://Asets/Enemy/Enemy Pack/Troll/Troll_Dead.png" id="4_pu5dj"]
+[ext_resource type="Texture2D" uid="uid://cs6irs3maxpip" path="res://Asets/Unit_pack/Particle FX/Dust_02.png" id="5_7a7u3"]
 [ext_resource type="Texture2D" uid="uid://cy6hpt4e3xr2c" path="res://Asets/Enemy/Enemy Pack/Troll/Troll_Idle.png" id="5_y76n1"]
 [ext_resource type="Texture2D" uid="uid://2gge6qfn8qkt" path="res://Asets/Enemy/Enemy Pack/Troll/Troll_Walk.png" id="6_tqjbc"]
 [ext_resource type="Texture2D" uid="uid://q2qaf6t4qywv" path="res://Asets/Enemy/Enemy Pack/Troll/Troll_Windup.png" id="7_n6psr"]
@@ -151,6 +152,46 @@ region = Rect2(3072, 0, 384, 384)
 [sub_resource type="AtlasTexture" id="AtlasTexture_lg4ok"]
 atlas = ExtResource("4_pu5dj")
 region = Rect2(3456, 0, 384, 384)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c2t07"]
+atlas = ExtResource("5_7a7u3")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pu5dj"]
+atlas = ExtResource("5_7a7u3")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y76n1"]
+atlas = ExtResource("5_7a7u3")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tqjbc"]
+atlas = ExtResource("5_7a7u3")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n6psr"]
+atlas = ExtResource("5_7a7u3")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_br27v"]
+atlas = ExtResource("5_7a7u3")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tyocm"]
+atlas = ExtResource("5_7a7u3")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u5fqg"]
+atlas = ExtResource("5_7a7u3")
+region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oklh8"]
+atlas = ExtResource("5_7a7u3")
+region = Rect2(512, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v6cqy"]
+atlas = ExtResource("5_7a7u3")
+region = Rect2(576, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_j37ng"]
 atlas = ExtResource("5_y76n1")
@@ -388,6 +429,41 @@ animations = [{
 }],
 "loop": false,
 "name": &"dead",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c2t07")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pu5dj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y76n1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tqjbc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n6psr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_br27v")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tyocm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u5fqg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oklh8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v6cqy")
+}],
+"loop": false,
+"name": &"dead_dust",
 "speed": 10.0
 }, {
 "frames": [{

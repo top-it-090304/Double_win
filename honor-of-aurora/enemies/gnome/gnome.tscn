@@ -1,7 +1,8 @@
-[gd_scene load_steps=27 format=3 uid="uid://pkwk7p3dmtwo"]
+[gd_scene load_steps=36 format=3 uid="uid://pkwk7p3dmtwo"]
 
 [ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_fm6uc"]
 [ext_resource type="Texture2D" uid="uid://btmefnb0bo7ee" path="res://Asets/Enemy/Enemy Pack/Gnome/Gnome_Attack.png" id="2_iw6gb"]
+[ext_resource type="Texture2D" uid="uid://lkx2j30lb41r" path="res://Asets/Unit_pack/Particle FX/Dust_01.png" id="3_5d7cn"]
 [ext_resource type="Texture2D" uid="uid://mwm7idcnlulf" path="res://Asets/Enemy/Enemy Pack/Gnome/Gnome_Idle.png" id="3_pxn3u"]
 [ext_resource type="Texture2D" uid="uid://cits4a3v1tebo" path="res://Asets/Enemy/Enemy Pack/Gnome/Gnome_Run.png" id="4_5d7cn"]
 
@@ -32,6 +33,38 @@ region = Rect2(960, 0, 192, 192)
 [sub_resource type="AtlasTexture" id="AtlasTexture_dnv1l"]
 atlas = ExtResource("2_iw6gb")
 region = Rect2(1152, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_iw0yg"]
+atlas = ExtResource("3_5d7cn")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6lqc4"]
+atlas = ExtResource("3_5d7cn")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gagi3"]
+atlas = ExtResource("3_5d7cn")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_do2tg"]
+atlas = ExtResource("3_5d7cn")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d5lpw"]
+atlas = ExtResource("3_5d7cn")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_60irr"]
+atlas = ExtResource("3_5d7cn")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hrtjm"]
+atlas = ExtResource("3_5d7cn")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bhut3"]
+atlas = ExtResource("3_5d7cn")
+region = Rect2(448, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_lwkid"]
 atlas = ExtResource("3_pxn3u")
@@ -119,6 +152,35 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_iw0yg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6lqc4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gagi3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_do2tg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d5lpw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_60irr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hrtjm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bhut3")
+}],
+"loop": false,
+"name": &"dead",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_lwkid")
 }, {
 "duration": 1.0,
@@ -174,5 +236,4 @@ animations = [{
 
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = SubResource("SpriteFrames_iw0yg")
-frame = 6
-frame_progress = 1.0
+animation = &"dead"

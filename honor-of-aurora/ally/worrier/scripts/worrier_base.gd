@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-enum State { IDLE, RUN, ATTACK, SHIELD }
+enum State { IDLE, RUN, ATTACK, SHIELD, DEATH }
 var state: State = State.IDLE
 var last_dir: Vector2 = Vector2.DOWN
 
@@ -8,6 +8,7 @@ var last_dir: Vector2 = Vector2.DOWN
 @export var max_health: int = 100
 @export var attack_damage: int = 10
 
+@onready var attack_area = $AttackArea
 @onready var anim = $AnimatedSprite2D
 var health: int
 
@@ -21,6 +22,11 @@ func _ready():
 
 func _physics_process(delta):
 	var dir = Vector2.ZERO
+	
+	if state == State.DEATH:
+		move_and_slide()
+		return
+	
 	if state not in [State.ATTACK, State.SHIELD]:
 		dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	
@@ -83,6 +89,7 @@ func change_state(new_state: State):
 
 func _on_anim_finished():
 	if state == State.ATTACK:
+		apply_damage()
 		back_to_movement()
 
 func back_to_movement():
@@ -96,11 +103,22 @@ func update_anim():
 			anim.play("run")
 			if velocity.x != 0:
 				anim.flip_h = velocity.x < 0
+		State.DEATH:
+			anim.play("dead")
 
 func take_damage(amount):
 	health -= amount
-	if health <= 0:
+	if health <= 0 and state != State.DEATH:
 		die()
 
 func die():
+	state = State.DEATH
+	velocity = Vector2.ZERO
+	anim.play("dead")
+	await anim.animation_finished
 	queue_free()
+	
+func apply_damage():
+	for body in attack_area.get_overlapping_bodies():
+		if body.is_in_group("enemy") and body.has_method("take_damage"):
+			body.take_damage(attack_damage)

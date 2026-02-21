@@ -1,7 +1,8 @@
-[gd_scene load_steps=27 format=3 uid="uid://ogkghrj413uo"]
+[gd_scene load_steps=38 format=3 uid="uid://ogkghrj413uo"]
 
 [ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_1h1yb"]
 [ext_resource type="Texture2D" uid="uid://choycfe553e81" path="res://Asets/Enemy/Enemy Pack/Lancer/Lancer_Attack.png" id="2_qtypf"]
+[ext_resource type="Texture2D" uid="uid://cs6irs3maxpip" path="res://Asets/Unit_pack/Particle FX/Dust_02.png" id="3_6opde"]
 [ext_resource type="Texture2D" uid="uid://1nvd4u4llip" path="res://Asets/Enemy/Enemy Pack/Lancer/Lancer_Idle.png" id="3_enbwk"]
 [ext_resource type="Texture2D" uid="uid://bdr7dkru33oml" path="res://Asets/Enemy/Enemy Pack/Lancer/Lancer_Run.png" id="4_6opde"]
 
@@ -36,6 +37,46 @@ region = Rect2(1536, 0, 256, 256)
 [sub_resource type="AtlasTexture" id="AtlasTexture_i7y4o"]
 atlas = ExtResource("2_qtypf")
 region = Rect2(1792, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ru2b1"]
+atlas = ExtResource("3_6opde")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vcfhs"]
+atlas = ExtResource("3_6opde")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tpn4t"]
+atlas = ExtResource("3_6opde")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_68db5"]
+atlas = ExtResource("3_6opde")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mtsgi"]
+atlas = ExtResource("3_6opde")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cms73"]
+atlas = ExtResource("3_6opde")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ap2tn"]
+atlas = ExtResource("3_6opde")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lvbjp"]
+atlas = ExtResource("3_6opde")
+region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5fnio"]
+atlas = ExtResource("3_6opde")
+region = Rect2(512, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u666c"]
+atlas = ExtResource("3_6opde")
+region = Rect2(576, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hfveu"]
 atlas = ExtResource("3_enbwk")
@@ -122,6 +163,41 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_ru2b1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vcfhs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tpn4t")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_68db5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mtsgi")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cms73")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ap2tn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lvbjp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5fnio")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u666c")
+}],
+"loop": false,
+"name": &"dead",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_hfveu")
 }, {
 "duration": 1.0,
@@ -174,4 +250,4 @@ animations = [{
 
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = SubResource("SpriteFrames_ru2b1")
-animation = &"run"
+animation = &"dead"
