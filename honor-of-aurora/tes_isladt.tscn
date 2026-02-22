@@ -1,18 +1,18 @@
-[gd_scene load_steps=22 format=4 uid="uid://sdvert0t7ktc"]
+[gd_scene load_steps=22 format=4 uid="uid://hsgkutvntasy"]
 
-[ext_resource type="Texture2D" uid="uid://bjbo1qshwajal" path="res://Asets/Unit_pack/Terrain/Tileset/Water Background color.png" id="1_0ivbs"]
-[ext_resource type="Texture2D" uid="uid://0s7ufvfbajbr" path="res://Asets/Unit_pack/Terrain/Tileset/Tilemap_color1.png" id="2_j3jim"]
-[ext_resource type="Texture2D" uid="uid://ba0wmq7navrol" path="res://Asets/Unit_pack/Terrain/Tileset/Tilemap_color2.png" id="3_geyi7"]
-[ext_resource type="Texture2D" uid="uid://cmba76bhitp4g" path="res://Asets/Unit_pack/Terrain/Tileset/Tilemap_color5.png" id="4_cn6jq"]
-[ext_resource type="Texture2D" uid="uid://ro551bebcsaj" path="res://Asets/Environment/Terrain/Bridge/Bridge_All.png" id="5_sei07"]
-[ext_resource type="Texture2D" uid="uid://cv4ictovpcr8b" path="res://Asets/Environment/Terrain/Ground/Tilemap_Elevation.png" id="6_lr6bt"]
-[ext_resource type="PackedScene" uid="uid://dfcrogcqk4tat" path="res://ally/worrier/scenes/variants/black_worrier.tscn" id="7_j3jim"]
-[ext_resource type="PackedScene" uid="uid://bdyaaaea7vcs4" path="res://enemies/bear/bear.tscn" id="8_lr6bt"]
-[ext_resource type="PackedScene" uid="uid://ogkghrj413uo" path="res://enemies/lancer/lancertscn.tscn" id="10_bnyni"]
-[ext_resource type="PackedScene" uid="uid://ce2n65nel32t" path="res://enemies/minotaur/minotaur.tscn" id="11_2ny11"]
+[ext_resource type="Texture2D" uid="uid://bjbo1qshwajal" path="res://Asets/Unit_pack/Terrain/Tileset/Water Background color.png" id="1_nokwf"]
+[ext_resource type="Texture2D" uid="uid://0s7ufvfbajbr" path="res://Asets/Unit_pack/Terrain/Tileset/Tilemap_color1.png" id="2_ca2iu"]
+[ext_resource type="Texture2D" uid="uid://ba0wmq7navrol" path="res://Asets/Unit_pack/Terrain/Tileset/Tilemap_color2.png" id="3_mbpjt"]
+[ext_resource type="Texture2D" uid="uid://cmba76bhitp4g" path="res://Asets/Unit_pack/Terrain/Tileset/Tilemap_color5.png" id="4_xb547"]
+[ext_resource type="Texture2D" uid="uid://ro551bebcsaj" path="res://Asets/Environment/Terrain/Bridge/Bridge_All.png" id="5_uch0d"]
+[ext_resource type="Texture2D" uid="uid://cv4ictovpcr8b" path="res://Asets/Environment/Terrain/Ground/Tilemap_Elevation.png" id="6_l45jy"]
+[ext_resource type="PackedScene" uid="uid://dfcrogcqk4tat" path="res://ally/worrier/scenes/variants/black_worrier.tscn" id="7_7aii5"]
+[ext_resource type="PackedScene" uid="uid://bdyaaaea7vcs4" path="res://enemies/bear/bear.tscn" id="8_txcke"]
+[ext_resource type="PackedScene" uid="uid://ogkghrj413uo" path="res://enemies/lancer/lancertscn.tscn" id="9_efsdx"]
+[ext_resource type="PackedScene" uid="uid://ce2n65nel32t" path="res://enemies/minotaur/minotaur.tscn" id="10_wgvbk"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_5axgr"]
-texture = ExtResource("1_0ivbs")
+texture = ExtResource("1_nokwf")
 texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
 
@@ -21,7 +21,7 @@ tile_size = Vector2i(64, 64)
 sources/0 = SubResource("TileSetAtlasSource_5axgr")
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_k4fs8"]
-texture = ExtResource("2_j3jim")
+texture = ExtResource("2_ca2iu")
 texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
 1:0/0 = 0
@@ -69,7 +69,7 @@ texture_region_size = Vector2i(64, 64)
 8:5/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_auton"]
-texture = ExtResource("3_geyi7")
+texture = ExtResource("3_mbpjt")
 texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
 1:0/0 = 0
@@ -117,7 +117,7 @@ texture_region_size = Vector2i(64, 64)
 8:5/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_f6qwp"]
-texture = ExtResource("4_cn6jq")
+texture = ExtResource("4_xb547")
 texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
 1:0/0 = 0
@@ -171,7 +171,7 @@ sources/1 = SubResource("TileSetAtlasSource_auton")
 sources/2 = SubResource("TileSetAtlasSource_f6qwp")
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_jfs0g"]
-texture = ExtResource("5_sei07")
+texture = ExtResource("5_uch0d")
 texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
 1:0/0 = 0
@@ -189,7 +189,7 @@ tile_size = Vector2i(64, 64)
 sources/0 = SubResource("TileSetAtlasSource_jfs0g")
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_gjyro"]
-texture = ExtResource("6_lr6bt")
+texture = ExtResource("6_l45jy")
 texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
 1:0/0 = 0
@@ -227,6 +227,7 @@ sources/0 = SubResource("TileSetAtlasSource_gjyro")
 [sub_resource type="TileSet" id="TileSet_2ny11"]
 
 [node name="test" type="Node2D"]
+position = Vector2(0, 37)
 
 [node name="water" type="TileMapLayer" parent="."]
 position = Vector2(0, 7)
@@ -249,16 +250,16 @@ tile_set = SubResource("TileSet_bnyni")
 [node name="TileMapLayer3" type="TileMapLayer" parent="."]
 tile_set = SubResource("TileSet_2ny11")
 
-[node name="player_blue" parent="." instance=ExtResource("7_j3jim")]
+[node name="player_blue" parent="." instance=ExtResource("7_7aii5")]
 position = Vector2(-872, 365)
 
 [node name="Camera2D" type="Camera2D" parent="player_blue"]
 
-[node name="EnemyBase" parent="." instance=ExtResource("8_lr6bt")]
+[node name="EnemyBase" parent="." instance=ExtResource("8_txcke")]
 position = Vector2(-487, 257)
 
-[node name="Lancer" parent="." instance=ExtResource("10_bnyni")]
+[node name="Lancer" parent="." instance=ExtResource("9_efsdx")]
 position = Vector2(-1160, 135)
 
-[node name="Minotaur" parent="." instance=ExtResource("11_2ny11")]
+[node name="Minotaur" parent="." instance=ExtResource("10_wgvbk")]
 position = Vector2(-827, -14)

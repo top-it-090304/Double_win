@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://tbds7hpbkav6"]
+
+[ext_resource type="PackedScene" uid="uid://bbnv14gutlkx8" path="res://world/islads/base/base_islad.tscn" id="1_ktx86"]
+[ext_resource type="PackedScene" uid="uid://0cr41nkoqax0" path="res://ally/worrier/scenes/variants/blue_worrier.tscn" id="2_i1dk7"]
+
+[node name="base_test" type="Node2D"]
+position = Vector2(-2, 0)
+
+[node name="base_islad" parent="." instance=ExtResource("1_ktx86")]
+
+[node name="player_blue" parent="." instance=ExtResource("2_i1dk7")]
+position = Vector2(602, 511)
+
+[node name="Camera2D" type="Camera2D" parent="player_blue"]
