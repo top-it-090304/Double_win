@@ -1,4 +1,4 @@
-[gd_scene load_steps=50 format=4 uid="uid://bbnv14gutlkx8"]
+[gd_scene load_steps=75 format=4 uid="uid://bbnv14gutlkx8"]
 
 [ext_resource type="TileSet" uid="uid://dmxvg38r6drxj" path="res://world/resources/other/water.tres" id="1_6qm2u"]
 [ext_resource type="TileSet" uid="uid://sxu80872jkga" path="res://world/resources/other/vawe.tres" id="2_6ml7b"]
@@ -25,6 +25,19 @@
 [ext_resource type="TileSet" uid="uid://bgsjugup8lbv5" path="res://world/resources/trees/tree_2.tres" id="23_sbvqx"]
 [ext_resource type="Texture2D" uid="uid://crdulicnpoxpi" path="res://Asets/Unit_pack/Terrain/Resources/Wood/Trees/Tree3.png" id="24_x0o4l"]
 [ext_resource type="TileSet" uid="uid://o8fwoj15i8mi" path="res://world/resources/trees/tree_4.tres" id="25_x0o4l"]
+[ext_resource type="Texture2D" uid="uid://b8c3lxd8mrgry" path="res://Asets/Unit_pack/Terrain/Resources/Wood/Trees/Stump 1.png" id="26_tkwd6"]
+[ext_resource type="TileSet" uid="uid://dte12udi36q3v" path="res://world/resources/buildings/Archery.tres" id="27_32dgv"]
+[ext_resource type="TileSet" uid="uid://mheq2bun7p0t" path="res://world/resources/buildings/Barracks.tres" id="28_kxf1w"]
+[ext_resource type="TileSet" uid="uid://ce2pddwy5r3r" path="res://world/resources/buildings/Castletres.tres" id="29_kxf1w"]
+[ext_resource type="TileSet" uid="uid://bjh6yhiq5in7e" path="res://world/resources/buildings/House1.tres" id="30_0da76"]
+[ext_resource type="Texture2D" uid="uid://nnu2dl6b6yhj" path="res://Asets/Unit_pack/Buildings/Blue Buildings/House2.png" id="31_jseoi"]
+[ext_resource type="TileSet" uid="uid://cqtdefckooc0q" path="res://world/resources/buildings/House3.tres" id="32_6ac8w"]
+[ext_resource type="TileSet" uid="uid://d0fe1f815jlp6" path="res://world/resources/buildings/Monastery.tres" id="33_v63n6"]
+[ext_resource type="Texture2D" uid="uid://h1ccmlc6ekvm" path="res://Asets/Environment/Factions/Knights/Buildings/House/House_Blue.png" id="33_v67q0"]
+[ext_resource type="Texture2D" uid="uid://b7pam13lssu6f" path="res://Asets/Unit_pack/Buildings/Blue Buildings/Tower.png" id="34_v53b0"]
+[ext_resource type="TileSet" uid="uid://d0bwv7m550lav" path="res://world/resources/buildings/mine.tres" id="35_v53b0"]
+[ext_resource type="Texture2D" uid="uid://bys8fgmavllwx" path="res://Asets/Environment/Deco/01.png" id="36_e7r6s"]
+[ext_resource type="Texture2D" uid="uid://c6mev5b0khuwf" path="res://Asets/Environment/Deco/03.png" id="37_v67q0"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_xmdmo"]
 texture = ExtResource("5_pvpb7")
@@ -1092,6 +1105,301 @@ texture_region_size = Vector2i(192, 192)
 [sub_resource type="TileSet" id="TileSet_68c1h"]
 sources/0 = SubResource("TileSetAtlasSource_tkwd6")
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_68c1h"]
+texture = ExtResource("26_tkwd6")
+texture_region_size = Vector2i(64, 64)
+5:12/0 = 0
+6:12/0 = 0
+4:13/0 = 0
+5:13/0 = 0
+6:13/0 = 0
+7:13/0 = 0
+4:14/0 = 0
+5:14/0 = 0
+6:14/0 = 0
+7:14/0 = 0
+1:3/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_32dgv"]
+sources/0 = SubResource("TileSetAtlasSource_68c1h")
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_5c13o"]
+texture = ExtResource("31_jseoi")
+texture_region_size = Vector2i(128, 192)
+4:1/0 = 0
+5:1/0 = 0
+6:1/0 = 0
+2:2/0 = 0
+3:2/0 = 0
+4:2/0 = 0
+5:2/0 = 0
+6:2/0 = 0
+1:3/0 = 0
+2:3/0 = 0
+3:3/0 = 0
+4:3/0 = 0
+5:3/0 = 0
+6:3/0 = 0
+0:4/0 = 0
+1:4/0 = 0
+2:4/0 = 0
+3:4/0 = 0
+4:4/0 = 0
+5:4/0 = 0
+6:4/0 = 0
+7:4/0 = 0
+0:5/0 = 0
+1:5/0 = 0
+2:5/0 = 0
+3:5/0 = 0
+4:5/0 = 0
+5:5/0 = 0
+6:5/0 = 0
+7:5/0 = 0
+0:6/0 = 0
+1:6/0 = 0
+2:6/0 = 0
+3:6/0 = 0
+4:6/0 = 0
+5:6/0 = 0
+6:6/0 = 0
+7:6/0 = 0
+0:7/0 = 0
+1:7/0 = 0
+2:7/0 = 0
+3:7/0 = 0
+4:7/0 = 0
+5:7/0 = 0
+6:7/0 = 0
+7:7/0 = 0
+0:8/0 = 0
+1:8/0 = 0
+2:8/0 = 0
+3:8/0 = 0
+4:8/0 = 0
+5:8/0 = 0
+6:8/0 = 0
+7:8/0 = 0
+0:9/0 = 0
+1:9/0 = 0
+2:9/0 = 0
+3:9/0 = 0
+4:9/0 = 0
+5:9/0 = 0
+6:9/0 = 0
+7:9/0 = 0
+1:10/0 = 0
+2:10/0 = 0
+3:10/0 = 0
+4:10/0 = 0
+5:10/0 = 0
+3:11/0 = 0
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_6ac8w"]
+sources/0 = SubResource("TileSetAtlasSource_5c13o")
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_6kks2"]
+texture = ExtResource("33_v67q0")
+texture_region_size = Vector2i(128, 192)
+3:1/0 = 0
+4:1/0 = 0
+2:2/0 = 0
+3:2/0 = 0
+4:2/0 = 0
+5:2/0 = 0
+1:3/0 = 0
+2:3/0 = 0
+3:3/0 = 0
+4:3/0 = 0
+5:3/0 = 0
+6:3/0 = 0
+0:4/0 = 0
+1:4/0 = 0
+2:4/0 = 0
+3:4/0 = 0
+4:4/0 = 0
+5:4/0 = 0
+6:4/0 = 0
+7:4/0 = 0
+0:5/0 = 0
+1:5/0 = 0
+2:5/0 = 0
+3:5/0 = 0
+4:5/0 = 0
+5:5/0 = 0
+6:5/0 = 0
+7:5/0 = 0
+0:6/0 = 0
+1:6/0 = 0
+2:6/0 = 0
+3:6/0 = 0
+4:6/0 = 0
+5:6/0 = 0
+6:6/0 = 0
+7:6/0 = 0
+0:7/0 = 0
+1:7/0 = 0
+2:7/0 = 0
+3:7/0 = 0
+4:7/0 = 0
+5:7/0 = 0
+6:7/0 = 0
+7:7/0 = 0
+0:8/0 = 0
+1:8/0 = 0
+2:8/0 = 0
+3:8/0 = 0
+4:8/0 = 0
+5:8/0 = 0
+6:8/0 = 0
+7:8/0 = 0
+0:9/0 = 0
+1:9/0 = 0
+2:9/0 = 0
+3:9/0 = 0
+4:9/0 = 0
+5:9/0 = 0
+6:9/0 = 0
+7:9/0 = 0
+0:10/0 = 0
+1:10/0 = 0
+2:10/0 = 0
+3:10/0 = 0
+4:10/0 = 0
+5:10/0 = 0
+6:10/0 = 0
+7:10/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_86sc8"]
+sources/0 = SubResource("TileSetAtlasSource_6kks2")
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_5ep6e"]
+texture = ExtResource("34_v53b0")
+texture_region_size = Vector2i(128, 256)
+3:2/0 = 0
+4:2/0 = 0
+1:3/0 = 0
+2:3/0 = 0
+3:3/0 = 0
+4:3/0 = 0
+5:3/0 = 0
+6:3/0 = 0
+0:4/0 = 0
+1:4/0 = 0
+2:4/0 = 0
+3:4/0 = 0
+4:4/0 = 0
+5:4/0 = 0
+6:4/0 = 0
+7:4/0 = 0
+0:5/0 = 0
+1:5/0 = 0
+2:5/0 = 0
+3:5/0 = 0
+4:5/0 = 0
+5:5/0 = 0
+6:5/0 = 0
+7:5/0 = 0
+0:6/0 = 0
+1:6/0 = 0
+2:6/0 = 0
+3:6/0 = 0
+4:6/0 = 0
+5:6/0 = 0
+6:6/0 = 0
+7:6/0 = 0
+0:7/0 = 0
+1:7/0 = 0
+2:7/0 = 0
+3:7/0 = 0
+4:7/0 = 0
+5:7/0 = 0
+6:7/0 = 0
+7:7/0 = 0
+0:8/0 = 0
+1:8/0 = 0
+2:8/0 = 0
+3:8/0 = 0
+4:8/0 = 0
+5:8/0 = 0
+6:8/0 = 0
+7:8/0 = 0
+1:9/0 = 0
+2:9/0 = 0
+3:9/0 = 0
+4:9/0 = 0
+5:9/0 = 0
+6:9/0 = 0
+1:10/0 = 0
+2:10/0 = 0
+3:10/0 = 0
+4:10/0 = 0
+5:10/0 = 0
+6:10/0 = 0
+0:11/0 = 0
+1:11/0 = 0
+2:11/0 = 0
+3:11/0 = 0
+4:11/0 = 0
+5:11/0 = 0
+6:11/0 = 0
+7:11/0 = 0
+0:12/0 = 0
+1:12/0 = 0
+2:12/0 = 0
+3:12/0 = 0
+4:12/0 = 0
+5:12/0 = 0
+6:12/0 = 0
+7:12/0 = 0
+1:13/0 = 0
+2:13/0 = 0
+3:13/0 = 0
+4:13/0 = 0
+5:13/0 = 0
+6:13/0 = 0
+2:14/0 = 0
+3:14/0 = 0
+4:14/0 = 0
+5:14/0 = 0
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_e7r6s"]
+sources/0 = SubResource("TileSetAtlasSource_5ep6e")
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_sglql"]
+texture = ExtResource("36_e7r6s")
+texture_region_size = Vector2i(64, 64)
+1:1/0 = 0
+2:1/0 = 0
+1:2/0 = 0
+2:2/0 = 0
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_6kks2"]
+sources/0 = SubResource("TileSetAtlasSource_sglql")
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_86sc8"]
+texture = ExtResource("37_v67q0")
+texture_region_size = Vector2i(64, 64)
+1:0/0 = 0
+2:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+2:1/0 = 0
+3:1/0 = 0
+0:2/0 = 0
+1:2/0 = 0
+2:2/0 = 0
+3:2/0 = 0
+1:3/0 = 0
+2:3/0 = 0
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_3r1nf"]
+sources/0 = SubResource("TileSetAtlasSource_86sc8")
+
 [node name="base_islad" type="TileMapLayer"]
 
 [node name="water" type="TileMapLayer" parent="."]
@@ -1194,17 +1502,79 @@ tile_set = SubResource("TileSet_x0o4l")
 [node name="trees" type="TileMapLayer" parent="."]
 
 [node name="tree_1" type="TileMapLayer" parent="trees"]
-tile_map_data = PackedByteArray("AACv/wQAAAAAAAAAAAC0/wsAAAAAAAAAAACs/woAAAAAAAAAAAA=")
+tile_map_data = PackedByteArray("AACv/wQAAAAAAAAAAAC0/wsAAAAAAAAAAACs/woAAAAAAAAAAAAKAPX/AAAAAAAAAAA=")
 tile_set = ExtResource("22_jol7y")
 
 [node name="tree_2" type="TileMapLayer" parent="trees"]
-tile_map_data = PackedByteArray("AADA/xEAAQAAAAAAAAD0/yQAAQAAAAAAAAA5AAoAAQAAAAAAAAAfAOb/AQAAAAAAAABHAMP/AQAAAAAAAACjAPH/AQAAAAAAAAASAAYAAQAAAAAAAAA=")
+tile_map_data = PackedByteArray("AADA/xEAAQAAAAAAAAD0/yQAAQAAAAAAAAA5AAoAAQAAAAAAAAAfAOb/AQAAAAAAAABHAMP/AQAAAAAAAACjAPH/AQAAAAAAAAASAAYAAQAAAAAAAADS/wMAAQAAAAAAAAA=")
 tile_set = ExtResource("23_sbvqx")
 
 [node name="tree_3" type="TileMapLayer" parent="trees"]
-tile_map_data = PackedByteArray("AADx/xgAAAAAAAAAAAARABEAAAAAAAAAAAB1ACgAAAAAAAAAAABJABoAAAAAAAAAAAA/AMP/AAAAAAAAAAAVAPn/AAAAAAAAAADh/+//AAAAAAAAAACMAB0AAAAAAAAAAAA=")
+tile_map_data = PackedByteArray("AADx/xgAAAAAAAAAAAARABEAAAAAAAAAAAB1ACgAAAAAAAAAAABJABoAAAAAAAAAAAA/AMP/AAAAAAAAAAAVAPn/AAAAAAAAAADh/+//AAAAAAAAAACMAB0AAAAAAAAAAAACAP7/AAAAAAAAAABAAAoAAAAAAAAAAABsAB8AAAAAAAAAAABYACgAAAAAAAAAAABkACQAAAAAAAAAAAA=")
 tile_set = SubResource("TileSet_68c1h")
 
 [node name="tree_4" type="TileMapLayer" parent="trees"]
 tile_map_data = PackedByteArray("AADc//P/AAAAAAAAAADa/+v/AAAAAAAAAADm/+L/AAAAAAAAAADr/9//AAAAAAAAAADl/+n/AAAAAAAAAADn/xsAAAAAAAAAAADq/ykAAAAAAAAAAAABAEIAAAAAAAAAAAAqADEAAAAAAAAAAAAkAC8AAAAAAAAAAAAeADEAAAAAAAAAAAA=")
 tile_set = ExtResource("25_x0o4l")
+
+[node name="tree_5" type="TileMapLayer" parent="trees"]
+tile_map_data = PackedByteArray("AADc//P/AAAAAAAAAADa/+v/AAAAAAAAAADm/+L/AAAAAAAAAADr/9//AAAAAAAAAADl/+n/AAAAAAAAAADn/xsAAAAAAAAAAADq/ykAAAAAAAAAAAABAEIAAAAAAAAAAAAqADEAAAAAAAAAAAAkAC8AAAAAAAAAAAAeADEAAAAAAAAAAACx/wwAAAABAAMAAACs/wYAAAABAAMAAACv/xEAAAABAAMAAADH/xkAAAABAAMAAAD5/x0AAAABAAMAAADq/+X/AAABAAMAAAAaAOn/AAABAAMAAABCAMj/AAABAAMAAACiAOz/AAABAAMAAABuACkAAAABAAMAAABnACwAAAABAAMAAABvACwAAAABAAMAAAAlADUAAAABAAMAAADu/yIAAAABAAMAAACz//r/AAABAAMAAAA=")
+tile_set = SubResource("TileSet_32dgv")
+
+[node name="builings" type="TileMapLayer" parent="."]
+
+[node name="Archery" type="TileMapLayer" parent="builings"]
+tile_map_data = PackedByteArray("AAAKAAEAAAAAAAAAAAA=")
+tile_set = ExtResource("27_32dgv")
+
+[node name="Barracks" type="TileMapLayer" parent="builings"]
+tile_map_data = PackedByteArray("AACXAOj/AAAAAAAAAAA=")
+tile_set = ExtResource("28_kxf1w")
+
+[node name="Castle" type="TileMapLayer" parent="builings"]
+tile_map_data = PackedByteArray("AABZAO//AAAAAAAAAAA=")
+tile_set = ExtResource("29_kxf1w")
+
+[node name="House1" type="TileMapLayer" parent="builings"]
+tile_map_data = PackedByteArray("AADB//z/AAAAAAAAAAA=")
+tile_set = ExtResource("30_0da76")
+
+[node name="House2" type="TileMapLayer" parent="builings"]
+tile_map_data = PackedByteArray("AACOAOT/AAAAAAAAAADI/w8AAAAAAAAAAAA=")
+tile_set = SubResource("TileSet_6ac8w")
+
+[node name="House3" type="TileMapLayer" parent="builings"]
+tile_map_data = PackedByteArray("AABKAMz/AAAAAAAAAADz/wEAAAAAAAAAAAAXAAQAAAAAAAAAAAA=")
+tile_set = ExtResource("32_6ac8w")
+
+[node name="House4" type="TileMapLayer" parent="builings"]
+tile_map_data = PackedByteArray("AABKAMz/AAAAAAAAAADz/wEAAAAAAAAAAAAXAAQAAAAAAAAAAAA=")
+tile_set = SubResource("TileSet_86sc8")
+
+[node name="Monastery" type="TileMapLayer" parent="builings"]
+tile_map_data = PackedByteArray("AABTAAcAAAAAAAAAAAA=")
+tile_set = ExtResource("33_v63n6")
+
+[node name="Tower" type="TileMapLayer" parent="builings"]
+tile_map_data = PackedByteArray("AAA3AMP/AAAAAAAAAACs//f/AAAAAAAAAADY/zwAAAAAAAAAAAA2ADAAAAAAAAAAAAB3ABcAAAAAAAAAAACnAPb/AAAAAAAAAADy/+D/AAAAAAAAAABrAOr/AAAAAAAAAAA=")
+tile_set = SubResource("TileSet_e7r6s")
+
+[node name="mine" type="TileMapLayer" parent="builings"]
+tile_map_data = PackedByteArray("AABlAAQAAAAAAAAAAAA=")
+tile_set = ExtResource("35_v53b0")
+
+[node name="decor" type="TileMapLayer" parent="."]
+
+[node name="TileMapLayer" type="TileMapLayer" parent="decor"]
+tile_map_data = PackedByteArray("AAAiAO3/AAAAAAAAAACQAOr/AAAAAAAAAACmAOv/AAAAAAAAAACqAPv/AAAAAAAAAACPABoAAAAAAAAAAAB6AB0AAAAAAAAAAABIAB8AAAAAAAAAAAD3/xcAAAAAAAAAAAC+/xkAAAAAAAAAAADN/yUAAAAAAAAAAADx/ywAAAAAAAAAAAA7AC4AAAAAAAAAAAB4ACMAAAAAAAAAAABOANP/AAAAAAAAAAAPANH/AAAAAAAAAAA=")
+tile_set = SubResource("TileSet_6kks2")
+
+[node name="TileMapLayer2" type="TileMapLayer" parent="decor"]
+tile_map_data = PackedByteArray("AAA2ABIAAAAAAAAAAABNABgAAAAAAAAAAABsAAkAAAAAAAAAAAChAPf/AAAAAAAAAACkAOH/AAAAAAAAAADI//v/AAAAAAAAAADF/xYAAAAAAAAAAAA=")
+tile_set = SubResource("TileSet_3r1nf")
+
+[node name="TileMapLayer3" type="TileMapLayer" parent="decor"]
+
+[node name="TileMapLayer4" type="TileMapLayer" parent="decor"]
+
+[node name="TileMapLayer5" type="TileMapLayer" parent="decor"]
