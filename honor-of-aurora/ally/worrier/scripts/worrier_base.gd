@@ -4,7 +4,7 @@ enum State { IDLE, RUN, ATTACK, SHIELD, DEATH }
 var state: State = State.IDLE
 var last_dir: Vector2 = Vector2.DOWN
 
-@export var speed: float = 200.0
+@export var speed: float = 250.0
 @export var max_health: int = 100
 @export var attack_damage: int = 10
 
