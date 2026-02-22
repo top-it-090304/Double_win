@@ -23,47 +23,62 @@
 
 [node name="player_blue" parent="." instance=ExtResource("2_i1dk7")]
 position = Vector2(602, 511)
+collision_mask = 3
 
 [node name="Camera2D" type="Camera2D" parent="player_blue"]
 
 [node name="Gnoll" parent="." instance=ExtResource("3_qj4ar")]
 position = Vector2(129, -47)
+collision_mask = 3
 
 [node name="Gnome" parent="." instance=ExtResource("4_6idwp")]
 position = Vector2(1347, -157)
+collision_mask = 3
 
 [node name="BlueTorch_tscn" parent="." instance=ExtResource("5_fyyyo")]
 position = Vector2(-61, 587)
+collision_mask = 3
 
 [node name="HarpoonFish" parent="." instance=ExtResource("6_tf5tt")]
 position = Vector2(-1085, 71)
+collision_mask = 3
 
 [node name="Lancer" parent="." instance=ExtResource("7_2wea6")]
 position = Vector2(1194, 601)
+collision_mask = 3
 
 [node name="Minotaur" parent="." instance=ExtResource("8_1q4ox")]
 position = Vector2(2355, -249)
+collision_mask = 3
 
 [node name="EnemyBase" parent="." instance=ExtResource("9_nj56h")]
 position = Vector2(1906, 360)
+collision_mask = 3
 
 [node name="Panda" parent="." instance=ExtResource("10_id626")]
 position = Vector2(240, -729)
+collision_mask = 3
 
 [node name="Shaman" parent="." instance=ExtResource("11_gqy68")]
 position = Vector2(-764, 1066)
+collision_mask = 3
 
 [node name="Skull" parent="." instance=ExtResource("12_tyolq")]
 position = Vector2(1771, -695)
+collision_mask = 3
 
 [node name="Snake" parent="." instance=ExtResource("13_6fpkp")]
 position = Vector2(-416, -365)
+collision_mask = 3
 
 [node name="Spider" parent="." instance=ExtResource("14_6whcb")]
 position = Vector2(648, 1066)
+collision_mask = 3
 
 [node name="Thief" parent="." instance=ExtResource("15_8lg4b")]
 position = Vector2(1809, -425)
+collision_mask = 3
 
 [node name="Troll" parent="." instance=ExtResource("16_ahw4j")]
 position = Vector2(616, -14)
+collision_mask = 3
