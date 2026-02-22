@@ -4,7 +4,6 @@
 [ext_resource type="PackedScene" uid="uid://0cr41nkoqax0" path="res://ally/worrier/scenes/variants/blue_worrier.tscn" id="2_i1dk7"]
 
 [node name="base_test" type="Node2D"]
-position = Vector2(-2, 0)
 
 [node name="base_islad" parent="." instance=ExtResource("1_ktx86")]
 
