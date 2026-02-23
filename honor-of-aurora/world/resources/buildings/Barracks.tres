@@ -6,6 +6,9 @@
 texture = ExtResource("1_pwy3s")
 texture_region_size = Vector2i(192, 256)
 0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-71.4059, 90.5981, -80.4375, 21.7322, -71.4059, -43.1823, 65.1967, -46.5691, 81.5665, 14.9586, 69.7125, 97.3717)
 
 [resource]
+physics_layer_0/collision_layer = 4
+physics_layer_0/collision_mask = 3
 sources/0 = SubResource("TileSetAtlasSource_0da76")

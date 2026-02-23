@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://cnpf1px7wa4c4"]
+[gd_scene load_steps=4 format=3 uid="uid://cnpf1px7wa4c4"]
 
 [ext_resource type="Texture2D" uid="uid://ci4dadquxdqi" path="res://Asets/Unit_pack/UI Elements/UI Elements/Bars/BigBar.png" id="1_xfh1i"]
 [ext_resource type="Texture2D" uid="uid://dxp6gd1jsy7gp" path="res://Asets/Unit_pack/UI Elements/UI Elements/Bars/BigBar_Fill.png" id="2_lsnvh"]
+[ext_resource type="Script" uid="uid://bc10ndcygabqh" path="res://ui/hp_bar/texture_progress_bar.gd" id="3_lsnvh"]
 
 [node name="Background" type="NinePatchRect"]
 offset_right = 212.0
@@ -22,6 +23,7 @@ grow_vertical = 2
 value = 100.0
 nine_patch_stretch = true
 texture_progress = ExtResource("2_lsnvh")
+script = ExtResource("3_lsnvh")
 
 [node name="Label" type="Label" parent="."]
 layout_mode = 0

@@ -6,6 +6,9 @@
 texture = ExtResource("1_2g16w")
 texture_region_size = Vector2i(320, 256)
 0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-131.5, 69, -138.5, 5, -149.5, -30, -127.5, -64, -82.5, -69, -44.5, -58, 2.5, -51, 42.5, -54, 76.5, -69, 109.5, -67, 141.5, -50, 143.5, -28, 134.5, -1, 136.5, 44, 134.5, 84, 110.5, 93, 69.5, 93, 40.5, 97, 21.5, 108, 2.5, 114, -42.5, 110, -68.5, 93, -104.5, 91, -117.5, 91)
 
 [resource]
+physics_layer_0/collision_layer = 4
+physics_layer_0/collision_mask = 3
 sources/0 = SubResource("TileSetAtlasSource_jseoi")
