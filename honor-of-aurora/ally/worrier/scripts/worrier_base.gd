@@ -12,6 +12,7 @@ var health_bar: TextureProgressBar
 @onready var attack_area = $AttackArea
 @onready var anim = $AnimatedSprite2D
 
+signal health_changed(current_health)
 
 var health: int
 
@@ -128,7 +129,7 @@ func take_damage(amount):
 	if state == State.SHIELD:
 		final_damage = int(amount * 0.2)
 	health -= final_damage
-	health_bar.value = health
+	health_changed.emit(health)
 	if health <= 0 and state != State.DEATH:
 		die()
 	show_damage_number(final_damage)
