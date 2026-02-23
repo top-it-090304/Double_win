@@ -114,11 +114,12 @@ func update_anim():
 func take_damage(amount):
 	var final_damage = amount
 	if state == State.SHIELD:
-		final_damage = int(amount * 0.2)  # урон снижается на 80%
+		final_damage = int(amount * 0.2)
 	health -= final_damage
 	health_bar.value = health
 	if health <= 0 and state != State.DEATH:
 		die()
+	show_damage_number(final_damage)
 
 func die():
 	state = State.DEATH
@@ -131,3 +132,9 @@ func apply_damage():
 	for body in attack_area.get_overlapping_bodies():
 		if body.is_in_group("enemy") and body.has_method("take_damage"):
 			body.take_damage(attack_damage)
+
+func show_damage_number(amount: int):
+	var damage_number = preload("res://ui/DamageNumber/damage_number.tscn").instantiate()
+	damage_number.get_node("Label").text = str(amount)
+	add_child(damage_number)
+	damage_number.position = Vector2(-26, -120)  
