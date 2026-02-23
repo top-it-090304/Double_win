@@ -31,7 +31,8 @@ frame_progress = 1.0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea"]
 shape = SubResource("CircleShape2D_ycnn0")
 
-[node name="Background" parent="." instance=ExtResource("3_j1p54")]
+[node name="hp_bar" parent="." instance=ExtResource("3_j1p54")]
+visible = false
 offset_left = -108.0
 offset_top = -87.0
 offset_right = 104.0
