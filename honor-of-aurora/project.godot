@@ -13,11 +13,15 @@ config_version=5
 config/name="Honor of Aurora"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 
+[autoload]
+
+GameManager="*res://autoload/GameManager.gd"
+
 [display]
 
 window/size/viewport_width=1080
 window/size/viewport_height=720
-window/stretch/mode="viewport"
+window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
 [input]

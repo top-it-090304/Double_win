@@ -150,29 +150,34 @@ func update_animation():
 		State.DEATH:
 			anim.play("dead")
 
-func take_damage(amount):
+func take_damage(amount: int):
 	health -= amount
+	
 	if health <= 0 and state != State.DEATH:
-		state = State.DEATH
-		anim.play("dead")
-		$CollisionShape2D.set_deferred("disabled", true)
-		await anim.animation_finished
-		queue_free()
-	else:
-		var has_hit_anim = anim.sprite_frames.has_animation("hit")
-		
-		if state == State.ATTACK:
-			pass
-		elif state == State.HIT and has_hit_anim:
+		die()
+		return
+	
+	var has_hit_anim = anim.sprite_frames.has_animation("hit")
+	
+	if state == State.ATTACK:
+		pass
+	elif state == State.HIT and has_hit_anim:
+		anim.play("hit")
+	elif state != State.DEATH:
+		if has_hit_anim:
+			state = State.HIT
 			anim.play("hit")
-		elif state != State.DEATH:
-			if has_hit_anim:
-				state = State.HIT
-				anim.play("hit")
-			else:
-				pass
+	
 	show_damage_number(amount)
 
+func die():
+	state = State.DEATH
+	anim.play("dead")
+	$CollisionShape2D.set_deferred("disabled", true)
+	await anim.animation_finished
+	GameManager.add_gold(50)
+	
+	queue_free()
 
 func show_damage_number(amount: int):
 	var damage_number = preload("res://ui/DamageNumber/damage_number.tscn").instantiate()
