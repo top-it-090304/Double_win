@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=3 uid="uid://c5sanv15hjusy"]
+
+[ext_resource type="Texture2D" uid="uid://5rocvcom335g" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_03.png" id="1_kuvxh"]
+[ext_resource type="Script" uid="uid://co6voll4eott0" path="res://ui/gold/gold.gd" id="1_xps0g"]
+
+[node name="Gold" type="NinePatchRect"]
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_xps0g")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("1_kuvxh")
+
+[node name="GoldLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 71.0
+offset_top = 6.0
+offset_right = 99.0
+offset_bottom = 29.0
+theme_override_font_sizes/font_size = 40
+text = "100"
+horizontal_alignment = 1
+vertical_alignment = 1

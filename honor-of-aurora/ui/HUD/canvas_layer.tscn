@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://blv7sgugmhgu4"]
+[gd_scene load_steps=3 format=3 uid="uid://blv7sgugmhgu4"]
 
 [ext_resource type="PackedScene" uid="uid://cnpf1px7wa4c4" path="res://ui/hp_bar/hp_bar.tscn" id="1_2ux7j"]
+[ext_resource type="PackedScene" uid="uid://c5sanv15hjusy" path="res://ui/gold/gold.tscn" id="2_5vgpw"]
 
 [node name="HUD" type="CanvasLayer"]
 layer = 5
@@ -29,3 +30,9 @@ theme_override_constants/margin_left = 30
 theme_override_constants/margin_top = 30
 theme_override_constants/margin_right = 30
 theme_override_constants/margin_bottom = 30
+
+[node name="Gold" parent="." instance=ExtResource("2_5vgpw")]
+offset_left = 265.0
+offset_top = 31.0
+offset_right = 305.0
+offset_bottom = 71.0
