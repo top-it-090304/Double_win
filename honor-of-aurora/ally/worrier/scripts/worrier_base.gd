@@ -3,6 +3,7 @@ extends CharacterBody2D
 enum State { IDLE, RUN, ATTACK, SHIELD, DEATH }
 var state: State = State.IDLE
 var last_dir: Vector2 = Vector2.DOWN
+var health_bar: TextureProgressBar
 
 @export var speed: float = 250.0
 @export var max_health: int = 100
@@ -10,7 +11,7 @@ var last_dir: Vector2 = Vector2.DOWN
 
 @onready var attack_area = $AttackArea
 @onready var anim = $AnimatedSprite2D
-@onready var health_bar = $Background/TextureProgressBar
+
 
 var health: int
 
@@ -19,7 +20,18 @@ var attack_index = 0
 func _ready():
 	add_to_group("player")
 	
+	var bar_node = get_tree().get_first_node_in_group("player_health_bar")
+	if bar_node and bar_node is TextureProgressBar:
+		health_bar = bar_node
+	else:
+		push_error("Health bar not found! Проверьте группу 'player_health_bar'.")
+		return
+	
+	
 	health = max_health
+	health_bar.max_value = max_health
+	health_bar.value = health
+	
 	anim.connect("animation_finished", _on_anim_finished)
 	
 	health_bar.max_value = max_health
