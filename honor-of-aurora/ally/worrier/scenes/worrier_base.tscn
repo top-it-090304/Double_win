@@ -4,9 +4,8 @@
 [ext_resource type="SpriteFrames" uid="uid://d5rjcohv0wqu" path="res://ally/worrier/resources/black_worrier_frame.tres" id="2_oqrjc"]
 [ext_resource type="PackedScene" uid="uid://cnpf1px7wa4c4" path="res://ui/hp_bar/hp_bar.tscn" id="3_j1p54"]
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_oqrjc"]
-radius = 22.0
-height = 56.0
+[sub_resource type="CircleShape2D" id="CircleShape2D_j1p54"]
+radius = 13.0384
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ycnn0"]
 radius = 66.2722
@@ -17,8 +16,8 @@ collision_mask = 7
 script = ExtResource("1_oqrjc")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(1, 9)
-shape = SubResource("CapsuleShape2D_oqrjc")
+position = Vector2(0, 27)
+shape = SubResource("CircleShape2D_j1p54")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("2_oqrjc")
