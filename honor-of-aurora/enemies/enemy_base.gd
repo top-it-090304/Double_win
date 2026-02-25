@@ -13,6 +13,7 @@ var state: State = State.PATROL
 @export var attack_cooldown: float = 2.0
 @export var detection_radius: float = 500.0
 @export var patrol_change_time: float = 2.0
+@export var gold_reward: int = 75
 
 var player: Node2D = null
 var can_attack: bool = true
@@ -143,12 +144,8 @@ func update_animation():
 					anim.flip_h = velocity.x < 0
 			else:
 				anim.play("idle")
-		State.ATTACK:
+		State.ATTACK, State.HIT, State.DEATH:
 			pass
-		State.HIT:
-			pass
-		State.DEATH:
-			anim.play("dead")
 
 func take_damage(amount: int):
 	health -= amount
@@ -157,16 +154,12 @@ func take_damage(amount: int):
 		die()
 		return
 	
-	var has_hit_anim = anim.sprite_frames.has_animation("hit")
-	
-	if state == State.ATTACK:
-		pass
-	elif state == State.HIT and has_hit_anim:
-		anim.play("hit")
-	elif state != State.DEATH:
-		if has_hit_anim:
+	if state != State.DEATH and state != State.HIT:
+		if anim.sprite_frames.has_animation("hit"):
 			state = State.HIT
 			anim.play("hit")
+		else:
+			pass
 	
 	show_damage_number(amount)
 
@@ -175,7 +168,7 @@ func die():
 	anim.play("dead")
 	$CollisionShape2D.set_deferred("disabled", true)
 	await anim.animation_finished
-	GameManager.add_gold(50)
+	GameManager.add_gold(gold_reward)
 	
 	queue_free()
 
