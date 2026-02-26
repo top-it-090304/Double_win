@@ -1,6 +1,7 @@
-[gd_scene load_steps=55 format=3 uid="uid://dj02d5ulpk30j"]
+[gd_scene load_steps=56 format=3 uid="uid://dj02d5ulpk30j"]
 
 [ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_i4f1r"]
+[ext_resource type="Script" uid="uid://b4rubhh020hqh" path="res://enemies/turtle/turtle.gd" id="2_a07yr"]
 [ext_resource type="Texture2D" uid="uid://re1qll6wspxk" path="res://Asets/Enemy/Enemy Pack/Turtle/Turtle_Attack.png" id="2_bl3ck"]
 [ext_resource type="Texture2D" uid="uid://cs6irs3maxpip" path="res://Asets/Unit_pack/Particle FX/Dust_02.png" id="3_a07yr"]
 [ext_resource type="Texture2D" uid="uid://ctfrrlfb2sxsa" path="res://Asets/Enemy/Enemy Pack/Turtle/Turtle_Idle.png" id="3_gt2om"]
@@ -364,6 +365,7 @@ animations = [{
 }]
 
 [node name="Turtle" instance=ExtResource("1_i4f1r")]
+script = ExtResource("2_a07yr")
 
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = SubResource("SpriteFrames_k1k00")

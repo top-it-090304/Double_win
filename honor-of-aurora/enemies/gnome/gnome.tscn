@@ -1,6 +1,7 @@
-[gd_scene load_steps=40 format=3 uid="uid://pkwk7p3dmtwo"]
+[gd_scene load_steps=41 format=3 uid="uid://pkwk7p3dmtwo"]
 
 [ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_fm6uc"]
+[ext_resource type="Script" uid="uid://g5pab15rqxoc" path="res://enemies/gnome/gnome.gd" id="2_5d7cn"]
 [ext_resource type="Texture2D" uid="uid://btmefnb0bo7ee" path="res://Asets/Enemy/Enemy Pack/Gnome/Gnome_Attack.png" id="2_iw6gb"]
 [ext_resource type="Texture2D" uid="uid://lkx2j30lb41r" path="res://Asets/Unit_pack/Particle FX/Dust_01.png" id="3_5d7cn"]
 [ext_resource type="Texture2D" uid="uid://mwm7idcnlulf" path="res://Asets/Enemy/Enemy Pack/Gnome/Gnome_Idle.png" id="3_pxn3u"]
@@ -266,6 +267,7 @@ animations = [{
 }]
 
 [node name="Gnome" instance=ExtResource("1_fm6uc")]
+script = ExtResource("2_5d7cn")
 
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = SubResource("SpriteFrames_iw0yg")

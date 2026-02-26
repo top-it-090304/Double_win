@@ -1,6 +1,7 @@
-[gd_scene load_steps=42 format=3 uid="uid://dnpvnopyaj0hq"]
+[gd_scene load_steps=43 format=3 uid="uid://dnpvnopyaj0hq"]
 
 [ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_phb36"]
+[ext_resource type="Script" uid="uid://8uwcp7kye1s6" path="res://enemies/lizard/lizard.gd" id="2_bg2ux"]
 [ext_resource type="Texture2D" uid="uid://jwhbtqus7lp6" path="res://Asets/Enemy/Enemy Pack/Lizard/Lizard_Attack.png" id="2_swgqx"]
 [ext_resource type="Texture2D" uid="uid://c37w0f68v37qa" path="res://Asets/Enemy/Enemy Pack/Lizard/Lizard_Hit.png" id="3_bg2ux"]
 [ext_resource type="Texture2D" uid="uid://cs6irs3maxpip" path="res://Asets/Unit_pack/Particle FX/Dust_02.png" id="3_swgqx"]
@@ -274,6 +275,7 @@ animations = [{
 }]
 
 [node name="Lizard" instance=ExtResource("1_phb36")]
+script = ExtResource("2_bg2ux")
 
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = SubResource("SpriteFrames_2r5y5")

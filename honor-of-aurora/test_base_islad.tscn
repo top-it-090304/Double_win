@@ -1,4 +1,4 @@
-[gd_scene load_steps=97 format=4 uid="uid://qjpxr41gfbih"]
+[gd_scene load_steps=102 format=4 uid="uid://qjpxr41gfbih"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_dogb5"]
 [ext_resource type="TileSet" uid="uid://dmxvg38r6drxj" path="res://world/resources/other/water.tres" id="2_kuyrn"]
@@ -48,6 +48,11 @@
 [ext_resource type="PackedScene" uid="uid://bmerpvjsmlavi" path="res://ally/worrier/scenes/variants/yellow_worrier.tscn" id="46_jkx30"]
 [ext_resource type="PackedScene" uid="uid://b2gtfnb8cpv1i" path="res://enemies/panda/panda.tscn" id="47_5ikr6"]
 [ext_resource type="PackedScene" uid="uid://blv7sgugmhgu4" path="res://ui/HUD/canvas_layer.tscn" id="48_7142n"]
+[ext_resource type="PackedScene" uid="uid://25v8rvuctncn" path="res://enemies/troll/troll.tscn" id="49_isgx7"]
+[ext_resource type="PackedScene" uid="uid://bqogemphbywdf" path="res://enemies/spider/spider.tscn" id="50_2puhj"]
+[ext_resource type="PackedScene" uid="uid://c3s3o5kxeefw2" path="res://enemies/skull/skull.tscn" id="51_6hve4"]
+[ext_resource type="PackedScene" uid="uid://ce2n65nel32t" path="res://enemies/minotaur/minotaur.tscn" id="52_amaxa"]
+[ext_resource type="PackedScene" uid="uid://ogkghrj413uo" path="res://enemies/lancer/lancertscn.tscn" id="53_73462"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_jkx30"]
 texture = ExtResource("1_dogb5")
@@ -793,3 +798,18 @@ position = Vector2(-401, -27)
 position = Vector2(-399, -252)
 
 [node name="HUD" parent="." instance=ExtResource("48_7142n")]
+
+[node name="Troll" parent="." instance=ExtResource("49_isgx7")]
+position = Vector2(602, 255)
+
+[node name="Spider" parent="." instance=ExtResource("50_2puhj")]
+position = Vector2(-200, 857)
+
+[node name="Skull" parent="." instance=ExtResource("51_6hve4")]
+position = Vector2(1421, 498)
+
+[node name="Minotaur" parent="." instance=ExtResource("52_amaxa")]
+position = Vector2(1103, -755)
+
+[node name="Lancer" parent="." instance=ExtResource("53_73462")]
+position = Vector2(2348, -317)

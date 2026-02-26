@@ -1,6 +1,7 @@
-[gd_scene load_steps=40 format=3 uid="uid://bdyaaaea7vcs4"]
+[gd_scene load_steps=41 format=3 uid="uid://bdyaaaea7vcs4"]
 
 [ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_5wrw3"]
+[ext_resource type="Script" uid="uid://cnc5fe638rfqq" path="res://enemies/bear/bear.gd" id="2_378v5"]
 [ext_resource type="Texture2D" uid="uid://b36imitvwnjne" path="res://Asets/Enemy/Enemy Pack/Bear/Bear_Attack.png" id="2_aasxw"]
 [ext_resource type="Texture2D" uid="uid://lkx2j30lb41r" path="res://Asets/Unit_pack/Particle FX/Dust_01.png" id="3_378v5"]
 [ext_resource type="Texture2D" uid="uid://csdhqvsqrsh5b" path="res://Asets/Enemy/Enemy Pack/Bear/Bear_Idle.png" id="4_gpxni"]
@@ -266,6 +267,7 @@ animations = [{
 }]
 
 [node name="EnemyBase" instance=ExtResource("1_5wrw3")]
+script = ExtResource("2_378v5")
 
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = SubResource("SpriteFrames_yy6c3")

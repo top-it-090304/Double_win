@@ -1,7 +1,8 @@
-[gd_scene load_steps=65 format=3 uid="uid://ce2n65nel32t"]
+[gd_scene load_steps=66 format=3 uid="uid://ce2n65nel32t"]
 
 [ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_p26c5"]
 [ext_resource type="Texture2D" uid="uid://jnhu218y3nl" path="res://Asets/Enemy/Enemy Pack/Minotaur/Minotaur_Attack.png" id="2_cm07h"]
+[ext_resource type="Script" uid="uid://bxtao1vx6hfa0" path="res://enemies/minotaur/minotaur.gd" id="2_qsj6q"]
 [ext_resource type="Texture2D" uid="uid://cs6irs3maxpip" path="res://Asets/Unit_pack/Particle FX/Dust_02.png" id="3_cm07h"]
 [ext_resource type="Texture2D" uid="uid://ccvv4aq1s873c" path="res://Asets/Enemy/Enemy Pack/Minotaur/Minotaur_Idle.png" id="3_qsj6q"]
 [ext_resource type="Texture2D" uid="uid://ci70x6rpmajni" path="res://Asets/Enemy/Enemy Pack/Minotaur/Minotaur_Guard.png" id="4_15dob"]
@@ -435,6 +436,7 @@ animations = [{
 }]
 
 [node name="Minotaur" instance=ExtResource("1_p26c5")]
+script = ExtResource("2_qsj6q")
 
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = SubResource("SpriteFrames_6uqn3")

@@ -1,9 +1,11 @@
-[gd_scene load_steps=3 format=3 uid="uid://25v8rvuctncn"]
+[gd_scene load_steps=4 format=3 uid="uid://25v8rvuctncn"]
 
 [ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_8u8h8"]
+[ext_resource type="Script" uid="uid://qgie8cfsdfm2" path="res://enemies/troll/troll.gd" id="2_aqcdp"]
 [ext_resource type="SpriteFrames" uid="uid://d5hrymqoa8gu" path="res://enemies/troll/troll_frames.tres" id="2_op06n"]
 
 [node name="Troll" instance=ExtResource("1_8u8h8")]
+script = ExtResource("2_aqcdp")
 
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = ExtResource("2_op06n")

@@ -6,14 +6,17 @@ var state: State = State.PATROL
 @onready var anim = $AnimatedSprite
 @onready var detection_area = $DetectionArea
 @onready var attack_area = $AttackArea
+@onready var detection_shape = $DetectionArea/DetectionShape
+@onready var attack_shape = $AttackArea/AttackShape
 
 @export var speed: float = 100.0
 @export var health: int = 50
-@export var attack_damage: int = 5
+@export var attack_damage: int = 10
 @export var attack_cooldown: float = 2.0
-@export var detection_radius: float = 500.0
 @export var patrol_change_time: float = 2.0
 @export var gold_reward: int = 75
+@export var attack_radius: float = 100.0
+@export var detection_radius: float = 500.0
 
 var player: Node2D = null
 var can_attack: bool = true
@@ -25,7 +28,8 @@ var attack_cooldown_timer: Timer
 
 func _ready():
 	add_to_group("enemy")
-	$DetectionArea/DetectionShape.shape.radius = detection_radius
+	detection_shape.shape.radius = detection_radius
+	attack_shape.shape.radius = attack_radius
 	
 	detection_area.connect("body_entered", _on_detection_area_entered)
 	detection_area.connect("body_exited", _on_detection_area_exited)
