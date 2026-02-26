@@ -3,7 +3,7 @@ extends NinePatchRect
 @onready var gold_label = $GoldLabel  
 
 func _ready():
-	GameManager.connect("gold_changed", _on_gold_changed)
+	Events.connect("gold_changed", _on_gold_changed)
 	
 	_on_gold_changed(GameManager.gold)
 
