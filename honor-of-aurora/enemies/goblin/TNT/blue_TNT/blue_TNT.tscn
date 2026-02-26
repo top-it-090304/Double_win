@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://pwa4dnh42ipy"]
+
+[ext_resource type="PackedScene" uid="uid://dxrhiduq4lewe" path="res://enemies/goblin/TNT/tnt_base.tscn" id="1_jnwpw"]
+[ext_resource type="Script" uid="uid://r06ifec5v5ob" path="res://enemies/goblin/TNT/blue_TNT/blue_tnt.gd" id="2_n3x1g"]
+
+[node name="blue_TNT" instance=ExtResource("1_jnwpw")]
+script = ExtResource("2_n3x1g")
+
+[node name="AnimatedSprite" parent="." index="0"]
+animation = &"lide"

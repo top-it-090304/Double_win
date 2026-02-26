@@ -1,0 +1,12 @@
+[gd_scene load_steps=4 format=3 uid="uid://dxrhiduq4lewe"]
+
+[ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_33asi"]
+[ext_resource type="Script" uid="uid://dym0aop63kcc7" path="res://enemies/goblin/TNT/tnt_base.gd" id="2_ublnm"]
+[ext_resource type="SpriteFrames" uid="uid://celo772tevevn" path="res://enemies/goblin/TNT/resources/blue_TNT.tres" id="3_k1vud"]
+
+[node name="TNT_base" instance=ExtResource("1_33asi")]
+script = ExtResource("2_ublnm")
+
+[node name="AnimatedSprite" parent="." index="0"]
+sprite_frames = ExtResource("3_k1vud")
+animation = &"run"

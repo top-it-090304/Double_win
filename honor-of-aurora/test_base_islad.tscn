@@ -1,4 +1,4 @@
-[gd_scene load_steps=99 format=4 uid="uid://qjpxr41gfbih"]
+[gd_scene load_steps=97 format=4 uid="uid://qjpxr41gfbih"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_dogb5"]
 [ext_resource type="TileSet" uid="uid://dmxvg38r6drxj" path="res://world/resources/other/water.tres" id="2_kuyrn"]
@@ -46,10 +46,8 @@
 [ext_resource type="Texture2D" uid="uid://dup5d05xcku5y" path="res://Asets/Environment/Deco/11.png" id="44_2lpet"]
 [ext_resource type="TileSet" uid="uid://firbi0hvr3ji" path="res://world/resources/other/boat.tres" id="45_g7qod"]
 [ext_resource type="PackedScene" uid="uid://bmerpvjsmlavi" path="res://ally/worrier/scenes/variants/yellow_worrier.tscn" id="46_jkx30"]
-[ext_resource type="PackedScene" uid="uid://dj03xjpryyt26" path="res://enemies/goblin/torch/blue/blue_torch.tscn" id="48_0jl1k"]
 [ext_resource type="PackedScene" uid="uid://blv7sgugmhgu4" path="res://ui/HUD/canvas_layer.tscn" id="48_7142n"]
-[ext_resource type="PackedScene" uid="uid://boc0wtrvbyllx" path="res://enemies/goblin/torch/purple/purple_torch.tscn" id="49_v1sjj"]
-[ext_resource type="PackedScene" uid="uid://85hawwpqt7d6" path="res://enemies/goblin/torch/red/red_torch.tscn" id="50_6copw"]
+[ext_resource type="PackedScene" uid="uid://pwa4dnh42ipy" path="res://enemies/goblin/TNT/blue_TNT/blue_TNT.tscn" id="48_v1sjj"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_jkx30"]
 texture = ExtResource("1_dogb5")
@@ -793,11 +791,5 @@ position = Vector2(652, 411)
 
 [node name="HUD" parent="." instance=ExtResource("48_7142n")]
 
-[node name="BlueTorch_tscn" parent="." instance=ExtResource("48_0jl1k")]
-position = Vector2(521, -22)
-
-[node name="PurpleTorch" parent="." instance=ExtResource("49_v1sjj")]
-position = Vector2(-86, 717)
-
-[node name="RedTorch" parent="." instance=ExtResource("50_6copw")]
-position = Vector2(1079, 661)
+[node name="blue_TNT" parent="." instance=ExtResource("48_v1sjj")]
+position = Vector2(491, 135)
