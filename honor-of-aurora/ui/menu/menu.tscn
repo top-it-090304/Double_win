@@ -1,0 +1,52 @@
+[gd_scene load_steps=2 format=3 uid="uid://odmcdls13s41"]
+
+[ext_resource type="Texture2D" uid="uid://b6wip7ayua3kn" path="res://Asets/Unit_pack/UI Elements/UI Elements/Buttons/SmallBlueSquareButton_Regular.png" id="1_v6ljw"]
+
+[node name="Menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="continue" type="Button" parent="."]
+self_modulate = Color(0.25098, 1, 0.713726, 1)
+layout_mode = 0
+offset_left = 443.0
+offset_top = 142.0
+offset_right = 811.0
+offset_bottom = 278.0
+text = "Продолжить игру"
+icon = ExtResource("1_v6ljw")
+flat = true
+
+[node name="new_game" type="Button" parent="."]
+layout_mode = 0
+offset_left = 443.0
+offset_top = 266.0
+offset_right = 811.0
+offset_bottom = 347.0
+text = "Начать заново"
+icon = ExtResource("1_v6ljw")
+flat = true
+
+[node name="settings" type="Button" parent="."]
+layout_mode = 0
+offset_left = 443.0
+offset_top = 392.0
+offset_right = 811.0
+offset_bottom = 528.0
+text = "настройки"
+icon = ExtResource("1_v6ljw")
+flat = true
+
+[node name="quit" type="Button" parent="."]
+layout_mode = 0
+offset_left = 443.0
+offset_top = 514.0
+offset_right = 811.0
+offset_bottom = 650.0
+text = "Выйти"
+icon = ExtResource("1_v6ljw")
+flat = true
