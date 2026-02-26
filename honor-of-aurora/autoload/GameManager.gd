@@ -10,3 +10,9 @@ func reset_gold(amount: int):
 func add_gold(amount: int):
 	gold += amount
 	emit_signal("gold_changed", gold)
+
+func handle_location_changed(location: Events.LOCATION):
+	pass
+	
+	
+	
