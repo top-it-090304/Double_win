@@ -7,7 +7,7 @@ var health_bar: TextureProgressBar
 
 @export var speed: float = 250.0
 @export var max_health: int = 100
-@export var attack_damage: int = 10
+@export var attack_damage: int = 40
 
 @onready var attack_area = $AttackArea
 @onready var anim = $AnimatedSprite2D

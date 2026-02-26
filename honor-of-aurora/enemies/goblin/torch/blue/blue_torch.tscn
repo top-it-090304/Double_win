@@ -5,3 +5,7 @@
 
 [node name="BlueTorch_tscn" instance=ExtResource("1_04qw3")]
 script = ExtResource("2_cbyhm")
+
+[node name="AnimatedSprite" parent="." index="0"]
+animation = &"hit"
+frame = 6
