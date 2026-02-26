@@ -1,7 +1,8 @@
-[gd_scene load_steps=46 format=3 uid="uid://c3s3o5kxeefw2"]
+[gd_scene load_steps=47 format=3 uid="uid://c3s3o5kxeefw2"]
 
 [ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_tkasw"]
 [ext_resource type="Texture2D" uid="uid://bnudxardh0e86" path="res://Asets/Enemy/Enemy Pack/Skull/Skull_Attack.png" id="2_22mie"]
+[ext_resource type="Script" uid="uid://scnfqt7jlswk" path="res://enemies/skull/skull.gd" id="2_shdp2"]
 [ext_resource type="Texture2D" uid="uid://ctxd6v4ycxou3" path="res://Asets/Enemy/Enemy Pack/Skull/Skull_Idle.png" id="3_qa644"]
 [ext_resource type="Texture2D" uid="uid://cs6irs3maxpip" path="res://Asets/Unit_pack/Particle FX/Dust_02.png" id="3_shdp2"]
 [ext_resource type="Texture2D" uid="uid://dkmuvg1si1ppf" path="res://Asets/Enemy/Enemy Pack/Skull/Skull_Run.png" id="4_shdp2"]
@@ -302,6 +303,7 @@ animations = [{
 }]
 
 [node name="Skull" instance=ExtResource("1_tkasw")]
+script = ExtResource("2_shdp2")
 
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = SubResource("SpriteFrames_ekpmj")

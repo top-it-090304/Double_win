@@ -1,6 +1,7 @@
-[gd_scene load_steps=38 format=3 uid="uid://ogkghrj413uo"]
+[gd_scene load_steps=39 format=3 uid="uid://ogkghrj413uo"]
 
 [ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_1h1yb"]
+[ext_resource type="Script" uid="uid://df7xpk6hbhevp" path="res://enemies/lancer/lancertscn.gd" id="2_6opde"]
 [ext_resource type="Texture2D" uid="uid://choycfe553e81" path="res://Asets/Enemy/Enemy Pack/Lancer/Lancer_Attack.png" id="2_qtypf"]
 [ext_resource type="Texture2D" uid="uid://cs6irs3maxpip" path="res://Asets/Unit_pack/Particle FX/Dust_02.png" id="3_6opde"]
 [ext_resource type="Texture2D" uid="uid://1nvd4u4llip" path="res://Asets/Enemy/Enemy Pack/Lancer/Lancer_Idle.png" id="3_enbwk"]
@@ -247,6 +248,7 @@ animations = [{
 }]
 
 [node name="Lancer" instance=ExtResource("1_1h1yb")]
+script = ExtResource("2_6opde")
 
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = SubResource("SpriteFrames_ru2b1")

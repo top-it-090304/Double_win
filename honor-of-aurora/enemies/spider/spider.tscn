@@ -1,7 +1,8 @@
-[gd_scene load_steps=38 format=3 uid="uid://bqogemphbywdf"]
+[gd_scene load_steps=39 format=3 uid="uid://bqogemphbywdf"]
 
 [ext_resource type="PackedScene" uid="uid://q2c2ttde3ve6" path="res://enemies/enemy_base.tscn" id="1_f5757"]
 [ext_resource type="Texture2D" uid="uid://fcjnqmog6y7t" path="res://Asets/Enemy/Enemy Pack/Spider/Spider_Attack.png" id="2_8bhmf"]
+[ext_resource type="Script" uid="uid://boj26ydrih38b" path="res://enemies/spider/spider.gd" id="2_gejh1"]
 [ext_resource type="Texture2D" uid="uid://dv5asecb8eptn" path="res://Asets/Enemy/Enemy Pack/Spider/Spider_Idle.png" id="3_c4d20"]
 [ext_resource type="Texture2D" uid="uid://cs6irs3maxpip" path="res://Asets/Unit_pack/Particle FX/Dust_02.png" id="3_gejh1"]
 [ext_resource type="Texture2D" uid="uid://brbk4elwkusf" path="res://Asets/Enemy/Enemy Pack/Spider/Spider_Run.png" id="4_gejh1"]
@@ -247,6 +248,7 @@ animations = [{
 }]
 
 [node name="Spider" instance=ExtResource("1_f5757")]
+script = ExtResource("2_gejh1")
 
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = SubResource("SpriteFrames_2m8ux")
