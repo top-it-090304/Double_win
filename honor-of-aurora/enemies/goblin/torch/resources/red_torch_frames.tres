@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=44 format=3 uid="uid://ddo3mfwmngmog"]
+[gd_resource type="SpriteFrames" load_steps=51 format=3 uid="uid://ddo3mfwmngmog"]
 
 [ext_resource type="Texture2D" uid="uid://dl87ornuo5tpb" path="res://Asets/Environment/Factions/Goblins/Troops/Torch/Red/Torch_Red.png" id="1_670x5"]
 [ext_resource type="Texture2D" uid="uid://cs6irs3maxpip" path="res://Asets/Unit_pack/Particle FX/Dust_02.png" id="2_kns2t"]
@@ -114,6 +114,34 @@ region = Rect2(512, 0, 64, 64)
 [sub_resource type="AtlasTexture" id="AtlasTexture_minir"]
 atlas = ExtResource("2_kns2t")
 region = Rect2(576, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hippj"]
+atlas = ExtResource("1_670x5")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qtekl"]
+atlas = ExtResource("1_670x5")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lq68m"]
+atlas = ExtResource("1_670x5")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xn0dw"]
+atlas = ExtResource("1_670x5")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jy2ec"]
+atlas = ExtResource("1_670x5")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v5v3p"]
+atlas = ExtResource("1_670x5")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jmtkb"]
+atlas = ExtResource("1_670x5")
+region = Rect2(1152, 0, 192, 192)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_y1yfs"]
 atlas = ExtResource("1_670x5")
@@ -271,6 +299,32 @@ animations = [{
 }],
 "loop": false,
 "name": &"dead",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hippj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qtekl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lq68m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xn0dw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jy2ec")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v5v3p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jmtkb")
+}],
+"loop": false,
+"name": &"hit",
 "speed": 10.0
 }, {
 "frames": [{
