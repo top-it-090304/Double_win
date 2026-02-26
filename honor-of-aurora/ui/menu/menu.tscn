@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://odmcdls13s41"]
+[gd_scene load_steps=3 format=3 uid="uid://odmcdls13s41"]
 
 [ext_resource type="Texture2D" uid="uid://b6wip7ayua3kn" path="res://Asets/Unit_pack/UI Elements/UI Elements/Buttons/SmallBlueSquareButton_Regular.png" id="1_v6ljw"]
+[ext_resource type="FontFile" uid="uid://cj4nta75kb3fi" path="res://ui/font/AlumniSansCollegiateOne-Italic.ttf" id="1_w0ybq"]
 
 [node name="Menu" type="Control"]
 layout_mode = 3
@@ -13,40 +14,52 @@ grow_vertical = 2
 [node name="continue" type="Button" parent="."]
 self_modulate = Color(0.25098, 1, 0.713726, 1)
 layout_mode = 0
-offset_left = 443.0
-offset_top = 142.0
-offset_right = 811.0
-offset_bottom = 278.0
+offset_left = 373.0
+offset_top = 147.0
+offset_right = 960.0
+offset_bottom = 283.0
+theme_override_fonts/font = ExtResource("1_w0ybq")
+theme_override_font_sizes/font_size = 50
 text = "Продолжить игру"
 icon = ExtResource("1_v6ljw")
 flat = true
+alignment = 0
 
 [node name="new_game" type="Button" parent="."]
 layout_mode = 0
-offset_left = 443.0
-offset_top = 266.0
-offset_right = 811.0
-offset_bottom = 347.0
+offset_left = 373.0
+offset_top = 271.0
+offset_right = 741.0
+offset_bottom = 407.0
+theme_override_fonts/font = ExtResource("1_w0ybq")
+theme_override_font_sizes/font_size = 50
 text = "Начать заново"
 icon = ExtResource("1_v6ljw")
 flat = true
+alignment = 0
 
 [node name="settings" type="Button" parent="."]
 layout_mode = 0
-offset_left = 443.0
-offset_top = 392.0
-offset_right = 811.0
-offset_bottom = 528.0
-text = "настройки"
+offset_left = 373.0
+offset_top = 397.0
+offset_right = 741.0
+offset_bottom = 533.0
+theme_override_fonts/font = ExtResource("1_w0ybq")
+theme_override_font_sizes/font_size = 50
+text = "Настройки"
 icon = ExtResource("1_v6ljw")
 flat = true
+alignment = 0
 
 [node name="quit" type="Button" parent="."]
 layout_mode = 0
-offset_left = 443.0
-offset_top = 514.0
-offset_right = 811.0
-offset_bottom = 650.0
+offset_left = 373.0
+offset_top = 519.0
+offset_right = 741.0
+offset_bottom = 655.0
+theme_override_fonts/font = ExtResource("1_w0ybq")
+theme_override_font_sizes/font_size = 50
 text = "Выйти"
 icon = ExtResource("1_v6ljw")
 flat = true
+alignment = 0
