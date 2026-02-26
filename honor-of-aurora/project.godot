@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="Honor of Aurora"
+run/main_scene="uid://dnw80ovs2vvbn"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 
 [autoload]

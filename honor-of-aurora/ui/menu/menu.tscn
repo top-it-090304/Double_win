@@ -1,5 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://odmcdls13s41"]
+[gd_scene load_steps=4 format=3 uid="uid://odmcdls13s41"]
 
+[ext_resource type="Script" uid="uid://cyuad7uq0huwf" path="res://ui/menu/menu.gd" id="1_trkij"]
 [ext_resource type="Texture2D" uid="uid://b6wip7ayua3kn" path="res://Asets/Unit_pack/UI Elements/UI Elements/Buttons/SmallBlueSquareButton_Regular.png" id="1_v6ljw"]
 [ext_resource type="FontFile" uid="uid://cj4nta75kb3fi" path="res://ui/font/AlumniSansCollegiateOne-Italic.ttf" id="1_w0ybq"]
 
@@ -10,6 +11,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_trkij")
 
 [node name="continue" type="Button" parent="."]
 self_modulate = Color(0.25098, 1, 0.713726, 1)
@@ -34,7 +36,7 @@ offset_right = 805.0
 offset_bottom = 407.0
 theme_override_fonts/font = ExtResource("1_w0ybq")
 theme_override_font_sizes/font_size = 50
-text = "Начать заново"
+text = "Новая игра"
 icon = ExtResource("1_v6ljw")
 flat = true
 alignment = 0
@@ -64,3 +66,5 @@ text = "Выйти"
 icon = ExtResource("1_v6ljw")
 flat = true
 alignment = 0
+
+[connection signal="pressed" from="new_game" to="." method="_on_new_game_pressed"]

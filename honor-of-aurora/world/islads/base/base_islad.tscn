@@ -1,4 +1,4 @@
-[gd_scene load_steps=94 format=4 uid="uid://bbnv14gutlkx8"]
+[gd_scene load_steps=95 format=4 uid="uid://bbnv14gutlkx8"]
 
 [ext_resource type="TileSet" uid="uid://dmxvg38r6drxj" path="res://world/resources/other/water.tres" id="1_6qm2u"]
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_dorx0"]
@@ -45,6 +45,7 @@
 [ext_resource type="Texture2D" uid="uid://cux1t3r75go8f" path="res://Asets/Environment/Deco/18.png" id="41_3r1nf"]
 [ext_resource type="Texture2D" uid="uid://npdsd4f6qisb" path="res://Asets/Environment/Deco/13.png" id="42_ctvu1"]
 [ext_resource type="Texture2D" uid="uid://dup5d05xcku5y" path="res://Asets/Environment/Deco/11.png" id="43_ahvej"]
+[ext_resource type="PackedScene" uid="uid://0cr41nkoqax0" path="res://ally/worrier/scenes/variants/blue_worrier.tscn" id="46_dorx0"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t7r2l"]
 texture = ExtResource("1_dorx0")
@@ -775,3 +776,8 @@ tile_set = SubResource("TileSet_cvmx0")
 [node name="boat" type="TileMapLayer" parent="."]
 tile_map_data = PackedByteArray("AADa/y8AAAAAAAAAAAA=")
 tile_set = ExtResource("39_sglql")
+
+[node name="player_blue" parent="." instance=ExtResource("46_dorx0")]
+position = Vector2(-599, 735)
+
+[node name="Camera2D" type="Camera2D" parent="player_blue"]
