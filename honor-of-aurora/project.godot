@@ -45,6 +45,10 @@ shield={
 2d_physics/layer_2="player"
 2d_physics/layer_3="borderline"
 
+[physics]
+
+2d/default_gravity=0.0
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"

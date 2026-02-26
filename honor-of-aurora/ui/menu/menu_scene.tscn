@@ -1,6 +1,7 @@
-[gd_scene load_steps=93 format=4 uid="uid://dnw80ovs2vvbn"]
+[gd_scene load_steps=95 format=4 uid="uid://dnw80ovs2vvbn"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_6wo2e"]
+[ext_resource type="Script" uid="uid://b2w1ontyogkqw" path="res://ui/menu/menu_scene.gd" id="1_oulhf"]
 [ext_resource type="TileSet" uid="uid://dmxvg38r6drxj" path="res://world/resources/other/water.tres" id="2_oulhf"]
 [ext_resource type="TileSet" uid="uid://c6jqi8ris2d4j" path="res://world/resources/rocks/rock_1.tres" id="3_vf3ih"]
 [ext_resource type="TileSet" uid="uid://dpmm1e4vk4id6" path="res://world/resources/rocks/rock_2.tres" id="4_5dkel"]
@@ -46,6 +47,7 @@
 [ext_resource type="TileSet" uid="uid://firbi0hvr3ji" path="res://world/resources/other/boat.tres" id="45_x3ymq"]
 [ext_resource type="PackedScene" uid="uid://odmcdls13s41" path="res://ui/menu/menu.tscn" id="46_ke8a1"]
 [ext_resource type="PackedScene" uid="uid://0cr41nkoqax0" path="res://ally/worrier/scenes/variants/blue_worrier.tscn" id="47_oulhf"]
+[ext_resource type="PackedScene" uid="uid://dcadwipnt18nr" path="res://objects/clouds/cloud.tscn" id="48_vf3ih"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4v8e7"]
 texture = ExtResource("1_6wo2e")
@@ -565,6 +567,9 @@ texture_region_size = Vector2i(64, 64)
 sources/0 = SubResource("TileSetAtlasSource_eynt6")
 
 [node name="menu_background" type="Node2D"]
+script = ExtResource("1_oulhf")
+cloud_scene = ExtResource("48_vf3ih")
+spawn_x = -300.0
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]
 
@@ -766,3 +771,9 @@ offset_bottom = 4.0
 
 [node name="player_blue" parent="." instance=ExtResource("47_oulhf")]
 position = Vector2(688, 80)
+
+[node name="CloudSpawnTimer" type="Timer" parent="."]
+wait_time = 10.0
+one_shot = true
+
+[connection signal="timeout" from="CloudSpawnTimer" to="." method="_on_cloud_spawn_timer_timeout"]
