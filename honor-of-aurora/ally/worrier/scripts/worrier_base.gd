@@ -6,8 +6,8 @@ var last_dir: Vector2 = Vector2.DOWN
 var health_bar: TextureProgressBar
 
 @export var speed: float = 250.0
-@export var max_health: int = 100
-@export var attack_damage: int = 40
+@export var max_health: int = 1000
+@export var attack_damage: int = 90
 
 @onready var attack_area = $AttackArea
 @onready var anim = $AnimatedSprite2D
