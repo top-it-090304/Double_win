@@ -15,6 +15,7 @@ config/features=PackedStringArray("4.4", "GL Compatibility")
 
 [autoload]
 
+Events="*res://autoload/Events.gd"
 GameManager="*res://autoload/GameManager.gd"
 
 [display]
