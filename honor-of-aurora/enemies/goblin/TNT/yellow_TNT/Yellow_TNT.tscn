@@ -1,0 +1,12 @@
+[gd_scene load_steps=4 format=3 uid="uid://b00fujn883gpg"]
+
+[ext_resource type="PackedScene" uid="uid://dxrhiduq4lewe" path="res://enemies/goblin/TNT/tnt_base.tscn" id="1_xor48"]
+[ext_resource type="SpriteFrames" uid="uid://vformhu3ekc6" path="res://enemies/goblin/TNT/resources/yellow_TNT.tres" id="2_3f2ft"]
+[ext_resource type="Script" uid="uid://psgb07cljwhf" path="res://enemies/goblin/TNT/yellow_TNT/yellow_tnt.gd" id="2_6movf"]
+
+[node name="yellow_TNT" instance=ExtResource("1_xor48")]
+script = ExtResource("2_6movf")
+
+[node name="AnimatedSprite" parent="." index="0"]
+sprite_frames = ExtResource("2_3f2ft")
+animation = &"attack"
