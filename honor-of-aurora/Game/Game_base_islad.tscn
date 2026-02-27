@@ -1,4 +1,4 @@
-[gd_scene load_steps=96 format=4 uid="uid://bos5r41ll0qqe"]
+[gd_scene load_steps=97 format=4 uid="uid://bos5r41ll0qqe"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_lc62k"]
 [ext_resource type="Script" uid="uid://drx5ypae7garp" path="res://Game/game_base_islad.gd" id="1_xjk1y"]
@@ -47,6 +47,7 @@
 [ext_resource type="Texture2D" uid="uid://dup5d05xcku5y" path="res://Asets/Environment/Deco/11.png" id="44_lnu1s"]
 [ext_resource type="TileSet" uid="uid://firbi0hvr3ji" path="res://world/resources/other/boat.tres" id="45_thtv5"]
 [ext_resource type="PackedScene" uid="uid://blv7sgugmhgu4" path="res://ui/HUD/canvas_layer.tscn" id="47_nepwl"]
+[ext_resource type="PackedScene" uid="uid://ov1iq7xxu5ks" path="res://objects/TeleportZone/teleport_zone.tscn" id="48_xjk1y"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t7r2l"]
 texture = ExtResource("1_lc62k")
@@ -782,3 +783,6 @@ tile_map_data = PackedByteArray("AADa/y8AAAAAAAAAAAA=")
 tile_set = ExtResource("45_thtv5")
 
 [node name="HUD" parent="." instance=ExtResource("47_nepwl")]
+
+[node name="TeleportZone" parent="." instance=ExtResource("48_xjk1y")]
+position = Vector2(-660, 865)

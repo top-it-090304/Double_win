@@ -1,4 +1,4 @@
-[gd_scene load_steps=109 format=4 uid="uid://by2csg1am8mn0"]
+[gd_scene load_steps=110 format=4 uid="uid://by2csg1am8mn0"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_7d3d8"]
 [ext_resource type="TileSet" uid="uid://dmxvg38r6drxj" path="res://world/resources/other/water.tres" id="2_mfdf8"]
@@ -46,6 +46,7 @@
 [ext_resource type="TileSet" uid="uid://firbi0hvr3ji" path="res://world/resources/other/boat.tres" id="44_v3der"]
 [ext_resource type="PackedScene" uid="uid://bxsa0ugs36hx7" path="res://enemies/shaman/shaman.tscn" id="45_wjtd1"]
 [ext_resource type="PackedScene" uid="uid://c3s3o5kxeefw2" path="res://enemies/skull/skull.tscn" id="46_p0716"]
+[ext_resource type="PackedScene" uid="uid://ov1iq7xxu5ks" path="res://objects/TeleportZone/teleport_zone.tscn" id="47_mysua"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_seqsi"]
 texture = ExtResource("1_7d3d8")
@@ -892,3 +893,6 @@ scale = Vector2(1, -1)
 position = Vector2(1336, -1188)
 rotation = 3.14159
 scale = Vector2(1, -1)
+
+[node name="TeleportZone" parent="." instance=ExtResource("47_mysua")]
+position = Vector2(678, 862)

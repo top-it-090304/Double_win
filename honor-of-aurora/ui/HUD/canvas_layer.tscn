@@ -1,13 +1,15 @@
-[gd_scene load_steps=5 format=3 uid="uid://blv7sgugmhgu4"]
+[gd_scene load_steps=6 format=3 uid="uid://blv7sgugmhgu4"]
 
 [ext_resource type="PackedScene" uid="uid://cnpf1px7wa4c4" path="res://ui/hp_bar/hp_bar.tscn" id="1_2ux7j"]
-[ext_resource type="Script" uid="uid://cxjk4ntx4c07e" path="res://ui/HUD/canvas_layer.gd" id="1_smmqc"]
+[ext_resource type="Script" uid="uid://cxjk4ntx4c07e" path="res://ui/HUD/HUD.gd" id="1_smmqc"]
 [ext_resource type="PackedScene" uid="uid://c5sanv15hjusy" path="res://ui/gold/gold.tscn" id="2_5vgpw"]
 [ext_resource type="Texture2D" uid="uid://cjha34kojfsit" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_08.png" id="4_ap7xm"]
+[ext_resource type="PackedScene" uid="uid://cmfxxbaugd182" path="res://ui/level_menu/teleport_menu.tscn" id="5_ap7xm"]
 
-[node name="HUD" type="CanvasLayer"]
+[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("teleport_menu") groups=["hud"]]
 layer = 5
 script = ExtResource("1_smmqc")
+teleport_menu = NodePath("teleport_menu")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 anchors_preset = 15
@@ -47,5 +49,8 @@ offset_right = 128.0
 offset_bottom = 89.0
 icon = ExtResource("4_ap7xm")
 flat = true
+
+[node name="teleport_menu" parent="." instance=ExtResource("5_ap7xm")]
+process_mode = 3
 
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
