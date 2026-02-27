@@ -42,9 +42,9 @@
 [ext_resource type="Texture2D" uid="uid://c3bqckj7dpm5t" path="res://Asets/Environment/Deco/14.png" id="40_ddq73"]
 [ext_resource type="Texture2D" uid="uid://ctnojj88654ml" path="res://Asets/Enemy/Enemy Pack/Enemy Avatars/Enemy Avatars_09.png" id="41_rtfjx"]
 [ext_resource type="TileSet" uid="uid://firbi0hvr3ji" path="res://world/resources/other/boat.tres" id="42_63sxn"]
-[ext_resource type="PackedScene" uid="uid://0cr41nkoqax0" path="res://ally/player/scenes/lvl_1_blue_player.tscn" id="43_opfwo"]
 [ext_resource type="PackedScene" uid="uid://blv7sgugmhgu4" path="res://ui/HUD/canvas_layer.tscn" id="44_fdxc0"]
 [ext_resource type="PackedScene" uid="uid://ce2n65nel32t" path="res://enemies/minotaur/minotaur.tscn" id="45_lwsk5"]
+[ext_resource type="PackedScene" uid="uid://ov1iq7xxu5ks" path="res://objects/TeleportZone/teleport_zone.tscn" id="45_wdtt1"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_seqsi"]
 texture = ExtResource("1_rgygv")
@@ -859,13 +859,11 @@ tile_set = SubResource("TileSet_rkdxa")
 tile_map_data = PackedByteArray("AADa/y8AAAAAAAAAAAA=")
 tile_set = ExtResource("42_63sxn")
 
-[node name="player_blue" parent="." instance=ExtResource("43_opfwo")]
-position = Vector2(604, 740)
-
-[node name="Camera2D" type="Camera2D" parent="player_blue"]
-
 [node name="HUD" parent="." instance=ExtResource("44_fdxc0")]
 
 [node name="Minotaur" parent="." instance=ExtResource("45_lwsk5")]
 position = Vector2(980, -1292)
 up_direction = Vector2(0, 1)
+
+[node name="TeleportZone" parent="." instance=ExtResource("45_wdtt1")]
+position = Vector2(674, 862)

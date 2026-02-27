@@ -18,7 +18,9 @@ const location_to_scene = {
 }
 
 func handle_location_changed(new_location: Events.LOCATION):
+	print("GameManager получил смену локации на: ", new_location)  # ОТЛАДКА
 	teleport_player_to_scene(new_location)
+	print("Меняю сцену на: ", location_to_scene.get(new_location))  # ОТЛАДКА
 	get_tree().change_scene_to_packed(location_to_scene.get(new_location))
 	
 func add_gold(amount: int):
@@ -57,6 +59,8 @@ func teleport_player_to_scene(location: Events.LOCATION):
 			remove_camera_from_player(current_scene_player)
 		else:
 			add_camera_to_player(current_scene_player)
+	
+	
 
 
 func add_camera_to_player(player: Node):
@@ -72,3 +76,4 @@ func remove_camera_from_player(player: Node):
 	var camera = player.get_node_or_null("Camera2D")
 	if camera:
 		camera.queue_free()
+		

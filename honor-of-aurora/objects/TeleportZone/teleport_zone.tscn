@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://ov1iq7xxu5ks"]
+
+[ext_resource type="Script" uid="uid://b86kgp7kcahj5" path="res://objects/TeleportZone/teleport_zone.gd" id="1_oic0v"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_puhkw"]
+radius = 64.0703
+
+[node name="TeleportZone" type="Area2D"]
+collision_layer = 8
+collision_mask = 2
+script = ExtResource("1_oic0v")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_puhkw")
