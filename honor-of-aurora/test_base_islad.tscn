@@ -45,7 +45,7 @@
 [ext_resource type="Texture2D" uid="uid://npdsd4f6qisb" path="res://Asets/Environment/Deco/13.png" id="43_h5h5x"]
 [ext_resource type="Texture2D" uid="uid://dup5d05xcku5y" path="res://Asets/Environment/Deco/11.png" id="44_2lpet"]
 [ext_resource type="TileSet" uid="uid://firbi0hvr3ji" path="res://world/resources/other/boat.tres" id="45_g7qod"]
-[ext_resource type="PackedScene" uid="uid://bmerpvjsmlavi" path="res://ally/worrier/scenes/variants/yellow_worrier.tscn" id="46_jkx30"]
+[ext_resource type="PackedScene" uid="uid://bmerpvjsmlavi" path="res://ally/player/scenes/lvl_5_yellow_player.tscn" id="46_jkx30"]
 [ext_resource type="PackedScene" uid="uid://blv7sgugmhgu4" path="res://ui/HUD/canvas_layer.tscn" id="48_7142n"]
 [ext_resource type="PackedScene" uid="uid://ogkghrj413uo" path="res://enemies/lancer/lancertscn.tscn" id="48_v1sjj"]
 [ext_resource type="PackedScene" uid="uid://ce2n65nel32t" path="res://enemies/minotaur/minotaur.tscn" id="49_6copw"]
