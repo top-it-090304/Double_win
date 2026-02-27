@@ -776,4 +776,7 @@ position = Vector2(688, 80)
 wait_time = 10.0
 one_shot = true
 
+[node name="cloud" parent="." instance=ExtResource("48_vf3ih")]
+position = Vector2(32, 497)
+
 [connection signal="timeout" from="CloudSpawnTimer" to="." method="_on_cloud_spawn_timer_timeout"]

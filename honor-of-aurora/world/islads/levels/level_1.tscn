@@ -1,4 +1,4 @@
-[gd_scene load_steps=102 format=4 uid="uid://7vqf7lgpiay1"]
+[gd_scene load_steps=108 format=4 uid="uid://7vqf7lgpiay1"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_7w7lq"]
 [ext_resource type="TileSet" uid="uid://dmxvg38r6drxj" path="res://world/resources/other/water.tres" id="2_itbnw"]
@@ -43,6 +43,12 @@
 [ext_resource type="Texture2D" uid="uid://ctnojj88654ml" path="res://Asets/Enemy/Enemy Pack/Enemy Avatars/Enemy Avatars_09.png" id="41_e3qtp"]
 [ext_resource type="TileSet" uid="uid://firbi0hvr3ji" path="res://world/resources/other/boat.tres" id="42_pipj0"]
 [ext_resource type="PackedScene" uid="uid://ce2n65nel32t" path="res://enemies/minotaur/minotaur.tscn" id="43_itlt0"]
+[ext_resource type="PackedScene" uid="uid://bdyaaaea7vcs4" path="res://enemies/bear/bear.tscn" id="44_dkm6y"]
+[ext_resource type="PackedScene" uid="uid://pkwk7p3dmtwo" path="res://enemies/gnome/gnome.tscn" id="45_8s1g3"]
+[ext_resource type="PackedScene" uid="uid://dko1jxlb4do32" path="res://enemies/harpoon fish/harpoon_Fish.tscn" id="46_nr6al"]
+[ext_resource type="PackedScene" uid="uid://bwyy7fy1fhke0" path="res://enemies/paddle fish/PaddleFish.tscn" id="47_37bra"]
+[ext_resource type="PackedScene" uid="uid://0cr41nkoqax0" path="res://ally/worrier/scenes/variants/blue_worrier.tscn" id="48_8s1g3"]
+[ext_resource type="PackedScene" uid="uid://blv7sgugmhgu4" path="res://ui/HUD/canvas_layer.tscn" id="49_nr6al"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_seqsi"]
 texture = ExtResource("1_7w7lq")
@@ -857,7 +863,25 @@ tile_set = SubResource("TileSet_rkdxa")
 tile_map_data = PackedByteArray("AADa/y8AAAAAAAAAAAA=")
 tile_set = ExtResource("42_pipj0")
 
+[node name="EnemyBase" parent="." instance=ExtResource("44_dkm6y")]
+position = Vector2(-1379, -216)
+
+[node name="Gnome" parent="." instance=ExtResource("45_8s1g3")]
+position = Vector2(-1291, 580)
+
+[node name="HarpoonFish" parent="." instance=ExtResource("46_nr6al")]
+position = Vector2(-217, -100)
+
+[node name="EnemyBase2" parent="." instance=ExtResource("47_37bra")]
+position = Vector2(-1070, -865)
+
+[node name="player_blue" parent="." instance=ExtResource("48_8s1g3")]
+position = Vector2(604, 740)
+
+[node name="Camera2D" type="Camera2D" parent="player_blue"]
+
+[node name="HUD" parent="." instance=ExtResource("49_nr6al")]
+
 [node name="Minotaur" parent="." instance=ExtResource("43_itlt0")]
-position = Vector2(1041, -1259)
-rotation = 3.14159
-scale = Vector2(1, -1)
+position = Vector2(980, -1292)
+up_direction = Vector2(0, 1)

@@ -6,6 +6,7 @@
 texture = ExtResource("1_8nupq")
 texture_region_size = Vector2i(192, 256)
 6:0/0 = 0
+0:0/animation_speed = 2.0
 0:0/animation_frame_0/duration = 1.0
 0:0/animation_frame_1/duration = 1.0
 0:0/animation_frame_2/duration = 1.0
