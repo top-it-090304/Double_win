@@ -1,10 +1,13 @@
-[gd_scene load_steps=3 format=3 uid="uid://blv7sgugmhgu4"]
+[gd_scene load_steps=5 format=3 uid="uid://blv7sgugmhgu4"]
 
 [ext_resource type="PackedScene" uid="uid://cnpf1px7wa4c4" path="res://ui/hp_bar/hp_bar.tscn" id="1_2ux7j"]
+[ext_resource type="Script" uid="uid://cxjk4ntx4c07e" path="res://ui/HUD/canvas_layer.gd" id="1_smmqc"]
 [ext_resource type="PackedScene" uid="uid://c5sanv15hjusy" path="res://ui/gold/gold.tscn" id="2_5vgpw"]
+[ext_resource type="Texture2D" uid="uid://cjha34kojfsit" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_08.png" id="4_ap7xm"]
 
 [node name="HUD" type="CanvasLayer"]
 layer = 5
+script = ExtResource("1_smmqc")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 anchors_preset = 15
@@ -15,9 +18,9 @@ grow_vertical = 2
 
 [node name="hp_bar" parent="TextureRect" instance=ExtResource("1_2ux7j")]
 layout_mode = 0
-offset_left = 38.0
+offset_left = 156.0
 offset_top = 39.0
-offset_right = 250.0
+offset_right = 368.0
 offset_bottom = 79.0
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
@@ -32,7 +35,17 @@ theme_override_constants/margin_right = 30
 theme_override_constants/margin_bottom = 30
 
 [node name="Gold" parent="." instance=ExtResource("2_5vgpw")]
-offset_left = 265.0
-offset_top = 31.0
-offset_right = 305.0
-offset_bottom = 71.0
+offset_left = 388.0
+offset_top = 24.0
+offset_right = 428.0
+offset_bottom = 64.0
+
+[node name="Button" type="Button" parent="."]
+offset_left = 56.0
+offset_top = 17.0
+offset_right = 128.0
+offset_bottom = 89.0
+icon = ExtResource("4_ap7xm")
+flat = true
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

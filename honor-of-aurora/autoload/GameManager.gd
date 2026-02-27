@@ -5,12 +5,13 @@ func _ready() -> void:
 
 var gold: int = 0
 const location_to_scene = {
-	Events.LOCATION.BASE: preload("res://world/islads/base/base_islad.tscn"), 
-	Events.LOCATION.LVL1: preload("res://world/islads/levels/level_1.tscn"), 
-	Events.LOCATION.LVL2: preload("res://world/islads/levels/level_2.tscn"), 
-	Events.LOCATION.LVL3: preload("res://world/islads/levels/level_3.tscn"), 
-	Events.LOCATION.LVL4: preload("res://world/islads/levels/level_4.tscn"), 
-	Events.LOCATION.LVL5: preload("res://world/islads/levels/level_5.tscn"), 
+	Events.LOCATION.BASE: preload("res://Game/Game_base_islad.tscn"), 
+	Events.LOCATION.LVL1: preload("res://Game/Game_level_1.tscn"), 
+	Events.LOCATION.LVL2: preload("res://Game/Game_level_2.tscn"), 
+	Events.LOCATION.LVL3: preload("res://Game/Game_level_3.tscn"), 
+	Events.LOCATION.LVL4: preload("res://Game/Game_level_4.tscn"), 
+	Events.LOCATION.LVL5: preload("res://Game/Game_level_5.tscn"), 
+	Events.LOCATION.MENU: preload("res://Game/Game_menu.tscn"), 
 	
 }
 
