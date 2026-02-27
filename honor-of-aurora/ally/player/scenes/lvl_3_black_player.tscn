@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dfcrogcqk4tat"]
 
-[ext_resource type="PackedScene" uid="uid://dr1fit5f1q2ii" path="res://ally/worrier/scenes/worrier_base.tscn" id="1_01bpt"]
+[ext_resource type="PackedScene" uid="uid://dr1fit5f1q2ii" path="res://ally/player/scenes/worrier_base.tscn" id="1_01bpt"]
 
 [node name="player_blue" instance=ExtResource("1_01bpt")]
 

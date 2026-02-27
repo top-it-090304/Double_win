@@ -150,4 +150,4 @@ func show_damage_number(amount: int):
 	var damage_number = preload("res://ui/DamageNumber/damage_number.tscn").instantiate()
 	damage_number.get_node("Label").text = str(amount)
 	add_child(damage_number)
-	damage_number.position = Vector2(-26, -120)  
+	damage_number.position = Vector2(-26, -120)

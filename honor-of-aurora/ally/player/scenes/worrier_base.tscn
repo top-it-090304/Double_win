@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://dr1fit5f1q2ii"]
 
-[ext_resource type="Script" uid="uid://d1ryb1r4otkas" path="res://ally/worrier/scripts/worrier_base.gd" id="1_oqrjc"]
-[ext_resource type="SpriteFrames" uid="uid://d5rjcohv0wqu" path="res://ally/worrier/resources/black_worrier_frame.tres" id="2_oqrjc"]
+[ext_resource type="Script" uid="uid://d1ryb1r4otkas" path="res://ally/player/scripts/worrier_base.gd" id="1_oqrjc"]
+[ext_resource type="SpriteFrames" uid="uid://d5rjcohv0wqu" path="res://ally/player/resources/black_worrier_frame.tres" id="2_oqrjc"]
 [ext_resource type="PackedScene" uid="uid://cnpf1px7wa4c4" path="res://ui/hp_bar/hp_bar.tscn" id="3_j1p54"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_j1p54"]

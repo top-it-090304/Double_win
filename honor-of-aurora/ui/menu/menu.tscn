@@ -1,8 +1,12 @@
-[gd_scene load_steps=4 format=3 uid="uid://odmcdls13s41"]
+[gd_scene load_steps=8 format=3 uid="uid://odmcdls13s41"]
 
 [ext_resource type="Script" uid="uid://cyuad7uq0huwf" path="res://ui/menu/menu.gd" id="1_trkij"]
 [ext_resource type="Texture2D" uid="uid://b6wip7ayua3kn" path="res://Asets/Unit_pack/UI Elements/UI Elements/Buttons/SmallBlueSquareButton_Regular.png" id="1_v6ljw"]
 [ext_resource type="FontFile" uid="uid://cj4nta75kb3fi" path="res://ui/font/AlumniSansCollegiateOne-Italic.ttf" id="1_w0ybq"]
+[ext_resource type="Texture2D" uid="uid://cf5kysi7be050" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_05.png" id="4_pjjyy"]
+[ext_resource type="Texture2D" uid="uid://dgwuk12s7shin" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_06.png" id="5_67opo"]
+[ext_resource type="Texture2D" uid="uid://c2rqbrhh8kb1w" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_10.png" id="6_k06v0"]
+[ext_resource type="Texture2D" uid="uid://c2sncif5w46no" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_09.png" id="7_pqn8s"]
 
 [node name="Menu" type="Control"]
 layout_mode = 3
@@ -28,6 +32,14 @@ flat = true
 alignment = 0
 clip_text = true
 
+[node name="TextureRect" type="TextureRect" parent="continue"]
+layout_mode = 0
+offset_left = 35.0
+offset_top = 33.0
+offset_right = 100.0
+offset_bottom = 90.0
+texture = ExtResource("4_pjjyy")
+
 [node name="new_game" type="Button" parent="."]
 layout_mode = 0
 offset_left = 373.0
@@ -40,6 +52,14 @@ text = "Новая игра"
 icon = ExtResource("1_v6ljw")
 flat = true
 alignment = 0
+
+[node name="TextureRect" type="TextureRect" parent="new_game"]
+layout_mode = 0
+offset_left = 34.0
+offset_top = 28.0
+offset_right = 103.0
+offset_bottom = 98.0
+texture = ExtResource("5_67opo")
 
 [node name="settings" type="Button" parent="."]
 layout_mode = 0
@@ -54,6 +74,14 @@ icon = ExtResource("1_v6ljw")
 flat = true
 alignment = 0
 
+[node name="TextureRect" type="TextureRect" parent="settings"]
+layout_mode = 0
+offset_left = 35.0
+offset_top = 33.0
+offset_right = 102.0
+offset_bottom = 97.0
+texture = ExtResource("6_k06v0")
+
 [node name="quit" type="Button" parent="."]
 layout_mode = 0
 offset_left = 373.0
@@ -66,5 +94,13 @@ text = "Выйти"
 icon = ExtResource("1_v6ljw")
 flat = true
 alignment = 0
+
+[node name="TextureRect" type="TextureRect" parent="quit"]
+layout_mode = 0
+offset_left = 33.0
+offset_top = 32.0
+offset_right = 104.0
+offset_bottom = 97.0
+texture = ExtResource("7_pqn8s")
 
 [connection signal="pressed" from="new_game" to="." method="_on_new_game_pressed"]
