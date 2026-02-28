@@ -5,6 +5,5 @@
 [node name="player_blue" instance=ExtResource("1_01bpt")]
 
 [node name="AnimatedSprite2D" parent="." index="1"]
-animation = &"idle"
 frame = 0
 frame_progress = 0.0

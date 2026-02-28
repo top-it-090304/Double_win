@@ -1,8 +1,94 @@
-[gd_scene load_steps=6 format=3 uid="uid://dr1fit5f1q2ii"]
+[gd_scene load_steps=19 format=3 uid="uid://dr1fit5f1q2ii"]
 
 [ext_resource type="Script" uid="uid://d1ryb1r4otkas" path="res://ally/player/scripts/worrier_base.gd" id="1_oqrjc"]
+[ext_resource type="Texture2D" uid="uid://gnm243up27ng" path="res://Asets/Unit_pack/Units/Blue Units/Monk/Heal_Effect.png" id="2_262v2"]
 [ext_resource type="SpriteFrames" uid="uid://d5rjcohv0wqu" path="res://ally/player/resources/black_worrier_frame.tres" id="2_oqrjc"]
 [ext_resource type="PackedScene" uid="uid://cnpf1px7wa4c4" path="res://ui/hp_bar/hp_bar.tscn" id="3_j1p54"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_amuyc"]
+atlas = ExtResource("2_262v2")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q2ams"]
+atlas = ExtResource("2_262v2")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fyxj2"]
+atlas = ExtResource("2_262v2")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e8eda"]
+atlas = ExtResource("2_262v2")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yr7ho"]
+atlas = ExtResource("2_262v2")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ccke1"]
+atlas = ExtResource("2_262v2")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_baqiy"]
+atlas = ExtResource("2_262v2")
+region = Rect2(1152, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j4xx0"]
+atlas = ExtResource("2_262v2")
+region = Rect2(1344, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c0k0l"]
+atlas = ExtResource("2_262v2")
+region = Rect2(1536, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7ajf0"]
+atlas = ExtResource("2_262v2")
+region = Rect2(1728, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t2ryq"]
+atlas = ExtResource("2_262v2")
+region = Rect2(1920, 0, 192, 192)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_3q5iu"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_amuyc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q2ams")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fyxj2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e8eda")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yr7ho")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ccke1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_baqiy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j4xx0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c0k0l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7ajf0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t2ryq")
+}],
+"loop": false,
+"name": &"heal_effect",
+"speed": 10.0
+}]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_j1p54"]
 radius = 13.0384
@@ -14,6 +100,12 @@ radius = 66.2722
 collision_layer = 2
 collision_mask = 15
 script = ExtResource("1_oqrjc")
+
+[node name="EffectSprite" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_3q5iu")
+animation = &"heal_effect"
+frame = 10
+frame_progress = 1.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 27)
