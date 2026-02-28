@@ -309,7 +309,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_cc75g")
 }],
-"loop": false,
+"loop": true,
 "name": &"heal_effect",
 "speed": 10.0
 }, {

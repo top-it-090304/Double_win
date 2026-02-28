@@ -9,7 +9,7 @@ var can_heal = true
 @export var heal_amount = 50
 @export var heal_cooldown = 1.0
 @export var health = 100
-@export var max_health = 100
+@export var max_health = 60
 
 @onready var anim = $AnimatedSprite2D
 @onready var detection = $detection_area
@@ -26,14 +26,38 @@ func _ready():
 func _physics_process(delta):
 	if state == State.HEAL:
 		return
+		
 	if target_player and is_instance_valid(target_player):
-		var dir = global_position.direction_to(target_player.global_position)
-		velocity = dir * speed
-		move_and_slide()
-		state = State.RUN if velocity.length() > 0 else State.IDLE
+		var should_move = true
+		var in_heal_zone = heal_area.overlaps_body(target_player)
+		
+		# Проверяем, полное ли здоровье у цели
+		var health_full = false
+		if target_player.has_method("is_health_full"):
+			health_full = target_player.is_health_full()
+		elif "health" in target_player and "max_health" in target_player:
+			health_full = target_player.health >= target_player.max_health
+		
+		# Условия для остановки движения
+		if in_heal_zone or health_full:
+			should_move = false
+		
+		if should_move:
+			var dir = global_position.direction_to(target_player.global_position)
+			velocity = dir * speed
+			move_and_slide()
+			state = State.RUN if velocity.length() > 0 else State.IDLE
+		else:
+			velocity = Vector2.ZERO
+			state = State.IDLE
+		
+		# Автоматическое лечение, если игрок в зоне и нуждается
+		if in_heal_zone and can_heal and not health_full:
+			_heal(target_player)
 	else:
 		velocity = Vector2.ZERO
 		state = State.IDLE
+	
 	update_animation()
 
 func update_animation():

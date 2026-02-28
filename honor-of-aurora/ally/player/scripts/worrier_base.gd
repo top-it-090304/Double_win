@@ -11,6 +11,7 @@ var health_bar: TextureProgressBar
 
 @onready var attack_area = $AttackArea
 @onready var anim = $AnimatedSprite2D
+@onready var effect_sprite = $EffectSprite
 
 signal health_changed(current_health)
 
@@ -19,6 +20,9 @@ var health: int
 var attack_index = 0
 
 func _ready():
+	if effect_sprite:
+		effect_sprite.visible = false
+		effect_sprite.stop()
 	add_to_group("player")
 	
 	var bar_node = get_tree().get_first_node_in_group("player_health_bar")
@@ -158,15 +162,15 @@ func heal(amount):
 	health_changed.emit(health)
 
 func play_heal_effect():
-	if anim.sprite_frames.has_animation("heal_effect"):
-		anim.play("heal_effect")
-		await get_tree().create_timer(0.3).timeout
-		if state == State.IDLE:
-			anim.play("idle")
-		elif state == State.RUN:
-			anim.play("run")
-		elif state == State.ATTACK:
-			pass 
-		elif state == State.SHIELD:
-			if anim.sprite_frames.has_animation("shield"):
-				anim.play("shield")
+	if effect_sprite.sprite_frames.has_animation("heal_effect"):
+		effect_sprite.visible = true
+		effect_sprite.flip_h = anim.flip_h  # синхронизируем отражение
+		effect_sprite.play("heal_effect")
+		await effect_sprite.animation_finished
+		effect_sprite.visible = false
+	else:
+		# Если анимация не найдена, можно просто ничего не делать или вывести предупреждение
+		print("heal_effect animation not found in effect_sprite")
+				
+func is_health_full() -> bool:
+	return health >= max_health
