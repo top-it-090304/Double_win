@@ -1806,11 +1806,11 @@ offset_top = 164.0
 offset_right = 752.0
 offset_bottom = 236.0
 scale = Vector2(0.8, 0.8)
-theme_override_colors/icon_pressed_color = Color(0.0823529, 0.596078, 0.364706, 0.729412)
-theme_override_colors/font_color = Color(0.701961, 0.65098, 0.270588, 1)
+theme_override_colors/icon_pressed_color = Color(0.084, 0.6, 0.3678, 0.34902)
+theme_override_colors/font_color = Color(0.901961, 0.929412, 0.678431, 1)
 theme_override_fonts/font = ExtResource("17_u8y0s")
 theme_override_font_sizes/font_size = 40
-text = "Остров номер 1"
+text = "Остров Солис"
 icon = ExtResource("18_33y4g")
 flat = true
 
@@ -1821,11 +1821,11 @@ offset_top = 105.0
 offset_right = 752.0
 offset_bottom = 177.0
 scale = Vector2(0.8, 0.8)
-theme_override_colors/icon_pressed_color = Color(0.0823529, 0.596078, 0.364706, 0.729412)
-theme_override_colors/font_color = Color(0.701961, 0.65098, 0.270588, 1)
+theme_override_colors/icon_pressed_color = Color(0.084, 0.6, 0.3678, 0.298039)
+theme_override_colors/font_color = Color(0.901961, 0.929412, 0.678431, 1)
 theme_override_fonts/font = ExtResource("17_u8y0s")
 theme_override_font_sizes/font_size = 40
-text = "Домой"
+text = "Остров Аврора"
 icon = ExtResource("18_33y4g")
 flat = true
 
@@ -1836,11 +1836,11 @@ offset_top = 228.0
 offset_right = 752.0
 offset_bottom = 300.0
 scale = Vector2(0.8, 0.8)
-theme_override_colors/icon_pressed_color = Color(0.0823529, 0.596078, 0.364706, 0.729412)
-theme_override_colors/font_color = Color(0.701961, 0.65098, 0.270588, 1)
+theme_override_colors/icon_pressed_color = Color(0.084, 0.6, 0.3678, 0.321569)
+theme_override_colors/font_color = Color(0.901961, 0.929412, 0.678431, 1)
 theme_override_fonts/font = ExtResource("17_u8y0s")
 theme_override_font_sizes/font_size = 40
-text = "Остров номер 2"
+text = "Остров Луна"
 icon = ExtResource("18_33y4g")
 flat = true
 
@@ -1851,11 +1851,11 @@ offset_top = 290.0
 offset_right = 752.0
 offset_bottom = 362.0
 scale = Vector2(0.8, 0.8)
-theme_override_colors/icon_pressed_color = Color(0.0823529, 0.596078, 0.364706, 0.729412)
-theme_override_colors/font_color = Color(0.701961, 0.65098, 0.270588, 1)
+theme_override_colors/icon_pressed_color = Color(0.084, 0.6, 0.3678, 0.352941)
+theme_override_colors/font_color = Color(0.901961, 0.929412, 0.678431, 1)
 theme_override_fonts/font = ExtResource("17_u8y0s")
 theme_override_font_sizes/font_size = 40
-text = "Остров номер 3"
+text = "Остров Борей"
 icon = ExtResource("18_33y4g")
 flat = true
 
@@ -1866,11 +1866,11 @@ offset_top = 355.0
 offset_right = 752.0
 offset_bottom = 427.0
 scale = Vector2(0.8, 0.8)
-theme_override_colors/icon_pressed_color = Color(0.0823529, 0.596078, 0.364706, 0.729412)
-theme_override_colors/font_color = Color(0.717647, 0.682353, 0.298039, 1)
+theme_override_colors/icon_pressed_color = Color(0.084, 0.6, 0.3678, 0.301961)
+theme_override_colors/font_color = Color(0.901961, 0.929412, 0.678431, 1)
 theme_override_fonts/font = ExtResource("17_u8y0s")
 theme_override_font_sizes/font_size = 40
-text = "Остров номер 4"
+text = "Остров Зефир"
 icon = ExtResource("18_33y4g")
 flat = true
 
@@ -1881,11 +1881,11 @@ offset_top = 421.0
 offset_right = 752.0
 offset_bottom = 493.0
 scale = Vector2(0.8, 0.8)
-theme_override_colors/icon_pressed_color = Color(0.0823529, 0.596078, 0.364706, 0.729412)
-theme_override_colors/font_color = Color(0.4, 0.2024, 0.192, 0.745098)
+theme_override_colors/icon_pressed_color = Color(0.084, 0.6, 0.3678, 0.403922)
+theme_override_colors/font_color = Color(0.900705, 0.93, 0.6789, 1)
 theme_override_fonts/font = ExtResource("17_u8y0s")
 theme_override_font_sizes/font_size = 40
-text = "Остров номер 5"
+text = "Остров Тифон "
 icon = ExtResource("18_33y4g")
 flat = true
 
@@ -1921,18 +1921,18 @@ texture = ExtResource("20_pvvtt")
 
 [node name="TextureRect13" type="TextureRect" parent="TextureRect/icons"]
 layout_mode = 0
-offset_left = 455.0
+offset_left = 454.0
 offset_top = 238.0
-offset_right = 519.0
+offset_right = 518.0
 offset_bottom = 302.0
 scale = Vector2(0.6, 0.6)
 texture = ExtResource("20_pvvtt")
 
 [node name="TextureRect14" type="TextureRect" parent="TextureRect/icons"]
 layout_mode = 0
-offset_left = 455.0
+offset_left = 454.0
 offset_top = 300.0
-offset_right = 519.0
+offset_right = 518.0
 offset_bottom = 364.0
 scale = Vector2(0.6, 0.6)
 texture = ExtResource("20_pvvtt")
@@ -1940,9 +1940,9 @@ texture = ExtResource("20_pvvtt")
 [node name="TextureRect15" type="TextureRect" parent="TextureRect/icons"]
 layout_mode = 0
 offset_left = 453.0
-offset_top = 365.0
+offset_top = 366.0
 offset_right = 517.0
-offset_bottom = 429.0
+offset_bottom = 430.0
 scale = Vector2(0.6, 0.6)
 texture = ExtResource("20_pvvtt")
 
@@ -1957,10 +1957,10 @@ texture = ExtResource("20_pvvtt")
 
 [node name="TextureRect17" type="TextureRect" parent="TextureRect/icons"]
 layout_mode = 0
-offset_left = 455.0
-offset_top = 112.0
-offset_right = 519.0
-offset_bottom = 176.0
+offset_left = 453.0
+offset_top = 114.0
+offset_right = 517.0
+offset_bottom = 178.0
 scale = Vector2(0.6, 0.6)
 texture = ExtResource("23_y8eop")
 
