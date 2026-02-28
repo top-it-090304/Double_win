@@ -8,29 +8,28 @@ var enemies_in_range : Array = []
 var facing_right := true
 
 @onready var attack_area = $attack_area
-@onready var animated_sprite = $AnimatedSprite2D
+@onready var sprite = $AnimatedSprite2D
 
 var attack_timer : Timer
 var idle_timer : Timer
 
 func _ready():
-	animated_sprite.play("idle")
+	sprite.play("idle")
 	
 	attack_timer = Timer.new()
 	attack_timer.wait_time = attack_cooldown
-	attack_timer.one_shot = false
 	attack_timer.timeout.connect(_on_attack_timer_timeout)
 	add_child(attack_timer)
 	
 	idle_timer = Timer.new()
 	idle_timer.wait_time = idle_flip_interval
-	idle_timer.one_shot = false
 	idle_timer.timeout.connect(_on_idle_timer_timeout)
 	add_child(idle_timer)
 	idle_timer.start()
 	
 	attack_area.body_entered.connect(_on_enemy_entered)
 	attack_area.body_exited.connect(_on_enemy_exited)
+	sprite.animation_finished.connect(_on_animation_finished)
 
 func _on_enemy_entered(body):
 	if body.is_in_group("enemy"):
@@ -44,8 +43,7 @@ func _on_enemy_exited(body):
 		enemies_in_range.erase(body)
 		if enemies_in_range.is_empty():
 			attack_timer.stop()
-			if animated_sprite.animation != "idle":
-				animated_sprite.play("idle")
+			sprite.play("idle")
 
 func _on_attack_timer_timeout():
 	call_deferred("attack")
@@ -54,42 +52,38 @@ func attack():
 	if enemies_in_range.is_empty():
 		return
 	
-	var target = null
+	var target
 	for enemy in enemies_in_range:
 		if is_instance_valid(enemy):
 			target = enemy
 			break
-	
-	if target == null:
+	if not target:
 		enemies_in_range.clear()
 		return
 	
-	var direction_to_target = (target.global_position - global_position).normalized()
+	var dir = (target.global_position - global_position).normalized()
 	
-	if direction_to_target.x > 0 and not facing_right:
+	if dir.x > 0 and not facing_right:
 		facing_right = true
-		animated_sprite.flip_h = false
-	elif direction_to_target.x < 0 and facing_right:
+		sprite.flip_h = false
+	elif dir.x < 0 and facing_right:
 		facing_right = false
-		animated_sprite.flip_h = true
+		sprite.flip_h = true
 	
-	animated_sprite.play("attack")
-	
-	if not animated_sprite.is_connected("animation_finished", Callable(self, "_on_attack_animation_finished")):
-		animated_sprite.animation_finished.connect(_on_attack_animation_finished)
+	sprite.play("attack")
+	await get_tree().create_timer(0.6).timeout
 	
 	if arrow_scene:
 		var arrow = arrow_scene.instantiate()
-		var offset = direction_to_target * 30
-		arrow.global_position = global_position + offset
-		arrow.direction = direction_to_target
+		arrow.global_position = global_position + dir * 30
+		arrow.direction = dir
 		get_tree().current_scene.add_child(arrow)
 
-func _on_attack_animation_finished():
-	if animated_sprite.animation == "attack":
-		animated_sprite.play("idle")
+func _on_animation_finished():
+	if sprite.animation == "attack":
+		sprite.play("idle")
 
 func _on_idle_timer_timeout():
-	if enemies_in_range.is_empty() and animated_sprite.animation != "attack":
-		facing_right = not facing_right
-		animated_sprite.flip_h = not facing_right
+	if not enemies_in_range and sprite.animation != "attack":
+		facing_right = !facing_right
+		sprite.flip_h = !facing_right

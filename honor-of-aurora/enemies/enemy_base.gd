@@ -23,7 +23,6 @@ var can_attack: bool = true
 var last_dir: Vector2 = Vector2.DOWN
 var patrol_dir: Vector2
 var patrol_timer: float = 0.0
-
 var attack_cooldown_timer: Timer
 
 func _ready():
@@ -31,12 +30,11 @@ func _ready():
 	detection_shape.shape.radius = detection_radius
 	attack_shape.shape.radius = attack_radius
 	
-	detection_area.connect("body_entered", _on_detection_area_entered)
-	detection_area.connect("body_exited", _on_detection_area_exited)
-	attack_area.connect("body_entered", _on_attack_area_entered)
-	anim.connect("animation_finished", _on_anim_finished)
+	detection_area.body_entered.connect(_on_detection_area_entered)
+	detection_area.body_exited.connect(_on_detection_area_exited)
+	attack_area.body_entered.connect(_on_attack_area_entered)
+	anim.animation_finished.connect(_on_anim_finished)
 	
-
 	attack_cooldown_timer = Timer.new()
 	attack_cooldown_timer.one_shot = true
 	attack_cooldown_timer.timeout.connect(_on_attack_cooldown_timeout)
@@ -63,20 +61,12 @@ func _physics_process(delta):
 					if can_attack:
 						start_attack()
 				else:
-					var direction = (player.global_position - global_position).normalized()
-					last_dir = direction
-					velocity = direction * speed
-					update_animation()
+					last_dir = (player.global_position - global_position).normalized()
+					velocity = last_dir * speed
 			else:
 				state = State.PATROL
 		
-		State.ATTACK:
-			velocity = Vector2.ZERO
-		
-		State.HIT:
-			velocity = Vector2.ZERO
-		
-		State.DEATH:
+		State.ATTACK, State.HIT, State.DEATH:
 			velocity = Vector2.ZERO
 	
 	move_and_slide()
@@ -85,7 +75,7 @@ func _physics_process(delta):
 func _on_detection_area_entered(body):
 	if body.is_in_group("player"):
 		player = body
-		if state != State.ATTACK and state != State.DEATH and state != State.HIT:
+		if state not in [State.ATTACK, State.DEATH, State.HIT]:
 			state = State.CHASE
 
 func _on_detection_area_exited(body):
@@ -95,17 +85,16 @@ func _on_detection_area_exited(body):
 			state = State.PATROL
 
 func _on_attack_area_entered(body):
-	if body == player and can_attack and state != State.ATTACK and state != State.DEATH and state != State.HIT:
+	if body == player and can_attack and state not in [State.ATTACK, State.DEATH, State.HIT]:
 		start_attack()
 
 func start_attack():
 	state = State.ATTACK
 	can_attack = false
-	velocity = Vector2.ZERO
 	if player:
 		var dir = (player.global_position - global_position).normalized()
 		last_dir = dir
-		anim.flip_h = (dir.x < 0)
+		anim.flip_h = dir.x < 0
 	anim.play("attack")
 	attack_cooldown_timer.start(attack_cooldown)
 
@@ -114,56 +103,38 @@ func apply_damage():
 		player.take_damage(attack_damage)
 
 func _on_anim_finished():
-	if anim.animation == "attack":
-		apply_damage()
-		if player and detection_area.overlaps_body(player):
-			state = State.CHASE
-		else:
-			state = State.PATROL
-
-	
-	elif anim.animation == "hit":
-		if player:
-			if attack_area.overlaps_body(player):
-				if can_attack:
-					start_attack()
-				else:
-					state = State.CHASE
-			elif detection_area.overlaps_body(player):
-				state = State.CHASE
+	match anim.animation:
+		"attack":
+			apply_damage()
+			state = State.CHASE if player and detection_area.overlaps_body(player) else State.PATROL
+		"hit":
+			if player:
+				state = State.ATTACK if attack_area.overlaps_body(player) and can_attack else State.CHASE if detection_area.overlaps_body(player) else State.PATROL
 			else:
 				state = State.PATROL
-		else:
-			state = State.PATROL
 
 func _on_attack_cooldown_timeout():
 	can_attack = true
 
 func update_animation():
-	match state:
-		State.PATROL, State.CHASE:
-			if velocity.length() > 0:
-				anim.play("run")
-				if velocity.x != 0:
-					anim.flip_h = velocity.x < 0
-			else:
-				anim.play("idle")
-		State.ATTACK, State.HIT, State.DEATH:
-			pass
+	if state in [State.PATROL, State.CHASE]:
+		if velocity.length() > 0:
+			anim.play("run")
+			if velocity.x != 0:
+				anim.flip_h = velocity.x < 0
+		else:
+			anim.play("idle")
 
 func take_damage(amount: int):
 	health -= amount
 	
-	if health <= 0 and state != State.DEATH:
+	if health <= 0:
 		die()
 		return
 	
-	if state != State.DEATH and state != State.HIT:
-		if anim.sprite_frames.has_animation("hit"):
-			state = State.HIT
-			anim.play("hit")
-		else:
-			pass
+	if state != State.DEATH and state != State.HIT and anim.sprite_frames.has_animation("hit"):
+		state = State.HIT
+		anim.play("hit")
 	
 	show_damage_number(amount)
 
@@ -173,11 +144,10 @@ func die():
 	$CollisionShape2D.set_deferred("disabled", true)
 	await anim.animation_finished
 	GameManager.add_gold(gold_reward)
-	
 	queue_free()
 
 func show_damage_number(amount: int):
 	var damage_number = preload("res://ui/DamageNumber/damage_number.tscn").instantiate()
 	damage_number.get_node("Label").text = str(amount)
 	add_child(damage_number)
-	damage_number.position = Vector2(-26, -80)  
+	damage_number.position = Vector2(-26, -80)
