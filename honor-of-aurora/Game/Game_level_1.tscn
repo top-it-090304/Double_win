@@ -1,5 +1,6 @@
-[gd_scene load_steps=104 format=4 uid="uid://bqbqem8v7k14a"]
+[gd_scene load_steps=105 format=4 uid="uid://bqbqem8v7k14a"]
 
+[ext_resource type="Script" uid="uid://dpq3m5qlc4ecm" path="res://Game/game_level_1.gd" id="1_ovlxy"]
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_rgygv"]
 [ext_resource type="TileSet" uid="uid://dmxvg38r6drxj" path="res://world/resources/other/water.tres" id="2_vrkl7"]
 [ext_resource type="TileSet" uid="uid://c6jqi8ris2d4j" path="res://world/resources/rocks/rock_1.tres" id="3_2b1vh"]
@@ -660,6 +661,7 @@ texture_region_size = Vector2i(256, 256)
 sources/0 = SubResource("TileSetAtlasSource_mdhqh")
 
 [node name="level_1" type="TileMapLayer"]
+script = ExtResource("1_ovlxy")
 
 [node name="island" type="TileMapLayer" parent="."]
 scale = Vector2(-1, 1)
@@ -866,4 +868,4 @@ position = Vector2(980, -1292)
 up_direction = Vector2(0, 1)
 
 [node name="TeleportZone" parent="." instance=ExtResource("45_wdtt1")]
-position = Vector2(674, 862)
+position = Vector2(686, 869)

@@ -15,22 +15,19 @@ func _input(event):
 		get_tree().paused = false
 
 func show_teleport_menu():
-	if teleport_menu.visible:  # Если уже видно - не показываем снова
+	if teleport_menu.visible:
 		return
-	print("show_teleport_menu вызван!")
 	teleport_menu.show()
 	get_tree().paused = true
 
 func hide_teleport_menu():
 	if not teleport_menu.visible:
 		return
-	print("hide_teleport_menu вызван!")
 	teleport_menu.hide()
 	get_tree().paused = false
 
 
 func teleport_to(location: Events.LOCATION):
-	print("HUD.teleport_to вызван с локацией: ", location)  # ОТЛАДКА
-	hide_teleport_menu()
-	print("Отправляю сигнал location_changed")  # ОТЛАДКА
+	teleport_menu.hide()
+	get_tree().paused = false
 	Events.location_changed.emit(location)

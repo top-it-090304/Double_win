@@ -52,5 +52,6 @@ flat = true
 
 [node name="teleport_menu" parent="." instance=ExtResource("5_ap7xm")]
 process_mode = 3
+visible = false
 
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
