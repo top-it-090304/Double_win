@@ -7,6 +7,6 @@
 
 [node name="AnimatedSprite2D" parent="." index="1"]
 sprite_frames = ExtResource("2_nwner")
-animation = &"dead"
+animation = &"idle"
 frame = 0
 frame_progress = 0.0

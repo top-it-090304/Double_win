@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://dpfx3v06w0iiw"]
+
+[ext_resource type="PackedScene" uid="uid://cbdgdn24l7pj" path="res://ally/Monk/monk_base.tscn" id="1_v7v1g"]
+[ext_resource type="SpriteFrames" uid="uid://b723qxvf4vec7" path="res://ally/Monk/resources/purple_monk.tres" id="2_3q12t"]
+
+[node name="Monk_base" instance=ExtResource("1_v7v1g")]
+
+[node name="AnimatedSprite2D" parent="." index="0" groups=["healer"]]
+sprite_frames = ExtResource("2_3q12t")
