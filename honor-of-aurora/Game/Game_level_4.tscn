@@ -1,6 +1,7 @@
-[gd_scene load_steps=118 format=4 uid="uid://bunfjup3nm8jf"]
+[gd_scene load_steps=120 format=4 uid="uid://bunfjup3nm8jf"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_qntfc"]
+[ext_resource type="Script" uid="uid://dp1f04wvqv70v" path="res://Game/game_level_4.gd" id="1_rafts"]
 [ext_resource type="TileSet" uid="uid://dmxvg38r6drxj" path="res://world/resources/other/water.tres" id="2_aecwv"]
 [ext_resource type="TileSet" uid="uid://c6jqi8ris2d4j" path="res://world/resources/rocks/rock_1.tres" id="3_7y3h8"]
 [ext_resource type="TileSet" uid="uid://dpmm1e4vk4id6" path="res://world/resources/rocks/rock_2.tres" id="4_c21fe"]
@@ -51,6 +52,7 @@
 [ext_resource type="PackedScene" uid="uid://bwyy7fy1fhke0" path="res://enemies/paddle fish/PaddleFish.tscn" id="49_nhb8i"]
 [ext_resource type="PackedScene" uid="uid://c5k78x3q2x2xd" path="res://enemies/thief/thief.tscn" id="50_yugnq"]
 [ext_resource type="PackedScene" uid="uid://ov1iq7xxu5ks" path="res://objects/TeleportZone/teleport_zone.tscn" id="51_v7pbb"]
+[ext_resource type="PackedScene" uid="uid://blv7sgugmhgu4" path="res://ui/HUD/canvas_layer.tscn" id="52_qhu61"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_seqsi"]
 texture = ExtResource("1_qntfc")
@@ -697,7 +699,8 @@ texture_region_size = Vector2i(256, 256)
 [sub_resource type="TileSet" id="TileSet_w3ce5"]
 sources/0 = SubResource("TileSetAtlasSource_2pp2u")
 
-[node name="level_1" type="TileMapLayer"]
+[node name="level_4" type="TileMapLayer"]
+script = ExtResource("1_rafts")
 
 [node name="island" type="TileMapLayer" parent="."]
 scale = Vector2(-1, 1)
@@ -935,4 +938,6 @@ rotation = 3.14159
 scale = Vector2(1, -1)
 
 [node name="TeleportZone" parent="." instance=ExtResource("51_v7pbb")]
-position = Vector2(671, 865)
+position = Vector2(688, 876)
+
+[node name="HUD" parent="." instance=ExtResource("52_qhu61")]

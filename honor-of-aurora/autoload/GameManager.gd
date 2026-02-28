@@ -18,9 +18,7 @@ const location_to_scene = {
 }
 
 func handle_location_changed(new_location: Events.LOCATION):
-	print("GameManager получил смену локации на: ", new_location)  # ОТЛАДКА
 	teleport_player_to_scene(new_location)
-	print("Меняю сцену на: ", location_to_scene.get(new_location))  # ОТЛАДКА
 	get_tree().change_scene_to_packed(location_to_scene.get(new_location))
 	
 func add_gold(amount: int):
