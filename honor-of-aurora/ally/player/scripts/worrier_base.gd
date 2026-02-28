@@ -28,9 +28,7 @@ func _ready():
 	var bar_node = get_tree().get_first_node_in_group("player_health_bar")
 	if bar_node and bar_node is TextureProgressBar:
 		health_bar = bar_node
-	else:
-		push_error("Health bar not found! Проверьте группу 'player_health_bar'.")
-		return
+
 	
 	
 	health = max_health
@@ -164,13 +162,10 @@ func heal(amount):
 func play_heal_effect():
 	if effect_sprite.sprite_frames.has_animation("heal_effect"):
 		effect_sprite.visible = true
-		effect_sprite.flip_h = anim.flip_h  # синхронизируем отражение
+		effect_sprite.flip_h = anim.flip_h
 		effect_sprite.play("heal_effect")
 		await effect_sprite.animation_finished
 		effect_sprite.visible = false
-	else:
-		# Если анимация не найдена, можно просто ничего не делать или вывести предупреждение
-		print("heal_effect animation not found in effect_sprite")
 				
 func is_health_full() -> bool:
 	return health >= max_health

@@ -7,7 +7,7 @@ var can_heal = true
 
 @export var speed = 150.0
 @export var heal_amount = 50
-@export var heal_cooldown = 1.0
+@export var heal_cooldown = 3.0
 @export var health = 100
 @export var max_health = 60
 
@@ -31,14 +31,12 @@ func _physics_process(delta):
 		var should_move = true
 		var in_heal_zone = heal_area.overlaps_body(target_player)
 		
-		# Проверяем, полное ли здоровье у цели
 		var health_full = false
 		if target_player.has_method("is_health_full"):
 			health_full = target_player.is_health_full()
 		elif "health" in target_player and "max_health" in target_player:
 			health_full = target_player.health >= target_player.max_health
 		
-		# Условия для остановки движения
 		if in_heal_zone or health_full:
 			should_move = false
 		
@@ -50,8 +48,7 @@ func _physics_process(delta):
 		else:
 			velocity = Vector2.ZERO
 			state = State.IDLE
-		
-		# Автоматическое лечение, если игрок в зоне и нуждается
+
 		if in_heal_zone and can_heal and not health_full:
 			_heal(target_player)
 	else:
@@ -76,7 +73,13 @@ func _on_heal_area(body):
 	if not can_heal:
 		return
 	if body.is_in_group("player") or body.is_in_group("healer"):
-		_heal(body)
+		var health_full = false
+		if body.has_method("is_health_full"):
+			health_full = body.is_health_full()
+		elif "health" in body and "max_health" in body:
+			health_full = body.health >= body.max_health
+		if not health_full:
+			_heal(body)
 
 func _heal(target):
 	can_heal = false
