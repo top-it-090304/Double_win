@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://ncsym2n2xmnh"]
+
+[ext_resource type="PackedScene" uid="uid://cbdgdn24l7pj" path="res://ally/Monk/monk_base.tscn" id="1_xynnn"]
+[ext_resource type="SpriteFrames" uid="uid://bj4srrv4mhwpo" path="res://ally/Monk/resources/red_monk.tres" id="2_q7gnj"]
+
+[node name="Monk_base" instance=ExtResource("1_xynnn")]
+
+[node name="AnimatedSprite2D" parent="." index="0"]
+sprite_frames = ExtResource("2_q7gnj")

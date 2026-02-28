@@ -151,3 +151,22 @@ func show_damage_number(amount: int):
 	damage_number.get_node("Label").text = str(amount)
 	add_child(damage_number)
 	damage_number.position = Vector2(-26, -120)
+	
+
+func heal(amount):
+	health = min(health + amount, max_health)
+	health_changed.emit(health)
+
+func play_heal_effect():
+	if anim.sprite_frames.has_animation("heal_effect"):
+		anim.play("heal_effect")
+		await get_tree().create_timer(0.3).timeout
+		if state == State.IDLE:
+			anim.play("idle")
+		elif state == State.RUN:
+			anim.play("run")
+		elif state == State.ATTACK:
+			pass 
+		elif state == State.SHIELD:
+			if anim.sprite_frames.has_animation("shield"):
+				anim.play("shield")
