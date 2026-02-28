@@ -16,29 +16,22 @@ var health_bar: TextureProgressBar
 signal health_changed(current_health)
 
 var health: int
-
 var attack_index = 0
 
 func _ready():
 	if effect_sprite:
 		effect_sprite.visible = false
-		effect_sprite.stop()
 	add_to_group("player")
 	
 	var bar_node = get_tree().get_first_node_in_group("player_health_bar")
-	if bar_node and bar_node is TextureProgressBar:
+	if bar_node is TextureProgressBar:
 		health_bar = bar_node
-
-	
 	
 	health = max_health
 	health_bar.max_value = max_health
 	health_bar.value = health
 	
-	anim.connect("animation_finished", _on_anim_finished)
-	
-	health_bar.max_value = max_health
-	health_bar.value = health
+	anim.animation_finished.connect(_on_anim_finished)
 
 func _physics_process(delta):
 	var dir = Vector2.ZERO
@@ -58,12 +51,7 @@ func _physics_process(delta):
 	move_and_slide()
 	
 	if state not in [State.ATTACK, State.SHIELD]:
-		if velocity.length() > 0:
-			if state != State.RUN:
-				state = State.RUN
-		else:
-			if state != State.IDLE:
-				state = State.IDLE
+		state = State.RUN if velocity.length() > 0 else State.IDLE
 	
 	if Input.is_action_just_pressed("attack") and state not in [State.ATTACK, State.SHIELD]:
 		change_state(State.ATTACK)
@@ -80,22 +68,14 @@ func change_state(new_state: State):
 	
 	match state:
 		State.ATTACK:
-			var anim_name = ""
-			
+			var anim_name = "attack_1"
 			if abs(last_dir.y) > abs(last_dir.x):
-				if last_dir.y > 0:
-					anim_name = "attack_1"
-				else:
-					anim_name = "attack_2"
+				anim_name = "attack_1" if last_dir.y > 0 else "attack_2"
 			else:
 				attack_index = (attack_index + 1) % 2
 				anim_name = "attack_1" if attack_index == 0 else "attack_2"
 			
-			if last_dir.x < 0 or last_dir.y > 0:
-				anim.flip_h = true
-			else:
-				anim.flip_h = false
-			
+			anim.flip_h = last_dir.x < 0 or last_dir.y > 0
 			anim.play(anim_name)
 		
 		State.SHIELD:
@@ -104,8 +84,6 @@ func change_state(new_state: State):
 				anim.play("shield")
 			else:
 				back_to_movement()
-		_:
-			pass
 
 func _on_anim_finished():
 	if state == State.ATTACK:
@@ -127,9 +105,7 @@ func update_anim():
 			anim.play("dead")
 
 func take_damage(amount):
-	var final_damage = amount
-	if state == State.SHIELD:
-		final_damage = int(amount * 0.2)
+	var final_damage = int(amount * 0.2) if state == State.SHIELD else amount
 	health -= final_damage
 	health_changed.emit(health)
 	if health <= 0 and state != State.DEATH:
@@ -153,7 +129,6 @@ func show_damage_number(amount: int):
 	damage_number.get_node("Label").text = str(amount)
 	add_child(damage_number)
 	damage_number.position = Vector2(-26, -120)
-	
 
 func heal(amount):
 	health = min(health + amount, max_health)
