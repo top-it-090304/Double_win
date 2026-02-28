@@ -1,4 +1,4 @@
-[gd_scene load_steps=98 format=4 uid="uid://qjpxr41gfbih"]
+[gd_scene load_steps=99 format=4 uid="uid://qjpxr41gfbih"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_dogb5"]
 [ext_resource type="TileSet" uid="uid://dmxvg38r6drxj" path="res://world/resources/other/water.tres" id="2_kuyrn"]
@@ -49,6 +49,7 @@
 [ext_resource type="PackedScene" uid="uid://blv7sgugmhgu4" path="res://ui/HUD/canvas_layer.tscn" id="48_7142n"]
 [ext_resource type="PackedScene" uid="uid://ogkghrj413uo" path="res://enemies/lancer/lancertscn.tscn" id="48_v1sjj"]
 [ext_resource type="PackedScene" uid="uid://cbdgdn24l7pj" path="res://ally/Monk/monk_base.tscn" id="49_rfnuo"]
+[ext_resource type="PackedScene" uid="uid://bsujm6jc6ngu1" path="res://ally/archer/arche_baser.tscn" id="50_0jl1k"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_jkx30"]
 texture = ExtResource("1_dogb5")
@@ -797,8 +798,8 @@ position = Vector2(307, 646)
 
 [node name="Monk_base" parent="." instance=ExtResource("49_rfnuo")]
 position = Vector2(393, 287)
-speed = 150.0
-heal_amount = 50
 heal_cooldown = 1.0
-health = 100
 max_health = 100
+
+[node name="archer" parent="." instance=ExtResource("50_0jl1k")]
+position = Vector2(221, 389)

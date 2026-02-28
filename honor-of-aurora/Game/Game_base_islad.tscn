@@ -1,4 +1,4 @@
-[gd_scene load_steps=98 format=4 uid="uid://bos5r41ll0qqe"]
+[gd_scene load_steps=99 format=4 uid="uid://bos5r41ll0qqe"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_lc62k"]
 [ext_resource type="Script" uid="uid://drx5ypae7garp" path="res://Game/game_base_islad.gd" id="1_xjk1y"]
@@ -49,6 +49,7 @@
 [ext_resource type="PackedScene" uid="uid://blv7sgugmhgu4" path="res://ui/HUD/canvas_layer.tscn" id="47_nepwl"]
 [ext_resource type="PackedScene" uid="uid://ov1iq7xxu5ks" path="res://objects/TeleportZone/teleport_zone.tscn" id="48_xjk1y"]
 [ext_resource type="PackedScene" uid="uid://cw0ig72fvkht4" path="res://ally/Monk/blue/blue_monk.tscn" id="49_2xyqv"]
+[ext_resource type="PackedScene" uid="uid://bsujm6jc6ngu1" path="res://ally/archer/arche_baser.tscn" id="50_yrcvs"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t7r2l"]
 texture = ExtResource("1_lc62k")
@@ -790,3 +791,27 @@ position = Vector2(-660, 865)
 
 [node name="Monk_base" parent="." instance=ExtResource("49_2xyqv")]
 position = Vector2(1217, 242)
+
+[node name="archer" parent="." instance=ExtResource("50_yrcvs")]
+position = Vector2(-1338, -187)
+
+[node name="archer2" parent="." instance=ExtResource("50_yrcvs")]
+position = Vector2(-219, -560)
+
+[node name="archer3" parent="." instance=ExtResource("50_yrcvs")]
+position = Vector2(1719, -395)
+
+[node name="archer4" parent="." instance=ExtResource("50_yrcvs")]
+position = Vector2(2679, -203)
+
+[node name="archer5" parent="." instance=ExtResource("50_yrcvs")]
+position = Vector2(1908, 320)
+
+[node name="archer6" parent="." instance=ExtResource("50_yrcvs")]
+position = Vector2(881, -1023)
+
+[node name="archer7" parent="." instance=ExtResource("50_yrcvs")]
+position = Vector2(875, 718)
+
+[node name="archer8" parent="." instance=ExtResource("50_yrcvs")]
+position = Vector2(-633, 918)
