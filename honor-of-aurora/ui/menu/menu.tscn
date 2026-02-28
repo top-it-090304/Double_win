@@ -103,4 +103,7 @@ offset_right = 104.0
 offset_bottom = 97.0
 texture = ExtResource("7_pqn8s")
 
+[connection signal="pressed" from="continue" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="new_game" to="." method="_on_new_game_pressed"]
+[connection signal="pressed" from="settings" to="." method="_on_settings_pressed"]
+[connection signal="pressed" from="quit" to="." method="_on_quit_pressed"]
