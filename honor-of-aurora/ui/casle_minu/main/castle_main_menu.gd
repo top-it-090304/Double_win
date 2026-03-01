@@ -16,8 +16,7 @@ func _process(delta: float) -> void:
 
 func _on_back_pressed() -> void:
 	var hud = get_hud()
-	if hud:
-		hud.hide_castle_menu()
+	hud.hide_castle_menu()
 
 
 func _on_hire_pressed() -> void:
