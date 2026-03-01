@@ -1440,6 +1440,7 @@ tile_map_data = PackedByteArray("AAARAA4AAAAgACIAAAARAA8AAAAgACMAAAARABAAAQAAAAg
 tile_set = SubResource("TileSet_7l04m")
 
 [node name="buttons" type="TextureRect" parent="."]
+process_mode = 3
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1448,6 +1449,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="back" type="Button" parent="buttons"]
+process_mode = 3
 layout_mode = 0
 offset_left = 373.0
 offset_top = 211.0
@@ -1457,6 +1459,7 @@ icon = ExtResource("4_ltan3")
 flat = true
 
 [node name="hire" type="Button" parent="buttons"]
+process_mode = 3
 layout_mode = 0
 offset_left = 499.0
 offset_top = 254.0
@@ -1473,6 +1476,7 @@ icon = ExtResource("6_2llpa")
 flat = true
 
 [node name="upgreat" type="Button" parent="buttons"]
+process_mode = 3
 layout_mode = 0
 offset_left = 501.0
 offset_top = 332.0
@@ -1488,6 +1492,7 @@ icon = ExtResource("7_sbu3m")
 flat = true
 
 [node name="info" type="Button" parent="buttons"]
+process_mode = 3
 layout_mode = 0
 offset_left = 504.0
 offset_top = 411.0
