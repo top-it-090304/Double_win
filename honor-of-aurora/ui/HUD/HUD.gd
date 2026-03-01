@@ -1,6 +1,7 @@
 extends CanvasLayer
 
 @export var teleport_menu: Control
+@export var castle_menu: Control
 
 func _on_button_pressed() -> void:
 	Events.location_changed.emit(Events.LOCATION.MENU)
@@ -31,3 +32,11 @@ func teleport_to(location: Events.LOCATION):
 	teleport_menu.hide()
 	get_tree().paused = false
 	Events.location_changed.emit(location)
+	
+	
+func show_castle_menu():
+	castle_menu.show()
+	
+	
+func hide_castle_menu():
+	castle_menu.hide()

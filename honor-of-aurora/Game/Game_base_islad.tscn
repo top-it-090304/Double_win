@@ -818,4 +818,4 @@ position = Vector2(875, 718)
 position = Vector2(-633, 918)
 
 [node name="CastleMenuZone" parent="." instance=ExtResource("51_dyndt")]
-position = Vector2(-288, 943)
+position = Vector2(1445, -170)
