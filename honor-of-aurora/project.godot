@@ -46,6 +46,7 @@ shield={
 2d_physics/layer_3="borderline"
 2d_physics/layer_4="ally"
 2d_physics/layer_5="arrow"
+2d_physics/layer_6="zone"
 
 [physics]
 

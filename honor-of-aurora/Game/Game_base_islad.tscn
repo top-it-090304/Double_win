@@ -1,4 +1,4 @@
-[gd_scene load_steps=99 format=4 uid="uid://bos5r41ll0qqe"]
+[gd_scene load_steps=100 format=4 uid="uid://bos5r41ll0qqe"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_lc62k"]
 [ext_resource type="Script" uid="uid://drx5ypae7garp" path="res://Game/game_base_islad.gd" id="1_xjk1y"]
@@ -50,6 +50,7 @@
 [ext_resource type="PackedScene" uid="uid://ov1iq7xxu5ks" path="res://objects/TeleportZone/teleport_zone.tscn" id="48_xjk1y"]
 [ext_resource type="PackedScene" uid="uid://cw0ig72fvkht4" path="res://ally/Monk/blue/blue_monk.tscn" id="49_2xyqv"]
 [ext_resource type="PackedScene" uid="uid://bsujm6jc6ngu1" path="res://ally/archer/arche_baser.tscn" id="50_yrcvs"]
+[ext_resource type="PackedScene" uid="uid://cdt7wnqjrqmld" path="res://objects/CastleMenuZone/castle_menu_zone.tscn" id="51_dyndt"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t7r2l"]
 texture = ExtResource("1_lc62k")
@@ -815,3 +816,6 @@ position = Vector2(875, 718)
 
 [node name="archer8" parent="." instance=ExtResource("50_yrcvs")]
 position = Vector2(-633, 918)
+
+[node name="CastleMenuZone" parent="." instance=ExtResource("51_dyndt")]
+position = Vector2(-288, 943)
