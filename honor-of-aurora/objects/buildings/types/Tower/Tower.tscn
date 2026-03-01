@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://ds31l027ndmtr"]
+
+[ext_resource type="PackedScene" uid="uid://cfqlhdxlogxku" path="res://objects/buildings/building_template.tscn" id="1_wjrnw"]
+[ext_resource type="Texture2D" uid="uid://c4ej8mdvqnmgf" path="res://Asets/Unit_pack/Buildings/Black Buildings/Tower.png" id="2_3vptc"]
+
+[node name="BuildingTemplate" instance=ExtResource("1_wjrnw")]
+building_type = "Tower"
+
+[node name="Sprite" parent="." index="0"]
+texture = ExtResource("2_3vptc")
+
+[node name="CollisionShape2D" parent="Sprite/Area2D" index="0"]
+position = Vector2(-2, -15)

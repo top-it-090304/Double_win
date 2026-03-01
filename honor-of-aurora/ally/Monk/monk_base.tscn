@@ -352,6 +352,7 @@ position = Vector2(2, 23)
 shape = SubResource("CircleShape2D_63ily")
 
 [node name="detection_area" type="Area2D" parent="."]
+visible = false
 collision_layer = 8
 collision_mask = 15
 
@@ -359,6 +360,7 @@ collision_mask = 15
 shape = SubResource("CircleShape2D_q3rah")
 
 [node name="heal_area" type="Area2D" parent="."]
+visible = false
 collision_layer = 8
 collision_mask = 15
 

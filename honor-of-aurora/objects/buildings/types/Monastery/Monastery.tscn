@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://d31shusm8kcnv"]
+
+[ext_resource type="PackedScene" uid="uid://cfqlhdxlogxku" path="res://objects/buildings/building_template.tscn" id="1_06ytt"]
+[ext_resource type="Texture2D" uid="uid://g6rsn2lfgs4p" path="res://Asets/Unit_pack/Buildings/Black Buildings/Monastery.png" id="2_uxf73"]
+
+[node name="BuildingTemplate" instance=ExtResource("1_06ytt")]
+building_type = "Monastery"
+
+[node name="Sprite" parent="." index="0"]
+texture = ExtResource("2_uxf73")
+
+[node name="CollisionShape2D" parent="Sprite/Area2D" index="0"]
+position = Vector2(-1, 127)

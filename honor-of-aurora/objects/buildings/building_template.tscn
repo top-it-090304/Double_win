@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://cfqlhdxlogxku"]
+
+[ext_resource type="Script" uid="uid://bbg2yourv7kgt" path="res://objects/buildings/building_template.gd" id="1_xn4ct"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_713i5"]
+radius = 39.0128
+
+[node name="BuildingTemplate" type="Node2D"]
+script = ExtResource("1_xn4ct")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+
+[node name="Area2D" type="Area2D" parent="Sprite"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sprite/Area2D"]
+shape = SubResource("CircleShape2D_713i5")

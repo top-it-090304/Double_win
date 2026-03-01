@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://d002knar04rhp"]
+
+[ext_resource type="Script" uid="uid://cvubixpjcaxft" path="res://node_2d.gd" id="1_0e48y"]
+[ext_resource type="PackedScene" uid="uid://cfqlhdxlogxku" path="res://objects/buildings/building_template.tscn" id="1_wtcfe"]
+[ext_resource type="Texture2D" uid="uid://f5y4cty572bj" path="res://Asets/Unit_pack/UI Elements/UI Elements/Buttons/TinySquareBlueButton.png" id="3_epypp"]
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource("1_0e48y")
+
+[node name="Building" parent="." instance=ExtResource("1_wtcfe")]
+
+[node name="Camera2D" type="Camera2D" parent="Building"]
+
+[node name="Button" type="Button" parent="."]
+offset_left = 172.0
+offset_top = 62.0
+offset_right = 402.0
+offset_bottom = 134.0
+text = "Улучьшить здание"
+icon = ExtResource("3_epypp")
+flat = true
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
