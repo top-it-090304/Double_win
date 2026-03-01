@@ -1,15 +1,17 @@
-[gd_scene load_steps=6 format=3 uid="uid://blv7sgugmhgu4"]
+[gd_scene load_steps=7 format=3 uid="uid://blv7sgugmhgu4"]
 
 [ext_resource type="PackedScene" uid="uid://cnpf1px7wa4c4" path="res://ui/hp_bar/hp_bar.tscn" id="1_2ux7j"]
 [ext_resource type="Script" uid="uid://cxjk4ntx4c07e" path="res://ui/HUD/HUD.gd" id="1_smmqc"]
 [ext_resource type="PackedScene" uid="uid://c5sanv15hjusy" path="res://ui/gold/gold.tscn" id="2_5vgpw"]
 [ext_resource type="Texture2D" uid="uid://cjha34kojfsit" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_08.png" id="4_ap7xm"]
 [ext_resource type="PackedScene" uid="uid://cmfxxbaugd182" path="res://ui/level_menu/teleport_menu.tscn" id="5_ap7xm"]
+[ext_resource type="PackedScene" uid="uid://bdhapr120iqry" path="res://ui/casle_minu/main/castle_main_menu.tscn" id="6_swbn3"]
 
-[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("teleport_menu") groups=["hud"]]
+[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("teleport_menu", "castle_menu") groups=["hud"]]
 layer = 5
 script = ExtResource("1_smmqc")
 teleport_menu = NodePath("teleport_menu")
+castle_menu = NodePath("CastleMainMenu")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 anchors_preset = 15
@@ -53,5 +55,10 @@ flat = true
 [node name="teleport_menu" parent="." instance=ExtResource("5_ap7xm")]
 process_mode = 3
 visible = false
+
+[node name="CastleMainMenu" parent="." instance=ExtResource("6_swbn3")]
+visible = false
+offset_top = 20.0
+offset_bottom = 20.0
 
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

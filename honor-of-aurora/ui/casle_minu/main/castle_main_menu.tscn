@@ -1,6 +1,6 @@
 [gd_scene load_steps=14 format=4 uid="uid://bdhapr120iqry"]
 
-[ext_resource type="Script" uid="uid://dtfup2chrte7q" path="res://ui/casle_minu/main/casle_main_menu.gd" id="1_7l04m"]
+[ext_resource type="Script" uid="uid://dtfup2chrte7q" path="res://ui/casle_minu/main/castle_main_menu.gd" id="1_7l04m"]
 [ext_resource type="Texture2D" uid="uid://bdxdoi12667fp" path="res://Asets/Unit_pack/UI Elements/UI Banners from the store page/Ribbons/Ribbon_Black.png" id="1_x7hsw"]
 [ext_resource type="Texture2D" uid="uid://c26h4qameqiu0" path="res://Asets/Unit_pack/UI Elements/UI Banners from the store page/Banner/Banner.png" id="2_y1cmp"]
 [ext_resource type="Texture2D" uid="uid://c6u7whijevid" path="res://Asets/Unit_pack/UI Elements/UI Banners from the store page/Banner/Slots.png" id="3_qpd68"]

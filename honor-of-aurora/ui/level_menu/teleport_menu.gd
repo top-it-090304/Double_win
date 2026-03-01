@@ -4,9 +4,7 @@ func get_hud():
 	return get_tree().get_first_node_in_group("hud")
 
 func _on_button_pressed() -> void:
-	print("Кнопка 1 нажата")  # ОТЛАДКА
 	var hud = get_hud()
-	print("HUD найден: ", hud)  # ОТЛАДКА
 	if hud:
 		hud.teleport_to(Events.LOCATION.LVL1)
 
@@ -39,7 +37,6 @@ func _on_button_5_pressed() -> void:
 
 
 func _on_button_6_pressed() -> void:
-	print("Кнопка 6 нажата")  # ОТЛАДКА
 	var hud = get_hud()
 	if hud:
 		hud.hide_teleport_menu()
