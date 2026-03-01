@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://d3d05n14g8hy4"]
+
+[ext_resource type="PackedScene" uid="uid://cfqlhdxlogxku" path="res://objects/buildings/building_template.tscn" id="1_ke3iv"]
+[ext_resource type="Texture2D" uid="uid://cobp8m2vrs2vc" path="res://Asets/Unit_pack/Buildings/Black Buildings/Barracks.png" id="2_wicq5"]
+
+[node name="BuildingTemplate" instance=ExtResource("1_ke3iv")]
+building_type = "Barracks"
+
+[node name="Sprite" parent="." index="0"]
+texture = ExtResource("2_wicq5")
+
+[node name="CollisionShape2D" parent="Sprite/Area2D" index="0"]
+position = Vector2(-1, 94)

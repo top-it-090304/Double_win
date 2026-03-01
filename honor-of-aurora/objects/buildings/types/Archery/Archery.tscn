@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://cd3fj0ixowfv6"]
+
+[ext_resource type="PackedScene" uid="uid://cfqlhdxlogxku" path="res://objects/buildings/building_template.tscn" id="1_f0ysu"]
+[ext_resource type="Texture2D" uid="uid://c5cvh41fda3ey" path="res://Asets/Unit_pack/Buildings/Black Buildings/Archery.png" id="2_aihau"]
+
+[node name="BuildingTemplate" instance=ExtResource("1_f0ysu")]
+
+[node name="Sprite" parent="." index="0"]
+texture = ExtResource("2_aihau")
+
+[node name="CollisionShape2D" parent="Sprite/Area2D" index="0"]
+position = Vector2(40, 85)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=98 format=4 uid="uid://bos5r41ll0qqe"]
+[gd_scene load_steps=103 format=4 uid="uid://bos5r41ll0qqe"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_lc62k"]
 [ext_resource type="Script" uid="uid://drx5ypae7garp" path="res://Game/game_base_islad.gd" id="1_xjk1y"]
@@ -48,9 +48,14 @@
 [ext_resource type="TileSet" uid="uid://firbi0hvr3ji" path="res://world/resources/other/boat.tres" id="45_thtv5"]
 [ext_resource type="PackedScene" uid="uid://blv7sgugmhgu4" path="res://ui/HUD/canvas_layer.tscn" id="47_nepwl"]
 [ext_resource type="PackedScene" uid="uid://ov1iq7xxu5ks" path="res://objects/TeleportZone/teleport_zone.tscn" id="48_xjk1y"]
-[ext_resource type="PackedScene" uid="uid://cw0ig72fvkht4" path="res://ally/Monk/blue/blue_monk.tscn" id="49_2xyqv"]
 [ext_resource type="PackedScene" uid="uid://bsujm6jc6ngu1" path="res://ally/archer/arche_baser.tscn" id="50_yrcvs"]
+[ext_resource type="PackedScene" uid="uid://hplx73anowae" path="res://ally/Monk/black/black_monk.tscn" id="51_80jge"]
 [ext_resource type="PackedScene" uid="uid://cdt7wnqjrqmld" path="res://objects/CastleMenuZone/castle_menu_zone.tscn" id="51_dyndt"]
+[ext_resource type="PackedScene" uid="uid://cd3fj0ixowfv6" path="res://objects/buildings/types/Archery/Archery.tscn" id="52_80jge"]
+[ext_resource type="PackedScene" uid="uid://d3d05n14g8hy4" path="res://objects/buildings/types/Barracks/Barracks.tscn" id="53_baw7m"]
+[ext_resource type="PackedScene" uid="uid://bf7op66re1ij8" path="res://objects/buildings/types/Castle/Castle.tscn" id="54_6plli"]
+[ext_resource type="PackedScene" uid="uid://d31shusm8kcnv" path="res://objects/buildings/types/Monastery/Monastery.tscn" id="55_n0ibi"]
+[ext_resource type="PackedScene" uid="uid://ds31l027ndmtr" path="res://objects/buildings/types/Tower/Tower.tscn" id="56_bq7kj"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t7r2l"]
 texture = ExtResource("1_lc62k")
@@ -695,16 +700,19 @@ tile_set = SubResource("TileSet_32dgv")
 [node name="builings" type="TileMapLayer" parent="island"]
 
 [node name="Archery" type="TileMapLayer" parent="island/builings"]
+visible = false
 scale = Vector2(1.3, 1.3)
 tile_map_data = PackedByteArray("AAAIAAAAAAAAAAAAAAA=")
 tile_set = ExtResource("28_o3vs8")
 
 [node name="Barracks" type="TileMapLayer" parent="island/builings"]
+visible = false
 scale = Vector2(1.3, 1.3)
 tile_map_data = PackedByteArray("AAB2AOv/AAAAAAAAAAA=")
 tile_set = ExtResource("29_8jjeb")
 
 [node name="Castle" type="TileMapLayer" parent="island/builings"]
+visible = false
 scale = Vector2(1.4, 1.4)
 tile_map_data = PackedByteArray("AABAAPP/AAAAAAAAAAA=")
 tile_set = ExtResource("30_ql46n")
@@ -726,11 +734,13 @@ tile_map_data = PackedByteArray("AABKAMz/AAAAAAAAAADz/wEAAAAAAAAAAAAXAAQAAAAAAAA
 tile_set = SubResource("TileSet_86sc8")
 
 [node name="Monastery" type="TileMapLayer" parent="island/builings"]
+visible = false
 scale = Vector2(1.3, 1.3)
 tile_map_data = PackedByteArray("AABBAAMAAAAAAAAAAAA=")
 tile_set = ExtResource("35_64u2n")
 
 [node name="Tower" type="TileMapLayer" parent="island/builings"]
+visible = false
 tile_map_data = PackedByteArray("AAA3AMP/AAAAAAAAAACs//f/AAAAAAAAAADY/zwAAAAAAAAAAAA2ADAAAAAAAAAAAAB3ABcAAAAAAAAAAACnAPb/AAAAAAAAAADy/+D/AAAAAAAAAABrAOr/AAAAAAAAAAA=")
 tile_set = SubResource("TileSet_e7r6s")
 
@@ -777,32 +787,84 @@ tile_set = ExtResource("45_thtv5")
 [node name="TeleportZone" parent="." instance=ExtResource("48_xjk1y")]
 position = Vector2(-660, 865)
 
-[node name="Monk_base" parent="." instance=ExtResource("49_2xyqv")]
-position = Vector2(1217, 242)
-
-[node name="archer" parent="." instance=ExtResource("50_yrcvs")]
-position = Vector2(-1338, -187)
-
-[node name="archer2" parent="." instance=ExtResource("50_yrcvs")]
-position = Vector2(-219, -560)
-
-[node name="archer3" parent="." instance=ExtResource("50_yrcvs")]
-position = Vector2(1719, -395)
-
-[node name="archer4" parent="." instance=ExtResource("50_yrcvs")]
-position = Vector2(2679, -203)
-
-[node name="archer5" parent="." instance=ExtResource("50_yrcvs")]
-position = Vector2(1908, 320)
-
-[node name="archer6" parent="." instance=ExtResource("50_yrcvs")]
-position = Vector2(881, -1023)
-
-[node name="archer7" parent="." instance=ExtResource("50_yrcvs")]
-position = Vector2(875, 718)
-
-[node name="archer8" parent="." instance=ExtResource("50_yrcvs")]
-position = Vector2(-633, 918)
-
 [node name="CastleMenuZone" parent="." instance=ExtResource("51_dyndt")]
 position = Vector2(1445, -170)
+
+[node name="buildings" type="Node2D" parent="."]
+position = Vector2(1197, 237)
+
+[node name="Archery" parent="buildings" instance=ExtResource("52_80jge")]
+position = Vector2(-490, -194)
+scale = Vector2(1.3, 1.3)
+
+[node name="Barracks" parent="buildings" instance=ExtResource("53_baw7m")]
+position = Vector2(1267, -666)
+scale = Vector2(1.3, 1.3)
+
+[node name="Castle" parent="buildings" instance=ExtResource("54_6plli")]
+position = Vector2(250, -516)
+scale = Vector2(1.4, 1.4)
+
+[node name="Monastery" parent="buildings" instance=ExtResource("55_n0ibi")]
+position = Vector2(166, -164)
+scale = Vector2(1.3, 1.3)
+
+[node name="Tower" parent="buildings" instance=ExtResource("56_bq7kj")]
+position = Vector2(715, 136)
+
+[node name="Tower2" parent="buildings" instance=ExtResource("56_bq7kj")]
+position = Vector2(-326, 536)
+
+[node name="Tower3" parent="buildings" instance=ExtResource("56_bq7kj")]
+position = Vector2(-1828, 728)
+
+[node name="Tower4" parent="buildings" instance=ExtResource("56_bq7kj")]
+position = Vector2(-2531, -371)
+
+[node name="Tower5" parent="buildings" instance=ExtResource("56_bq7kj")]
+position = Vector2(-1413, -752)
+
+[node name="Tower6" parent="buildings" instance=ExtResource("56_bq7kj")]
+position = Vector2(-308, -1207)
+
+[node name="Tower7" parent="buildings" instance=ExtResource("56_bq7kj")]
+position = Vector2(1485, -392)
+
+[node name="Tower8" parent="buildings" instance=ExtResource("56_bq7kj")]
+position = Vector2(519, -579)
+
+[node name="charecters" type="Node2D" parent="."]
+
+[node name="archer" parent="charecters" instance=ExtResource("50_yrcvs")]
+position = Vector2(-1338, -187)
+
+[node name="archer2" parent="charecters" instance=ExtResource("50_yrcvs")]
+position = Vector2(-219, -560)
+
+[node name="archer3" parent="charecters" instance=ExtResource("50_yrcvs")]
+position = Vector2(1719, -395)
+
+[node name="archer4" parent="charecters" instance=ExtResource("50_yrcvs")]
+position = Vector2(2679, -203)
+
+[node name="archer5" parent="charecters" instance=ExtResource("50_yrcvs")]
+position = Vector2(1908, 320)
+
+[node name="archer6" parent="charecters" instance=ExtResource("50_yrcvs")]
+position = Vector2(881, -1023)
+
+[node name="archer7" parent="charecters" instance=ExtResource("50_yrcvs")]
+position = Vector2(875, 718)
+
+[node name="archer8" parent="charecters" instance=ExtResource("50_yrcvs")]
+position = Vector2(-633, 918)
+
+[node name="archer9" parent="charecters" instance=ExtResource("50_yrcvs")]
+position = Vector2(1308, -358)
+scale = Vector2(-1, 1)
+
+[node name="archer10" parent="charecters" instance=ExtResource("50_yrcvs")]
+position = Vector2(1590, -354)
+
+[node name="Monk_base" parent="charecters" instance=ExtResource("51_80jge")]
+position = Vector2(1197, 237)
