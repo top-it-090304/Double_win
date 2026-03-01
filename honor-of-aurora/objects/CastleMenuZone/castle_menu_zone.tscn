@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://cdt7wnqjrqmld"]
+
+[ext_resource type="Script" uid="uid://xwfd2n28317i" path="res://objects/CastleMenuZone/castle_menu_zone.gd" id="1_r7jq6"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_6qewk"]
+radius = 106.118
+
+[node name="CastleMenuZone" type="Area2D"]
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("1_r7jq6")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_6qewk")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
