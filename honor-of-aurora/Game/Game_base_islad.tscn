@@ -1,4 +1,4 @@
-[gd_scene load_steps=103 format=4 uid="uid://bos5r41ll0qqe"]
+[gd_scene load_steps=104 format=4 uid="uid://bos5r41ll0qqe"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_lc62k"]
 [ext_resource type="Script" uid="uid://drx5ypae7garp" path="res://Game/game_base_islad.gd" id="1_xjk1y"]
@@ -56,6 +56,7 @@
 [ext_resource type="PackedScene" uid="uid://bf7op66re1ij8" path="res://objects/buildings/types/Castle/Castle.tscn" id="54_6plli"]
 [ext_resource type="PackedScene" uid="uid://d31shusm8kcnv" path="res://objects/buildings/types/Monastery/Monastery.tscn" id="55_n0ibi"]
 [ext_resource type="PackedScene" uid="uid://ds31l027ndmtr" path="res://objects/buildings/types/Tower/Tower.tscn" id="56_bq7kj"]
+[ext_resource type="PackedScene" uid="uid://bqogemphbywdf" path="res://enemies/spider/spider.tscn" id="57_6plli"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t7r2l"]
 texture = ExtResource("1_lc62k")
@@ -868,3 +869,6 @@ position = Vector2(1590, -354)
 
 [node name="Monk_base" parent="charecters" instance=ExtResource("51_80jge")]
 position = Vector2(1197, 237)
+
+[node name="Spider" parent="." instance=ExtResource("57_6plli")]
+position = Vector2(151, 821)

@@ -253,3 +253,12 @@ script = ExtResource("2_gejh1")
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = SubResource("SpriteFrames_2m8ux")
 animation = &"idle"
+
+[node name="DetectionArea" parent="." index="1"]
+visible = false
+
+[node name="CollisionShape2D" parent="." index="2"]
+visible = false
+
+[node name="AttackArea" parent="." index="3"]
+visible = false
