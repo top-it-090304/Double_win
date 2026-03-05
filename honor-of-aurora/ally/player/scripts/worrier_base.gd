@@ -27,7 +27,7 @@ func _ready():
 	if bar_node is TextureProgressBar:
 		health_bar = bar_node
 	
-	health = max_health
+	health = SaveManager.current_health
 	health_bar.max_value = max_health
 	health_bar.value = health
 	
@@ -131,7 +131,9 @@ func show_damage_number(amount: int):
 	damage_number.position = Vector2(-26, -120)
 
 func heal(amount):
+	SaveManager.current_health = min(health + amount, max_health)
 	health = min(health + amount, max_health)
+	SaveManager.save_game()
 	health_changed.emit(health)
 
 func play_heal_effect():
