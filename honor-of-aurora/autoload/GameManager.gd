@@ -1,8 +1,9 @@
 extends Node
-var gold: int = 0
 var current_scene_player: Node = null
 
+
 func _ready() -> void:
+	SaveManager.load_game()
 	Events.location_changed.connect(handle_location_changed)
 	
 
@@ -22,8 +23,9 @@ func handle_location_changed(new_location: Events.LOCATION):
 	get_tree().change_scene_to_packed(location_to_scene.get(new_location))
 	
 func add_gold(amount: int):
-	gold += amount
-	Events.gold_changed.emit(gold)
+	SaveManager.gold += amount
+	Events.gold_changed.emit(SaveManager.gold)
+	SaveManager.save_game()
 	
 	
 func teleport_player_to_scene(location: Events.LOCATION):
@@ -74,4 +76,6 @@ func remove_camera_from_player(player: Node):
 	var camera = player.get_node_or_null("Camera2D")
 	if camera:
 		camera.queue_free()
+	
+
 		

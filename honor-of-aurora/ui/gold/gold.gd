@@ -4,8 +4,7 @@ extends NinePatchRect
 
 func _ready():
 	Events.connect("gold_changed", _on_gold_changed)
-	
-	_on_gold_changed(GameManager.gold)
+	_on_gold_changed(SaveManager.gold)
 
 func _on_gold_changed(new_value):
 	gold_label.text = str(new_value)
