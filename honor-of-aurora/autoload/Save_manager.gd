@@ -1,10 +1,15 @@
 extends Node
 
 var gold: int = 0
+var boss_kill: int = 0
+var current_health = 100
+
 const GAME_SAVE_FILE := "user://game_save_file.save"
-const SAVE_DATA = ["gold"]
+const SAVE_DATA = ["gold", "boss_kill", "current_health"]
 const default_data := {
 	"gold" : 0,
+	"boss_kill" : 0,
+	"current_health" : 100
 	}
 
 

@@ -139,8 +139,13 @@ func take_damage(amount: int):
 	show_damage_number(amount)
 
 func die():
+	
 	state = State.DEATH
 	anim.play("dead")
+	
+	if self.is_in_group("BOSS"):
+		GameManager.boss_kill()
+	
 	$CollisionShape2D.set_deferred("disabled", true)
 	await anim.animation_finished
 	GameManager.add_gold(gold_reward)
