@@ -272,3 +272,5 @@ script = ExtResource("2_5d7cn")
 [node name="AnimatedSprite" parent="." index="0"]
 sprite_frames = SubResource("SpriteFrames_iw0yg")
 animation = &"hit"
+frame = 3
+frame_progress = 1.0

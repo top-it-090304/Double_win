@@ -660,8 +660,9 @@ texture_region_size = Vector2i(256, 256)
 [sub_resource type="TileSet" id="TileSet_rkdxa"]
 sources/0 = SubResource("TileSetAtlasSource_mdhqh")
 
-[node name="level_1" type="TileMapLayer"]
+[node name="level_1" type="TileMapLayer" node_paths=PackedStringArray("spawn_points")]
 script = ExtResource("1_ovlxy")
+spawn_points = [NodePath("SpawnPoint1"), NodePath("SpawnPoint2"), NodePath("SpawnPoint3"), NodePath("SpawnPoint4"), NodePath("SpawnPoint5")]
 
 [node name="island" type="TileMapLayer" parent="."]
 scale = Vector2(-1, 1)
@@ -872,3 +873,18 @@ up_direction = Vector2(0, 1)
 
 [node name="TeleportZone" parent="." instance=ExtResource("45_wdtt1")]
 position = Vector2(686, 869)
+
+[node name="SpawnPoint1" type="Marker2D" parent="."]
+position = Vector2(-489, 141)
+
+[node name="SpawnPoint2" type="Marker2D" parent="."]
+position = Vector2(-1584, 172)
+
+[node name="SpawnPoint3" type="Marker2D" parent="."]
+position = Vector2(-2531, -427)
+
+[node name="SpawnPoint4" type="Marker2D" parent="."]
+position = Vector2(-1117, -746)
+
+[node name="SpawnPoint5" type="Marker2D" parent="."]
+position = Vector2(1253, 13)
