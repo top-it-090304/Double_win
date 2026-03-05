@@ -435,7 +435,7 @@ animations = [{
 "speed": 10.0
 }]
 
-[node name="Minotaur" instance=ExtResource("1_p26c5")]
+[node name="Minotaur" groups=["BOSS"] instance=ExtResource("1_p26c5")]
 script = ExtResource("2_qsj6q")
 
 [node name="AnimatedSprite" parent="." index="0"]

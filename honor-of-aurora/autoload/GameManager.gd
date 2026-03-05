@@ -76,6 +76,7 @@ func remove_camera_from_player(player: Node):
 	var camera = player.get_node_or_null("Camera2D")
 	if camera:
 		camera.queue_free()
-	
 
-		
+func boss_kill():
+	SaveManager.boss_kill += 1
+	SaveManager.save_game()
