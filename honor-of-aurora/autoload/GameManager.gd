@@ -60,6 +60,7 @@ func teleport_player_to_scene(location: Events.LOCATION):
 		else:
 			add_camera_to_player(current_scene_player)
 	
+	player.health = SaveManager.current_health
 	
 
 

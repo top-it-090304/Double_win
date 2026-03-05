@@ -47,7 +47,7 @@
 [ext_resource type="Texture2D" uid="uid://dup5d05xcku5y" path="res://Asets/Environment/Deco/11.png" id="45_ifi3r"]
 [ext_resource type="TileSet" uid="uid://firbi0hvr3ji" path="res://world/resources/other/boat.tres" id="46_chuwt"]
 [ext_resource type="PackedScene" uid="uid://odmcdls13s41" path="res://ui/menu/menu.tscn" id="47_afjly"]
-[ext_resource type="PackedScene" uid="uid://0cr41nkoqax0" path="res://ally/player/scenes/lvl_1_blue_player.tscn" id="48_l83tm"]
+[ext_resource type="PackedScene" uid="uid://dfcrogcqk4tat" path="res://ally/player/scenes/lvl_1_black_player.tscn" id="48_0pui4"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4v8e7"]
 texture = ExtResource("3_g6lub")
@@ -778,7 +778,7 @@ one_shot = true
 [node name="cloud" parent="." instance=ExtResource("2_fqxwl")]
 position = Vector2(32, 497)
 
-[node name="player" parent="." instance=ExtResource("48_l83tm")]
-position = Vector2(593, 69)
+[node name="player_blue" parent="." instance=ExtResource("48_0pui4")]
+position = Vector2(610, 66)
 
 [connection signal="timeout" from="CloudSpawnTimer" to="." method="_on_cloud_spawn_timer_timeout"]
