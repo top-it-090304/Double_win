@@ -32,6 +32,7 @@ func _ready():
 	health_bar.value = health
 	
 	anim.animation_finished.connect(_on_anim_finished)
+	health_changed.connect(_on_health_changed)
 
 func _physics_process(delta):
 	var dir = Vector2.ZERO
@@ -146,3 +147,8 @@ func play_heal_effect():
 				
 func is_health_full() -> bool:
 	return health >= max_health
+
+func _on_health_changed(current_health):
+	SaveManager.current_health = health
+	SaveManager.save_game()
+	
