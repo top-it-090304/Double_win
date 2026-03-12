@@ -8,6 +8,7 @@ var state: State = State.PATROL
 @onready var attack_area = $AttackArea
 @onready var detection_shape = $DetectionArea/DetectionShape
 @onready var attack_shape = $AttackArea/AttackShape
+@export var exp_reward: int = 10
 
 @export var speed: float = 100.0
 @export var health: int = 50
@@ -139,7 +140,7 @@ func take_damage(amount: int):
 	show_damage_number(amount)
 
 func die():
-	
+	GameManager.add_exp(exp_reward)
 	state = State.DEATH
 	anim.play("dead")
 	
