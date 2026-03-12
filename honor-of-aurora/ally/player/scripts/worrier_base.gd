@@ -4,6 +4,9 @@ enum State { IDLE, RUN, ATTACK, SHIELD, DEATH }
 var state: State = State.IDLE
 var last_dir: Vector2 = Vector2.DOWN
 var health_bar: TextureProgressBar
+var level: int = 1
+var exp: int = 0
+
 
 @export var speed: float = 250.0
 @export var max_health: int = 1000
@@ -22,6 +25,9 @@ func _ready():
 	if effect_sprite:
 		effect_sprite.visible = false
 	add_to_group("player")
+	
+	level = SaveManager.current_level
+	exp = SaveManager.current_exp
 	
 	var bar_node = get_tree().get_first_node_in_group("player_health_bar")
 	if bar_node is TextureProgressBar:
@@ -152,3 +158,25 @@ func _on_health_changed(current_health):
 	SaveManager.current_health = health
 	SaveManager.save_game()
 	
+func gain_exp(amount: int):
+	exp += amount
+	
+	while exp >= get_exp_to_next_level():
+		exp -= get_exp_to_next_level()
+		level += 1
+		level_up()
+	
+	SaveManager.current_level = level
+	SaveManager.current_exp = exp
+	SaveManager.save_game()
+	
+
+
+func get_exp_to_next_level() -> int:
+	return level * 100
+
+
+func level_up():
+	max_health += 50
+	health = max_health
+	health_bar.max_value = max_health
