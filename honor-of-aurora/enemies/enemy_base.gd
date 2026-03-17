@@ -46,6 +46,9 @@ func _ready():
 	patrol_dir = Vector2.RIGHT.rotated(randf_range(0, TAU))
 
 func _physics_process(delta):
+	var previous_position := global_position
+	var desired_velocity := velocity
+	
 	match state:
 		State.PATROL:
 			velocity = patrol_dir * speed
@@ -66,15 +69,6 @@ func _physics_process(delta):
 				else:
 					last_dir = (target.global_position - global_position).normalized()
 					velocity = last_dir * speed
-					
-					# If we hit a wall while chasing, slide along it to "go around corners".
-					if is_on_wall() and get_slide_collision_count() > 0:
-						var c = get_slide_collision(0)
-						if c:
-							var n: Vector2 = c.get_normal()
-							var slid = velocity.slide(n)
-							if slid.length() > 0.1:
-								velocity = slid.normalized() * speed
 			else:
 				state = State.PATROL
 		
@@ -82,6 +76,19 @@ func _physics_process(delta):
 			velocity = Vector2.ZERO
 	
 	move_and_slide()
+	
+	# Дополнительная логика, чтобы не застревали в стенах/текстурах при преследовании:
+	if state == State.CHASE and target and is_instance_valid(target):
+		var moved_distance := previous_position.distance_to(global_position)
+		if moved_distance < 1.0 and get_slide_collision_count() > 0:
+			var c = get_slide_collision(0)
+			if c:
+				var n: Vector2 = c.get_normal()
+				var slide_dir := (target.global_position - global_position).normalized().slide(n)
+				if slide_dir.length() > 0.1:
+					velocity = slide_dir.normalized() * speed
+					move_and_slide()
+	
 	update_animation()
 
 func _on_detection_area_entered(body):
