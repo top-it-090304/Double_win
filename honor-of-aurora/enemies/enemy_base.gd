@@ -19,12 +19,13 @@ var state: State = State.PATROL
 @export var attack_radius: float = 100.0
 @export var detection_radius: float = 500.0
 
-var player: Node2D = null
+var target: Node2D = null
 var can_attack: bool = true
 var last_dir: Vector2 = Vector2.DOWN
 var patrol_dir: Vector2
 var patrol_timer: float = 0.0
 var attack_cooldown_timer: Timer
+var potential_targets: Array[Node2D] = []
 
 func _ready():
 	add_to_group("enemy")
@@ -56,14 +57,24 @@ func _physics_process(delta):
 				patrol_dir = patrol_dir.rotated(randf_range(PI/4, PI/2))
 		
 		State.CHASE:
-			if player:
-				if attack_area.overlaps_body(player):
+			_select_target()
+			if target and is_instance_valid(target):
+				if attack_area.overlaps_body(target):
 					velocity = Vector2.ZERO
 					if can_attack:
 						start_attack()
 				else:
-					last_dir = (player.global_position - global_position).normalized()
+					last_dir = (target.global_position - global_position).normalized()
 					velocity = last_dir * speed
+					
+					# If we hit a wall while chasing, slide along it to "go around corners".
+					if is_on_wall() and get_slide_collision_count() > 0:
+						var c = get_slide_collision(0)
+						if c:
+							var n: Vector2 = c.get_normal()
+							var slid = velocity.slide(n)
+							if slid.length() > 0.1:
+								velocity = slid.normalized() * speed
 			else:
 				state = State.PATROL
 		
@@ -74,43 +85,48 @@ func _physics_process(delta):
 	update_animation()
 
 func _on_detection_area_entered(body):
-	if body.is_in_group("player"):
-		player = body
+	if body is Node2D and (body.is_in_group("player") or body.is_in_group("ally")):
+		potential_targets.append(body)
+		_select_target()
 		if state not in [State.ATTACK, State.DEATH, State.HIT]:
 			state = State.CHASE
 
 func _on_detection_area_exited(body):
-	if body == player:
-		player = null
-		if state == State.CHASE:
+	if body is Node2D:
+		potential_targets.erase(body)
+		if body == target:
+			target = null
+		if potential_targets.is_empty() and state == State.CHASE:
 			state = State.PATROL
 
 func _on_attack_area_entered(body):
-	if body == player and can_attack and state not in [State.ATTACK, State.DEATH, State.HIT]:
+	if body == target and can_attack and state not in [State.ATTACK, State.DEATH, State.HIT]:
 		start_attack()
 
 func start_attack():
 	state = State.ATTACK
 	can_attack = false
-	if player:
-		var dir = (player.global_position - global_position).normalized()
+	if target:
+		var dir = (target.global_position - global_position).normalized()
 		last_dir = dir
 		anim.flip_h = dir.x < 0
 	anim.play("attack")
 	attack_cooldown_timer.start(attack_cooldown)
 
 func apply_damage():
-	if player and attack_area.overlaps_body(player):
-		player.take_damage(attack_damage)
+	if target and attack_area.overlaps_body(target):
+		target.take_damage(attack_damage)
 
 func _on_anim_finished():
 	match anim.animation:
 		"attack":
 			apply_damage()
-			state = State.CHASE if player and detection_area.overlaps_body(player) else State.PATROL
+			_select_target()
+			state = State.CHASE if target and detection_area.overlaps_body(target) else State.PATROL
 		"hit":
-			if player:
-				state = State.ATTACK if attack_area.overlaps_body(player) and can_attack else State.CHASE if detection_area.overlaps_body(player) else State.PATROL
+			_select_target()
+			if target:
+				state = State.ATTACK if attack_area.overlaps_body(target) and can_attack else State.CHASE if detection_area.overlaps_body(target) else State.PATROL
 			else:
 				state = State.PATROL
 
@@ -157,3 +173,26 @@ func show_damage_number(amount: int):
 	damage_number.get_node("Label").text = str(amount)
 	add_child(damage_number)
 	damage_number.position = Vector2(-26, -80)
+
+func _select_target() -> void:
+	potential_targets = potential_targets.filter(func(t): return is_instance_valid(t) and detection_area.overlaps_body(t))
+	if potential_targets.is_empty():
+		target = null
+		return
+	
+	# Prefer player if present; otherwise closest ally.
+	for t in potential_targets:
+		if t and t.is_in_group("player"):
+			target = t
+			return
+	
+	var best: Node2D = null
+	var best_dist := INF
+	for t in potential_targets:
+		if not t:
+			continue
+		var d = global_position.distance_to(t.global_position)
+		if d < best_dist:
+			best_dist = d
+			best = t
+	target = best

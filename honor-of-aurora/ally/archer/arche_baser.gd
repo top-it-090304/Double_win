@@ -4,6 +4,16 @@ extends CharacterBody2D
 @export var attack_cooldown : float = 3.0
 @export var idle_flip_interval : float = 10.0
 
+@export var speed: float = 160.0
+@export var follow_distance: float = 140.0
+@export var follow_stop_distance: float = 110.0
+
+@export var max_health: int = 60
+@export var health: int = 60
+
+@export var flee_distance: float = 220.0
+@export var flee_speed_multiplier: float = 1.25
+
 var enemies_in_range : Array = []
 var facing_right := true
 
@@ -13,7 +23,13 @@ var facing_right := true
 var attack_timer : Timer
 var idle_timer : Timer
 
+enum State { FOLLOW, SHOOT, FLEE, DEAD }
+var state: State = State.FOLLOW
+var player: Node2D = null
+var flee_target: Vector2 = Vector2.ZERO
+
 func _ready():
+	add_to_group("ally")
 	sprite.play("idle")
 	
 	attack_timer = Timer.new()
@@ -30,26 +46,30 @@ func _ready():
 	attack_area.body_entered.connect(_on_enemy_entered)
 	attack_area.body_exited.connect(_on_enemy_exited)
 	sprite.animation_finished.connect(_on_animation_finished)
+	
+	if health <= 0:
+		health = max_health
+	
+	player = get_tree().get_first_node_in_group("player") as Node2D
 
 func _on_enemy_entered(body):
 	if body.is_in_group("enemy"):
 		enemies_in_range.append(body)
-		if attack_timer.is_stopped():
-			call_deferred("attack")
-			attack_timer.start()
+		_refresh_state()
 
 func _on_enemy_exited(body):
 	if body.is_in_group("enemy"):
 		enemies_in_range.erase(body)
-		if enemies_in_range.is_empty():
-			attack_timer.stop()
-			sprite.play("idle")
+		_refresh_state()
 
 func _on_attack_timer_timeout():
-	call_deferred("attack")
+	if state == State.SHOOT and velocity.length() <= 0.1:
+		call_deferred("attack")
 
 func attack():
-	if enemies_in_range.is_empty():
+	if state != State.SHOOT:
+		return
+	if velocity.length() > 0.1:
 		return
 	
 	var target
@@ -81,9 +101,127 @@ func attack():
 
 func _on_animation_finished():
 	if sprite.animation == "attack":
-		sprite.play("idle")
+		_refresh_state()
 
 func _on_idle_timer_timeout():
 	if not enemies_in_range and sprite.animation != "attack":
 		facing_right = !facing_right
 		sprite.flip_h = !facing_right
+
+func _physics_process(delta: float) -> void:
+	if state == State.DEAD:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+	
+	if not player or not is_instance_valid(player):
+		player = get_tree().get_first_node_in_group("player") as Node2D
+	
+	match state:
+		State.FOLLOW:
+			velocity = _get_follow_velocity()
+			if velocity.length() > 0.1:
+				sprite.play("run")
+				sprite.flip_h = velocity.x < 0
+			else:
+				sprite.play("idle")
+		
+		State.SHOOT:
+			velocity = Vector2.ZERO
+			if sprite.animation != "attack":
+				sprite.play("idle")
+			_start_shooting_if_needed()
+		
+		State.FLEE:
+			var dir = global_position.direction_to(flee_target)
+			velocity = dir * speed * flee_speed_multiplier
+			sprite.play("run")
+			sprite.flip_h = velocity.x < 0
+			
+			if global_position.distance_to(flee_target) <= 12.0:
+				velocity = Vector2.ZERO
+				_refresh_state()
+	
+	move_and_slide()
+	
+	if state == State.FOLLOW:
+		_refresh_state()
+
+func _get_follow_velocity() -> Vector2:
+	if not player:
+		return Vector2.ZERO
+	
+	var dist = global_position.distance_to(player.global_position)
+	if dist > follow_distance:
+		return global_position.direction_to(player.global_position) * speed
+	if dist < follow_stop_distance:
+		return Vector2.ZERO
+	return Vector2.ZERO
+
+func _start_shooting_if_needed() -> void:
+	if state != State.SHOOT:
+		return
+	if enemies_in_range.is_empty():
+		attack_timer.stop()
+		return
+	if attack_timer.is_stopped():
+		attack_timer.start()
+		call_deferred("attack")
+
+func _refresh_state() -> void:
+	enemies_in_range = enemies_in_range.filter(func(e): return is_instance_valid(e))
+	
+	if state in [State.DEAD, State.FLEE]:
+		return
+	
+	if not enemies_in_range.is_empty():
+		state = State.SHOOT
+		_start_shooting_if_needed()
+	else:
+		state = State.FOLLOW
+		attack_timer.stop()
+		if sprite.animation != "attack":
+			sprite.play("idle")
+
+func take_damage(amount: int) -> void:
+	if state == State.DEAD:
+		return
+	
+	health -= int(amount)
+	if health <= 0:
+		_die()
+		return
+	
+	if int(amount) > 0:
+		_start_flee()
+
+func _start_flee() -> void:
+	var away_dir := Vector2.ZERO
+	var nearest_dist := INF
+	
+	for e in enemies_in_range:
+		if not is_instance_valid(e):
+			continue
+		var d = global_position.distance_to(e.global_position)
+		if d < nearest_dist:
+			nearest_dist = d
+			away_dir = (global_position - e.global_position).normalized()
+	
+	if away_dir == Vector2.ZERO:
+		if player:
+			away_dir = (global_position - player.global_position).normalized()
+		else:
+			away_dir = Vector2.LEFT if facing_right else Vector2.RIGHT
+	
+	flee_target = global_position + away_dir * flee_distance
+	state = State.FLEE
+	attack_timer.stop()
+
+func _die() -> void:
+	state = State.DEAD
+	attack_timer.stop()
+	velocity = Vector2.ZERO
+	if sprite.sprite_frames.has_animation("dead"):
+		sprite.play("dead")
+		await sprite.animation_finished
+	queue_free()
