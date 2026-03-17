@@ -1518,6 +1518,22 @@ theme_override_fonts/font = ExtResource("5_sbu3m")
 theme_override_font_sizes/font_size = 50
 text = "Замок Аврора"
 
+[node name="InfoPanel" type="Panel" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 300.0
+offset_top = 180.0
+offset_right = 980.0
+offset_bottom = 520.0
+
+[node name="InfoLabel" type="Label" parent="InfoPanel"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 640.0
+offset_bottom = 300.0
+text = "Замок Аврора\n\nЗдесь вы можете:\n- Нанимать лучников (по цене, зависящей от сложности).\n- Улучшать здания за золото.\n\nЛучники:\n- Следуют за героем.\n- Останавливаются и стреляют по врагам в зоне.\n- Отступают при получении урона и затем продолжают стрелять."
+
 [connection signal="pressed" from="buttons/back" to="." method="_on_back_pressed"]
 [connection signal="pressed" from="buttons/hire" to="." method="_on_hire_pressed"]
 [connection signal="pressed" from="buttons/upgreat" to="." method="_on_upgreat_pressed"]

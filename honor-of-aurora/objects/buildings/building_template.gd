@@ -18,6 +18,7 @@ const COLOR_FOLDERS := {
 
 @export var building_type: String = "Archery"
 @export var current_color: BuildingColor = BuildingColor.BLACK
+@export var upgrade_cost_step: int = 200
 
 @onready var sprite = $Sprite
 
@@ -35,7 +36,13 @@ func update_texture() -> bool:
 	return false
 
 func upgrade_building() -> bool:
-	if current_color < BuildingColor.YELLOW:
-		current_color = current_color + 1
-		return update_texture()
-	return false
+	if current_color >= BuildingColor.YELLOW:
+		return false
+	
+	var cost := upgrade_cost_step * (current_color + 1)
+	if SaveManager.gold < cost:
+		return false
+	
+	GameManager.add_gold(-cost)
+	current_color = current_color + 1
+	return update_texture()

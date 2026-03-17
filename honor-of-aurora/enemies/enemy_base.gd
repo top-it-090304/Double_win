@@ -47,7 +47,6 @@ func _ready():
 
 func _physics_process(delta):
 	var previous_position := global_position
-	var desired_velocity := velocity
 	
 	match state:
 		State.PATROL:
@@ -88,6 +87,14 @@ func _physics_process(delta):
 				if slide_dir.length() > 0.1:
 					velocity = slide_dir.normalized() * speed
 					move_and_slide()
+		
+		# Лёгкое отталкивание от цели, чтобы не \"липнуть\" вплотную.
+		var to_target := target.global_position - global_position
+		var min_distance := attack_radius * 0.4
+		if to_target.length() < min_distance:
+			var push_dir := -to_target.normalized()
+			velocity = push_dir * speed * 0.4
+			move_and_slide()
 	
 	update_animation()
 
@@ -121,7 +128,7 @@ func start_attack():
 	attack_cooldown_timer.start(attack_cooldown)
 
 func apply_damage():
-	if target and attack_area.overlaps_body(target):
+	if target and attack_area.overlaps_body(target) and target.has_method("take_damage"):
 		target.take_damage(attack_damage)
 
 func _on_anim_finished():
