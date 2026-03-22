@@ -26,6 +26,8 @@ const BASE_TELEPORT_RESUME_X := -660.0
 const BASE_TELEPORT_RESUME_Y := 865.0
 ## Сюжетные флаги для диалогов и квестов (строковый ключ → bool).
 var story_flags: Dictionary = {}
+## Зачищенные зоны островов: ключ IslandProgress.zone_save_key(island, zone_id) → true.
+var island_zone_state: Dictionary = {}
 ## Громкости шин (0.0–1.0), см. SoundManager.apply_user_volume_settings().
 var volume_music: float = 1.0
 var volume_sfx: float = 1.0
@@ -34,7 +36,7 @@ var volume_dialogue: float = 1.0
 
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
-const SAVE_DATA = ["gold", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "story_flags", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue"]
+const SAVE_DATA = ["gold", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "story_flags", "island_zone_state", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue"]
 const default_data := {
 	"gold" : 0,
 	"boss_kill" : 0,
@@ -49,6 +51,7 @@ const default_data := {
 	"resume_player_position_x" : -600.0,
 	"resume_player_position_y" : 750.0,
 	"story_flags" : {},
+	"island_zone_state" : {},
 	"volume_music" : 1.0,
 	"volume_sfx" : 1.0,
 	"volume_ui" : 1.0,
@@ -77,11 +80,38 @@ func load_game():
 			var v: Variant = game_data[variable]
 			if variable == "story_flags" and v is Dictionary:
 				story_flags = (v as Dictionary).duplicate()
+			elif variable == "island_zone_state" and v is Dictionary:
+				island_zone_state = (v as Dictionary).duplicate()
 			elif variable.begins_with("volume_") and typeof(v) in [TYPE_FLOAT, TYPE_INT]:
 				set(variable, clampf(float(v), 0.0, 1.0))
 			else:
 				set(variable, v)
+		elif variable == "island_zone_state":
+			island_zone_state = {}
 
+	_migrate_story_island_flags_from_legacy_boss_kill()
+
+
+func _migrate_story_island_flags_from_legacy_boss_kill() -> void:
+	if bool(story_flags.get("_story_islands_migrated", false)):
+		return
+	var has_any := false
+	for i in range(1, 6):
+		if bool(story_flags.get("story_island_%d_cleared" % i, false)):
+			has_any = true
+			break
+	if has_any:
+		story_flags["_story_islands_migrated"] = true
+		save_game()
+		return
+	if boss_kill <= 0:
+		story_flags["_story_islands_migrated"] = true
+		save_game()
+		return
+	for j in range(1, mini(boss_kill + 1, 6)):
+		story_flags["story_island_%d_cleared" % j] = true
+	story_flags["_story_islands_migrated"] = true
+	save_game()
 
 
 func save_game():
@@ -125,7 +155,7 @@ func reset_data():
 	var game_data := {}
 	for variable in SAVE_DATA:
 		var v: Variant = default_data[variable]
-		if variable == "story_flags":
+		if variable == "story_flags" or variable == "island_zone_state":
 			v = (v as Dictionary).duplicate()
 		game_data[variable] = v
 		set(variable, v)

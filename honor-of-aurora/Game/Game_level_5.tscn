@@ -959,10 +959,11 @@ tile_set = SubResource("TileSet_3fprd")
 tile_map_data = PackedByteArray("AADa/y8AAAAAAAAAAAA=")
 tile_set = ExtResource("43_7r2hg")
 
-[node name="Troll" parent="." instance=ExtResource("44_of8ko")]
+[node name="Troll" parent="." groups=["BOSS"] instance=ExtResource("44_of8ko")]
 position = Vector2(1027, -1309)
 rotation = 3.14159
 scale = Vector2(1, -1)
+story_island = 5
 
 [node name="TeleportZone" parent="." instance=ExtResource("45_wpxaa")]
 position = Vector2(695, 876)

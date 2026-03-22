@@ -661,9 +661,8 @@ texture_region_size = Vector2i(256, 256)
 [sub_resource type="TileSet" id="TileSet_rkdxa"]
 sources/0 = SubResource("TileSetAtlasSource_mdhqh")
 
-[node name="level_1" type="TileMapLayer" node_paths=PackedStringArray("spawn_points")]
+[node name="level_1" type="TileMapLayer"]
 script = ExtResource("1_ovlxy")
-spawn_points = [NodePath("SpawnPoint1"), NodePath("SpawnPoint2"), NodePath("SpawnPoint3"), NodePath("SpawnPoint4"), NodePath("SpawnPoint5")]
 
 [node name="island" type="TileMapLayer" parent="."]
 scale = Vector2(-1, 1)
@@ -867,10 +866,11 @@ tile_set = ExtResource("42_63sxn")
 
 [node name="HUD" parent="." instance=ExtResource("44_fdxc0")]
 
-[node name="Minotaur" parent="." instance=ExtResource("45_lwsk5")]
+[node name="Minotaur" parent="." groups=["BOSS"] instance=ExtResource("45_lwsk5")]
 position = Vector2(980, -1292)
 collision_mask = 7
 up_direction = Vector2(0, 1)
+story_island = 1
 
 [node name="TeleportZone" parent="." instance=ExtResource("45_wdtt1")]
 position = Vector2(686, 869)

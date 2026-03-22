@@ -1,7 +1,7 @@
 class_name BossPostDialogue
 extends DialogueSequence
 
-## 1..5 — номер побеждённого босса (по счётчику SaveManager.boss_kill).
+## 1..5 — номер реплики после острова. Доступ задаётся флагами story_island_N_cleared + цепочка boss_post_{N-1}_done (см. DialogueDefinition).
 @export var boss_index: int = 1
 
 

@@ -1,44 +1,120 @@
 extends Node2D
 
-const spawn_position = Vector2(600, 740)
+const ISLAND_KEY := "lvl1"
 
-@export var enemy_scenes: Array[PackedScene] = [
-	preload("res://enemies/snake/Snake.tscn"),
-	preload("res://enemies/gnome/gnome.tscn")
-]
+const _SNAKE := preload("res://enemies/snake/Snake.tscn")
+const _GNOME := preload("res://enemies/gnome/gnome.tscn")
 
-@export var spawn_points: Array[Marker2D] = []
-@export var max_enemies: int = 30
-@export var random_spawn: bool = true
+var _nav_region: NavigationRegion2D
 
-var current_index: int = 0
 
-func _ready():
-	if SaveManager.boss_kill < 1:
-		spawn_enemies()
-
-func spawn_enemies():
-	if spawn_points.is_empty():
+func _ready() -> void:
+	if StoryState.has_flag("story_island_1_cleared"):
 		return
-	
-	if enemy_scenes.is_empty():
-		return
-	
-	var spawned_count = 0
-	for point in spawn_points:
-		if spawned_count >= max_enemies:
-			break
-			
-		var enemy_scene = get_next_enemy_scene()
-		var enemy = enemy_scene.instantiate()
-		enemy.global_position = point.global_position
-		add_child(enemy)
-		spawned_count += 1
+	_setup_navigation_region()
+	_setup_encounters()
 
-func get_next_enemy_scene() -> PackedScene:
-	if random_spawn:
-		return enemy_scenes[randi() % enemy_scenes.size()]
-	else:
-		var scene = enemy_scenes[current_index]
-		current_index = (current_index + 1) % enemy_scenes.size()
-		return scene
+
+func _setup_navigation_region() -> void:
+	_nav_region = NavigationRegion2D.new()
+	_nav_region.navigation_layers = 1
+	var np := NavigationPolygon.new()
+	np.add_outline(
+		PackedVector2Array(
+			[
+				Vector2(-3200, -1100),
+				Vector2(1600, -1100),
+				Vector2(1600, 1200),
+				Vector2(-3200, 1200),
+			]
+		)
+	)
+	np.make_polygons_from_outlines()
+	_nav_region.navigation_polygon = np
+	add_child(_nav_region)
+
+
+func _wave_entry(scene: PackedScene, count: int) -> EncounterWaveEntry:
+	var e := EncounterWaveEntry.new()
+	e.enemy_scene = scene
+	e.count = count
+	return e
+
+
+func _setup_encounters() -> void:
+	var director := EncounterDirector.new()
+	director.island_key = ISLAND_KEY
+	add_child(director)
+
+	var zones_cfg: Array = [
+		{
+			"id": "east_path",
+			"center": Vector2(-489, 141),
+			"radius": 420.0,
+			"leash": 920.0,
+			"waves":
+			[
+				[_wave_entry(_SNAKE, 2)],
+				[_wave_entry(_SNAKE, 1), _wave_entry(_GNOME, 1)],
+			],
+		},
+		{
+			"id": "north_west",
+			"center": Vector2(-1584, 172),
+			"radius": 450.0,
+			"leash": 950.0,
+			"waves":
+			[
+				[_wave_entry(_GNOME, 2)],
+				[_wave_entry(_SNAKE, 2), _wave_entry(_GNOME, 1)],
+			],
+		},
+		{
+			"id": "deep_ruins",
+			"center": Vector2(-2531, -427),
+			"radius": 480.0,
+			"leash": 1000.0,
+			"waves":
+			[
+				[_wave_entry(_SNAKE, 1), _wave_entry(_GNOME, 2)],
+				[_wave_entry(_GNOME, 2)],
+			],
+		},
+		{
+			"id": "ridge",
+			"center": Vector2(-1117, -746),
+			"radius": 440.0,
+			"leash": 980.0,
+			"waves":
+			[
+				[_wave_entry(_SNAKE, 2)],
+				[_wave_entry(_SNAKE, 2), _wave_entry(_GNOME, 2)],
+			],
+		},
+		{
+			"id": "south_beach",
+			"center": Vector2(1253, 13),
+			"radius": 460.0,
+			"leash": 1020.0,
+			"waves":
+			[
+				[_wave_entry(_GNOME, 2)],
+				[_wave_entry(_SNAKE, 3)],
+			],
+		},
+	]
+
+	for z in zones_cfg:
+		var zone := EncounterZone.new()
+		zone.setup_from_config(
+			director,
+			self,
+			ISLAND_KEY,
+			z["id"],
+			z["center"],
+			z["radius"],
+			z["waves"],
+			z["leash"]
+		)
+		add_child(zone)
+		director.register_zone(zone)

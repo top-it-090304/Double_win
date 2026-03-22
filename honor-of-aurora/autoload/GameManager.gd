@@ -306,3 +306,13 @@ func remove_camera_from_player(player: Node):
 func boss_kill():
 	SaveManager.boss_kill += 1
 	SaveManager.save_game()
+
+
+## Сюжетный «остров зачищен» (один раз на остров), не зависит от числа мини-боссов с группой BOSS.
+func on_story_island_boss_defeated(island_index: int) -> void:
+	if island_index < 1 or island_index > 5:
+		return
+	var key := "story_island_%d_cleared" % island_index
+	if StoryState.has_flag(key):
+		return
+	StoryState.set_flag(key, true)

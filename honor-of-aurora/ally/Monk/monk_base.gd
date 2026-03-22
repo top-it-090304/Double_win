@@ -91,7 +91,7 @@ func _physics_process(delta):
 			velocity = Vector2.ZERO
 			state = State.IDLE
 
-		if in_heal_zone and can_heal and not health_full and not _heal_blocked_by_dialogue():
+		if in_heal_zone and can_heal and not health_full:
 			_heal(target_player)
 	else:
 		velocity = Vector2.ZERO
@@ -159,12 +159,6 @@ func _pick_heal_zone_dialogue_id(for_click: bool = false) -> String:
 	return ""
 
 
-func _heal_blocked_by_dialogue() -> bool:
-	# Блокируем только пока идёт диалог. «Ожидающий» сюжет не должен отключать лечение —
-	# иначе при уже стоящем в зоне герое body_entered не срабатывает, диалог не стартует, хил вечно заблокирован.
-	return DialogueManager.is_active()
-
-
 func _attempt_start_heal_zone_story_dialogue(for_click: bool = false) -> bool:
 	if DialogueManager.is_active():
 		return false
@@ -207,8 +201,6 @@ func _try_healer_interact_from_player_close() -> bool:
 
 
 func _on_heal_area(body):
-	if _heal_blocked_by_dialogue():
-		return
 	if not can_heal:
 		return
 	if body.is_in_group("player") or body.is_in_group("healer"):
