@@ -131,8 +131,10 @@ func _physics_process(delta: float) -> void:
 		
 		State.SHOOT:
 			velocity = Vector2.ZERO
-			if sprite.animation != "attack":
-				sprite.play("idle")
+			# После attack имя анимации остаётся "attack", пока не запустят другую — проверяем is_playing().
+			if not (sprite.animation == "attack" and sprite.is_playing()):
+				if sprite.animation != "idle":
+					sprite.play("idle")
 			_start_shooting_if_needed()
 		
 		State.FLEE:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://blv7sgugmhgu4"]
+[gd_scene load_steps=8 format=3 uid="uid://blv7sgugmhgu4"]
 
 [ext_resource type="PackedScene" uid="uid://cnpf1px7wa4c4" path="res://ui/hp_bar/hp_bar.tscn" id="1_2ux7j"]
 [ext_resource type="Script" uid="uid://cxjk4ntx4c07e" path="res://ui/HUD/HUD.gd" id="1_smmqc"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://cjha34kojfsit" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_08.png" id="4_ap7xm"]
 [ext_resource type="PackedScene" uid="uid://cmfxxbaugd182" path="res://ui/level_menu/teleport_menu.tscn" id="5_ap7xm"]
 [ext_resource type="PackedScene" uid="uid://bdhapr120iqry" path="res://ui/casle_minu/main/castle_main_menu.tscn" id="6_swbn3"]
+[ext_resource type="Script" path="res://ui/dialogue/dialogue_overlay.gd" id="7_dialogue"]
 
 [node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("teleport_menu", "castle_menu") groups=["hud"]]
 layer = 5
@@ -60,5 +61,60 @@ visible = false
 visible = false
 offset_top = 20.0
 offset_bottom = 20.0
+
+[node name="DialogueOverlay" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+process_mode = 3
+script = ExtResource("7_dialogue")
+
+[node name="Panel" type="PanelContainer" parent="DialogueOverlay"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = -220.0
+offset_right = -32.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="DialogueOverlay/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="DialogueOverlay/Panel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SpeakerName" type="Label" parent="DialogueOverlay/Panel/MarginContainer/VBox" groups=["dialogue_ui"]]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = " "
+
+[node name="DialogueBody" type="Label" parent="DialogueOverlay/Panel/MarginContainer/VBox" groups=["dialogue_ui"]]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+autowrap_mode = 3
+text = " "
+
+[node name="HintLabel" type="Label" parent="DialogueOverlay/Panel/MarginContainer/VBox" groups=["dialogue_ui"]]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.7, 1)
+theme_override_font_sizes/font_size = 13
+text = "Пробел / Enter — далее"
 
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

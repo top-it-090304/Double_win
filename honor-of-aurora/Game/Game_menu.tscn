@@ -47,7 +47,7 @@
 [ext_resource type="Texture2D" uid="uid://dup5d05xcku5y" path="res://Asets/Environment/Deco/11.png" id="45_ifi3r"]
 [ext_resource type="TileSet" uid="uid://firbi0hvr3ji" path="res://world/resources/other/boat.tres" id="46_chuwt"]
 [ext_resource type="PackedScene" uid="uid://odmcdls13s41" path="res://ui/menu/menu.tscn" id="47_afjly"]
-[ext_resource type="PackedScene" uid="uid://dfcrogcqk4tat" path="res://ally/player/scenes/lvl_1_black_player.tscn" id="48_0pui4"]
+[ext_resource type="PackedScene" uid="uid://dr1fit5f1q2ii" path="res://ally/player/scenes/worrier_base.tscn" id="48_0pui4"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4v8e7"]
 texture = ExtResource("3_g6lub")

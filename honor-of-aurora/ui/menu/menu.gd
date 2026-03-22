@@ -3,6 +3,9 @@ extends Control
 
 func _on_new_game_pressed() -> void:
 	SaveManager.reset_data()
+	var player := get_tree().get_first_node_in_group("player")
+	if player and player.has_method("sync_from_save"):
+		player.sync_from_save()
 	Events.location_changed.emit(Events.LOCATION.BASE)
 
 

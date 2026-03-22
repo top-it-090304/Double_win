@@ -13,6 +13,9 @@ var exp: int = 0
 @export var attack_damage: int = 90
 @export var enemy_separation_factor: float = 0.55
 
+var attack_anim_speed_scale: float = 1.0
+var move_anim_speed_scale: float = 1.0
+
 @onready var attack_area = $AttackArea
 @onready var anim = $AnimatedSprite2D
 @onready var effect_sprite = $EffectSprite
@@ -30,17 +33,45 @@ func _ready():
 	
 	level = SaveManager.current_level
 	exp = SaveManager.current_exp
+	_apply_hero_tier_for_level(level)
 	
 	var bar_node = get_tree().get_first_node_in_group("player_health_bar")
 	if bar_node is TextureProgressBar:
 		health_bar = bar_node
 	
-	health = SaveManager.current_health
-	health_bar.max_value = max_health
-	health_bar.value = health
+	health = mini(SaveManager.current_health, max_health)
+	if health_bar:
+		health_bar.max_value = max_health
+		health_bar.value = health
 	
 	anim.animation_finished.connect(_on_anim_finished)
 	health_changed.connect(_on_health_changed)
+
+
+## Вызывать после SaveManager.reset_data(), пока узел игрока уже в дереве (меню и т.д.).
+func sync_from_save() -> void:
+	level = SaveManager.current_level
+	exp = SaveManager.current_exp
+	_apply_hero_tier_for_level(level)
+	health = mini(SaveManager.current_health, max_health)
+	if health_bar:
+		health_bar.max_value = max_health
+		health_bar.value = health
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not OS.is_debug_build():
+		return
+	if event is InputEventKey and event.pressed and not event.echo:
+		match event.keycode:
+			KEY_F9:
+				# Ровно один уровень от текущей полоски опыта.
+				var need := get_exp_to_next_level() - exp
+				gain_exp(maxi(need, 1))
+				get_viewport().set_input_as_handled()
+			KEY_F10:
+				gain_exp(1000)
+				get_viewport().set_input_as_handled()
 
 func _physics_process(delta):
 	var dir = Vector2.ZERO
@@ -116,10 +147,12 @@ func change_state(new_state: State):
 				anim_name = "attack_1" if attack_index == 0 else "attack_2"
 			
 			anim.flip_h = last_dir.x < 0 or last_dir.y > 0
+			anim.speed_scale = attack_anim_speed_scale
 			anim.play(anim_name)
 		
 		State.SHIELD:
 			velocity = Vector2.ZERO
+			anim.speed_scale = move_anim_speed_scale
 			if anim.sprite_frames.has_animation("shield"):
 				anim.play("shield")
 			else:
@@ -132,16 +165,20 @@ func _on_anim_finished():
 
 func back_to_movement():
 	state = State.RUN if velocity.length() > 0 else State.IDLE
+	anim.speed_scale = move_anim_speed_scale
 
 func update_anim():
 	match state:
 		State.IDLE:
+			anim.speed_scale = move_anim_speed_scale
 			anim.play("idle")
 		State.RUN:
+			anim.speed_scale = move_anim_speed_scale
 			anim.play("run")
 			if velocity.x != 0:
 				anim.flip_h = velocity.x < 0
 		State.DEATH:
+			anim.speed_scale = move_anim_speed_scale
 			anim.play("dead")
 
 func take_damage(amount):
@@ -155,6 +192,7 @@ func take_damage(amount):
 func die():
 	state = State.DEATH
 	velocity = Vector2.ZERO
+	anim.speed_scale = move_anim_speed_scale
 	anim.play("dead")
 	await anim.animation_finished
 	queue_free()
@@ -183,7 +221,17 @@ func play_heal_effect():
 		effect_sprite.play("heal_effect")
 		await effect_sprite.animation_finished
 		effect_sprite.visible = false
-				
+
+
+func play_level_up_effect():
+	if not effect_sprite or not effect_sprite.sprite_frames.has_animation("level_up"):
+		return
+	effect_sprite.visible = true
+	effect_sprite.flip_h = anim.flip_h
+	effect_sprite.play("level_up")
+	await effect_sprite.animation_finished
+	effect_sprite.visible = false
+
 func is_health_full() -> bool:
 	return health >= max_health
 
@@ -210,6 +258,31 @@ func get_exp_to_next_level() -> int:
 
 
 func level_up():
-	max_health += 50
+	_apply_hero_tier_for_level(level)
 	health = max_health
-	health_bar.max_value = max_health
+	SaveManager.current_health = health
+	if health_bar:
+		health_bar.max_value = max_health
+		health_bar.value = health
+	play_level_up_effect()
+
+
+func _apply_hero_tier_for_level(hero_level: int) -> void:
+	var tier := HeroProgression.get_tier_for_level(hero_level)
+	anim.sprite_frames = tier.sprite_frames
+	speed = tier.speed
+	max_health = tier.max_health
+	attack_damage = tier.attack_damage
+	attack_anim_speed_scale = tier.attack_anim_speed_scale
+	move_anim_speed_scale = tier.move_anim_speed_scale
+	if state != State.DEATH:
+		anim.speed_scale = move_anim_speed_scale
+		if state == State.ATTACK:
+			anim.speed_scale = attack_anim_speed_scale
+		elif state == State.SHIELD:
+			if anim.sprite_frames.has_animation("shield"):
+				anim.play("shield")
+			else:
+				back_to_movement()
+		elif state in [State.IDLE, State.RUN]:
+			update_anim()

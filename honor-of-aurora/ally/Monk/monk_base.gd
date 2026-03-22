@@ -11,6 +11,14 @@ var can_heal = true
 @export var health = 100
 @export var max_health = 60
 
+## Если задан, при первом входе игрока в зону лечения (heal_area) начинается диалог.
+@export var heal_zone_dialogue: DialogueSequence
+## Если true, сценарий с монахом сработает один раз за сессию (пока сцена в памяти).
+@export var heal_zone_dialogue_once: bool = true
+@export var heal_zone_dialogue_pause_game: bool = false
+
+var _heal_zone_dialogue_done: bool = false
+
 @onready var anim = $AnimatedSprite2D
 @onready var detection = $detection_area
 @onready var heal_area = $heal_area
@@ -19,6 +27,9 @@ var can_heal = true
 func _ready():
 	add_to_group("healer")
 	detection.body_entered.connect(_on_detection)
+	# Сначала диалог: иначе _heal() успевает запустить await анимации, затем пауза дерева
+	# замирает на кадре и корутина _heal никогда не завершается.
+	heal_area.body_entered.connect(_on_heal_zone_dialogue)
 	heal_area.body_entered.connect(_on_heal_area)
 	cooldown.timeout.connect(_on_cooldown)
 	cooldown.one_shot = true
@@ -49,7 +60,7 @@ func _physics_process(delta):
 			velocity = Vector2.ZERO
 			state = State.IDLE
 
-		if in_heal_zone and can_heal and not health_full:
+		if in_heal_zone and can_heal and not health_full and not _heal_blocked_by_dialogue():
 			_heal(target_player)
 	else:
 		velocity = Vector2.ZERO
@@ -69,7 +80,40 @@ func _on_detection(body):
 	if body.is_in_group("player"):
 		target_player = body
 
+
+func _heal_blocked_by_dialogue() -> bool:
+	if DialogueManager.is_active():
+		return true
+	if heal_zone_dialogue == null:
+		return false
+	heal_zone_dialogue.ensure_lines_ready()
+	if heal_zone_dialogue.lines.is_empty():
+		return false
+	return not _heal_zone_dialogue_done
+
+
+func _on_heal_zone_dialogue(body: Node2D) -> void:
+	if not body.is_in_group("player"):
+		return
+	if heal_zone_dialogue == null:
+		return
+	heal_zone_dialogue.ensure_lines_ready()
+	if heal_zone_dialogue.lines.is_empty():
+		return
+	if heal_zone_dialogue_once and _heal_zone_dialogue_done:
+		return
+	if DialogueManager.is_active():
+		return
+	if DialogueManager.start_dialogue(heal_zone_dialogue, heal_zone_dialogue_pause_game):
+		_heal_zone_dialogue_done = true
+	elif not DialogueManager.is_active():
+		# Не удалось запустить (пустые строки и т.д.) — не держим хилл заблокированным.
+		_heal_zone_dialogue_done = true
+
+
 func _on_heal_area(body):
+	if _heal_blocked_by_dialogue():
+		return
 	if not can_heal:
 		return
 	if body.is_in_group("player") or body.is_in_group("healer"):

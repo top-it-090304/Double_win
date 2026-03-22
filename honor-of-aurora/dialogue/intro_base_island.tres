@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://d4k8n2q7intro1"]
+
+[ext_resource type="Script" path="res://dialogue/intro_base_island_dialogue.gd" id="1_intro"]
+
+[resource]
+script = ExtResource("1_intro")
