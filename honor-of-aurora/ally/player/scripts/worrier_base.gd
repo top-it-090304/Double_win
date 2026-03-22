@@ -90,6 +90,10 @@ func _physics_process(delta):
 	
 	if state not in [State.ATTACK, State.SHIELD]:
 		dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+		if MobileVirtualInput.enabled:
+			var tv := MobileVirtualInput.move_vector
+			if tv.length_squared() > 0.0001:
+				dir = tv
 	
 	if dir != Vector2.ZERO:
 		last_dir = dir
@@ -112,13 +116,28 @@ func _physics_process(delta):
 	else:
 		_footstep_cooldown = 0.0
 	
-	if Input.is_action_just_pressed("attack") and state not in [State.ATTACK, State.SHIELD]:
+	var attack_just := false
+	if MobileVirtualInput.enabled:
+		# Не смешивать с Input Map: «attack» = ЛКМ — иначе любое касание по экрану даёт удар.
+		attack_just = MobileVirtualInput.consume_attack()
+		if MobileVirtualInput.shield_held and state != State.SHIELD:
+			SoundManager.play_shield_raise()
+			change_state(State.SHIELD)
+	else:
+		attack_just = Input.is_action_just_pressed("attack")
+		if Input.is_action_just_pressed("shield") and state != State.SHIELD:
+			SoundManager.play_shield_raise()
+			change_state(State.SHIELD)
+
+	if attack_just and state not in [State.ATTACK, State.SHIELD]:
 		change_state(State.ATTACK)
-	if Input.is_action_just_pressed("shield") and state != State.SHIELD:
-		SoundManager.play_shield_raise()
-		change_state(State.SHIELD)
-	if state == State.SHIELD and Input.is_action_just_released("shield"):
-		back_to_movement()
+
+	if state == State.SHIELD:
+		if MobileVirtualInput.enabled:
+			if not MobileVirtualInput.shield_held:
+				back_to_movement()
+		elif Input.is_action_just_released("shield"):
+			back_to_movement()
 	
 	update_anim()
 
