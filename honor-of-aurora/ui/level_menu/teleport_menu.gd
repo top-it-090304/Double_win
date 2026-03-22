@@ -6,6 +6,8 @@ func get_hud():
 
 
 func _teleport(loc: Events.LOCATION) -> void:
+	SoundManager.play_ui_button()
+	SoundManager.play_teleport()
 	var hud = get_hud()
 	if hud:
 		hud.teleport_to(loc)

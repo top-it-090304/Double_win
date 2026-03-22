@@ -1,3 +1,4 @@
 # Godot 4+ specific ignores
+_audio_dl/
 .godot/
 /android/

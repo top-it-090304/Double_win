@@ -25,6 +25,8 @@ signal health_changed(current_health)
 
 var health: int
 var attack_index = 0
+var _player_ready: bool = false
+var _footstep_cooldown: float = 0.0
 
 func _ready():
 	if effect_sprite:
@@ -35,17 +37,26 @@ func _ready():
 	exp = SaveManager.current_exp
 	_apply_hero_tier_for_level(level)
 	
-	var bar_node = get_tree().get_first_node_in_group("player_health_bar")
-	if bar_node is TextureProgressBar:
-		health_bar = bar_node
-	
 	health = mini(SaveManager.current_health, max_health)
-	if health_bar:
-		health_bar.max_value = max_health
-		health_bar.value = health
+	_refresh_health_bar_ui()
 	
 	anim.animation_finished.connect(_on_anim_finished)
 	health_changed.connect(_on_health_changed)
+	_player_ready = true
+
+
+func _enter_tree() -> void:
+	if _player_ready:
+		call_deferred("_refresh_health_bar_ui")
+
+
+func _refresh_health_bar_ui() -> void:
+	var bar_node = get_tree().get_first_node_in_group("player_health_bar")
+	if bar_node is TextureProgressBar:
+		health_bar = bar_node
+	if health_bar:
+		health_bar.max_value = max_health
+		health_bar.value = health
 
 
 func sync_from_save() -> void:
@@ -53,9 +64,7 @@ func sync_from_save() -> void:
 	exp = SaveManager.current_exp
 	_apply_hero_tier_for_level(level)
 	health = mini(SaveManager.current_health, max_health)
-	if health_bar:
-		health_bar.max_value = max_health
-		health_bar.value = health
+	_refresh_health_bar_ui()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -95,9 +104,18 @@ func _physics_process(delta):
 	if state not in [State.ATTACK, State.SHIELD]:
 		state = State.RUN if velocity.length() > 0 else State.IDLE
 	
+	if state == State.RUN and velocity.length() > 0.5:
+		_footstep_cooldown -= delta
+		if _footstep_cooldown <= 0.0:
+			SoundManager.play_footstep()
+			_footstep_cooldown = randf_range(0.28, 0.42)
+	else:
+		_footstep_cooldown = 0.0
+	
 	if Input.is_action_just_pressed("attack") and state not in [State.ATTACK, State.SHIELD]:
 		change_state(State.ATTACK)
 	if Input.is_action_just_pressed("shield") and state != State.SHIELD:
+		SoundManager.play_shield_raise()
 		change_state(State.SHIELD)
 	if state == State.SHIELD and Input.is_action_just_released("shield"):
 		back_to_movement()
@@ -138,6 +156,7 @@ func change_state(new_state: State):
 	
 	match state:
 		State.ATTACK:
+			SoundManager.play_attack_swing()
 			var anim_name = "attack_1"
 			if abs(last_dir.y) > abs(last_dir.x):
 				anim_name = "attack_1" if last_dir.y > 0 else "attack_2"
@@ -182,6 +201,10 @@ func update_anim():
 
 func take_damage(amount):
 	var final_damage = int(amount * 0.2) if state == State.SHIELD else amount
+	if state == State.SHIELD:
+		SoundManager.play_shield_block()
+	else:
+		SoundManager.play_player_hurt()
 	health -= final_damage
 	health_changed.emit(health)
 	if health <= 0 and state != State.DEATH:
@@ -189,6 +212,7 @@ func take_damage(amount):
 	show_damage_number(final_damage)
 
 func die():
+	SoundManager.play_death()
 	state = State.DEATH
 	velocity = Vector2.ZERO
 	anim.speed_scale = move_anim_speed_scale
@@ -260,9 +284,8 @@ func level_up():
 	_apply_hero_tier_for_level(level)
 	health = max_health
 	SaveManager.current_health = health
-	if health_bar:
-		health_bar.max_value = max_health
-		health_bar.value = health
+	_refresh_health_bar_ui()
+	SoundManager.play_level_up()
 	play_level_up_effect()
 
 

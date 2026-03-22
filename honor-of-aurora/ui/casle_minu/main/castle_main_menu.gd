@@ -10,19 +10,23 @@ func get_hud():
 
 
 func _on_back_pressed() -> void:
+	SoundManager.play_ui_button()
 	var hud = get_hud()
 	hud.hide_castle_menu()
 
 
 func _on_hire_pressed() -> void:
+	SoundManager.play_ui_button()
 	_hire_archer()
 
 
 func _on_upgreat_pressed() -> void:
+	SoundManager.play_ui_button()
 	_upgrade_buildings_near_castle()
 
 
 func _on_info_pressed() -> void:
+	SoundManager.play_ui_button()
 	_show_castle_info()
 
 func _hire_archer() -> void:

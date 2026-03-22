@@ -872,4 +872,3 @@ position = Vector2(1590, -354)
 
 [node name="Monk_base" parent="charecters" instance=ExtResource("51_80jge")]
 position = Vector2(1197, 237)
-heal_zone_dialogue_id = "intro_base_island"

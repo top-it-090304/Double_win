@@ -66,10 +66,12 @@ func _input(event: InputEvent) -> void:
 
 func _advance_dialogue_or_page() -> void:
 	if _text_pages.size() > 1 and _text_page_index + 1 < _text_pages.size():
+		SoundManager.play_dialogue_page_turn()
 		_text_page_index += 1
 		_text_label.text = _text_pages[_text_page_index]
 		_fit_dialogue_text_font()
 		return
+	SoundManager.play_dialogue_advance()
 	DialogueManager.advance_line()
 
 

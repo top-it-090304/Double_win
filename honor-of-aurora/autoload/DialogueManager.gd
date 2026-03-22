@@ -70,3 +70,5 @@ func get_current_line() -> DialogueLine:
 func _emit_current_line() -> void:
 	var line: DialogueLine = _sequence.lines[_index]
 	line_changed.emit(line, _index, _sequence.lines.size())
+	# Сразу из менеджера: при паузе игры await в окне диалога может не давать дойти до конца обработчика.
+	SoundManager.play_dialogue_mumble(line.speaker_id)

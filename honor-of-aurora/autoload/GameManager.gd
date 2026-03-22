@@ -170,6 +170,8 @@ func add_gold(amount: int):
 	SaveManager.gold += amount
 	Events.gold_changed.emit(SaveManager.gold)
 	SaveManager.save_game()
+	if amount > 0:
+		SoundManager.play_pickup_gold()
 
 
 func add_exp(amount: int):

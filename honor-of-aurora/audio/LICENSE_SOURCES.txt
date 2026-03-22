@@ -1,0 +1,32 @@
+Background music playlist (MP3, CC0 — attribution not required):
+
+1) fantasy_grasslands_cc0.mp3 — «Fantasy — Grasslands» (remastered), Doge
+   https://opengameart.org/content/fantasy-grasslands
+
+2) bg_02_field_of_dreams_cc0.mp3 — «The Field Of Dreams», pauliuw
+   https://opengameart.org/content/the-field-of-dreams
+
+3) bg_03_grassland_cc0.mp3 — «Fantasy — Grasslands» (alternate mix), Doge
+   https://opengameart.org/content/fantasy-grasslands
+
+4) bg_04_town_theme_cc0.mp3 — «Town Theme RPG», cynicmusic
+   https://opengameart.org/content/town-theme-rpg
+
+Микс: шины AudioServer Music / SFX / UI / Dialogue (SoundManager), лёгкий компрессор на SFX; громкости в user://save и в меню «Настройки». Приглушение музыки при диалоге и в главном меню.
+Доп. игровые отклики без новых файлов (pitch тех же CC0-сэмплов): золото (button_soft), уровень (menu_open), босс (hit_armor), лечение (page_turn), телепорт (menu_close).
+
+SFX combat / steps: Kenney (CC0) — RPG Audio, Impact Sounds — https://kenney.nl
+Щит (Kenney RPG Audio + Impact): поднятие — metalLatch (raise_00), с обрезкой начала в SoundManager; блок — metalClick (block_00).
+Attack shout (только игрок, взмах): «Voice Clip Pack - Male Adventurer RPG» (Brandon Song / wolfwoot), CC0
+https://opengameart.org/content/voice-clip-pack-male-adventurer-rpg
+Короткие возгласы (без длинных «attackbig»): attack2, attack4, attack8.wav → knight_attack_shout_0..2.wav
+Взмах врагов: Kenney RPG/Impact — metalClick, beltHandle, metal_light (без голоса).
+
+UI (dialogue, menus, buttons): Kenney Interface Sounds (CC0) — https://kenney.nl/assets/interface-sounds
+Menu open/close: pluck_001 + tick_001 (мягкие, вместо open/close).
+
+Dialogue page turn: Kenney RPG Audio — bookFlip1.ogg (перелистывание).
+
+Dialog mumble (инди-стиль речи): «Dialog vocal samples», MirceaKitsune, CC0
+https://opengameart.org/content/dialog-vocal-samples
+В проекте: male_standard → hero, female_standard → healer, whisper → narrator.

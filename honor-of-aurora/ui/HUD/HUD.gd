@@ -12,33 +12,38 @@ func _ready():
 
 func _input(event):
 	if teleport_menu.visible and event.is_action_pressed("interact"):
-		teleport_menu.hide()
-		get_tree().paused = false
+		hide_teleport_menu()
 
 func show_teleport_menu():
 	if teleport_menu.visible:
 		return
+	SoundManager.play_menu_open()
 	teleport_menu.show()
 	get_tree().paused = true
 
 func hide_teleport_menu():
 	if not teleport_menu.visible:
 		return
+	SoundManager.play_menu_close()
 	teleport_menu.hide()
 	get_tree().paused = false
 
 
 func teleport_to(location: Events.LOCATION):
-	teleport_menu.hide()
-	get_tree().paused = false
+	if teleport_menu.visible:
+		hide_teleport_menu()
+	else:
+		get_tree().paused = false
 	Events.location_changed.emit(location)
 
 
 func show_castle_menu():
+	SoundManager.play_menu_open()
 	castle_menu.show()
 	get_tree().paused = true
 
 
 func hide_castle_menu():
+	SoundManager.play_menu_close()
 	castle_menu.hide()
 	get_tree().paused = false

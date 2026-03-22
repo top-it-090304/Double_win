@@ -1,0 +1,107 @@
+[gd_scene load_steps=2 format=3 uid="uid://bsettings_overlay01"]
+
+[ext_resource type="Script" path="res://ui/menu/settings_overlay.gd" id="1_script"]
+
+[node name="SettingsOverlay" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -200.0
+offset_right = 220.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+text = "Звук"
+horizontal_alignment = 1
+
+[node name="MusicLabel" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+text = "Музыка"
+
+[node name="MusicSlider" type="HSlider" parent="Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+value = 100.0
+
+[node name="SfxLabel" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+text = "Эффекты и бой"
+
+[node name="SfxSlider" type="HSlider" parent="Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+value = 100.0
+
+[node name="UiLabel" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+text = "Интерфейс"
+
+[node name="UiSlider" type="HSlider" parent="Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+value = 100.0
+
+[node name="DialogueLabel" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+text = "Диалоги"
+
+[node name="DialogueSlider" type="HSlider" parent="Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+value = 100.0
+
+[node name="Back" type="Button" parent="Panel/Margin/VBox"]
+layout_mode = 2
+text = "Назад"
+
+[connection signal="pressed" from="Panel/Margin/VBox/Back" to="." method="_on_back_pressed"]

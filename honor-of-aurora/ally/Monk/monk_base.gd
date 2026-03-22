@@ -120,6 +120,7 @@ func _heal(target):
 		target.take_damage(-heal_amount)
 	if target.has_method("play_heal_effect"):
 		target.play_heal_effect()
+	SoundManager.play_heal()
 	play_heal_effect()
 	state = State.HEAL
 	anim.play("heal")

@@ -139,6 +139,7 @@ func _on_attack_area_entered(body):
 		start_attack()
 
 func start_attack():
+	SoundManager.play_enemy_attack_swing()
 	state = State.ATTACK
 	can_attack = false
 	if target:
@@ -178,6 +179,7 @@ func update_animation():
 			anim.play("idle")
 
 func take_damage(amount: int):
+	SoundManager.play_enemy_hit()
 	health -= amount
 	
 	if health <= 0:
@@ -191,11 +193,15 @@ func take_damage(amount: int):
 	show_damage_number(amount)
 
 func die():
+	if is_in_group("BOSS"):
+		SoundManager.play_boss_defeat()
+	else:
+		SoundManager.play_death()
 	GameManager.add_exp(exp_reward)
 	state = State.DEATH
 	anim.play("dead")
 	
-	if self.is_in_group("BOSS"):
+	if is_in_group("BOSS"):
 		GameManager.boss_kill()
 	
 	$CollisionShape2D.set_deferred("disabled", true)
