@@ -7,12 +7,19 @@ func _on_button_pressed() -> void:
 	Events.location_changed.emit(Events.LOCATION.MENU)
 
 
-func _ready():
+func _ready() -> void:
+	set_process_input(true)
 	teleport_menu.hide()
 
-func _input(event):
-	if teleport_menu.visible and event.is_action_pressed("interact"):
-		hide_teleport_menu()
+func _input(event: InputEvent) -> void:
+	if teleport_menu.visible:
+		if event.is_action_pressed("ui_cancel"):
+			hide_teleport_menu()
+			get_viewport().set_input_as_handled()
+		return
+	if castle_menu != null and castle_menu.visible and event.is_action_pressed("ui_cancel"):
+		hide_castle_menu()
+		get_viewport().set_input_as_handled()
 
 func show_teleport_menu():
 	if teleport_menu.visible:

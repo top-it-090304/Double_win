@@ -11,8 +11,9 @@ var can_heal = true
 @export var health = 100
 @export var max_health = 60
 
-## Порядок: сюжет (боссы, интро) → линия монаха (monk_story) → лор мира → бантер по клику/атаке после похода.
-const DEFAULT_HEAL_ZONE_DIALOGUE_IDS: PackedStringArray = [
+## Сюжет при входе в heal_area (авто) и после закрытия диалога — не снова по body_entered, пока герой не выйдет из зоны.
+## Лор/бантер — по «attack» рядом с монахом (в зоне хила при атаке сначала сюжет, если ещё доступен).
+const STORY_DIALOGUE_IDS: PackedStringArray = [
 	"boss_post_1",
 	"boss_post_2",
 	"boss_post_3",
@@ -29,6 +30,9 @@ const DEFAULT_HEAL_ZONE_DIALOGUE_IDS: PackedStringArray = [
 	"monk_story_5",
 	"monk_letter_2",
 	"monk_story_6",
+]
+
+const NON_STORY_DIALOGUE_IDS: PackedStringArray = [
 	"lore_crown_purse",
 	"lore_crown_contract",
 	"lore_order_oath",
@@ -40,7 +44,7 @@ const DEFAULT_HEAL_ZONE_DIALOGUE_IDS: PackedStringArray = [
 	"heal_banter",
 ]
 
-## Если не пусто — используется вместо DEFAULT и вместо legacy heal_zone_dialogue_id.
+## Если не пусто — сюжетные id (см. STORY_DIALOGUE_IDS) при атаке в зоне хила, остальные — при атаке вне неё.
 @export var heal_zone_dialogue_ids: PackedStringArray = []
 ## Устаревшее: один id. Используется только если heal_zone_dialogue_ids пуст.
 @export var heal_zone_dialogue_id: String = ""
@@ -50,22 +54,38 @@ const DEFAULT_HEAL_ZONE_DIALOGUE_IDS: PackedStringArray = [
 @onready var detection = $detection_area
 @onready var heal_area = $heal_area
 @onready var cooldown = $HealCooldown
-@onready var talk_click_area: Area2D = $talk_click_area
-
 ## После возврата с острова: сколько раз по клику можно взять шутку (heal_banter), 3–4 за поход.
 var _expedition_click_jokes_remaining: int = 0
+## После любого закрытия диалога не автозапускать сюжет по входу в зону, пока игрок не выйдет из heal_area.
+var _block_zone_story_autostart_until_leave_heal_area: bool = false
 
 
 func _ready():
+	process_priority = -10
 	add_to_group("healer")
-	call_deferred("_try_offer_heal_zone_dialogue_if_player_in_zone")
-	DialogueManager.dialogue_ended.connect(_on_dialogue_ended_offer_next_in_zone)
+	DialogueManager.dialogue_ended.connect(_on_dialogue_ended_zone_flags)
 	detection.body_entered.connect(_on_detection)
-	heal_area.body_entered.connect(_on_heal_zone_dialogue)
 	heal_area.body_entered.connect(_on_heal_area)
+	heal_area.body_entered.connect(_on_heal_zone_enter_for_story_dialogue)
+	heal_area.body_exited.connect(_on_heal_zone_player_exited)
 	cooldown.timeout.connect(_on_cooldown)
 	cooldown.one_shot = true
-	talk_click_area.input_event.connect(_on_talk_click_area_input_event)
+	call_deferred("_try_story_dialogue_if_player_starts_in_zone", false)
+
+
+func _is_story_dialogue_id(d_id: String) -> bool:
+	return not d_id.is_empty() and d_id in STORY_DIALOGUE_IDS
+
+
+func _on_dialogue_ended_zone_flags(_sequence: DialogueSequence) -> void:
+	_block_zone_story_autostart_until_leave_heal_area = true
+
+
+func _on_heal_zone_player_exited(body: Node2D) -> void:
+	if not body.is_in_group("player"):
+		return
+	_block_zone_story_autostart_until_leave_heal_area = false
+
 
 func _physics_process(delta):
 	if state == State.HEAL:
@@ -99,10 +119,11 @@ func _physics_process(delta):
 		velocity = Vector2.ZERO
 		state = State.IDLE
 	
-	if Input.is_action_just_pressed("attack"):
+	if MobileVirtualInput.enabled and MobileVirtualInput.has_attack_pending() and not DialogueManager.is_active():
 		if _try_healer_interact_from_player_close():
+			MobileVirtualInput.consume_attack()
 			get_viewport().set_input_as_handled()
-	
+
 	update_animation()
 
 func update_animation():
@@ -124,21 +145,7 @@ func apply_pending_healer_dialogue_token() -> void:
 		return
 	_expedition_click_jokes_remaining = randi_range(3, 4)
 	Events.pending_healer_dialogue_after_expedition = false
-	_try_offer_heal_zone_dialogue_if_player_in_zone()
-
-
-func _try_offer_heal_zone_dialogue_if_player_in_zone() -> void:
-	if DialogueManager.is_active():
-		return
-	for body in heal_area.get_overlapping_bodies():
-		if body.is_in_group("player"):
-			_on_heal_zone_dialogue(body)
-			break
-
-
-func _on_dialogue_ended_offer_next_in_zone(_sequence: DialogueSequence) -> void:
-	# Игрок остаётся в зоне — body_entered не сработает снова; цепочка boss_post / сюжет продолжается.
-	call_deferred("_try_offer_heal_zone_dialogue_if_player_in_zone")
+	call_deferred("_try_story_dialogue_if_player_starts_in_zone", true)
 
 
 func _heal_zone_dialogue_ids_resolved() -> PackedStringArray:
@@ -146,25 +153,56 @@ func _heal_zone_dialogue_ids_resolved() -> PackedStringArray:
 		return heal_zone_dialogue_ids
 	if not heal_zone_dialogue_id.is_empty():
 		return PackedStringArray([heal_zone_dialogue_id])
-	return DEFAULT_HEAL_ZONE_DIALOGUE_IDS
+	return PackedStringArray()
 
 
-func _pick_heal_zone_dialogue_id(for_click: bool = false) -> String:
-	for d_id in _heal_zone_dialogue_ids_resolved():
-		if d_id == "heal_banter":
-			if not for_click:
+func _pick_story_dialogue_id() -> String:
+	if not heal_zone_dialogue_ids.is_empty() or not heal_zone_dialogue_id.is_empty():
+		for d_id in _heal_zone_dialogue_ids_resolved():
+			if not _is_story_dialogue_id(d_id):
 				continue
-			if _expedition_click_jokes_remaining <= 0:
-				continue
+			if DialogueRegistry.can_play(d_id):
+				return d_id
+		return ""
+	for d_id in STORY_DIALOGUE_IDS:
 		if DialogueRegistry.can_play(d_id):
 			return d_id
 	return ""
 
 
-func _attempt_start_heal_zone_story_dialogue(for_click: bool = false) -> bool:
+func _pick_non_story_dialogue_id() -> String:
+	if not heal_zone_dialogue_ids.is_empty() or not heal_zone_dialogue_id.is_empty():
+		for d_id in _heal_zone_dialogue_ids_resolved():
+			if _is_story_dialogue_id(d_id):
+				continue
+			if d_id == "heal_banter" and _expedition_click_jokes_remaining <= 0:
+				continue
+			if DialogueRegistry.can_play(d_id):
+				return d_id
+		return ""
+	for d_id in NON_STORY_DIALOGUE_IDS:
+		if d_id == "heal_banter" and _expedition_click_jokes_remaining <= 0:
+			continue
+		if DialogueRegistry.can_play(d_id):
+			return d_id
+	return ""
+
+
+func _attempt_start_zone_story_dialogue(ignore_zone_block: bool = false) -> bool:
 	if DialogueManager.is_active():
 		return false
-	var d_id := _pick_heal_zone_dialogue_id(for_click)
+	if not ignore_zone_block and _block_zone_story_autostart_until_leave_heal_area:
+		return false
+	var d_id := _pick_story_dialogue_id()
+	if d_id.is_empty() or not DialogueRegistry.can_play(d_id):
+		return false
+	return DialogueRegistry.try_start(d_id, heal_zone_dialogue_pause_game)
+
+
+func _attempt_start_attack_dialogue() -> bool:
+	if DialogueManager.is_active():
+		return false
+	var d_id := _pick_non_story_dialogue_id()
 	if d_id.is_empty() or not DialogueRegistry.can_play(d_id):
 		return false
 	if not DialogueRegistry.try_start(d_id, heal_zone_dialogue_pause_game):
@@ -172,21 +210,6 @@ func _attempt_start_heal_zone_story_dialogue(for_click: bool = false) -> bool:
 	if d_id == "heal_banter":
 		_expedition_click_jokes_remaining = maxi(0, _expedition_click_jokes_remaining - 1)
 	return true
-
-
-func _on_heal_zone_dialogue(body: Node2D) -> void:
-	if not body.is_in_group("player"):
-		return
-	_attempt_start_heal_zone_story_dialogue(false)
-
-
-func _on_talk_click_area_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
-	if not event is InputEventMouseButton:
-		return
-	var mb := event as InputEventMouseButton
-	if not mb.pressed or mb.button_index != MOUSE_BUTTON_LEFT:
-		return
-	_try_healer_interact_from_player_close()
 
 
 func _try_healer_interact_from_player_close() -> bool:
@@ -197,9 +220,27 @@ func _try_healer_interact_from_player_close() -> bool:
 		return false
 	if not detection.overlaps_body(player):
 		return false
-	if _attempt_start_heal_zone_story_dialogue(true):
+	var in_heal_zone: bool = heal_area.overlaps_body(player)
+	if in_heal_zone and _attempt_start_zone_story_dialogue():
+		return true
+	if _attempt_start_attack_dialogue():
 		return true
 	return DialogueRegistry.try_start("healer_idle_fallback", heal_zone_dialogue_pause_game)
+
+
+func _on_heal_zone_enter_for_story_dialogue(body: Node2D) -> void:
+	if not body.is_in_group("player"):
+		return
+	_attempt_start_zone_story_dialogue(false)
+
+
+func _try_story_dialogue_if_player_starts_in_zone(ignore_zone_block: bool = false) -> void:
+	if DialogueManager.is_active():
+		return
+	for body in heal_area.get_overlapping_bodies():
+		if body.is_in_group("player"):
+			_attempt_start_zone_story_dialogue(ignore_zone_block)
+			break
 
 
 func _on_heal_area(body):

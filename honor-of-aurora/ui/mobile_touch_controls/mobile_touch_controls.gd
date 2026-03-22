@@ -13,8 +13,8 @@ func _ready() -> void:
 	_ensure_full_rect()
 	if not get_viewport().size_changed.is_connected(_on_viewport_size_changed):
 		get_viewport().size_changed.connect(_on_viewport_size_changed)
-	DialogueManager.dialogue_started.connect(_on_dialogue_or_visibility)
-	DialogueManager.dialogue_ended.connect(_on_dialogue_or_visibility)
+	DialogueManager.dialogue_started.connect(_on_dialogue_started_visibility)
+	DialogueManager.dialogue_ended.connect(_on_dialogue_ended_visibility)
 	_refresh_visibility()
 
 
@@ -30,13 +30,16 @@ func _ensure_full_rect() -> void:
 	offset_bottom = 0.0
 
 
-func _on_dialogue_or_visibility(_a = null) -> void:
+func _on_dialogue_started_visibility(_a = null) -> void:
+	_refresh_visibility()
+
+
+func _on_dialogue_ended_visibility(_a = null) -> void:
+	MobileVirtualInput.clear_input()
 	_refresh_visibility()
 
 
 func _process(_delta: float) -> void:
-	if not is_inside_tree():
-		return
 	_refresh_visibility()
 
 

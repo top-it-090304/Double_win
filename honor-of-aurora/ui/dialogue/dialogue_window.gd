@@ -26,6 +26,8 @@ const SPEAKER_FACES := {
 @onready var _face: TextureRect = $DialogueChrome/PanelRoot/MarginMain/VBox/Row/LeftCol/FaceFrame/face
 @onready var _name_label: Label = $DialogueChrome/PanelRoot/MarginMain/VBox/Row/LeftCol/Name
 @onready var _text_label: Label = $DialogueChrome/PanelRoot/MarginMain/VBox/Row/text
+@onready var _close_btn: Button = $DialogueChrome/PanelRoot/MarginMain/VBox/ContinueHBox/CloseButton
+@onready var _continue_btn: Button = $DialogueChrome/PanelRoot/MarginMain/VBox/ContinueHBox/ContinueButton
 @onready var _choices_vbox: VBoxContainer = $DialogueChrome/PanelRoot/MarginMain/VBox/ChoicesVBox
 
 var _text_pages: PackedStringArray = []
@@ -37,6 +39,10 @@ func _ready() -> void:
 	visible = false
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	set_process_input(true)
+	if _continue_btn:
+		_continue_btn.pressed.connect(_on_continue_pressed)
+	if _close_btn:
+		_close_btn.pressed.connect(_force_close_dialogue)
 	if _face == null or _name_label == null or _text_label == null or _choices_vbox == null:
 		push_error("DialogueWindow: не найдены узлы face / Name / text / ChoicesVBox под DialogueChrome — проверьте дерево сцены.")
 	_apply_label_theme()
@@ -61,23 +67,51 @@ func _apply_label_theme() -> void:
 func _input(event: InputEvent) -> void:
 	if not visible or not DialogueManager.is_active():
 		return
-	if event is InputEventKey and event.pressed and not event.echo:
-		if DialogueManager.is_current_line_choice():
-			var kc: int = event.keycode
-			if kc >= KEY_1 and kc <= KEY_9:
-				var idx: int = kc - KEY_1
-				if idx < _choice_buttons.size():
-					_choice_buttons[idx].pressed.emit()
-					get_viewport().set_input_as_handled()
-				return
-		if event.keycode == KEY_SPACE or event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
-			if DialogueManager.is_current_line_choice():
-				if _text_pages.size() > 1 and _text_page_index + 1 < _text_pages.size():
-					_advance_dialogue_or_page()
-					get_viewport().set_input_as_handled()
-				return
+	if event.is_action_pressed("ui_cancel"):
+		_force_close_dialogue()
+		get_viewport().set_input_as_handled()
+
+
+func _gui_input(event: InputEvent) -> void:
+	if not visible or not DialogueManager.is_active():
+		return
+	if not _continue_btn.visible:
+		return
+	if event is InputEventScreenTouch:
+		var st := event as InputEventScreenTouch
+		if st.pressed:
 			_advance_dialogue_or_page()
-			get_viewport().set_input_as_handled()
+			accept_event()
+
+
+func _on_continue_pressed() -> void:
+	_advance_dialogue_or_page()
+
+
+func _force_close_dialogue() -> void:
+	if not DialogueManager.is_active():
+		return
+	SoundManager.play_ui_button()
+	DialogueManager.end_dialogue()
+
+
+func _refresh_continue_button() -> void:
+	if _continue_btn == null:
+		return
+	if not DialogueManager.is_active():
+		_continue_btn.visible = false
+		if _close_btn:
+			_close_btn.visible = false
+		return
+	if _close_btn:
+		_close_btn.visible = true
+	if DialogueManager.is_current_line_choice():
+		if _text_pages.size() > 1 and _text_page_index < _text_pages.size() - 1:
+			_continue_btn.visible = true
+		else:
+			_continue_btn.visible = false
+	else:
+		_continue_btn.visible = true
 
 
 func _advance_dialogue_or_page() -> void:
@@ -87,12 +121,14 @@ func _advance_dialogue_or_page() -> void:
 			_text_page_index += 1
 			_text_label.text = _text_pages[_text_page_index]
 			_fit_dialogue_text_font()
+			_refresh_continue_button()
 		return
 	if _text_pages.size() > 1 and _text_page_index + 1 < _text_pages.size():
 		SoundManager.play_dialogue_page_turn()
 		_text_page_index += 1
 		_text_label.text = _text_pages[_text_page_index]
 		_fit_dialogue_text_font()
+		_refresh_continue_button()
 		return
 	SoundManager.play_dialogue_advance()
 	DialogueManager.advance_line()
@@ -100,6 +136,7 @@ func _advance_dialogue_or_page() -> void:
 
 func _on_dialogue_started(_sequence: DialogueSequence) -> void:
 	visible = true
+	MobileVirtualInput.clear_input()
 
 
 func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void:
@@ -138,6 +175,7 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 			)
 			_choices_vbox.add_child(btn)
 			_choice_buttons.append(btn)
+		_refresh_continue_button()
 		return
 
 	await get_tree().process_frame
@@ -147,6 +185,7 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 	_text_page_index = 0
 	_text_label.text = _text_pages[0] if not _text_pages.is_empty() else ""
 	_fit_dialogue_text_font()
+	_refresh_continue_button()
 
 
 func _clear_choice_ui() -> void:
@@ -164,6 +203,7 @@ func _on_dialogue_ended(_sequence: DialogueSequence) -> void:
 	_face.texture = null
 	_text_pages = []
 	_text_page_index = 0
+	_refresh_continue_button()
 
 
 func _font_for_label(label: Label) -> Font:

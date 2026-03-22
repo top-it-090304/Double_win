@@ -27,7 +27,6 @@ var health: int
 var attack_index = 0
 var _player_ready: bool = false
 var _footstep_cooldown: float = 0.0
-
 func _ready():
 	if effect_sprite:
 		effect_sprite.visible = false
@@ -67,20 +66,6 @@ func sync_from_save() -> void:
 	_refresh_health_bar_ui()
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if not OS.is_debug_build():
-		return
-	if event is InputEventKey and event.pressed and not event.echo:
-		match event.keycode:
-			KEY_F9:
-				# Ровно один уровень от текущей полоски опыта.
-				var need := get_exp_to_next_level() - exp
-				gain_exp(maxi(need, 1))
-				get_viewport().set_input_as_handled()
-			KEY_F10:
-				gain_exp(1000)
-				get_viewport().set_input_as_handled()
-
 func _physics_process(delta):
 	var dir = Vector2.ZERO
 	
@@ -89,11 +74,8 @@ func _physics_process(delta):
 		return
 	
 	if state not in [State.ATTACK, State.SHIELD]:
-		dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 		if MobileVirtualInput.enabled:
-			var tv := MobileVirtualInput.move_vector
-			if tv.length_squared() > 0.0001:
-				dir = tv
+			dir = MobileVirtualInput.move_vector
 	
 	if dir != Vector2.ZERO:
 		last_dir = dir
@@ -117,15 +99,11 @@ func _physics_process(delta):
 		_footstep_cooldown = 0.0
 	
 	var attack_just := false
-	if MobileVirtualInput.enabled:
-		# Не смешивать с Input Map: «attack» = ЛКМ — иначе любое касание по экрану даёт удар.
+	if DialogueManager.is_active():
+		attack_just = false
+	elif MobileVirtualInput.enabled:
 		attack_just = MobileVirtualInput.consume_attack()
 		if MobileVirtualInput.shield_held and state != State.SHIELD:
-			SoundManager.play_shield_raise()
-			change_state(State.SHIELD)
-	else:
-		attack_just = Input.is_action_just_pressed("attack")
-		if Input.is_action_just_pressed("shield") and state != State.SHIELD:
 			SoundManager.play_shield_raise()
 			change_state(State.SHIELD)
 
@@ -133,10 +111,12 @@ func _physics_process(delta):
 		change_state(State.ATTACK)
 
 	if state == State.SHIELD:
-		if MobileVirtualInput.enabled:
+		if DialogueManager.is_active():
+			back_to_movement()
+		elif MobileVirtualInput.enabled:
 			if not MobileVirtualInput.shield_held:
 				back_to_movement()
-		elif Input.is_action_just_released("shield"):
+		else:
 			back_to_movement()
 	
 	update_anim()

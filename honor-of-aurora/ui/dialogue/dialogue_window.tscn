@@ -37,7 +37,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 script = ExtResource("8_dwin")
 
 [node name="DialogueChrome" type="Control" parent="."]
@@ -106,6 +105,23 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 autowrap_mode = 3
+
+[node name="ContinueHBox" type="HBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="CloseButton" type="Button" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ContinueHBox"]
+layout_mode = 2
+text = "Закрыть"
+
+[node name="Spacer" type="Control" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ContinueHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ContinueButton" type="Button" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ContinueHBox"]
+layout_mode = 2
+text = "Далее"
 
 [node name="ChoicesVBox" type="VBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox"]
 visible = false

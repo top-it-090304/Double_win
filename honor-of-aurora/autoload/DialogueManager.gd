@@ -59,6 +59,7 @@ func end_dialogue() -> void:
 		_pause_locked = false
 	process_mode = Node.PROCESS_MODE_INHERIT
 	dialogue_ended.emit(finished)
+	MobileVirtualInput.clear_input()
 
 
 func get_current_line() -> DialogueLine:

@@ -30,6 +30,10 @@ func consume_attack() -> bool:
 	return a
 
 
+func has_attack_pending() -> bool:
+	return _attack_pending
+
+
 func clear_input() -> void:
 	move_vector = Vector2.ZERO
 	shield_held = false
