@@ -32,15 +32,13 @@ func teleport_to(location: Events.LOCATION):
 	teleport_menu.hide()
 	get_tree().paused = false
 	Events.location_changed.emit(location)
-	
-	
+
+
 func show_castle_menu():
-	print("hello")
 	castle_menu.show()
 	get_tree().paused = true
-	
-	
+
+
 func hide_castle_menu():
-	print("goodbye")
 	castle_menu.hide()
 	get_tree().paused = false

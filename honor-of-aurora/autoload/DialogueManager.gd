@@ -1,12 +1,5 @@
 extends Node
 
-## Синглтон: очередь реплик, сигналы для UI.
-## Кнопка «Далее» должна вызывать advance_line(). После последней реплики advance_line() сам вызовет end_dialogue().
-##
-## Важно: если pause_game=true, но нет UI с PROCESS_MODE_ALWAYS и кнопкой «Далее», игра зависнет в вечной паузе,
-## потому что end_dialogue() вызывается только после advance_line(). По умолчанию пауза выключена.
-## Листание клавишами: ui/dialogue/dialogue_window.gd (HUD).
-
 signal dialogue_started(sequence: DialogueSequence)
 signal line_changed(line: DialogueLine, index: int, line_count: int)
 signal dialogue_ended(sequence: DialogueSequence)

@@ -14,7 +14,7 @@ func _on_continue_pressed() -> void:
 
 
 func _on_settings_pressed() -> void:
-	pass # Replace with function body.
+	pass
 
 
 func _on_quit_pressed() -> void:

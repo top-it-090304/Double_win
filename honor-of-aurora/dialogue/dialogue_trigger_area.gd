@@ -1,7 +1,5 @@
 extends Area2D
 
-## Универсальная зона: при входе игрока запускает диалог (не обязана совпадать с heal_area монаха).
-
 @export var dialogue: DialogueSequence
 @export var trigger_once: bool = true
 @export var pause_game: bool = false

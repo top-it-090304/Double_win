@@ -48,7 +48,6 @@ func _ready():
 	health_changed.connect(_on_health_changed)
 
 
-## Вызывать после SaveManager.reset_data(), пока узел игрока уже в дереве (меню и т.д.).
 func sync_from_save() -> void:
 	level = SaveManager.current_level
 	exp = SaveManager.current_exp

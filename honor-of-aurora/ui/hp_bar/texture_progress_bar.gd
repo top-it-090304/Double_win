@@ -12,6 +12,5 @@ func _ready():
 		await get_tree().create_timer(1.0).timeout
 		_ready() 
 
-func _on_player_health_changed(current_health):
+func _on_player_health_changed(current_health) -> void:
 	value = current_health
-	

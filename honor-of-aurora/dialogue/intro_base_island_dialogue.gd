@@ -1,13 +1,11 @@
 class_name IntroBaseIslandDialogue
 extends DialogueSequence
 
-## Тестовый вводный сценарий: рыцарь по приказу короля, архипелаг Аврора, награда — остров.
 func _init() -> void:
 	_ensure_lines()
 
 
 func _notification(what: int) -> void:
-	# При загрузке из .tres _init иногда не заполняет массив до готовности ресурса.
 	if what == NOTIFICATION_POSTINITIALIZE:
 		_ensure_lines()
 

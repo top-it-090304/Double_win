@@ -14,10 +14,8 @@ const spawn_position = Vector2(600, 740)
 var current_index: int = 0
 
 func _ready():
-	
 	if SaveManager.boss_kill < 1:
 		spawn_enemies()
-	
 
 func spawn_enemies():
 	if spawn_points.is_empty():
@@ -44,7 +42,3 @@ func get_next_enemy_scene() -> PackedScene:
 		var scene = enemy_scenes[current_index]
 		current_index = (current_index + 1) % enemy_scenes.size()
 		return scene
-
-
-func _on_timer_timeout() -> void:
-	pass # Replace with function body.

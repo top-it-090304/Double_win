@@ -11,9 +11,7 @@ var can_heal = true
 @export var health = 100
 @export var max_health = 60
 
-## Если задан, при первом входе игрока в зону лечения (heal_area) начинается диалог.
 @export var heal_zone_dialogue: DialogueSequence
-## Если true, сценарий с монахом сработает один раз за сессию (пока сцена в памяти).
 @export var heal_zone_dialogue_once: bool = true
 @export var heal_zone_dialogue_pause_game: bool = false
 

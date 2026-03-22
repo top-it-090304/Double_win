@@ -1,39 +1,34 @@
 extends Control
 
+
 func get_hud():
 	return get_tree().get_first_node_in_group("hud")
 
-func _on_button_pressed() -> void:
+
+func _teleport(loc: Events.LOCATION) -> void:
 	var hud = get_hud()
 	if hud:
-		hud.teleport_to(Events.LOCATION.LVL1)
+		hud.teleport_to(loc)
 
+
+func _on_button_pressed() -> void:
+	_teleport(Events.LOCATION.LVL1)
 
 
 func _on_button_2_pressed() -> void:
-	var hud = get_hud()
-	if hud:
-		hud.teleport_to(Events.LOCATION.LVL2)
+	_teleport(Events.LOCATION.LVL2)
 
 
 func _on_button_3_pressed() -> void:
-	var hud = get_hud()
-	if hud:
-		hud.teleport_to(Events.LOCATION.LVL3)
+	_teleport(Events.LOCATION.LVL3)
 
 
 func _on_button_4_pressed() -> void:
-	var hud = get_hud()
-	if hud:
-		hud.teleport_to(Events.LOCATION.LVL4)
+	_teleport(Events.LOCATION.LVL4)
 
 
 func _on_button_5_pressed() -> void:
-	var hud = get_hud()
-	if hud:
-		hud.teleport_to(Events.LOCATION.LVL5)
-
-
+	_teleport(Events.LOCATION.LVL5)
 
 
 func _on_button_6_pressed() -> void:
@@ -43,6 +38,4 @@ func _on_button_6_pressed() -> void:
 
 
 func _on_button_7_pressed() -> void:
-	var hud = get_hud()
-	if hud:
-		hud.teleport_to(Events.LOCATION.BASE)
+	_teleport(Events.LOCATION.BASE)
