@@ -5,7 +5,7 @@
 
 [node name="player_blue" instance=ExtResource("1_5rk03")]
 
-[node name="AnimatedSprite2D" parent="." index="1"]
+[node name="AnimatedSprite2D" parent="." index="2"]
 sprite_frames = ExtResource("2_odc87")
 frame = 0
 frame_progress = 0.0

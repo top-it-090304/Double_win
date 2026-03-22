@@ -180,8 +180,6 @@ func _refresh_state() -> void:
 	else:
 		state = State.FOLLOW
 		attack_timer.stop()
-		if sprite.animation != "attack":
-			sprite.play("idle")
 
 func take_damage(amount: int) -> void:
 	if state == State.DEAD:

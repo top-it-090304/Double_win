@@ -49,6 +49,7 @@ func _hire_archer() -> void:
 	if not archer:
 		return
 	
+	SaveManager.archer_count += 1
 	GameManager.add_gold(-archer_cost)
 	get_tree().current_scene.add_child(archer)
 	archer.global_position = player.global_position + spawn_offset

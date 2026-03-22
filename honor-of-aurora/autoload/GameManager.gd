@@ -6,6 +6,10 @@ func _ready() -> void:
 	SaveManager.load_game()
 	Events.location_changed.connect(handle_location_changed)
 
+const ARCHER_SCENE := preload("res://ally/archer/arche_baser.tscn")
+const ARCHER_SPAWN_BASE_OFFSET := Vector2(80, 0)
+const ARCHER_SPAWN_SPACING := 44.0
+
 const location_to_scene = {
 	Events.LOCATION.BASE: preload("res://Game/Game_base_islad.tscn"),
 	Events.LOCATION.LVL1: preload("res://Game/Game_level_1.tscn"),
@@ -61,6 +65,22 @@ func teleport_player_to_scene(location: Events.LOCATION):
 		
 		if current_scene_player.has_method("set_health") or true:
 			current_scene_player.health = SaveManager.current_health
+		
+		if location != Events.LOCATION.MENU:
+			_spawn_saved_archers(new_scene)
+
+func _spawn_saved_archers(root: Node) -> void:
+	var n: int = SaveManager.archer_count
+	if n <= 0 or not current_scene_player or not is_instance_valid(current_scene_player):
+		return
+	var base_pos: Vector2 = current_scene_player.global_position
+	for i in range(n):
+		var archer := ARCHER_SCENE.instantiate() as Node2D
+		if not archer:
+			continue
+		root.add_child(archer)
+		var along := ARCHER_SPAWN_BASE_OFFSET + Vector2(i * ARCHER_SPAWN_SPACING, 0)
+		archer.global_position = base_pos + along
 
 func add_camera_to_player(player: Node):
 	var camera = player.get_node_or_null("Camera2D")
