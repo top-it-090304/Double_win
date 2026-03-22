@@ -1,0 +1,7 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://dialogue/monk_interactive_dialogue.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+dialogue_key = "monk_story_4"

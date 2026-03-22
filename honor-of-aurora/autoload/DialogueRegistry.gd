@@ -2,7 +2,30 @@ extends Node
 
 ## Список ресурсов DialogueDefinition. Добавьте сюда путь при создании нового диалога.
 const DEFINITION_PATHS: PackedStringArray = [
+	"res://dialogue/definitions/boss_post_1_def.tres",
+	"res://dialogue/definitions/boss_post_2_def.tres",
+	"res://dialogue/definitions/boss_post_3_def.tres",
+	"res://dialogue/definitions/boss_post_4_def.tres",
+	"res://dialogue/definitions/boss_post_5_def.tres",
 	"res://dialogue/definitions/intro_base_island_def.tres",
+	"res://dialogue/definitions/lore_crown_purse_def.tres",
+	"res://dialogue/definitions/lore_crown_contract_def.tres",
+	"res://dialogue/definitions/lore_order_oath_def.tres",
+	"res://dialogue/definitions/lore_chain_seal_def.tres",
+	"res://dialogue/definitions/lore_deaths_liturgy_def.tres",
+	"res://dialogue/definitions/lore_archer_sentinel_def.tres",
+	"res://dialogue/definitions/lore_gold_blood_def.tres",
+	"res://dialogue/definitions/lore_return_veteran_def.tres",
+	"res://dialogue/definitions/monk_story_1_def.tres",
+	"res://dialogue/definitions/monk_story_2_def.tres",
+	"res://dialogue/definitions/monk_story_3_def.tres",
+	"res://dialogue/definitions/monk_story_4_def.tres",
+	"res://dialogue/definitions/monk_letter_1_def.tres",
+	"res://dialogue/definitions/monk_story_5_def.tres",
+	"res://dialogue/definitions/monk_letter_2_def.tres",
+	"res://dialogue/definitions/monk_story_6_def.tres",
+	"res://dialogue/definitions/heal_banter_def.tres",
+	"res://dialogue/definitions/healer_idle_fallback_def.tres",
 ]
 
 var _by_id: Dictionary = {}
@@ -59,3 +82,8 @@ func _on_dialogue_ended(sequence: DialogueSequence) -> void:
 		return
 	for flag in def.grant_flags_on_complete:
 		StoryState.set_flag(flag, true)
+	if sequence.id == "monk_story_6":
+		MonkInteractiveDialogue.grant_ending_flag_after_finale()
+	# Случайный бантер должен собираться заново при следующем заходе в зону.
+	if sequence.id == "heal_banter" or sequence.id == "healer_idle_fallback":
+		sequence.lines.clear()

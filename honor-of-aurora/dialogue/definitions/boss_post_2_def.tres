@@ -1,0 +1,17 @@
+[gd_resource type="Resource" load_steps=5 format=3 uid="uid://bwy02ur0q153"]
+
+[ext_resource type="Script" path="res://dialogue/dialogue_definition.gd" id="1_def"]
+[ext_resource type="Script" path="res://dialogue/dialogue_conditions.gd" id="2_cond"]
+[ext_resource type="Resource" uid="uid://c8bossp2seq01" path="res://dialogue/boss_post_2.tres" id="3_seq"]
+
+[sub_resource type="Resource" id="cond"]
+script = ExtResource("2_cond")
+min_boss_kill = 2
+blocked_flags = Array[String](["boss_post_2_done"])
+
+[resource]
+script = ExtResource("1_def")
+id = "boss_post_2"
+sequence = ExtResource("3_seq")
+conditions = SubResource("cond")
+grant_flags_on_complete = Array[String](["boss_post_2_done"])

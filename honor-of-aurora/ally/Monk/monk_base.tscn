@@ -1,4 +1,4 @@
-[gd_scene load_steps=53 format=3 uid="uid://cbdgdn24l7pj"]
+[gd_scene load_steps=54 format=3 uid="uid://cbdgdn24l7pj"]
 
 [ext_resource type="Script" uid="uid://dbr8ut6xw64my" path="res://ally/Monk/monk_base.gd" id="1_1bdej"]
 [ext_resource type="Texture2D" uid="uid://dfgntn048gv1y" path="res://Asets/Unit_pack/Units/Yellow Units/Monk/Heal.png" id="1_q3rah"]
@@ -338,6 +338,9 @@ radius = 730.537
 [sub_resource type="CircleShape2D" id="CircleShape2D_1bdej"]
 radius = 195.208
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_talkclk"]
+radius = 56.0
+
 [node name="Monk_base" type="CharacterBody2D" groups=["healer"]]
 collision_layer = 8
 collision_mask = 15
@@ -366,6 +369,15 @@ collision_mask = 15
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="heal_area"]
 shape = SubResource("CircleShape2D_1bdej")
+
+[node name="talk_click_area" type="Area2D" parent="."]
+input_pickable = true
+collision_layer = 8
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="talk_click_area"]
+position = Vector2(2, 23)
+shape = SubResource("CircleShape2D_talkclk")
 
 [node name="HealCooldown" type="Timer" parent="."]
 wait_time = 3.0

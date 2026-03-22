@@ -1,0 +1,9 @@
+[gd_resource type="Resource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://dialogue/dialogue_definition.gd" id="1_def"]
+[ext_resource type="Resource" path="res://dialogue/healer_idle_fallback.tres" id="2_seq"]
+
+[resource]
+script = ExtResource("1_def")
+id = "healer_idle_fallback"
+sequence = ExtResource("2_seq")

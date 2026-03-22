@@ -67,6 +67,31 @@ func get_current_line() -> DialogueLine:
 	return _sequence.lines[_index]
 
 
+func is_current_line_choice() -> bool:
+	var line := get_current_line()
+	return line is DialogueChoiceLine and (line as DialogueChoiceLine).options.size() > 0
+
+
+## Выбор варианта при DialogueChoiceLine (индекс с 0).
+func pick_dialogue_choice(option_index: int) -> void:
+	if not is_active():
+		return
+	var line: DialogueLine = get_current_line()
+	if not line is DialogueChoiceLine:
+		return
+	var dcl := line as DialogueChoiceLine
+	if option_index < 0 or option_index >= dcl.options.size():
+		return
+	var opt: DialogueChoiceOption = dcl.options[option_index]
+	for k in opt.grant_flags:
+		if not k.is_empty():
+			StoryState.set_flag(k, true)
+	_sequence.lines.remove_at(_index)
+	for i in range(opt.continuation.size()):
+		_sequence.lines.insert(_index + i, opt.continuation[i])
+	_emit_current_line()
+
+
 func _emit_current_line() -> void:
 	var line: DialogueLine = _sequence.lines[_index]
 	line_changed.emit(line, _index, _sequence.lines.size())

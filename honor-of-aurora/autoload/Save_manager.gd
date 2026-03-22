@@ -6,6 +6,24 @@ var current_health = 100
 var current_level = 1
 var current_exp = 0
 var archer_count: int = 0
+## Сколько раз герой умер (остров / бой).
+var death_count: int = 0
+## Сколько раз вернулся на базу с острова (поход завершён телепортом).
+var expedition_return_count: int = 0
+## Сохраняется: игрок зашёл в главное меню с острова — при «Продолжить» на базе нужен жетон диалога монаха.
+var was_on_adventure_before_menu: bool = false
+## Последняя игровая сцена (Events.LOCATION, не MENU) и позиция героя для «Продолжить».
+var resume_game_location: int = 0
+var resume_player_position_x: float = -600.0
+var resume_player_position_y: float = 750.0
+## Сессия: при «Продолжить» из главного меню один раз ставить героя по сохранённым координатам.
+var apply_resume_position_on_next_scene: bool = false
+## Следующий переход в меню — после смерти: не перезаписывать resume из позиции игрока.
+var death_resume_pending: bool = false
+
+## Координаты зоны телепорта на базе (см. TeleportZone в Game_base_islad.tscn).
+const BASE_TELEPORT_RESUME_X := -660.0
+const BASE_TELEPORT_RESUME_Y := 865.0
 ## Сюжетные флаги для диалогов и квестов (строковый ключ → bool).
 var story_flags: Dictionary = {}
 ## Громкости шин (0.0–1.0), см. SoundManager.apply_user_volume_settings().
@@ -16,7 +34,7 @@ var volume_dialogue: float = 1.0
 
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
-const SAVE_DATA = ["gold", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "story_flags", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue"]
+const SAVE_DATA = ["gold", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "story_flags", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue"]
 const default_data := {
 	"gold" : 0,
 	"boss_kill" : 0,
@@ -24,6 +42,12 @@ const default_data := {
 	"current_level" : 1,
 	"current_exp" : 0,
 	"archer_count" : 0,
+	"death_count" : 0,
+	"expedition_return_count" : 0,
+	"was_on_adventure_before_menu" : false,
+	"resume_game_location" : 0,
+	"resume_player_position_x" : -600.0,
+	"resume_player_position_y" : 750.0,
 	"story_flags" : {},
 	"volume_music" : 1.0,
 	"volume_sfx" : 1.0,
@@ -73,6 +97,21 @@ func save_game():
 	game_save_file.store_line(json_object.stringify(game_data))
 
 
+func get_resume_location_enum() -> Events.LOCATION:
+	var v: int = clampi(resume_game_location, 0, int(Events.LOCATION.LVL5))
+	return v as Events.LOCATION
+
+
+func configure_death_resume_to_base_teleport() -> void:
+	current_health = 1
+	resume_game_location = int(Events.LOCATION.BASE)
+	resume_player_position_x = BASE_TELEPORT_RESUME_X
+	resume_player_position_y = BASE_TELEPORT_RESUME_Y
+	apply_resume_position_on_next_scene = true
+	death_resume_pending = true
+	save_game()
+
+
 func reset_data():
 	var keep_vm := volume_music
 	var keep_vs := volume_sfx
@@ -102,6 +141,8 @@ func reset_data():
 
 	current_health = HeroProgression.get_tier_for_level(current_level).max_health
 	game_data["current_health"] = current_health
+
+	death_resume_pending = false
 
 	var json_object := JSON.new()
 	game_save_file.store_line(json_object.stringify(game_data))

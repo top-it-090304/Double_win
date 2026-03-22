@@ -1,0 +1,9 @@
+[gd_resource type="Resource" load_steps=3 format=3 uid="uid://gkh720lerxfc"]
+
+[ext_resource type="Script" path="res://dialogue/dialogue_definition.gd" id="1_def"]
+[ext_resource type="Resource" uid="uid://c8healbanterseq01" path="res://dialogue/heal_banter.tres" id="2_seq"]
+
+[resource]
+script = ExtResource("1_def")
+id = "heal_banter"
+sequence = ExtResource("2_seq")

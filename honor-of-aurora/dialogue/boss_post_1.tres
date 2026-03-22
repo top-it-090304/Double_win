@@ -1,0 +1,7 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://c8bossp1seq01"]
+
+[ext_resource type="Script" path="res://dialogue/boss_post_dialogue.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+boss_index = 1

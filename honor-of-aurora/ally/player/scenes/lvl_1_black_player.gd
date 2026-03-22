@@ -13,6 +13,11 @@ func sync_from_save() -> void:
 	super.sync_from_save()
 	_apply_black_level1_stats()
 
+
+func reset_after_death_resume() -> void:
+	super.reset_after_death_resume()
+	_apply_black_level1_stats()
+
 func _apply_black_level1_stats() -> void:
 	max_health = 100
 	health = mini(SaveManager.current_health, max_health)

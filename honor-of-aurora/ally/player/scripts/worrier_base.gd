@@ -9,7 +9,7 @@ var exp: int = 0
 
 
 @export var speed: float = 250.0
-@export var max_health: int = 1000
+@export var max_health: int = 120
 @export var attack_damage: int = 90
 @export var enemy_separation_factor: float = 0.55
 
@@ -212,13 +212,27 @@ func take_damage(amount):
 	show_damage_number(final_damage)
 
 func die():
+	SaveManager.death_count += 1
 	SoundManager.play_death()
 	state = State.DEATH
 	velocity = Vector2.ZERO
 	anim.speed_scale = move_anim_speed_scale
 	anim.play("dead")
 	await anim.animation_finished
-	queue_free()
+	SaveManager.configure_death_resume_to_base_teleport()
+	Events.location_changed.emit(Events.LOCATION.MENU)
+
+
+func reset_after_death_resume() -> void:
+	state = State.IDLE
+	velocity = Vector2.ZERO
+	health = mini(SaveManager.current_health, max_health)
+	health_changed.emit(health)
+	SaveManager.current_health = health
+	if anim:
+		anim.speed_scale = move_anim_speed_scale
+		anim.play("idle")
+	_refresh_health_bar_ui()
 	
 func apply_damage():
 	for body in attack_area.get_overlapping_bodies():

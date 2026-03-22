@@ -4,6 +4,7 @@ var current_scene_player: Node = null
 
 func _ready() -> void:
 	SaveManager.load_game()
+	Events.sync_story_state_from_save()
 	Events.location_changed.connect(handle_location_changed)
 
 const ARCHER_SCENE := preload("res://ally/archer/arche_baser.tscn")
@@ -162,9 +163,52 @@ const location_to_scene = {
 }
 
 func handle_location_changed(new_location: Events.LOCATION):
+	var prev_location := Events.current_location
+
+	# Выход в меню (HUD): сохраняем сцену и позицию героя; персонаж не попадает в сцену меню (см. teleport_player_to_scene).
+	# После смерти resume уже задан (база, зона телепорта, 1 HP) — не перезаписывать.
+	if new_location == Events.LOCATION.MENU:
+		if SaveManager.death_resume_pending:
+			SaveManager.death_resume_pending = false
+		else:
+			var player := get_tree().get_first_node_in_group("player")
+			if player and is_instance_valid(player):
+				SaveManager.current_health = player.health
+				SaveManager.resume_game_location = int(prev_location)
+				SaveManager.resume_player_position_x = player.global_position.x
+				SaveManager.resume_player_position_y = player.global_position.y
+			if Events.is_adventure_location(prev_location):
+				Events.was_on_adventure_before_menu = true
+				SaveManager.was_on_adventure_before_menu = true
+		SaveManager.save_game()
+
+	# Прямой телепорт: база ← остров.
+	if new_location == Events.LOCATION.BASE and Events.is_adventure_location(prev_location):
+		SaveManager.expedition_return_count += 1
+		Events.pending_healer_dialogue_after_expedition = true
+		Events.was_on_adventure_before_menu = false
+		SaveManager.was_on_adventure_before_menu = false
+		SaveManager.save_game()
+
+	# Главное меню → база («Продолжить»): если до меню были на острове, считаем это возвратом с похода.
+	if new_location == Events.LOCATION.BASE and prev_location == Events.LOCATION.MENU:
+		if SaveManager.was_on_adventure_before_menu:
+			SaveManager.expedition_return_count += 1
+			Events.pending_healer_dialogue_after_expedition = true
+			Events.was_on_adventure_before_menu = false
+			SaveManager.was_on_adventure_before_menu = false
+			SaveManager.save_game()
+
 	Events.current_location = new_location
 	teleport_player_to_scene(new_location)
 	get_tree().change_scene_to_packed(location_to_scene.get(new_location))
+	# После загрузки базы монах применяет жетон (см. monk_base).
+	if new_location == Events.LOCATION.BASE:
+		call_deferred("_apply_pending_healer_dialogue_token_on_base")
+
+
+func _apply_pending_healer_dialogue_token_on_base() -> void:
+	get_tree().call_group("healer", "apply_pending_healer_dialogue_token")
 
 func add_gold(amount: int):
 	SaveManager.gold += amount
@@ -196,22 +240,40 @@ func teleport_player_to_scene(location: Events.LOCATION):
 	if not new_scene:
 		return
 	
+	if location == Events.LOCATION.MENU:
+		# Герой остаётся под GameManager, не добавляется в сцену меню.
+		if current_scene_player and is_instance_valid(current_scene_player):
+			add_child(current_scene_player)
+			current_scene_player.visible = false
+			current_scene_player.process_mode = Node.PROCESS_MODE_DISABLED
+			remove_camera_from_player(current_scene_player)
+		return
+	
 	if current_scene_player and is_instance_valid(current_scene_player):
 		new_scene.add_child(current_scene_player)
+		current_scene_player.visible = true
+		current_scene_player.process_mode = Node.PROCESS_MODE_INHERIT
 		
 		if "spawn_position" in new_scene:
-			current_scene_player.global_position = new_scene.spawn_position
+			if SaveManager.apply_resume_position_on_next_scene and int(location) == SaveManager.resume_game_location:
+				current_scene_player.global_position = Vector2(SaveManager.resume_player_position_x, SaveManager.resume_player_position_y)
+				SaveManager.apply_resume_position_on_next_scene = false
+			else:
+				current_scene_player.global_position = new_scene.spawn_position
 		
-		if location == Events.LOCATION.MENU:
-			remove_camera_from_player(current_scene_player)
-		else:
-			add_camera_to_player(current_scene_player)
+		add_camera_to_player(current_scene_player)
 		
 		if current_scene_player.has_method("set_health") or true:
 			current_scene_player.health = SaveManager.current_health
+		if current_scene_player.has_method("reset_after_death_resume"):
+			current_scene_player.reset_after_death_resume()
 		
-		if location != Events.LOCATION.MENU:
-			_spawn_saved_archers(new_scene)
+		_spawn_saved_archers(new_scene)
+		
+		SaveManager.resume_game_location = int(location)
+		SaveManager.resume_player_position_x = current_scene_player.global_position.x
+		SaveManager.resume_player_position_y = current_scene_player.global_position.y
+		SaveManager.save_game()
 
 func _spawn_saved_archers(root: Node) -> void:
 	var n: int = SaveManager.archer_count

@@ -15,6 +15,7 @@ const SPEAKER_LABELS := {
 	"healer": "Целитель",
 	"hero": "Рыцарь",
 	"narrator": "Повествование",
+	"letter": "Письмо",
 }
 
 const SPEAKER_FACES := {
@@ -22,20 +23,22 @@ const SPEAKER_FACES := {
 	"hero": TEX_PLAYER,
 }
 
-@onready var _face: TextureRect = $DialogueChrome/PanelRoot/MarginMain/Row/LeftCol/FaceFrame/face
-@onready var _name_label: Label = $DialogueChrome/PanelRoot/MarginMain/Row/LeftCol/Name
-@onready var _text_label: Label = $DialogueChrome/PanelRoot/MarginMain/Row/text
+@onready var _face: TextureRect = $DialogueChrome/PanelRoot/MarginMain/VBox/Row/LeftCol/FaceFrame/face
+@onready var _name_label: Label = $DialogueChrome/PanelRoot/MarginMain/VBox/Row/LeftCol/Name
+@onready var _text_label: Label = $DialogueChrome/PanelRoot/MarginMain/VBox/Row/text
+@onready var _choices_vbox: VBoxContainer = $DialogueChrome/PanelRoot/MarginMain/VBox/ChoicesVBox
 
 var _text_pages: PackedStringArray = []
 var _text_page_index: int = 0
+var _choice_buttons: Array[Button] = []
 
 
 func _ready() -> void:
 	visible = false
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	set_process_input(true)
-	if _face == null or _name_label == null or _text_label == null:
-		push_error("DialogueWindow: не найдены узлы face / Name / text под DialogueChrome — проверьте дерево сцены.")
+	if _face == null or _name_label == null or _text_label == null or _choices_vbox == null:
+		push_error("DialogueWindow: не найдены узлы face / Name / text / ChoicesVBox под DialogueChrome — проверьте дерево сцены.")
 	_apply_label_theme()
 	DialogueManager.dialogue_started.connect(_on_dialogue_started)
 	DialogueManager.line_changed.connect(_on_line_changed)
@@ -59,12 +62,32 @@ func _input(event: InputEvent) -> void:
 	if not visible or not DialogueManager.is_active():
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
+		if DialogueManager.is_current_line_choice():
+			var kc: int = event.keycode
+			if kc >= KEY_1 and kc <= KEY_9:
+				var idx: int = kc - KEY_1
+				if idx < _choice_buttons.size():
+					_choice_buttons[idx].pressed.emit()
+					get_viewport().set_input_as_handled()
+				return
 		if event.keycode == KEY_SPACE or event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
+			if DialogueManager.is_current_line_choice():
+				if _text_pages.size() > 1 and _text_page_index + 1 < _text_pages.size():
+					_advance_dialogue_or_page()
+					get_viewport().set_input_as_handled()
+				return
 			_advance_dialogue_or_page()
 			get_viewport().set_input_as_handled()
 
 
 func _advance_dialogue_or_page() -> void:
+	if DialogueManager.is_current_line_choice():
+		if _text_pages.size() > 1 and _text_page_index + 1 < _text_pages.size():
+			SoundManager.play_dialogue_page_turn()
+			_text_page_index += 1
+			_text_label.text = _text_pages[_text_page_index]
+			_fit_dialogue_text_font()
+		return
 	if _text_pages.size() > 1 and _text_page_index + 1 < _text_pages.size():
 		SoundManager.play_dialogue_page_turn()
 		_text_page_index += 1
@@ -80,6 +103,7 @@ func _on_dialogue_started(_sequence: DialogueSequence) -> void:
 
 
 func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void:
+	_clear_choice_ui()
 	var sid: String = line.speaker_id
 	_name_label.text = SPEAKER_LABELS.get(sid, sid.capitalize() if not sid.is_empty() else "?")
 	var tex: Texture2D = SPEAKER_FACES.get(sid, null)
@@ -90,6 +114,32 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 		_face.texture = null
 		_face.visible = false
 
+	if line is DialogueChoiceLine:
+		var dcl := line as DialogueChoiceLine
+		_choices_vbox.visible = true
+		_text_pages = _build_text_pages(line.text)
+		_text_page_index = 0
+		_text_label.text = _text_pages[0] if not _text_pages.is_empty() else ""
+		await get_tree().process_frame
+		await get_tree().process_frame
+		_fit_name_font()
+		_fit_dialogue_text_font()
+		for i in dcl.options.size():
+			var opt: DialogueChoiceOption = dcl.options[i]
+			var btn := Button.new()
+			btn.text = "%d. %s" % [i + 1, opt.label]
+			btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			var captured: int = i
+			btn.pressed.connect(func() -> void:
+				SoundManager.play_ui_button()
+				_clear_choice_ui()
+				DialogueManager.pick_dialogue_choice(captured)
+			)
+			_choices_vbox.add_child(btn)
+			_choice_buttons.append(btn)
+		return
+
 	await get_tree().process_frame
 	await get_tree().process_frame
 	_fit_name_font()
@@ -99,7 +149,15 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 	_fit_dialogue_text_font()
 
 
+func _clear_choice_ui() -> void:
+	_choice_buttons.clear()
+	for c in _choices_vbox.get_children():
+		c.queue_free()
+	_choices_vbox.visible = false
+
+
 func _on_dialogue_ended(_sequence: DialogueSequence) -> void:
+	_clear_choice_ui()
 	visible = false
 	_text_label.text = ""
 	_name_label.text = ""

@@ -14,12 +14,13 @@ static var _tiers: Array[HeroTierData] = []
 static func _ensure_tiers() -> void:
 	if not _tiers.is_empty():
 		return
+	# Уровни 1–5: HP и урон ниже старых значений (раньше у 1 уровня было 400 HP — слишком много для старта).
 	_tiers = [
-		_make(_BLUE, 220.0, 400, 75, 1.0, 1.0),
-		_make(_PURPLE, 235.0, 500, 90, 1.08, 1.0),
-		_make(_BLACK, 250.0, 650, 105, 1.15, 1.0),
-		_make(_RED, 265.0, 800, 120, 1.22, 1.02),
-		_make(_YELLOW, 280.0, 1000, 140, 1.3, 1.04),
+		_make(_BLUE, 220.0, 120, 28, 1.0, 1.0),
+		_make(_PURPLE, 235.0, 165, 38, 1.08, 1.0),
+		_make(_BLACK, 250.0, 215, 48, 1.15, 1.0),
+		_make(_RED, 265.0, 275, 58, 1.22, 1.02),
+		_make(_YELLOW, 280.0, 340, 68, 1.3, 1.04),
 	]
 
 
