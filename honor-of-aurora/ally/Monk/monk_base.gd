@@ -11,11 +11,9 @@ var can_heal = true
 @export var health = 100
 @export var max_health = 60
 
-@export var heal_zone_dialogue: DialogueSequence
-@export var heal_zone_dialogue_once: bool = true
+## Id из DialogueRegistry (например intro_base_island). Пусто — без диалога в зоне лечения.
+@export var heal_zone_dialogue_id: String = "intro_base_island"
 @export var heal_zone_dialogue_pause_game: bool = false
-
-var _heal_zone_dialogue_done: bool = false
 
 @onready var anim = $AnimatedSprite2D
 @onready var detection = $detection_area
@@ -82,31 +80,21 @@ func _on_detection(body):
 func _heal_blocked_by_dialogue() -> bool:
 	if DialogueManager.is_active():
 		return true
-	if heal_zone_dialogue == null:
+	if heal_zone_dialogue_id.is_empty():
 		return false
-	heal_zone_dialogue.ensure_lines_ready()
-	if heal_zone_dialogue.lines.is_empty():
-		return false
-	return not _heal_zone_dialogue_done
+	return DialogueRegistry.can_play(heal_zone_dialogue_id)
 
 
 func _on_heal_zone_dialogue(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
-	if heal_zone_dialogue == null:
+	if heal_zone_dialogue_id.is_empty():
 		return
-	heal_zone_dialogue.ensure_lines_ready()
-	if heal_zone_dialogue.lines.is_empty():
-		return
-	if heal_zone_dialogue_once and _heal_zone_dialogue_done:
+	if not DialogueRegistry.can_play(heal_zone_dialogue_id):
 		return
 	if DialogueManager.is_active():
 		return
-	if DialogueManager.start_dialogue(heal_zone_dialogue, heal_zone_dialogue_pause_game):
-		_heal_zone_dialogue_done = true
-	elif not DialogueManager.is_active():
-		# Не удалось запустить (пустые строки и т.д.) — не держим хилл заблокированным.
-		_heal_zone_dialogue_done = true
+	DialogueRegistry.try_start(heal_zone_dialogue_id, heal_zone_dialogue_pause_game)
 
 
 func _on_heal_area(body):

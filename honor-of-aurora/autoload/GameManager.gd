@@ -162,6 +162,7 @@ const location_to_scene = {
 }
 
 func handle_location_changed(new_location: Events.LOCATION):
+	Events.current_location = new_location
 	teleport_player_to_scene(new_location)
 	get_tree().change_scene_to_packed(location_to_scene.get(new_location))
 

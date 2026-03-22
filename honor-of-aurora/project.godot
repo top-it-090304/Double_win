@@ -18,8 +18,10 @@ config/features=PackedStringArray("4.4", "GL Compatibility")
 
 SaveManager="*res://autoload/Save_manager.gd"
 Events="*res://autoload/Events.gd"
+StoryState="*res://autoload/StoryState.gd"
 GameManager="*res://autoload/GameManager.gd"
 DialogueManager="*res://autoload/DialogueManager.gd"
+DialogueRegistry="*res://autoload/DialogueRegistry.gd"
 
 [display]
 

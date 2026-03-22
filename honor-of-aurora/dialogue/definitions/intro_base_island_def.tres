@@ -1,0 +1,16 @@
+[gd_resource type="Resource" load_steps=5 format=3 uid="uid://bqj8n2k4def01"]
+
+[ext_resource type="Script" path="res://dialogue/dialogue_definition.gd" id="1_def"]
+[ext_resource type="Script" path="res://dialogue/dialogue_conditions.gd" id="2_cond"]
+[ext_resource type="Resource" uid="uid://d4k8n2q7intro1" path="res://dialogue/intro_base_island.tres" id="3_seq"]
+
+[sub_resource type="Resource" id="cond"]
+script = ExtResource("2_cond")
+blocked_flags = Array[String](["intro_base_island_done"])
+
+[resource]
+script = ExtResource("1_def")
+id = "intro_base_island"
+sequence = ExtResource("3_seq")
+conditions = SubResource("cond")
+grant_flags_on_complete = Array[String](["intro_base_island_done"])

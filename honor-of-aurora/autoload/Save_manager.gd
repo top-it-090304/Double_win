@@ -6,17 +6,20 @@ var current_health = 100
 var current_level = 1
 var current_exp = 0
 var archer_count: int = 0
+## Сюжетные флаги для диалогов и квестов (строковый ключ → bool).
+var story_flags: Dictionary = {}
 
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
-const SAVE_DATA = ["gold", "boss_kill", "current_health", "current_level", "current_exp", "archer_count"]
+const SAVE_DATA = ["gold", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "story_flags"]
 const default_data := {
 	"gold" : 0,
 	"boss_kill" : 0,
 	"current_health" : 100,
 	"current_level" : 1,
 	"current_exp" : 0,
-	"archer_count" : 0
+	"archer_count" : 0,
+	"story_flags" : {},
 	}
 
 
@@ -37,7 +40,11 @@ func load_game():
 	var game_data = json_object.get_data()
 	for variable in SAVE_DATA:
 		if variable in game_data:
-			set(variable, game_data[variable])
+			var v: Variant = game_data[variable]
+			if variable == "story_flags" and v is Dictionary:
+				story_flags = (v as Dictionary).duplicate()
+			else:
+				set(variable, v)
 
 
 
@@ -62,8 +69,11 @@ func reset_data():
 		
 	var game_data := {}
 	for variable in SAVE_DATA:
-		game_data[variable] = default_data[variable]
-		set(variable, default_data[variable])
+		var v: Variant = default_data[variable]
+		if variable == "story_flags":
+			v = (v as Dictionary).duplicate()
+		game_data[variable] = v
+		set(variable, v)
 		
 	var json_object := JSON.new()
 	game_save_file.store_line(json_object.stringify(game_data))

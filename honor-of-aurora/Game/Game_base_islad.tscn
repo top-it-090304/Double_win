@@ -1,4 +1,4 @@
-[gd_scene load_steps=105 format=4 uid="uid://bos5r41ll0qqe"]
+[gd_scene load_steps=104 format=4 uid="uid://bos5r41ll0qqe"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_lc62k"]
 [ext_resource type="Script" uid="uid://drx5ypae7garp" path="res://Game/game_base_islad.gd" id="1_xjk1y"]
@@ -57,7 +57,6 @@
 [ext_resource type="PackedScene" uid="uid://d31shusm8kcnv" path="res://objects/buildings/types/Monastery/Monastery.tscn" id="55_n0ibi"]
 [ext_resource type="PackedScene" uid="uid://ds31l027ndmtr" path="res://objects/buildings/types/Tower/Tower.tscn" id="56_bq7kj"]
 [ext_resource type="PackedScene" uid="uid://erxes3g6not7" path="res://objects/SquadSpawnZone/squad_spawn_zone.tscn" id="58_squad"]
-[ext_resource type="Resource" uid="uid://d1rxlvu605vos" path="res://dialogue/intro_base_island.tres" id="intro_dialogue"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t7r2l"]
 texture = ExtResource("1_lc62k")
@@ -873,4 +872,4 @@ position = Vector2(1590, -354)
 
 [node name="Monk_base" parent="charecters" instance=ExtResource("51_80jge")]
 position = Vector2(1197, 237)
-heal_zone_dialogue = ExtResource("intro_dialogue")
+heal_zone_dialogue_id = "intro_base_island"

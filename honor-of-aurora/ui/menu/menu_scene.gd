@@ -7,6 +7,7 @@ extends Node2D
 var spawn_timer: Timer
 
 func _ready():
+	Events.current_location = Events.LOCATION.MENU
 	await get_tree().process_frame
 	
 	var screen_height = get_viewport().get_visible_rect().size.y
