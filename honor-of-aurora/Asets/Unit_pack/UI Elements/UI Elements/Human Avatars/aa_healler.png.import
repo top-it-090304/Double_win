@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://iyufihv72djc"
-path="res://.godot/imported/Avatars_04.png-94d958aeceb76c588cd8ca3c11d0746b.ctex"
+path="res://.godot/imported/aa_healler.png-9442a229e7890cbc9fbdb6ccca7de911.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_04.png"
-dest_files=["res://.godot/imported/Avatars_04.png-94d958aeceb76c588cd8ca3c11d0746b.ctex"]
+source_file="res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/aa_healler.png"
+dest_files=["res://.godot/imported/aa_healler.png-9442a229e7890cbc9fbdb6ccca7de911.ctex"]
 
 [params]
 

@@ -10,7 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://djxaxn100yy3x" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_01.png" id="7_sbu3m"]
 [ext_resource type="Texture2D" uid="uid://8bdu2gxxatje" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_11.png" id="8_2llpa"]
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ltan3"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_io6xc"]
 texture = ExtResource("1_x7hsw")
 32:0/0 = 0
 33:0/0 = 0
@@ -932,7 +932,7 @@ texture = ExtResource("1_x7hsw")
 57:35/0 = 0
 58:35/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_sbu3m"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_mkwp4"]
 texture = ExtResource("2_y1cmp")
 1:0/0 = 0
 2:0/0 = 0
@@ -1327,7 +1327,7 @@ texture = ExtResource("2_y1cmp")
 0:6/0 = 0
 0:5/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_2llpa"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_0woup"]
 texture = ExtResource("3_qpd68")
 2:0/0 = 0
 3:0/0 = 0
@@ -1419,9 +1419,9 @@ texture = ExtResource("3_qpd68")
 17:18/0 = 0
 
 [sub_resource type="TileSet" id="TileSet_7l04m"]
-sources/0 = SubResource("TileSetAtlasSource_ltan3")
-sources/1 = SubResource("TileSetAtlasSource_sbu3m")
-sources/2 = SubResource("TileSetAtlasSource_2llpa")
+sources/0 = SubResource("TileSetAtlasSource_io6xc")
+sources/1 = SubResource("TileSetAtlasSource_mkwp4")
+sources/2 = SubResource("TileSetAtlasSource_0woup")
 
 [node name="CasleMainMenu" type="Control"]
 layout_mode = 3
@@ -1532,7 +1532,16 @@ offset_left = 20.0
 offset_top = 20.0
 offset_right = 640.0
 offset_bottom = 300.0
-text = "Замок Аврора\n\nЗдесь вы можете:\n- Нанимать лучников (по цене, зависящей от сложности).\n- Улучшать здания за золото.\n\nЛучники:\n- Следуют за героем.\n- Останавливаются и стреляют по врагам в зоне.\n- Отступают при получении урона и затем продолжают стрелять."
+text = "Замок Аврора
+
+Здесь вы можете:
+- Нанимать лучников (по цене, зависящей от сложности).
+- Улучшать здания за золото.
+
+Лучники:
+- Следуют за героем.
+- Останавливаются и стреляют по врагам в зоне.
+- Отступают при получении урона и затем продолжают стрелять."
 
 [connection signal="pressed" from="buttons/back" to="." method="_on_back_pressed"]
 [connection signal="pressed" from="buttons/hire" to="." method="_on_hire_pressed"]

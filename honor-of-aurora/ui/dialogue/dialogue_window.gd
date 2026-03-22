@@ -1,6 +1,9 @@
 extends Control
 
-## Минимальное окно диалога: подпись к DialogueManager (сигналы line_changed и т.д.).
+## UI окна диалога: face, Name, text. Листание: Space / Enter.
+
+const TEX_HEALER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/aa_healler.png")
+const TEX_PLAYER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/aa_player.png")
 
 const SPEAKER_LABELS := {
 	"healer": "Целитель",
@@ -8,8 +11,14 @@ const SPEAKER_LABELS := {
 	"narrator": "Повествование",
 }
 
-@onready var _speaker: Label = $Panel/MarginContainer/VBox/SpeakerName
-@onready var _body: Label = $Panel/MarginContainer/VBox/DialogueBody
+const SPEAKER_FACES := {
+	"healer": TEX_HEALER,
+	"hero": TEX_PLAYER,
+}
+
+@onready var _face: TextureRect = $background/TileMapLayer/face
+@onready var _name_label: Label = $"background/TileMapLayer/Name"
+@onready var _text_label: Label = $background/text
 
 
 func _ready() -> void:
@@ -36,11 +45,19 @@ func _on_dialogue_started(_sequence: DialogueSequence) -> void:
 
 func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void:
 	var sid: String = line.speaker_id
-	_speaker.text = SPEAKER_LABELS.get(sid, sid.capitalize() if not sid.is_empty() else "?")
-	_body.text = line.text
+	_name_label.text = SPEAKER_LABELS.get(sid, sid.capitalize() if not sid.is_empty() else "?")
+	_text_label.text = line.text
+	var tex: Texture2D = SPEAKER_FACES.get(sid, null)
+	if tex:
+		_face.texture = tex
+		_face.visible = true
+	else:
+		_face.texture = null
+		_face.visible = false
 
 
 func _on_dialogue_ended(_sequence: DialogueSequence) -> void:
 	visible = false
-	_body.text = ""
-	_speaker.text = ""
+	_text_label.text = ""
+	_name_label.text = ""
+	_face.texture = null

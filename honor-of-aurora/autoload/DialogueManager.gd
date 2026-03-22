@@ -5,7 +5,7 @@ extends Node
 ##
 ## Важно: если pause_game=true, но нет UI с PROCESS_MODE_ALWAYS и кнопкой «Далее», игра зависнет в вечной паузе,
 ## потому что end_dialogue() вызывается только после advance_line(). По умолчанию пауза выключена.
-## Листание клавишами обрабатывает ui/dialogue/dialogue_overlay.gd (HUD).
+## Листание клавишами: ui/dialogue/dialogue_window.gd (HUD).
 
 signal dialogue_started(sequence: DialogueSequence)
 signal line_changed(line: DialogueLine, index: int, line_count: int)

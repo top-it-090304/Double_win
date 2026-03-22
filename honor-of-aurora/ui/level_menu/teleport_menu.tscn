@@ -11,7 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://2hcctfo2y4i7" path="res://Asets/Unit_pack/UI Elements/UI Banners from the store page/Ribbons/Ribbon_Blue.png" id="7_wrspu"]
 [ext_resource type="Texture2D" uid="uid://c5frl2wbu11uj" path="res://Asets/Enemy/Enemy Pack/Enemy Avatars/Enemy Avatars_05.png" id="8_04pwv"]
 [ext_resource type="Texture2D" uid="uid://ce037732uy8lh" path="res://Asets/Enemy/Enemy Pack/Enemy Avatars/Enemy Avatars_10.png" id="9_5fm0v"]
-[ext_resource type="Texture2D" uid="uid://t6aqqieth1a5" path="res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_01.png" id="9_y8eop"]
+[ext_resource type="Texture2D" uid="uid://t6aqqieth1a5" path="res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/aa_player.png" id="9_y8eop"]
 [ext_resource type="Texture2D" uid="uid://b1at6qgb2bubj" path="res://Asets/Enemy/Enemy Pack/Enemy Avatars/Enemy Avatars_12.png" id="10_ckujt"]
 [ext_resource type="Texture2D" uid="uid://b00wlginjryyx" path="res://Asets/Enemy/Enemy Pack/Enemy Avatars/Enemy Avatars_13.png" id="11_q50tc"]
 [ext_resource type="Texture2D" uid="uid://v8iopblbihtf" path="res://Asets/Enemy/Enemy Pack/Enemy Avatars/Enemy Avatars_16.png" id="12_3wjps"]
