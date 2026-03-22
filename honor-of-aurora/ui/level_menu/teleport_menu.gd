@@ -30,7 +30,20 @@ func _on_button_4_pressed() -> void:
 
 
 func _on_button_5_pressed() -> void:
+	if not _can_access_last_island():
+		DialogueRegistry.try_start("gate_lv5_blocked", true)
+		return
 	_teleport(Events.LOCATION.LVL5)
+
+
+func _can_access_last_island() -> bool:
+	if StoryState.has_flag("hero_chose_refuse_chain"):
+		return false
+	if StoryState.has_flag("hero_chose_finish_chain") and StoryState.has_flag("truth_and_choice_done"):
+		return true
+	if StoryState.has_flag("story_island_5_cleared"):
+		return true
+	return false
 
 
 func _on_button_6_pressed() -> void:

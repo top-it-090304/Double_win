@@ -2,16 +2,14 @@
 
 [ext_resource type="Script" path="res://dialogue/dialogue_definition.gd" id="1_def"]
 [ext_resource type="Script" path="res://dialogue/dialogue_conditions.gd" id="2_cond"]
-[ext_resource type="Resource" path="res://dialogue/lore_zone_monk_story_6.tres" id="3_seq"]
+[ext_resource type="Resource" path="res://dialogue/gate_lv5_blocked.tres" id="3_seq"]
 
 [sub_resource type="Resource" id="cond"]
 script = ExtResource("2_cond")
-required_flags = Array[String](["monk_story_5_done", "boss_post_5_done", "hero_chose_finish_chain"])
-blocked_flags = Array[String](["monk_story_6_done", "hero_chose_refuse_chain"])
 
 [resource]
 script = ExtResource("1_def")
-id = "monk_story_6"
+id = "gate_lv5_blocked"
 sequence = ExtResource("3_seq")
 conditions = SubResource("cond")
-grant_flags_on_complete = Array[String](["monk_story_6_done"])
+grant_flags_on_complete = Array[String]([])

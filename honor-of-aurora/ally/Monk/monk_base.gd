@@ -17,6 +17,8 @@ const DEFAULT_HEAL_ZONE_DIALOGUE_IDS: PackedStringArray = [
 	"boss_post_2",
 	"boss_post_3",
 	"boss_post_4",
+	"truth_and_choice",
+	"monk_finale_refused",
 	"boss_post_5",
 	"intro_base_island",
 	"monk_story_1",

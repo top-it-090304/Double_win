@@ -8,7 +8,7 @@
 script = ExtResource("2_cond")
 min_boss_kill = -1
 required_flags = Array[String](["story_island_5_cleared", "boss_post_4_done"])
-blocked_flags = Array[String](["boss_post_5_done"])
+blocked_flags = Array[String](["boss_post_5_done", "hero_chose_refuse_chain"])
 
 [resource]
 script = ExtResource("1_def")

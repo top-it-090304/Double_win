@@ -90,6 +90,22 @@ func load_game():
 			island_zone_state = {}
 
 	_migrate_story_island_flags_from_legacy_boss_kill()
+	_migrate_truth_choice_flags()
+
+
+## Старые сохранения без развилки: кто уже прошёл последний остров или финал монаха — считаем «добить цепь».
+func _migrate_truth_choice_flags() -> void:
+	if bool(story_flags.get("truth_and_choice_done", false)):
+		return
+	if bool(story_flags.get("story_island_5_cleared", false)):
+		story_flags["truth_and_choice_done"] = true
+		story_flags["hero_chose_finish_chain"] = true
+		save_game()
+		return
+	if bool(story_flags.get("monk_story_6_done", false)):
+		story_flags["truth_and_choice_done"] = true
+		story_flags["hero_chose_finish_chain"] = true
+		save_game()
 
 
 func _migrate_story_island_flags_from_legacy_boss_kill() -> void:
