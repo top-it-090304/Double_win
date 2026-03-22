@@ -27,6 +27,24 @@ var patrol_timer: float = 0.0
 var attack_cooldown_timer: Timer
 var potential_targets: Array[Node2D] = []
 
+const _SEP_EPS := 1e-3
+
+func _dir_toward_target(delta_pos: Vector2) -> Vector2:
+	if delta_pos.length() > _SEP_EPS:
+		return delta_pos.normalized()
+	if last_dir.length() > _SEP_EPS:
+		return last_dir.normalized()
+	return Vector2.RIGHT
+
+func _away_from_target(delta_pos: Vector2) -> Vector2:
+	if delta_pos.length() > _SEP_EPS:
+		return -delta_pos.normalized()
+	if last_dir.length() > _SEP_EPS:
+		return -last_dir.normalized()
+	if get_slide_collision_count() > 0:
+		return get_slide_collision(0).get_normal()
+	return Vector2.RIGHT.rotated(randf() * TAU)
+
 func _ready():
 	add_to_group("enemy")
 	detection_shape.shape.radius = detection_radius
@@ -66,7 +84,7 @@ func _physics_process(delta):
 					if can_attack:
 						start_attack()
 				else:
-					last_dir = (target.global_position - global_position).normalized()
+					last_dir = _dir_toward_target(target.global_position - global_position)
 					velocity = last_dir * speed
 			else:
 				state = State.PATROL
@@ -83,7 +101,9 @@ func _physics_process(delta):
 			var c = get_slide_collision(0)
 			if c:
 				var n: Vector2 = c.get_normal()
-				var slide_dir := (target.global_position - global_position).normalized().slide(n)
+				var toward := target.global_position - global_position
+				var toward_norm := _dir_toward_target(toward)
+				var slide_dir := toward_norm.slide(n)
 				if slide_dir.length() > 0.1:
 					velocity = slide_dir.normalized() * speed
 					move_and_slide()
@@ -92,9 +112,10 @@ func _physics_process(delta):
 		var to_target := target.global_position - global_position
 		var min_distance := attack_radius * 0.4
 		if to_target.length() < min_distance:
-			var push_dir := -to_target.normalized()
-			velocity = push_dir * speed * 0.4
-			move_and_slide()
+			var push_dir := _away_from_target(to_target)
+			if push_dir.length() > _SEP_EPS:
+				velocity = push_dir * speed * 0.4
+				move_and_slide()
 	
 	update_animation()
 
@@ -121,7 +142,7 @@ func start_attack():
 	state = State.ATTACK
 	can_attack = false
 	if target:
-		var dir = (target.global_position - global_position).normalized()
+		var dir = _dir_toward_target(target.global_position - global_position)
 		last_dir = dir
 		anim.flip_h = dir.x < 0
 	anim.play("attack")
