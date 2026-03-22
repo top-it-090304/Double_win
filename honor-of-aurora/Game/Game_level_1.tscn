@@ -1,4 +1,4 @@
-[gd_scene load_steps=105 format=4 uid="uid://bqbqem8v7k14a"]
+[gd_scene load_steps=106 format=4 uid="uid://bqbqem8v7k14a"]
 
 [ext_resource type="Script" uid="uid://dpq3m5qlc4ecm" path="res://Game/game_level_1.gd" id="1_ovlxy"]
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_rgygv"]
@@ -46,6 +46,7 @@
 [ext_resource type="PackedScene" uid="uid://blv7sgugmhgu4" path="res://ui/HUD/canvas_layer.tscn" id="44_fdxc0"]
 [ext_resource type="PackedScene" uid="uid://ce2n65nel32t" path="res://enemies/minotaur/minotaur.tscn" id="45_lwsk5"]
 [ext_resource type="PackedScene" uid="uid://ov1iq7xxu5ks" path="res://objects/TeleportZone/teleport_zone.tscn" id="45_wdtt1"]
+[ext_resource type="PackedScene" uid="uid://erxes3g6not7" path="res://objects/SquadSpawnZone/squad_spawn_zone.tscn" id="49_squad"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_seqsi"]
 texture = ExtResource("1_rgygv")
@@ -873,6 +874,9 @@ up_direction = Vector2(0, 1)
 
 [node name="TeleportZone" parent="." instance=ExtResource("45_wdtt1")]
 position = Vector2(686, 869)
+
+[node name="SquadSpawnZone" parent="." instance=ExtResource("49_squad")]
+position = Vector2(356, 786)
 
 [node name="SpawnPoint1" type="Marker2D" parent="."]
 position = Vector2(-489, 141)

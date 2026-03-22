@@ -30,6 +30,7 @@ var flee_target: Vector2 = Vector2.ZERO
 
 func _ready():
 	add_to_group("ally")
+	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	sprite.play("idle")
 	
 	attack_timer = Timer.new()
@@ -121,10 +122,12 @@ func _physics_process(delta: float) -> void:
 		State.FOLLOW:
 			velocity = _get_follow_velocity()
 			if velocity.length() > 0.1:
-				sprite.play("run")
+				if sprite.animation != "run":
+					sprite.play("run")
 				sprite.flip_h = velocity.x < 0
 			else:
-				sprite.play("idle")
+				if sprite.animation != "idle":
+					sprite.play("idle")
 		
 		State.SHOOT:
 			velocity = Vector2.ZERO
@@ -135,7 +138,8 @@ func _physics_process(delta: float) -> void:
 		State.FLEE:
 			var dir = global_position.direction_to(flee_target)
 			velocity = dir * speed * flee_speed_multiplier
-			sprite.play("run")
+			if sprite.animation != "run":
+				sprite.play("run")
 			sprite.flip_h = velocity.x < 0
 			
 			if global_position.distance_to(flee_target) <= 12.0:

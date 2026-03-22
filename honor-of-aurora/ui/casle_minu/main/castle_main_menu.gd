@@ -51,8 +51,13 @@ func _hire_archer() -> void:
 	
 	SaveManager.archer_count += 1
 	GameManager.add_gold(-archer_cost)
+	var avoid: Array[Vector2] = [player.global_position]
+	for node in get_tree().get_nodes_in_group("ally"):
+		if node is Node2D:
+			avoid.append((node as Node2D).global_position)
+	var positions := GameManager.pick_archer_spawn_positions(get_tree().current_scene, 1, avoid)
 	get_tree().current_scene.add_child(archer)
-	archer.global_position = player.global_position + spawn_offset
+	archer.global_position = positions[0]
 
 func _upgrade_buildings_near_castle() -> void:
 	var player = get_tree().get_first_node_in_group("player") as Node2D

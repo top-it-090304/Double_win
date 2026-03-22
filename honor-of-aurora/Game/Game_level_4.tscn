@@ -1,4 +1,4 @@
-[gd_scene load_steps=122 format=4 uid="uid://bunfjup3nm8jf"]
+[gd_scene load_steps=123 format=4 uid="uid://bunfjup3nm8jf"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_qntfc"]
 [ext_resource type="Script" uid="uid://dp1f04wvqv70v" path="res://Game/game_level_4.gd" id="1_rafts"]
@@ -53,6 +53,7 @@
 [ext_resource type="PackedScene" uid="uid://c5k78x3q2x2xd" path="res://enemies/thief/thief.tscn" id="50_yugnq"]
 [ext_resource type="PackedScene" uid="uid://ov1iq7xxu5ks" path="res://objects/TeleportZone/teleport_zone.tscn" id="51_v7pbb"]
 [ext_resource type="PackedScene" uid="uid://blv7sgugmhgu4" path="res://ui/HUD/canvas_layer.tscn" id="52_qhu61"]
+[ext_resource type="PackedScene" uid="uid://erxes3g6not7" path="res://objects/SquadSpawnZone/squad_spawn_zone.tscn" id="53_squad"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_seqsi"]
 texture = ExtResource("1_qntfc")
@@ -1012,5 +1013,8 @@ scale = Vector2(1, -1)
 
 [node name="TeleportZone" parent="." instance=ExtResource("51_v7pbb")]
 position = Vector2(688, 876)
+
+[node name="SquadSpawnZone" parent="." instance=ExtResource("53_squad")]
+position = Vector2(356, 793)
 
 [node name="HUD" parent="." instance=ExtResource("52_qhu61")]
