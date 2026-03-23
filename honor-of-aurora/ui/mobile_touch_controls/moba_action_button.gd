@@ -14,11 +14,11 @@ const TEX_SHIELD := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Icons
 const SZ_ATTACK := Vector2(100, 100)
 const SZ_SHIELD := Vector2(76, 76)
 
-## Палитра в духе HUD: холодный лёд + коралл для удара (без жёлтого «такси»).
-const ACCENT_ATTACK := Color(0.84, 0.4, 0.46, 1.0)
-const ACCENT_SHIELD := Color(0.38, 0.78, 0.96, 1.0)
-const BASE_INNER_ATTACK := Color(0.15, 0.11, 0.13, 1.0)
-const BASE_INNER_SHIELD := Color(0.09, 0.13, 0.22, 1.0)
+## Палитра: насыщенный коралл и лёд (щит/«чит») — заметнее на экране. (Литералы Color — const; from_hsv в const недопустим.)
+const ACCENT_ATTACK := Color(1.0, 0.21, 0.26, 1.0)
+const ACCENT_SHIELD := Color(0.1, 0.64, 1.0, 1.0)
+const BASE_INNER_ATTACK := Color(0.2, 0.07, 0.09, 1.0)
+const BASE_INNER_SHIELD := Color(0.04, 0.12, 0.26, 1.0)
 
 var _hovered: bool = false
 ## Индексы касаний, начавшиеся на этой кнопке (для щита и визуала).
@@ -148,26 +148,28 @@ func _draw() -> void:
 	var r := mini(size.x, size.y) * 0.5
 	var accent := _accent_color()
 
-	draw_circle(c + Vector2(0, 7), r + 1.0, Color(0.0, 0.0, 0.0, 0.72))
+	draw_circle(c + Vector2(0, 7), r + 1.0, Color(0.0, 0.0, 0.0, 0.48))
 
 	for i in range(5):
 		var t := float(i) / 4.0
 		var rad := r + 5.0 - t * 3.5
-		var a := 0.28 - t * 0.04
+		var a := 0.24 - t * 0.04
 		draw_circle(c, rad, Color(accent.r, accent.g, accent.b, a))
 
-	draw_circle(c, r, Color(accent.r * 0.35, accent.g * 0.35, accent.b * 0.35, 1.0))
-	draw_circle(c, r - 3.0, Color(accent.r, accent.g, accent.b, 0.95))
+	draw_circle(c, r, Color(accent.r * 0.35, accent.g * 0.35, accent.b * 0.35, 0.72))
+	draw_circle(c, r - 3.0, Color(accent.r, accent.g, accent.b, 0.68))
 
-	draw_circle(c, r - 6.0, _inner_fill())
+	var inner := _inner_fill()
+	inner.a *= 0.82
+	draw_circle(c, r - 6.0, inner)
 
 	draw_arc(c, r - 6.5, 0.0, TAU, 64, Color(1.0, 1.0, 1.0, 0.18), 2.0, true)
 
-	var gloss_a := 0.28
+	var gloss_a := 0.26
 	if _is_visual_pressed():
 		gloss_a = 0.1
 	elif _is_visual_hover():
-		gloss_a = 0.36
+		gloss_a = 0.32
 	draw_arc(c, (r - 6.0) * 0.72, -PI * 0.88, -PI * 0.12, 32, Color(1.0, 1.0, 1.0, gloss_a), 4.5, true)
 
 	var tex := TEX_ATTACK if kind == BtnKind.ATTACK else TEX_SHIELD
@@ -188,9 +190,9 @@ func _draw_icon_texture(tex: Texture2D) -> void:
 	var w := tw * sc
 	var h := th * sc
 	var pos := Vector2((size.x - w) * 0.5, (size.y - h) * 0.5)
-	var mod := Color(1.0, 1.0, 1.0, 1.0)
+	var mod := Color(1.05, 1.05, 1.08, 1.0)
 	if _is_visual_pressed():
-		mod = Color(0.75, 0.78, 0.88, 1.0)
+		mod = Color(0.88, 0.9, 0.98, 1.0)
 	elif _is_visual_hover():
-		mod = Color(1.08, 1.08, 1.12, 1.0)
+		mod = Color(1.12, 1.12, 1.16, 1.0)
 	draw_texture_rect(tex, Rect2(pos, Vector2(w, h)), false, mod)

@@ -122,11 +122,13 @@ func _physics_process(delta):
 			velocity = Vector2.ZERO
 			state = State.IDLE
 
-		if in_heal_zone and can_heal and not health_full:
-			_heal(target_player)
 	else:
 		velocity = Vector2.ZERO
 		state = State.IDLE
+
+	# Герой, союзники в отряде: один «пульс» на кулдаун на всех раненых в зоне.
+	if can_heal and not _collect_wounded_healable_in_zone().is_empty():
+		_heal_pulse()
 	
 	if MobileVirtualInput.enabled and MobileVirtualInput.has_attack_pending() and not DialogueManager.is_active():
 		if _try_healer_interact_from_player_close():
@@ -227,10 +229,10 @@ func _try_healer_interact_from_player_close() -> bool:
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if player == null or not is_instance_valid(player):
 		return false
-	if not detection.overlaps_body(player):
+	## Диалог по «атаке» только в круге хила (heal_area), не во всей зоне detection.
+	if not heal_area.overlaps_body(player):
 		return false
-	var in_heal_zone: bool = heal_area.overlaps_body(player)
-	if in_heal_zone and _attempt_start_zone_story_dialogue():
+	if _attempt_start_zone_story_dialogue():
 		return true
 	if _attempt_start_attack_dialogue():
 		return true
@@ -252,22 +254,55 @@ func _try_story_dialogue_if_player_starts_in_zone(ignore_zone_block: bool = fals
 			break
 
 
-func _on_heal_area(body: Node2D) -> void:
+func _on_heal_area(_body: Node2D) -> void:
 	if not can_heal:
 		return
-	if not GameplayFacade.can_receive_monk_heal(body):
+	if _collect_wounded_healable_in_zone().is_empty():
 		return
-	var health_full := false
-	if body.is_in_group("character_unit") and body.has_method("is_health_full"):
-		health_full = body.is_health_full()
-	elif body.has_method("is_health_full"):
-		health_full = body.is_health_full()
-	elif "health" in body and "max_health" in body:
-		health_full = body.health >= body.max_health
-	if not health_full:
-		_heal(body)
+	_heal_pulse()
 
-func _heal(target: Node) -> void:
+
+func _is_wounded_healable_unit(node: Node) -> bool:
+	if not GameplayFacade.can_receive_monk_heal(node):
+		return false
+	if node.is_in_group("character_unit") and node.has_method("is_health_full"):
+		return not node.is_health_full()
+	if node.has_method("is_health_full"):
+		return not node.is_health_full()
+	if "health" in node and "max_health" in node:
+		return node.health < node.max_health
+	return false
+
+
+func _collect_wounded_healable_in_zone() -> Array[Node]:
+	var out: Array[Node] = []
+	for body in heal_area.get_overlapping_bodies():
+		if _is_wounded_healable_unit(body):
+			out.append(body)
+	return out
+
+
+func _heal_pulse() -> void:
+	if not can_heal:
+		return
+	var targets := _collect_wounded_healable_in_zone()
+	if targets.is_empty():
+		return
+	can_heal = false
+	cooldown.start(heal_cooldown)
+	for target in targets:
+		GameplayFacade.try_apply_heal(target, heal_amount)
+		if target.has_method("play_heal_effect"):
+			target.play_heal_effect()
+	SoundManager.play_heal()
+	play_heal_effect()
+	state = State.HEAL
+	anim.play("heal")
+	await anim.animation_finished
+	state = State.IDLE
+
+
+func _heal_single(target: Node) -> void:
 	can_heal = false
 	cooldown.start(heal_cooldown)
 	GameplayFacade.try_apply_heal(target, heal_amount)
@@ -297,7 +332,7 @@ func take_damage(amount: Variant) -> void:
 	if health_component.current_health <= 0:
 		return
 	if a > 0 and can_heal and health_component.current_health < health_component.max_health:
-		_heal(self)
+		_heal_single(self)
 
 
 func _get_initial_max_health() -> int:

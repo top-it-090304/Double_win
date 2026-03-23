@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=4 uid="uid://bdhapr120iqry"]
+[gd_scene load_steps=28 format=4 uid="uid://bdhapr120iqry"]
 
 [ext_resource type="Script" uid="uid://dtfup2chrte7q" path="res://ui/casle_minu/main/castle_main_menu.gd" id="1_7l04m"]
 [ext_resource type="Texture2D" uid="uid://bdxdoi12667fp" path="res://Asets/Unit_pack/UI Elements/UI Banners from the store page/Ribbons/Ribbon_Black.png" id="1_x7hsw"]
@@ -1517,6 +1517,44 @@ content_margin_top = 12.0
 content_margin_right = 12.0
 content_margin_bottom = 12.0
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_info_card"]
+bg_color = Color(0.09, 0.12, 0.18, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.48, 0.58, 0.75, 0.95)
+corner_radius_top_left = 12.0
+corner_radius_top_right = 12.0
+corner_radius_bottom_left = 12.0
+corner_radius_bottom_right = 12.0
+shadow_color = Color(0, 0, 0, 0.35)
+shadow_size = 10
+shadow_offset = Vector2(0, 4)
+content_margin_left = 16.0
+content_margin_top = 16.0
+content_margin_right = 16.0
+content_margin_bottom = 16.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_info_card_hover"]
+bg_color = Color(0.12, 0.15, 0.22, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.58, 0.68, 0.88, 0.98)
+corner_radius_top_left = 12.0
+corner_radius_top_right = 12.0
+corner_radius_bottom_left = 12.0
+corner_radius_bottom_right = 12.0
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 12
+shadow_offset = Vector2(0, 5)
+content_margin_left = 16.0
+content_margin_top = 16.0
+content_margin_right = 16.0
+content_margin_bottom = 16.0
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_portrait_frame"]
 bg_color = Color(0.08, 0.09, 0.12, 1)
 border_width_left = 2
@@ -1678,116 +1716,268 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 40.0
-offset_top = 112.0
+offset_top = 108.0
 offset_right = -40.0
-offset_bottom = -28.0
+offset_bottom = -24.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 0
 alignment = 1
 
-[node name="hire" type="Button" parent="CastleMenuPanel/MainActions"]
-process_mode = 3
-custom_minimum_size = Vector2(0, 52)
+[node name="SlotsRow" type="HBoxContainer" parent="CastleMenuPanel/MainActions"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="slot_hire" type="PanelContainer" parent="CastleMenuPanel/MainActions/SlotsRow"]
+custom_minimum_size = Vector2(198, 288)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hire_slot")
+
+[node name="ColumnHire" type="VBoxContainer" parent="CastleMenuPanel/MainActions/SlotsRow/slot_hire"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 0
+
+[node name="PortraitFrameHire" type="Panel" parent="CastleMenuPanel/MainActions/SlotsRow/slot_hire/ColumnHire"]
+custom_minimum_size = Vector2(108, 108)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/h_separation = 12
-theme_override_constants/icon_max_width = 40
+theme_override_styles/panel = SubResource("StyleBoxFlat_portrait_frame")
+
+[node name="IconHire" type="TextureRect" parent="CastleMenuPanel/MainActions/SlotsRow/slot_hire/ColumnHire/PortraitFrameHire"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+texture = ExtResource("6_2llpa")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelHireTitle" type="Label" parent="CastleMenuPanel/MainActions/SlotsRow/slot_hire/ColumnHire"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.88, 0.84, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+text = "Нанять"
+
+[node name="LabelHireDesc" type="Label" parent="CastleMenuPanel/MainActions/SlotsRow/slot_hire/ColumnHire"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 0.95)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+text = "Новые юниты на базе"
+
+[node name="hire" type="Button" parent="CastleMenuPanel/MainActions/SlotsRow/slot_hire/ColumnHire"]
+process_mode = 3
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 10
+theme_override_constants/icon_max_width = 36
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
 theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
 theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
 theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
 theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
 theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
 text = "Нанять людей"
 icon = ExtResource("6_2llpa")
 flat = true
-alignment = 0
+alignment = 1
 icon_alignment = 0
 expand_icon = false
 
-[node name="upgreat" type="Button" parent="CastleMenuPanel/MainActions"]
-process_mode = 3
-custom_minimum_size = Vector2(0, 52)
+[node name="slot_upgrade" type="PanelContainer" parent="CastleMenuPanel/MainActions/SlotsRow"]
+custom_minimum_size = Vector2(198, 288)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hire_slot")
+
+[node name="ColumnUpgrade" type="VBoxContainer" parent="CastleMenuPanel/MainActions/SlotsRow/slot_upgrade"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 0
+
+[node name="PortraitFrameUpgrade" type="Panel" parent="CastleMenuPanel/MainActions/SlotsRow/slot_upgrade/ColumnUpgrade"]
+custom_minimum_size = Vector2(108, 108)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/h_separation = 12
-theme_override_constants/icon_max_width = 40
+theme_override_styles/panel = SubResource("StyleBoxFlat_portrait_frame")
+
+[node name="IconUpgrade" type="TextureRect" parent="CastleMenuPanel/MainActions/SlotsRow/slot_upgrade/ColumnUpgrade/PortraitFrameUpgrade"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+texture = ExtResource("7_sbu3m")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelUpgradeTitle" type="Label" parent="CastleMenuPanel/MainActions/SlotsRow/slot_upgrade/ColumnUpgrade"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.88, 0.84, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+text = "Улучшения"
+
+[node name="LabelUpgradeDesc" type="Label" parent="CastleMenuPanel/MainActions/SlotsRow/slot_upgrade/ColumnUpgrade"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 0.95)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+text = "Здания и уровни"
+
+[node name="upgreat" type="Button" parent="CastleMenuPanel/MainActions/SlotsRow/slot_upgrade/ColumnUpgrade"]
+process_mode = 3
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 10
+theme_override_constants/icon_max_width = 36
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
 theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
 theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
 theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
 theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
 theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
 text = "Улучшить здания"
 icon = ExtResource("7_sbu3m")
 flat = true
-alignment = 0
+alignment = 1
 icon_alignment = 0
 expand_icon = false
 
-[node name="info" type="Button" parent="CastleMenuPanel/MainActions"]
-process_mode = 3
-custom_minimum_size = Vector2(0, 52)
+[node name="slot_info" type="PanelContainer" parent="CastleMenuPanel/MainActions/SlotsRow"]
+custom_minimum_size = Vector2(198, 288)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hire_slot")
+
+[node name="ColumnInfo" type="VBoxContainer" parent="CastleMenuPanel/MainActions/SlotsRow/slot_info"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 0
+
+[node name="PortraitFrameInfo" type="Panel" parent="CastleMenuPanel/MainActions/SlotsRow/slot_info/ColumnInfo"]
+custom_minimum_size = Vector2(108, 108)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/h_separation = 12
-theme_override_constants/icon_max_width = 40
+theme_override_styles/panel = SubResource("StyleBoxFlat_portrait_frame")
+
+[node name="IconInfo" type="TextureRect" parent="CastleMenuPanel/MainActions/SlotsRow/slot_info/ColumnInfo/PortraitFrameInfo"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+texture = ExtResource("8_2llpa")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelInfoTitle" type="Label" parent="CastleMenuPanel/MainActions/SlotsRow/slot_info/ColumnInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.88, 0.84, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+text = "Справка"
+
+[node name="LabelInfoDesc" type="Label" parent="CastleMenuPanel/MainActions/SlotsRow/slot_info/ColumnInfo"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 0.95)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+text = "Правила и подсказки"
+
+[node name="info" type="Button" parent="CastleMenuPanel/MainActions/SlotsRow/slot_info/ColumnInfo"]
+process_mode = 3
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 10
+theme_override_constants/icon_max_width = 36
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
 theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
 theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
 theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
 theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
 theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
 text = "Инфо"
 icon = ExtResource("8_2llpa")
 flat = true
-alignment = 0
+alignment = 1
 icon_alignment = 0
 expand_icon = false
 
-[node name="InfoPanel" type="Panel" parent="."]
+[node name="InfoPanel" type="Control" parent="."]
 visible = false
-layout_mode = 0
-offset_left = 300.0
-offset_top = 180.0
-offset_right = 980.0
-offset_bottom = 520.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_hire_modal")
-
-[node name="InfoLabel" type="Label" parent="InfoPanel"]
-layout_mode = 0
-offset_left = 20.0
-offset_top = 96.0
-offset_right = 640.0
-offset_bottom = 300.0
-text = "Замок Аврора
-
-Здесь вы можете:
-- Нанимать лучников (по цене, зависящей от сложности).
-- Улучшать здания за золото.
-
-Лучники:
-- Следуют за героем.
-- Останавливаются и стреляют по врагам в зоне.
-- Отступают при получении урона и затем продолжают стрелять."
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
 
 [node name="info_back_btn" type="Button" parent="InfoPanel"]
+visible = false
+z_index = 10
 process_mode = 3
-layout_mode = 0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 84.0
-offset_bottom = 84.0
+layout_mode = 1
+anchors_preset = 0
+offset_left = 40.0
+offset_top = 40.0
+offset_right = 104.0
+offset_bottom = 104.0
 theme_override_constants/icon_max_width = 44
 theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
 theme_override_colors/font_hover_pressed_color = Color(1, 0.96, 0.8, 1)
@@ -1798,6 +1988,592 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
 icon = ExtResource("4_ltan3")
 flat = true
 expand_icon = false
+
+[node name="InfoMain" type="Panel" parent="InfoPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -460.0
+offset_top = -280.0
+offset_right = 460.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hire_modal")
+
+[node name="InfoMainBack" type="Button" parent="InfoPanel/InfoMain"]
+z_index = 2
+process_mode = 3
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 84.0
+offset_bottom = 84.0
+theme_override_constants/icon_max_width = 44
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_colors/font_hover_pressed_color = Color(1, 0.96, 0.8, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+icon = ExtResource("4_ltan3")
+flat = true
+expand_icon = false
+
+[node name="TitleInfo" type="Label" parent="InfoPanel/InfoMain"]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 28.0
+offset_right = 820.0
+offset_bottom = 80.0
+theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 36
+horizontal_alignment = 1
+text = "Справка"
+
+[node name="InfoDivider" type="ColorRect" parent="InfoPanel/InfoMain"]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 88.0
+offset_right = 888.0
+offset_bottom = 90.0
+mouse_filter = 2
+color = Color(0.28, 0.35, 0.46, 0.55)
+
+[node name="MarginBlocks" type="MarginContainer" parent="InfoPanel/InfoMain"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = 100.0
+offset_right = -28.0
+offset_bottom = -32.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="InfoBlocksRow" type="HBoxContainer" parent="InfoPanel/InfoMain/MarginBlocks"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="BtnOpenStats" type="Button" parent="InfoPanel/InfoMain/MarginBlocks/InfoBlocksRow"]
+custom_minimum_size = Vector2(260, 200)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
+theme_override_colors/font_hover_color = Color(1, 0.98, 0.94, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_hire_slot")
+theme_override_styles/hover = SubResource("StyleBoxFlat_hire_slot")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+text = "Характеристики
+Подробности о прогрессе и бою"
+flat = true
+autowrap_mode = 3
+
+[node name="BtnOpenStory" type="Button" parent="InfoPanel/InfoMain/MarginBlocks/InfoBlocksRow"]
+custom_minimum_size = Vector2(260, 200)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
+theme_override_colors/font_hover_color = Color(1, 0.98, 0.94, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_hire_slot")
+theme_override_styles/hover = SubResource("StyleBoxFlat_hire_slot")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+text = "Сюжет
+История мира и сюжетные линии"
+flat = true
+autowrap_mode = 3
+
+[node name="BtnOpenHeroes" type="Button" parent="InfoPanel/InfoMain/MarginBlocks/InfoBlocksRow"]
+custom_minimum_size = Vector2(260, 200)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
+theme_override_colors/font_hover_color = Color(1, 0.98, 0.94, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_hire_slot")
+theme_override_styles/hover = SubResource("StyleBoxFlat_hire_slot")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+text = "Герои
+Список персонажей"
+flat = true
+autowrap_mode = 3
+
+[node name="InfoStatsDetail" type="Panel" parent="InfoPanel"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -460.0
+offset_top = -280.0
+offset_right = 460.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hire_modal")
+
+[node name="StatsBack" type="Button" parent="InfoPanel/InfoStatsDetail"]
+z_index = 2
+process_mode = 3
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 84.0
+offset_bottom = 84.0
+theme_override_constants/icon_max_width = 44
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_colors/font_hover_pressed_color = Color(1, 0.96, 0.8, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+icon = ExtResource("4_ltan3")
+flat = true
+expand_icon = false
+
+[node name="TitleStats" type="Label" parent="InfoPanel/InfoStatsDetail"]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 28.0
+offset_right = 820.0
+offset_bottom = 80.0
+theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 34
+horizontal_alignment = 1
+text = "Характеристики"
+
+[node name="StatsDivider" type="ColorRect" parent="InfoPanel/InfoStatsDetail"]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 88.0
+offset_right = 888.0
+offset_bottom = 90.0
+mouse_filter = 2
+color = Color(0.28, 0.35, 0.46, 0.55)
+
+[node name="ScrollStats" type="ScrollContainer" parent="InfoPanel/InfoStatsDetail"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = 100.0
+offset_right = -32.0
+offset_bottom = -28.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="MarginStats" type="MarginContainer" parent="InfoPanel/InfoStatsDetail/ScrollStats"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_bottom = 12
+
+[node name="StatsContent" type="VBoxContainer" parent="InfoPanel/InfoStatsDetail/ScrollStats/MarginStats"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="InfoStoryDetail" type="Panel" parent="InfoPanel"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -460.0
+offset_top = -280.0
+offset_right = 460.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hire_modal")
+
+[node name="StoryBack" type="Button" parent="InfoPanel/InfoStoryDetail"]
+z_index = 2
+process_mode = 3
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 84.0
+offset_bottom = 84.0
+theme_override_constants/icon_max_width = 44
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_colors/font_hover_pressed_color = Color(1, 0.96, 0.8, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+icon = ExtResource("4_ltan3")
+flat = true
+expand_icon = false
+
+[node name="TitleStory" type="Label" parent="InfoPanel/InfoStoryDetail"]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 28.0
+offset_right = 820.0
+offset_bottom = 80.0
+theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 34
+horizontal_alignment = 1
+text = "Сюжет"
+
+[node name="StoryDivider" type="ColorRect" parent="InfoPanel/InfoStoryDetail"]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 88.0
+offset_right = 888.0
+offset_bottom = 90.0
+mouse_filter = 2
+color = Color(0.28, 0.35, 0.46, 0.55)
+
+[node name="ScrollStory" type="ScrollContainer" parent="InfoPanel/InfoStoryDetail"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = 100.0
+offset_right = -32.0
+offset_bottom = -28.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="InfoStoryBody" type="RichTextLabel" parent="InfoPanel/InfoStoryDetail/ScrollStory"]
+custom_minimum_size = Vector2(780, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+theme_override_colors/default_color = Color(0.78, 0.82, 0.9, 0.98)
+theme_override_fonts/normal_font = ExtResource("5_sbu3m")
+theme_override_font_sizes/normal_font_size = 20
+
+[node name="InfoHeroesHub" type="Panel" parent="InfoPanel"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -460.0
+offset_top = -280.0
+offset_right = 460.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hire_modal")
+
+[node name="HeroesBack" type="Button" parent="InfoPanel/InfoHeroesHub"]
+z_index = 2
+process_mode = 3
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 84.0
+offset_bottom = 84.0
+theme_override_constants/icon_max_width = 44
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_colors/font_hover_pressed_color = Color(1, 0.96, 0.8, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+icon = ExtResource("4_ltan3")
+flat = true
+expand_icon = false
+
+[node name="TitleHeroesHub" type="Label" parent="InfoPanel/InfoHeroesHub"]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 28.0
+offset_right = 820.0
+offset_bottom = 80.0
+theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 34
+horizontal_alignment = 1
+text = "Герои"
+
+[node name="HeroesHubDivider" type="ColorRect" parent="InfoPanel/InfoHeroesHub"]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 88.0
+offset_right = 888.0
+offset_bottom = 90.0
+mouse_filter = 2
+color = Color(0.28, 0.35, 0.46, 0.55)
+
+[node name="MarginHeroHub" type="MarginContainer" parent="InfoPanel/InfoHeroesHub"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = 100.0
+offset_right = -28.0
+offset_bottom = -32.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HeroHubRow" type="HBoxContainer" parent="InfoPanel/InfoHeroesHub/MarginHeroHub"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="BtnOpenHeroWarrior" type="Button" parent="InfoPanel/InfoHeroesHub/MarginHeroHub/HeroHubRow"]
+custom_minimum_size = Vector2(280, 220)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_info_card")
+theme_override_styles/hover = SubResource("StyleBoxFlat_info_card_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+flat = true
+
+[node name="HeroWarriorVBox" type="VBoxContainer" parent="InfoPanel/InfoHeroesHub/MarginHeroHub/HeroHubRow/BtnOpenHeroWarrior"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="PortraitHero" type="TextureRect" parent="InfoPanel/InfoHeroesHub/MarginHeroHub/HeroHubRow/BtnOpenHeroWarrior/HeroWarriorVBox"]
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2
+
+[node name="LabelHeroCard" type="Label" parent="InfoPanel/InfoHeroesHub/MarginHeroHub/HeroHubRow/BtnOpenHeroWarrior/HeroWarriorVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+text = "Герой"
+mouse_filter = 2
+
+[node name="LabelHeroHint" type="Label" parent="InfoPanel/InfoHeroesHub/MarginHeroHub/HeroHubRow/BtnOpenHeroWarrior/HeroWarriorVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 0.95)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+autowrap_mode = 3
+text = "Рыцарь Авроры · нажмите для описания"
+mouse_filter = 2
+
+[node name="BtnOpenHeroMonk" type="Button" parent="InfoPanel/InfoHeroesHub/MarginHeroHub/HeroHubRow"]
+custom_minimum_size = Vector2(280, 220)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_info_card")
+theme_override_styles/hover = SubResource("StyleBoxFlat_info_card_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+flat = true
+
+[node name="HeroMonkVBox" type="VBoxContainer" parent="InfoPanel/InfoHeroesHub/MarginHeroHub/HeroHubRow/BtnOpenHeroMonk"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="PortraitMonk" type="TextureRect" parent="InfoPanel/InfoHeroesHub/MarginHeroHub/HeroHubRow/BtnOpenHeroMonk/HeroMonkVBox"]
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2
+
+[node name="LabelMonkCard" type="Label" parent="InfoPanel/InfoHeroesHub/MarginHeroHub/HeroHubRow/BtnOpenHeroMonk/HeroMonkVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+text = "Целитель"
+mouse_filter = 2
+
+[node name="LabelMonkHint" type="Label" parent="InfoPanel/InfoHeroesHub/MarginHeroHub/HeroHubRow/BtnOpenHeroMonk/HeroMonkVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 0.95)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+autowrap_mode = 3
+text = "Монах монастыря · нажмите для описания"
+mouse_filter = 2
+
+[node name="InfoHeroDetail" type="Panel" parent="InfoPanel"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -460.0
+offset_top = -280.0
+offset_right = 460.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hire_modal")
+
+[node name="HeroDetailBack" type="Button" parent="InfoPanel/InfoHeroDetail"]
+z_index = 2
+process_mode = 3
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 84.0
+offset_bottom = 84.0
+theme_override_constants/icon_max_width = 44
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_colors/font_hover_pressed_color = Color(1, 0.96, 0.8, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+icon = ExtResource("4_ltan3")
+flat = true
+expand_icon = false
+
+[node name="TitleHeroDetail" type="Label" parent="InfoPanel/InfoHeroDetail"]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 28.0
+offset_right = 820.0
+offset_bottom = 80.0
+theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 34
+horizontal_alignment = 1
+text = "Персонаж"
+
+[node name="HeroDetailDivider" type="ColorRect" parent="InfoPanel/InfoHeroDetail"]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 88.0
+offset_right = 888.0
+offset_bottom = 90.0
+mouse_filter = 2
+color = Color(0.28, 0.35, 0.46, 0.55)
+
+[node name="HeroDetailRow" type="HBoxContainer" parent="InfoPanel/InfoHeroDetail"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = 100.0
+offset_right = -32.0
+offset_bottom = -28.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="PortraitFrameHeroDetail" type="Panel" parent="InfoPanel/InfoHeroDetail/HeroDetailRow"]
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_portrait_frame")
+
+[node name="HeroDetailPortrait" type="TextureRect" parent="InfoPanel/InfoHeroDetail/HeroDetailRow/PortraitFrameHeroDetail"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ScrollHeroDetail" type="ScrollContainer" parent="InfoPanel/InfoHeroDetail/HeroDetailRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="MarginHeroDetail" type="MarginContainer" parent="InfoPanel/InfoHeroDetail/HeroDetailRow/ScrollHeroDetail"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_bottom = 12
+
+[node name="InfoHeroDetailBody" type="RichTextLabel" parent="InfoPanel/InfoHeroDetail/HeroDetailRow/ScrollHeroDetail/MarginHeroDetail"]
+custom_minimum_size = Vector2(560, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+theme_override_colors/default_color = Color(0.78, 0.82, 0.9, 0.98)
+theme_override_fonts/normal_font = ExtResource("5_sbu3m")
+theme_override_font_sizes/normal_font_size = 20
 
 [node name="HireSelectPanel" type="Control" parent="."]
 visible = false
@@ -2117,9 +2893,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -360.0
-offset_top = -280.0
+offset_top = -320.0
 offset_right = 360.0
-offset_bottom = 280.0
+offset_bottom = 320.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 0
@@ -2164,133 +2940,283 @@ theme_override_font_sizes/font_size = 40
 horizontal_alignment = 1
 text = "Улучшение зданий"
 
-[node name="SubtitleUpgrade" type="Label" parent="UpgradeSelectPanel/UpgradePanel"]
-layout_mode = 0
-offset_left = 48.0
-offset_top = 92.0
-offset_right = 672.0
-offset_bottom = 132.0
-theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 0.92)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 20
-horizontal_alignment = 1
-autowrap_mode = 3
-text = "Выберите здание. Цена на кнопке. Сила временных бафов оружейной растёт с уровнем оружейной."
-
 [node name="UpgradeDivider" type="ColorRect" parent="UpgradeSelectPanel/UpgradePanel"]
 layout_mode = 0
 offset_left = 40.0
-offset_top = 140.0
+offset_top = 92.0
 offset_right = 680.0
-offset_bottom = 142.0
+offset_bottom = 94.0
 mouse_filter = 2
 color = Color(0.28, 0.35, 0.46, 0.55)
 
-[node name="UpgradeActions" type="VBoxContainer" parent="UpgradeSelectPanel/UpgradePanel"]
+[node name="UpgradeGrid" type="GridContainer" parent="UpgradeSelectPanel/UpgradePanel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 40.0
-offset_top = 152.0
-offset_right = -40.0
-offset_bottom = -28.0
+offset_left = 36.0
+offset_top = 98.0
+offset_right = -36.0
+offset_bottom = -44.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 12
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 14
+columns = 2
+
+[node name="slot_monastery" type="PanelContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid"]
+custom_minimum_size = Vector2(0, 248)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_hire_slot")
+
+[node name="ColumnMonastery" type="VBoxContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_monastery"]
+layout_mode = 2
+theme_override_constants/separation = 10
 alignment = 1
 
-[node name="BtnMonastery" type="Button" parent="UpgradeSelectPanel/UpgradePanel/UpgradeActions"]
-process_mode = 3
-custom_minimum_size = Vector2(0, 48)
+[node name="BuildingPreview" type="TextureRect" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_monastery/ColumnMonastery"]
+custom_minimum_size = Vector2(108, 108)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/h_separation = 12
-theme_override_constants/icon_max_width = 40
-theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
-theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
-theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelBuildingName" type="Label" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_monastery/ColumnMonastery"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.88, 0.84, 1)
 theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
-theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+autowrap_mode = 3
 text = "Монастырь (церковь)"
-flat = true
-alignment = 0
 
-[node name="BtnCastle" type="Button" parent="UpgradeSelectPanel/UpgradePanel/UpgradeActions"]
+[node name="LabelTier" type="Label" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_monastery/ColumnMonastery"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 0.92)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+text = "Уровень 1 / 5"
+
+[node name="BtnMonastery" type="Button" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_monastery/ColumnMonastery"]
 process_mode = 3
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/h_separation = 12
-theme_override_constants/icon_max_width = 40
+theme_override_constants/h_separation = 10
+theme_override_constants/icon_max_width = 36
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
 theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
 theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
 theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
 theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
 theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
+text = "200 зол."
+icon = ExtResource("6_2llpa")
+flat = true
+alignment = 1
+icon_alignment = 0
+expand_icon = false
+
+[node name="slot_castle" type="PanelContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid"]
+custom_minimum_size = Vector2(0, 248)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_hire_slot")
+
+[node name="ColumnCastle" type="VBoxContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_castle"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="BuildingPreview" type="TextureRect" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_castle/ColumnCastle"]
+custom_minimum_size = Vector2(108, 108)
+layout_mode = 2
+size_flags_horizontal = 4
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelBuildingName" type="Label" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_castle/ColumnCastle"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.88, 0.84, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+autowrap_mode = 3
 text = "Замок (штаб)"
-flat = true
-alignment = 0
 
-[node name="BtnBarracks" type="Button" parent="UpgradeSelectPanel/UpgradePanel/UpgradeActions"]
+[node name="LabelTier" type="Label" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_castle/ColumnCastle"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 0.92)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+text = "Уровень 1 / 5"
+
+[node name="BtnCastle" type="Button" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_castle/ColumnCastle"]
 process_mode = 3
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/h_separation = 12
-theme_override_constants/icon_max_width = 40
+theme_override_constants/h_separation = 10
+theme_override_constants/icon_max_width = 36
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
 theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
 theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
 theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
 theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
 theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
+text = "200 зол."
+icon = ExtResource("6_2llpa")
+flat = true
+alignment = 1
+icon_alignment = 0
+expand_icon = false
+
+[node name="slot_barracks" type="PanelContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid"]
+custom_minimum_size = Vector2(0, 248)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_hire_slot")
+
+[node name="ColumnBarracks" type="VBoxContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_barracks"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="BuildingPreview" type="TextureRect" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_barracks/ColumnBarracks"]
+custom_minimum_size = Vector2(108, 108)
+layout_mode = 2
+size_flags_horizontal = 4
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelBuildingName" type="Label" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_barracks/ColumnBarracks"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.88, 0.84, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+autowrap_mode = 3
 text = "Оружейная"
-flat = true
-alignment = 0
 
-[node name="BtnArchery" type="Button" parent="UpgradeSelectPanel/UpgradePanel/UpgradeActions"]
+[node name="LabelTier" type="Label" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_barracks/ColumnBarracks"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 0.92)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+text = "Уровень 1 / 5"
+
+[node name="BtnBarracks" type="Button" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_barracks/ColumnBarracks"]
 process_mode = 3
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/h_separation = 12
-theme_override_constants/icon_max_width = 40
+theme_override_constants/h_separation = 10
+theme_override_constants/icon_max_width = 36
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
 theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
 theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
 theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
 theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
 theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
-text = "Стрельбище"
+text = "200 зол."
+icon = ExtResource("6_2llpa")
 flat = true
-alignment = 0
+alignment = 1
+icon_alignment = 0
+expand_icon = false
+
+[node name="slot_archery" type="PanelContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid"]
+custom_minimum_size = Vector2(0, 248)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_hire_slot")
+
+[node name="ColumnArchery" type="VBoxContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_archery"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="BuildingPreview" type="TextureRect" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_archery/ColumnArchery"]
+custom_minimum_size = Vector2(108, 108)
+layout_mode = 2
+size_flags_horizontal = 4
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelBuildingName" type="Label" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_archery/ColumnArchery"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.88, 0.84, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+autowrap_mode = 3
+text = "Стрельбище"
+
+[node name="LabelTier" type="Label" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_archery/ColumnArchery"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 0.92)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+text = "Уровень 1 / 5"
+
+[node name="BtnArchery" type="Button" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_archery/ColumnArchery"]
+process_mode = 3
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 10
+theme_override_constants/icon_max_width = 36
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
+theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
+theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
+text = "200 зол."
+icon = ExtResource("6_2llpa")
+flat = true
+alignment = 1
+icon_alignment = 0
+expand_icon = false
 
 [connection signal="pressed" from="CastleMenuPanel/castle_back_btn" to="." method="_on_back_pressed"]
-[connection signal="pressed" from="CastleMenuPanel/MainActions/hire" to="." method="_on_hire_pressed"]
-[connection signal="pressed" from="CastleMenuPanel/MainActions/upgreat" to="." method="_on_upgreat_pressed"]
-[connection signal="pressed" from="CastleMenuPanel/MainActions/info" to="." method="_on_info_pressed"]
+[connection signal="pressed" from="CastleMenuPanel/MainActions/SlotsRow/slot_hire/ColumnHire/hire" to="." method="_on_hire_pressed"]
+[connection signal="pressed" from="CastleMenuPanel/MainActions/SlotsRow/slot_upgrade/ColumnUpgrade/upgreat" to="." method="_on_upgreat_pressed"]
+[connection signal="pressed" from="CastleMenuPanel/MainActions/SlotsRow/slot_info/ColumnInfo/info" to="." method="_on_info_pressed"]
 [connection signal="pressed" from="InfoPanel/info_back_btn" to="." method="_on_info_back_pressed"]
+[connection signal="pressed" from="InfoPanel/InfoMain/InfoMainBack" to="." method="_on_info_back_pressed"]
+[connection signal="pressed" from="InfoPanel/InfoStatsDetail/StatsBack" to="." method="_on_info_back_pressed"]
+[connection signal="pressed" from="InfoPanel/InfoStoryDetail/StoryBack" to="." method="_on_info_back_pressed"]
+[connection signal="pressed" from="InfoPanel/InfoHeroesHub/HeroesBack" to="." method="_on_info_back_pressed"]
+[connection signal="pressed" from="InfoPanel/InfoHeroDetail/HeroDetailBack" to="." method="_on_info_back_pressed"]
+[connection signal="pressed" from="InfoPanel/InfoMain/MarginBlocks/InfoBlocksRow/BtnOpenStats" to="." method="_on_info_open_stats_pressed"]
+[connection signal="pressed" from="InfoPanel/InfoMain/MarginBlocks/InfoBlocksRow/BtnOpenStory" to="." method="_on_info_open_story_pressed"]
+[connection signal="pressed" from="InfoPanel/InfoMain/MarginBlocks/InfoBlocksRow/BtnOpenHeroes" to="." method="_on_info_open_heroes_pressed"]
+[connection signal="pressed" from="InfoPanel/InfoHeroesHub/MarginHeroHub/HeroHubRow/BtnOpenHeroWarrior" to="." method="_on_info_open_hero_warrior_pressed"]
+[connection signal="pressed" from="InfoPanel/InfoHeroesHub/MarginHeroHub/HeroHubRow/BtnOpenHeroMonk" to="." method="_on_info_open_hero_monk_pressed"]
 [connection signal="pressed" from="HireSelectPanel/HirePanel/hire_back_btn" to="." method="_on_hire_pick_back_pressed"]
 [connection signal="pressed" from="HireSelectPanel/HirePanel/slot_archer/ColumnArcher/BuyArcher" to="." method="_on_hire_archer_pressed"]
 [connection signal="pressed" from="HireSelectPanel/HirePanel/slot_lancer/ColumnLancer/BuyLancer" to="." method="_on_hire_lancer_pressed"]
 [connection signal="pressed" from="HireSelectPanel/HirePanel/slot_pawn/ColumnPawn/BuyPawn" to="." method="_on_hire_pawn_pressed"]
 [connection signal="pressed" from="UpgradeSelectPanel/UpgradePanel/upgrade_back_btn" to="." method="_on_upgrade_pick_back_pressed"]
-[connection signal="pressed" from="UpgradeSelectPanel/UpgradePanel/UpgradeActions/BtnMonastery" to="." method="_on_upgrade_monastery_pressed"]
-[connection signal="pressed" from="UpgradeSelectPanel/UpgradePanel/UpgradeActions/BtnCastle" to="." method="_on_upgrade_castle_pressed"]
-[connection signal="pressed" from="UpgradeSelectPanel/UpgradePanel/UpgradeActions/BtnBarracks" to="." method="_on_upgrade_barracks_pressed"]
-[connection signal="pressed" from="UpgradeSelectPanel/UpgradePanel/UpgradeActions/BtnArchery" to="." method="_on_upgrade_archery_pressed"]
+[connection signal="pressed" from="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_monastery/ColumnMonastery/BtnMonastery" to="." method="_on_upgrade_monastery_pressed"]
+[connection signal="pressed" from="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle" to="." method="_on_upgrade_castle_pressed"]
+[connection signal="pressed" from="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks" to="." method="_on_upgrade_barracks_pressed"]
+[connection signal="pressed" from="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery" to="." method="_on_upgrade_archery_pressed"]

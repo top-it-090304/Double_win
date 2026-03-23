@@ -52,7 +52,7 @@ offset_top = -288.0
 offset_right = -12.0
 offset_bottom = -20.0
 mouse_filter = 2
-modulate = Color(1, 1, 1, 0.52)
+modulate = Color(1, 1, 1, 0.96)
 
 [node name="ShieldButton" type="Control" parent="Root/RightCluster"]
 layout_mode = 1

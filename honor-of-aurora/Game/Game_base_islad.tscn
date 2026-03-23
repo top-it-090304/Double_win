@@ -845,15 +845,19 @@ position = Vector2(519, -579)
 
 [node name="archer" parent="charecters" instance=ExtResource("50_yrcvs")]
 position = Vector2(-1338, -187)
+stationary_guard = true
 
 [node name="archer2" parent="charecters" instance=ExtResource("50_yrcvs")]
 position = Vector2(-219, -560)
+stationary_guard = true
 
 [node name="archer3" parent="charecters" instance=ExtResource("50_yrcvs")]
 position = Vector2(1719, -395)
+stationary_guard = true
 
 [node name="archer4" parent="charecters" instance=ExtResource("50_yrcvs")]
 position = Vector2(2679, -203)
+stationary_guard = true
 
 [node name="archer5" parent="charecters" instance=ExtResource("50_yrcvs")]
 position = Vector2(1908, 320)
@@ -874,9 +878,11 @@ stationary_guard = true
 [node name="archer9" parent="charecters" instance=ExtResource("50_yrcvs")]
 position = Vector2(1308, -358)
 scale = Vector2(-1, 1)
+stationary_guard = true
 
 [node name="archer10" parent="charecters" instance=ExtResource("50_yrcvs")]
 position = Vector2(1590, -354)
+stationary_guard = true
 
 [node name="Monk_base" parent="charecters" instance=ExtResource("51_80jge")]
 position = Vector2(1197, 237)
