@@ -1,4 +1,5 @@
-extends CharacterBody2D
+extends "res://characters/support_npc.gd"
+## NPC-поддержка (монах): сюжет и хил зоны.
 
 enum State { IDLE, RUN, HEAL }
 var state = State.IDLE
@@ -8,8 +9,13 @@ var can_heal = true
 @export var speed = 150.0
 @export var heal_amount = 50
 @export var heal_cooldown = 3.0
-@export var health = 100
-@export var max_health = 60
+@export var spawn_health: int = 100
+@export var max_health: int = 60
+
+
+var health: int:
+	get:
+		return health_component.current_health if health_component else 0
 
 ## Сюжет при входе в heal_area (авто) и после закрытия диалога — не снова по body_entered, пока герой не выйдет из зоны.
 ## Лор/бантер — по «attack» рядом с монахом (в зоне хила при атаке сначала сюжет, если ещё доступен).
@@ -60,7 +66,8 @@ var _expedition_click_jokes_remaining: int = 0
 var _block_zone_story_autostart_until_leave_heal_area: bool = false
 
 
-func _ready():
+func _ready() -> void:
+	super._ready()
 	process_priority = -10
 	add_to_group("healer")
 	DialogueManager.dialogue_ended.connect(_on_dialogue_ended_zone_flags)
@@ -82,7 +89,7 @@ func _on_dialogue_ended_zone_flags(_sequence: DialogueSequence) -> void:
 
 
 func _on_heal_zone_player_exited(body: Node2D) -> void:
-	if not body.is_in_group("player"):
+	if not GameplayFacade.is_player_body(body):
 		return
 	_block_zone_story_autostart_until_leave_heal_area = false
 
@@ -95,8 +102,10 @@ func _physics_process(delta):
 		var should_move = true
 		var in_heal_zone = heal_area.overlaps_body(target_player)
 		
-		var health_full = false
-		if target_player.has_method("is_health_full"):
+		var health_full := false
+		if target_player.is_in_group("character_unit") and target_player.has_method("is_health_full"):
+			health_full = target_player.is_health_full()
+		elif target_player.has_method("is_health_full"):
 			health_full = target_player.is_health_full()
 		elif "health" in target_player and "max_health" in target_player:
 			health_full = target_player.health >= target_player.max_health
@@ -134,8 +143,8 @@ func update_animation():
 			anim.play("run")
 			anim.flip_h = velocity.x < 0
 
-func _on_detection(body):
-	if body.is_in_group("player"):
+func _on_detection(body: Node2D) -> void:
+	if GameplayFacade.is_player_body(body):
 		target_player = body
 
 
@@ -229,7 +238,7 @@ func _try_healer_interact_from_player_close() -> bool:
 
 
 func _on_heal_zone_enter_for_story_dialogue(body: Node2D) -> void:
-	if not body.is_in_group("player"):
+	if not GameplayFacade.is_player_body(body):
 		return
 	_attempt_start_zone_story_dialogue(false)
 
@@ -238,30 +247,30 @@ func _try_story_dialogue_if_player_starts_in_zone(ignore_zone_block: bool = fals
 	if DialogueManager.is_active():
 		return
 	for body in heal_area.get_overlapping_bodies():
-		if body.is_in_group("player"):
+		if GameplayFacade.is_player_body(body):
 			_attempt_start_zone_story_dialogue(ignore_zone_block)
 			break
 
 
-func _on_heal_area(body):
+func _on_heal_area(body: Node2D) -> void:
 	if not can_heal:
 		return
-	if body.is_in_group("player") or body.is_in_group("healer"):
-		var health_full = false
-		if body.has_method("is_health_full"):
-			health_full = body.is_health_full()
-		elif "health" in body and "max_health" in body:
-			health_full = body.health >= body.max_health
-		if not health_full:
-			_heal(body)
+	if not GameplayFacade.can_receive_monk_heal(body):
+		return
+	var health_full := false
+	if body.is_in_group("character_unit") and body.has_method("is_health_full"):
+		health_full = body.is_health_full()
+	elif body.has_method("is_health_full"):
+		health_full = body.is_health_full()
+	elif "health" in body and "max_health" in body:
+		health_full = body.health >= body.max_health
+	if not health_full:
+		_heal(body)
 
-func _heal(target):
+func _heal(target: Node) -> void:
 	can_heal = false
 	cooldown.start(heal_cooldown)
-	if target.has_method("heal"):
-		target.heal(heal_amount)
-	elif target.has_method("take_damage"):
-		target.take_damage(-heal_amount)
+	GameplayFacade.try_apply_heal(target, heal_amount)
 	if target.has_method("play_heal_effect"):
 		target.play_heal_effect()
 	SoundManager.play_heal()
@@ -280,9 +289,20 @@ func play_heal_effect():
 func _on_cooldown():
 	can_heal = true
 
-func take_damage(amount):
-	health -= amount
-	if health <= 0:
-		queue_free()
-	elif amount > 0 and can_heal and health < max_health:
+func take_damage(amount: Variant) -> void:
+	if health_component == null:
+		return
+	var a: int = int(amount)
+	health_component.apply_damage(a)
+	if health_component.current_health <= 0:
+		return
+	if a > 0 and can_heal and health_component.current_health < health_component.max_health:
 		_heal(self)
+
+
+func _get_initial_max_health() -> int:
+	return max_health
+
+
+func _get_initial_health() -> int:
+	return mini(spawn_health, max_health)

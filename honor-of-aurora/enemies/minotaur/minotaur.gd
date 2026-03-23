@@ -1,7 +1,7 @@
 extends "res://enemies/enemy_base.gd"
 
 func _ready():
-	super()  
+	super._ready()  
 	
    
 	speed = 150.0  

@@ -1,4 +1,5 @@
-extends CharacterBody2D
+extends "res://characters/character_unit.gd"
+## Союзник-лучник (группа ally в _ready).
 
 @export var arrow_scene : PackedScene
 @export var attack_cooldown : float = 3.0
@@ -9,7 +10,6 @@ extends CharacterBody2D
 @export var follow_stop_distance: float = 110.0
 
 @export var max_health: int = 60
-@export var health: int = 60
 
 @export var flee_distance: float = 220.0
 @export var flee_speed_multiplier: float = 1.25
@@ -28,7 +28,8 @@ var state: State = State.FOLLOW
 var player: Node2D = null
 var flee_target: Vector2 = Vector2.ZERO
 
-func _ready():
+func _ready() -> void:
+	super._ready()
 	add_to_group("ally")
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	sprite.play("idle")
@@ -48,10 +49,15 @@ func _ready():
 	attack_area.body_exited.connect(_on_enemy_exited)
 	sprite.animation_finished.connect(_on_animation_finished)
 	
-	if health <= 0:
-		health = max_health
-	
 	player = get_tree().get_first_node_in_group("player") as Node2D
+
+
+func _get_initial_max_health() -> int:
+	return max_health
+
+
+func _get_initial_health() -> int:
+	return max_health
 
 func _on_enemy_entered(body):
 	if body.is_in_group("enemy"):
@@ -187,17 +193,21 @@ func _refresh_state() -> void:
 		state = State.FOLLOW
 		attack_timer.stop()
 
-func take_damage(amount: int) -> void:
+func take_damage(amount: Variant) -> void:
 	if state == State.DEAD:
 		return
-	
-	health -= int(amount)
-	if health <= 0:
-		_die()
+	if health_component == null:
 		return
-	
-	if int(amount) > 0:
+	var a: int = int(amount)
+	health_component.apply_damage(a)
+	if health_component.current_health <= 0:
+		return
+	if a > 0:
 		_start_flee()
+
+
+func _handle_death() -> void:
+	_die()
 
 func _start_flee() -> void:
 	var away_dir := Vector2.ZERO

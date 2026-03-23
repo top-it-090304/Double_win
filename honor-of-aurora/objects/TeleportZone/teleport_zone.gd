@@ -9,21 +9,20 @@ func _ready():
 	# Ждем один кадр, чтобы сцена полностью загрузилась
 	await get_tree().process_frame
 
-func _on_body_entered(body):
+func _on_body_entered(body: Node2D) -> void:
 	if player_inside:  # Игрок уже внутри, не вызываем повторно
 		return
 		
-	if body.is_in_group("player"):
+	if GameplayFacade.is_player_body(body):
 		player_inside = true
-		var hud = get_tree().get_first_node_in_group("hud")
-		if hud and hud.has_method("show_teleport_menu"):
+		var hud := GameplayFacade.get_hud(get_tree())
+		if hud:
 			hud.show_teleport_menu()
-			if hud.has_method("set_target_location"):
-				hud.set_target_location(target_location)
+			hud.set_target_location(target_location)
 
-func _on_body_exited(body):
-	if body.is_in_group("player"):
+func _on_body_exited(body: Node2D) -> void:
+	if GameplayFacade.is_player_body(body):
 		player_inside = false
-		var hud = get_tree().get_first_node_in_group("hud")
-		if hud and hud.has_method("hide_teleport_menu"):
+		var hud := GameplayFacade.get_hud(get_tree())
+		if hud:
 			hud.hide_teleport_menu()

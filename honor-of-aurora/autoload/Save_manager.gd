@@ -20,6 +20,8 @@ var resume_player_position_y: float = 750.0
 var apply_resume_position_on_next_scene: bool = false
 ## Следующий переход в меню — после смерти: не перезаписывать resume из позиции игрока.
 var death_resume_pending: bool = false
+## 1 HP после смерти (телепорт на базу); иначе при загрузке можно поднять HP до max.
+var resume_from_death: bool = false
 
 ## Координаты зоны телепорта на базе (см. TeleportZone в Game_base_islad.tscn).
 const BASE_TELEPORT_RESUME_X := -660.0
@@ -36,7 +38,7 @@ var volume_dialogue: float = 1.0
 
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
-const SAVE_DATA = ["gold", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "story_flags", "island_zone_state", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue"]
+const SAVE_DATA = ["gold", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue"]
 const default_data := {
 	"gold" : 0,
 	"boss_kill" : 0,
@@ -50,6 +52,7 @@ const default_data := {
 	"resume_game_location" : 0,
 	"resume_player_position_x" : -600.0,
 	"resume_player_position_y" : 750.0,
+	"resume_from_death" : false,
 	"story_flags" : {},
 	"island_zone_state" : {},
 	"volume_music" : 1.0,
@@ -91,6 +94,13 @@ func load_game():
 
 	_migrate_story_island_flags_from_legacy_boss_kill()
 	_migrate_truth_choice_flags()
+	if not game_data.has("resume_from_death"):
+		resume_from_death = (
+			current_health == 1
+			and resume_game_location == int(Events.LOCATION.BASE)
+			and abs(resume_player_position_x - BASE_TELEPORT_RESUME_X) < 2.0
+			and abs(resume_player_position_y - BASE_TELEPORT_RESUME_Y) < 2.0
+		)
 
 
 ## Старые сохранения без развилки: кто уже прошёл последний остров или финал монаха — считаем «добить цепь».
@@ -150,6 +160,7 @@ func get_resume_location_enum() -> Events.LOCATION:
 
 func configure_death_resume_to_base_teleport() -> void:
 	current_health = 1
+	resume_from_death = true
 	resume_game_location = int(Events.LOCATION.BASE)
 	resume_player_position_x = BASE_TELEPORT_RESUME_X
 	resume_player_position_y = BASE_TELEPORT_RESUME_Y
@@ -189,6 +200,7 @@ func reset_data():
 	game_data["current_health"] = current_health
 
 	death_resume_pending = false
+	resume_from_death = false
 
 	var json_object := JSON.new()
 	game_save_file.store_line(json_object.stringify(game_data))

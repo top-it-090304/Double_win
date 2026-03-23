@@ -1,4 +1,5 @@
-extends CharacterBody2D
+extends "res://characters/player_character.gd"
+## Игрок-воин: PlayerCharacter + мобильный ввод, щит, прогрессия героя.
 
 enum State { IDLE, RUN, ATTACK, SHIELD, DEATH }
 var state: State = State.IDLE
@@ -23,25 +24,60 @@ var move_anim_speed_scale: float = 1.0
 
 signal health_changed(current_health)
 
-var health: int
+## Текущее HP (зеркало HealthComponent для совместимости и UI).
+var health: int:
+	get:
+		return health_component.current_health if health_component else 0
+	set(value):
+		if health_component:
+			health_component.set_current_health(int(value))
+
 var attack_index = 0
 var _player_ready: bool = false
 var _footstep_cooldown: float = 0.0
-func _ready():
+
+
+func _ready() -> void:
 	if effect_sprite:
 		effect_sprite.visible = false
-	add_to_group("player")
-	
+	super._ready()
 	level = SaveManager.current_level
 	exp = SaveManager.current_exp
 	_apply_hero_tier_for_level(level)
-	
-	health = mini(SaveManager.current_health, max_health)
+	_sync_health_after_tier()
 	_refresh_health_bar_ui()
-	
 	anim.animation_finished.connect(_on_anim_finished)
 	health_changed.connect(_on_health_changed)
+	if health_component:
+		health_component.health_changed.connect(_on_health_component_health_changed)
 	_player_ready = true
+
+
+func _apply_save_health_to_component() -> void:
+	if health_component == null:
+		return
+	health_component.set_max_health(max_health)
+	var h: int = SaveManager.current_health
+	if h <= 1 and max_health > 1 and not SaveManager.resume_from_death:
+		h = max_health
+		SaveManager.current_health = h
+	health_component.set_current_health(mini(h, max_health))
+
+
+func _sync_health_after_tier() -> void:
+	_apply_save_health_to_component()
+
+
+func _clear_resume_from_death_if_needed() -> void:
+	if SaveManager.current_health > 1:
+		SaveManager.resume_from_death = false
+
+
+func _on_health_component_health_changed(current: int, _maximum: int) -> void:
+	health_changed.emit(current)
+	if health_bar:
+		health_bar.value = current
+		health_bar.max_value = max_health
 
 
 func _enter_tree() -> void:
@@ -62,7 +98,7 @@ func sync_from_save() -> void:
 	level = SaveManager.current_level
 	exp = SaveManager.current_exp
 	_apply_hero_tier_for_level(level)
-	health = mini(SaveManager.current_health, max_health)
+	_apply_save_health_to_component()
 	_refresh_health_bar_ui()
 
 
@@ -198,17 +234,25 @@ func update_anim():
 			anim.speed_scale = move_anim_speed_scale
 			anim.play("dead")
 
-func take_damage(amount):
-	var final_damage = int(amount * 0.2) if state == State.SHIELD else amount
+func take_damage(amount: Variant) -> void:
+	var a: int = int(amount)
+	if a < 0:
+		if health_component:
+			health_component.heal(-a)
+		return
+	var final_damage: int = int(a * 0.2) if state == State.SHIELD else a
 	if state == State.SHIELD:
 		SoundManager.play_shield_block()
 	else:
 		SoundManager.play_player_hurt()
-	health -= final_damage
-	health_changed.emit(health)
-	if health <= 0 and state != State.DEATH:
-		die()
+	if health_component:
+		health_component.apply_damage(final_damage)
 	show_damage_number(final_damage)
+
+
+func _handle_death() -> void:
+	die()
+
 
 func die():
 	SaveManager.death_count += 1
@@ -225,9 +269,10 @@ func die():
 func reset_after_death_resume() -> void:
 	state = State.IDLE
 	velocity = Vector2.ZERO
-	health = mini(SaveManager.current_health, max_health)
+	if health_component:
+		health_component.set_current_health(mini(SaveManager.current_health, max_health))
 	health_changed.emit(health)
-	SaveManager.current_health = health
+	SaveManager.current_health = health_component.current_health if health_component else 0
 	if anim:
 		anim.speed_scale = move_anim_speed_scale
 		anim.play("idle")
@@ -235,18 +280,17 @@ func reset_after_death_resume() -> void:
 	
 func apply_damage():
 	for body in attack_area.get_overlapping_bodies():
-		if body.is_in_group("enemy") and body.has_method("take_damage"):
-			body.take_damage(attack_damage)
+		if body.is_in_group("enemy"):
+			GameplayFacade.try_apply_damage(body, attack_damage)
 
-func show_damage_number(amount: int):
-	var damage_number = preload("res://ui/DamageNumber/damage_number.tscn").instantiate()
-	damage_number.get_node("Label").text = str(amount)
-	add_child(damage_number)
-	damage_number.position = Vector2(-26, -120)
+func show_damage_number(amount: int) -> void:
+	GameplayFacade.spawn_damage_number(self, amount, Vector2(-26, -120))
 
-func heal(amount):
-	SaveManager.current_health = min(health + amount, max_health)
-	health = min(health + amount, max_health)
+func heal(amount: int) -> void:
+	if health_component:
+		health_component.heal(amount)
+	SaveManager.current_health = health_component.current_health if health_component else 0
+	_clear_resume_from_death_if_needed()
 	SaveManager.save_game()
 	health_changed.emit(health)
 
@@ -268,11 +312,9 @@ func play_level_up_effect():
 	await effect_sprite.animation_finished
 	effect_sprite.visible = false
 
-func is_health_full() -> bool:
-	return health >= max_health
-
-func _on_health_changed(current_health):
-	SaveManager.current_health = health
+func _on_health_changed(_current_health):
+	SaveManager.current_health = health_component.current_health if health_component else 0
+	_clear_resume_from_death_if_needed()
 	SaveManager.save_game()
 	
 func gain_exp(amount: int):
@@ -295,8 +337,10 @@ func get_exp_to_next_level() -> int:
 
 func level_up():
 	_apply_hero_tier_for_level(level)
-	health = max_health
-	SaveManager.current_health = health
+	if health_component:
+		health_component.set_current_health(max_health)
+	SaveManager.current_health = health_component.current_health if health_component else 0
+	_clear_resume_from_death_if_needed()
 	_refresh_health_bar_ui()
 	SoundManager.play_level_up()
 	play_level_up_effect()
@@ -310,6 +354,9 @@ func _apply_hero_tier_for_level(hero_level: int) -> void:
 	attack_damage = tier.attack_damage
 	attack_anim_speed_scale = tier.attack_anim_speed_scale
 	move_anim_speed_scale = tier.move_anim_speed_scale
+	if health_component:
+		health_component.set_max_health(max_health)
+		health_component.set_current_health(mini(health_component.current_health, max_health))
 	if state != State.DEATH:
 		anim.speed_scale = move_anim_speed_scale
 		if state == State.ATTACK:

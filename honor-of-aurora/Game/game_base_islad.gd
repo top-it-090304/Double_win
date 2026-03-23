@@ -1,8 +1,6 @@
-extends TileMapLayer
-
-const spawn_position = Vector2(-600, 750)
+extends "res://Game/game_level_spawn_layer.gd"
 
 
-func add_player_on_sscene(player: Node2D) -> void:
-	add_child(player)
-	
+func _ready() -> void:
+	spawn_position = Vector2(-600, 750)
+	super._ready()

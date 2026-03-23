@@ -1,4 +1,4 @@
-extends CharacterBody2D
+extends "res://characters/companion_unit.gd"
 
 ## Чёрная пешка: все клипы из `black_pawn_frames.tres` (полосы 192×192).
 ## idle, run; idle_axe … idle_wood; run_axe … run_wood; interact_axe, interact_hammer, interact_knife, interact_pickaxe.
@@ -6,6 +6,7 @@ extends CharacterBody2D
 
 
 func _ready() -> void:
+	super._ready()
 	play_unit_animation(&"idle")
 
 

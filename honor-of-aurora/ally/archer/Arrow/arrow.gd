@@ -13,7 +13,6 @@ func _ready():
 func _process(delta):
 	position += direction * speed * delta
 
-func _on_body_entered(body):
-	if body.has_method("take_damage"):
-		body.take_damage(damage)
+func _on_body_entered(body: Node) -> void:
+	GameplayFacade.try_apply_damage(body, damage)
 	queue_free()

@@ -1,11 +1,16 @@
 extends Node2D
 
 const ISLAND_KEY := "lvl1"
+const spawn_position: Vector2 = Vector2(600, 740)
 
 const _SNAKE := preload("res://enemies/snake/Snake.tscn")
 const _GNOME := preload("res://enemies/gnome/gnome.tscn")
 
 var _nav_region: NavigationRegion2D
+
+
+func get_spawn_position() -> Vector2:
+	return spawn_position
 
 
 func _ready() -> void:

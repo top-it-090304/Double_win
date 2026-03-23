@@ -94,7 +94,7 @@ func _save_key() -> String:
 
 
 func _on_body_entered(body: Node) -> void:
-	if not body.is_in_group("player"):
+	if not GameplayFacade.is_player_body(body):
 		return
 	if _cleared or _started:
 		return

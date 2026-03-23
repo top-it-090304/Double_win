@@ -1,8 +1,8 @@
 extends Control
 
 
-func get_hud():
-	return get_tree().get_first_node_in_group("hud")
+func get_hud() -> Node:
+	return GameplayFacade.get_hud(get_tree())
 
 
 func _teleport(loc: Events.LOCATION) -> void:

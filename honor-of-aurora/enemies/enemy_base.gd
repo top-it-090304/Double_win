@@ -1,4 +1,5 @@
-extends CharacterBody2D
+extends "res://characters/enemy_unit.gd"
+## Базовый враг с патрулем, преследованием и рукопашной атакой.
 
 enum State { PATROL, CHASE, ATTACK, DEATH, HIT, RECOVER, LEASH }
 var state: State = State.PATROL
@@ -11,7 +12,6 @@ var state: State = State.PATROL
 @export var exp_reward: int = 10
 
 @export var speed: float = 100.0
-@export var health: int = 50
 @export var attack_damage: int = 10
 @export var attack_cooldown: float = 2.0
 @export var patrol_change_time: float = 2.0
@@ -85,8 +85,8 @@ func _away_from_target(delta_pos: Vector2) -> Vector2:
 	return Vector2.RIGHT.rotated(randf() * TAU)
 
 
-func _ready():
-	add_to_group("enemy")
+func _ready() -> void:
+	super._ready()
 	detection_shape.shape.radius = detection_radius
 	attack_shape.shape.radius = attack_radius
 
@@ -329,8 +329,8 @@ func start_attack():
 
 
 func apply_damage():
-	if target and attack_area.overlaps_body(target) and target.has_method("take_damage"):
-		target.take_damage(attack_damage)
+	if target and attack_area.overlaps_body(target):
+		GameplayFacade.try_apply_damage(target, attack_damage)
 
 
 func _on_anim_finished():
@@ -361,19 +361,18 @@ func update_animation():
 			anim.play("idle")
 
 
-func take_damage(amount: int):
+func _on_health_damage_applied(amount: int) -> void:
 	SoundManager.play_enemy_hit()
-	health -= amount
-
-	if health <= 0:
-		die()
+	show_damage_number(amount)
+	if health_component == null or health_component.current_health <= 0:
 		return
-
 	if state != State.DEATH and state != State.HIT and anim.sprite_frames.has_animation("hit"):
 		state = State.HIT
 		anim.play("hit")
 
-	show_damage_number(amount)
+
+func _handle_death() -> void:
+	die()
 
 
 func die():
@@ -399,11 +398,8 @@ func die():
 	queue_free()
 
 
-func show_damage_number(amount: int):
-	var damage_number = preload("res://ui/DamageNumber/damage_number.tscn").instantiate()
-	damage_number.get_node("Label").text = str(amount)
-	add_child(damage_number)
-	damage_number.position = Vector2(-26, -80)
+func show_damage_number(amount: int) -> void:
+	GameplayFacade.spawn_damage_number(self, amount, Vector2(-26, -80))
 
 
 func _select_target() -> void:

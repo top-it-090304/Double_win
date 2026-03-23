@@ -15,7 +15,7 @@ func _ready() -> void:
 
 
 func _on_body_entered(body: Node2D) -> void:
-	if not body.is_in_group("player"):
+	if not GameplayFacade.is_player_body(body):
 		return
 	if DialogueManager.is_active():
 		return

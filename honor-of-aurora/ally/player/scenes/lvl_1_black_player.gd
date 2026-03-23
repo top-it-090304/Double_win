@@ -1,7 +1,7 @@
 extends "res://ally/player/scripts/worrier_base.gd"
 
 func _ready():
-	super()
+	super._ready()
 	_apply_black_level1_stats()
 
 func _enter_tree() -> void:
@@ -20,6 +20,8 @@ func reset_after_death_resume() -> void:
 
 func _apply_black_level1_stats() -> void:
 	max_health = 100
+	if health_component:
+		health_component.set_max_health(max_health)
 	health = mini(SaveManager.current_health, max_health)
 	attack_damage = 100
 	speed = 200

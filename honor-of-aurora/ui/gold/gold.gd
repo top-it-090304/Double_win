@@ -1,6 +1,8 @@
 extends NinePatchRect
- 
-@onready var gold_label = $GoldLabel  
+## HUD: подписка на Events.gold_changed и отображение SaveManager.gold.
+
+@onready var gold_label = $GoldLabel
+
 
 func _ready() -> void:
 	Events.gold_changed.connect(_on_gold_changed)

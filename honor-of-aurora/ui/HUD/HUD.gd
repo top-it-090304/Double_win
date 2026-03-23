@@ -1,7 +1,12 @@
-extends CanvasLayer
+extends "res://ui/HUD/game_hud.gd"
 
 @export var teleport_menu: Control
 @export var castle_menu: Control
+
+
+func set_target_location(location: Events.LOCATION) -> void:
+	if teleport_menu and teleport_menu.has_method("set_target_location"):
+		teleport_menu.call("set_target_location", location)
 
 func _on_button_pressed() -> void:
 	Events.location_changed.emit(Events.LOCATION.MENU)

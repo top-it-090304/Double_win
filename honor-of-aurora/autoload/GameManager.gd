@@ -7,12 +7,19 @@ func _ready() -> void:
 	Events.sync_story_state_from_save()
 	Events.location_changed.connect(handle_location_changed)
 
-const ARCHER_SCENE := preload("res://ally/archer/arche_baser.tscn")
+var _archer_scene: PackedScene
+
 const ARCHER_SPAWN_SPACING := 80.0
 const ARCHER_MIN_SPAWN_SEPARATION := 72.0
 
 const _GROUND_TILE_LAYER_NAMES := ["floor_0", "floor_1", "floor_2", "bridge", "steps"]
 const _ARCHER_LAND_SEARCH_RADIUS_CELLS := 48
+
+func _get_archer_scene() -> PackedScene:
+	if _archer_scene == null:
+		_archer_scene = load("res://ally/archer/arche_baser.tscn") as PackedScene
+	return _archer_scene
+
 
 func _spawn_point_clear(pos: Vector2, avoid: Array[Vector2], min_dist: float) -> bool:
 	for p in avoid:
@@ -152,15 +159,28 @@ func find_archer_spawn_on_land(scene_root: Node, desired_global: Vector2, avoid_
 					return world_center
 	return desired_global
 
-const location_to_scene = {
-	Events.LOCATION.BASE: preload("res://Game/Game_base_islad.tscn"),
-	Events.LOCATION.LVL1: preload("res://Game/Game_level_1.tscn"),
-	Events.LOCATION.LVL2: preload("res://Game/Game_level_2.tscn"),
-	Events.LOCATION.LVL3: preload("res://Game/Game_level_3.tscn"),
-	Events.LOCATION.LVL4: preload("res://Game/Game_level_4.tscn"),
-	Events.LOCATION.LVL5: preload("res://Game/Game_level_5.tscn"),
-	Events.LOCATION.MENU: preload("res://Game/Game_menu.tscn"),
+const _LOCATION_SCENE_PATHS := {
+	Events.LOCATION.BASE: "res://Game/Game_base_islad.tscn",
+	Events.LOCATION.LVL1: "res://Game/Game_level_1.tscn",
+	Events.LOCATION.LVL2: "res://Game/Game_level_2.tscn",
+	Events.LOCATION.LVL3: "res://Game/Game_level_3.tscn",
+	Events.LOCATION.LVL4: "res://Game/Game_level_4.tscn",
+	Events.LOCATION.LVL5: "res://Game/Game_level_5.tscn",
+	Events.LOCATION.MENU: "res://Game/Game_menu.tscn",
 }
+
+var _location_scene_cache: Dictionary = {}
+
+
+func _get_location_scene(loc: Events.LOCATION) -> Variant:
+	if _location_scene_cache.has(loc):
+		return _location_scene_cache[loc]
+	var path: String = _LOCATION_SCENE_PATHS.get(loc, "") as String
+	if path.is_empty():
+		return null
+	var scene: PackedScene = load(path) as PackedScene
+	_location_scene_cache[loc] = scene
+	return scene
 
 func handle_location_changed(new_location: Events.LOCATION):
 	var prev_location := Events.current_location
@@ -171,9 +191,9 @@ func handle_location_changed(new_location: Events.LOCATION):
 		if SaveManager.death_resume_pending:
 			SaveManager.death_resume_pending = false
 		else:
-			var player := get_tree().get_first_node_in_group("player")
-			if player and is_instance_valid(player):
-				SaveManager.current_health = player.health
+			var player: Node = get_tree().get_first_node_in_group("player")
+			if player and is_instance_valid(player) and player.get("health") != null:
+				SaveManager.current_health = int(player.get("health"))
 				SaveManager.resume_game_location = int(prev_location)
 				SaveManager.resume_player_position_x = player.global_position.x
 				SaveManager.resume_player_position_y = player.global_position.y
@@ -201,7 +221,11 @@ func handle_location_changed(new_location: Events.LOCATION):
 
 	Events.current_location = new_location
 	teleport_player_to_scene(new_location)
-	get_tree().change_scene_to_packed(location_to_scene.get(new_location))
+	var packed: Variant = _get_location_scene(new_location)
+	if packed == null or not (packed is PackedScene):
+		push_error("GameManager: no PackedScene for location %s" % new_location)
+		return
+	get_tree().change_scene_to_packed(packed as PackedScene)
 	# После загрузки базы монах применяет жетон (см. monk_base).
 	if new_location == Events.LOCATION.BASE:
 		call_deferred("_apply_pending_healer_dialogue_token_on_base")
@@ -218,17 +242,29 @@ func add_gold(amount: int):
 		SoundManager.play_pickup_gold()
 
 
-func add_exp(amount: int):
-	var player = get_tree().get_first_node_in_group("player")
+func add_exp(amount: int) -> void:
+	var player: Node = get_tree().get_first_node_in_group("player")
 	if player and player.has_method("gain_exp"):
 		player.gain_exp(amount)
 
+
+func _resolve_spawn_position(scene: Node) -> Variant:
+	if scene == null:
+		return null
+	if scene.has_method("get_spawn_position"):
+		return scene.call("get_spawn_position")
+	var v: Variant = scene.get("spawn_position")
+	if v is Vector2:
+		return v
+	return null
+
+
 func teleport_player_to_scene(location: Events.LOCATION):
-	var current_scene = get_tree().current_scene
-	var player = get_tree().get_first_node_in_group("player")
+	var current_scene: Node = get_tree().current_scene
+	var player: Node = get_tree().get_first_node_in_group("player")
 	
 	if player and is_instance_valid(player):
-		var player_parent = player.get_parent()
+		var player_parent := player.get_parent()
 		if player_parent:
 			player_parent.remove_child(player)
 		current_scene_player = player
@@ -236,7 +272,7 @@ func teleport_player_to_scene(location: Events.LOCATION):
 	await get_tree().process_frame
 	await get_tree().process_frame
 	
-	var new_scene = get_tree().current_scene
+	var new_scene: Node = get_tree().current_scene
 	if not new_scene:
 		return
 	
@@ -254,16 +290,17 @@ func teleport_player_to_scene(location: Events.LOCATION):
 		current_scene_player.visible = true
 		current_scene_player.process_mode = Node.PROCESS_MODE_INHERIT
 		
-		if "spawn_position" in new_scene:
-			if SaveManager.apply_resume_position_on_next_scene and int(location) == SaveManager.resume_game_location:
-				current_scene_player.global_position = Vector2(SaveManager.resume_player_position_x, SaveManager.resume_player_position_y)
-				SaveManager.apply_resume_position_on_next_scene = false
-			else:
-				current_scene_player.global_position = new_scene.spawn_position
+		if SaveManager.apply_resume_position_on_next_scene and int(location) == SaveManager.resume_game_location:
+			current_scene_player.global_position = Vector2(SaveManager.resume_player_position_x, SaveManager.resume_player_position_y)
+			SaveManager.apply_resume_position_on_next_scene = false
+		else:
+			var sp: Variant = _resolve_spawn_position(new_scene)
+			if sp != null:
+				current_scene_player.global_position = sp as Vector2
 		
 		add_camera_to_player(current_scene_player)
 		
-		if current_scene_player.has_method("set_health") or true:
+		if current_scene_player.has_method("gain_exp"):
 			current_scene_player.health = SaveManager.current_health
 		if current_scene_player.has_method("reset_after_death_resume"):
 			current_scene_player.reset_after_death_resume()
@@ -282,8 +319,11 @@ func _spawn_saved_archers(root: Node) -> void:
 	var base_pos: Vector2 = current_scene_player.global_position
 	var avoid: Array[Vector2] = [base_pos]
 	var positions := pick_archer_spawn_positions(root, n, avoid, ARCHER_MIN_SPAWN_SEPARATION)
+	var scene := _get_archer_scene()
+	if scene == null:
+		return
 	for i in range(n):
-		var archer := ARCHER_SCENE.instantiate() as Node2D
+		var archer := scene.instantiate() as Node2D
 		if not archer:
 			continue
 		root.add_child(archer)

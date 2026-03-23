@@ -1,4 +1,5 @@
 extends Node2D
+## Здание на базе: текстура по фракции и апгрейд за золото.
 
 enum BuildingColor {
 	BLACK,
@@ -40,9 +41,7 @@ func upgrade_building() -> bool:
 		return false
 	
 	var cost := upgrade_cost_step * (current_color + 1)
-	if SaveManager.gold < cost:
+	if not GameplayFacade.try_spend_gold(cost):
 		return false
-	
-	GameManager.add_gold(-cost)
 	current_color = current_color + 1
 	return update_texture()

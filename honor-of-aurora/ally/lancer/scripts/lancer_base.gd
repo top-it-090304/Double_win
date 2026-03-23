@@ -1,4 +1,4 @@
-extends CharacterBody2D
+extends "res://characters/companion_unit.gd"
 
 ## Чёрный копейщик: все клипы из `black_lancer_frames.tres` (клетки атласа 320×320, не 192).
 ## idle, run, down_attack, down_defence, down_right_attack, down_right_defence,
@@ -7,6 +7,7 @@ extends CharacterBody2D
 
 
 func _ready() -> void:
+	super._ready()
 	play_unit_animation(&"idle")
 
 
