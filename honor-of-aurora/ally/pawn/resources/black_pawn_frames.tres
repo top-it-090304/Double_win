@@ -1,0 +1,647 @@
+[gd_resource type="SpriteFrames" load_steps=152 format=3 uid="uid://p4wnblk0fram1"]
+
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Idle.png" id="tex_Pawn_Idle"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Run.png" id="tex_Pawn_Run"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Idle Axe.png" id="tex_Pawn_Idle_Axe"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Idle Gold.png" id="tex_Pawn_Idle_Gold"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Idle Hammer.png" id="tex_Pawn_Idle_Hammer"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Idle Knife.png" id="tex_Pawn_Idle_Knife"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Idle Meat.png" id="tex_Pawn_Idle_Meat"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Idle Pickaxe.png" id="tex_Pawn_Idle_Pickaxe"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Idle Wood.png" id="tex_Pawn_Idle_Wood"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Run Axe.png" id="tex_Pawn_Run_Axe"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Run Gold.png" id="tex_Pawn_Run_Gold"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Run Hammer.png" id="tex_Pawn_Run_Hammer"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Run Knife.png" id="tex_Pawn_Run_Knife"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Run Meat.png" id="tex_Pawn_Run_Meat"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Run Pickaxe.png" id="tex_Pawn_Run_Pickaxe"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Run Wood.png" id="tex_Pawn_Run_Wood"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Interact Axe.png" id="tex_Pawn_Interact_Axe"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Interact Hammer.png" id="tex_Pawn_Interact_Hammer"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Interact Knife.png" id="tex_Pawn_Interact_Knife"]
+[ext_resource type="Texture2D" path="res://ally/pawn/art/black/Pawn_Interact Pickaxe.png" id="tex_Pawn_Interact_Pickaxe"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0000"]
+atlas = ExtResource("tex_Pawn_Idle")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0001"]
+atlas = ExtResource("tex_Pawn_Idle")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0002"]
+atlas = ExtResource("tex_Pawn_Idle")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0003"]
+atlas = ExtResource("tex_Pawn_Idle")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0004"]
+atlas = ExtResource("tex_Pawn_Idle")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0005"]
+atlas = ExtResource("tex_Pawn_Idle")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0006"]
+atlas = ExtResource("tex_Pawn_Idle")
+region = Rect2(1152, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0007"]
+atlas = ExtResource("tex_Pawn_Idle")
+region = Rect2(1344, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0008"]
+atlas = ExtResource("tex_Pawn_Run")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0009"]
+atlas = ExtResource("tex_Pawn_Run")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0010"]
+atlas = ExtResource("tex_Pawn_Run")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0011"]
+atlas = ExtResource("tex_Pawn_Run")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0012"]
+atlas = ExtResource("tex_Pawn_Run")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0013"]
+atlas = ExtResource("tex_Pawn_Run")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0014"]
+atlas = ExtResource("tex_Pawn_Idle_Axe")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0015"]
+atlas = ExtResource("tex_Pawn_Idle_Axe")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0016"]
+atlas = ExtResource("tex_Pawn_Idle_Axe")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0017"]
+atlas = ExtResource("tex_Pawn_Idle_Axe")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0018"]
+atlas = ExtResource("tex_Pawn_Idle_Axe")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0019"]
+atlas = ExtResource("tex_Pawn_Idle_Axe")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0020"]
+atlas = ExtResource("tex_Pawn_Idle_Axe")
+region = Rect2(1152, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0021"]
+atlas = ExtResource("tex_Pawn_Idle_Axe")
+region = Rect2(1344, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0022"]
+atlas = ExtResource("tex_Pawn_Idle_Gold")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0023"]
+atlas = ExtResource("tex_Pawn_Idle_Gold")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0024"]
+atlas = ExtResource("tex_Pawn_Idle_Gold")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0025"]
+atlas = ExtResource("tex_Pawn_Idle_Gold")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0026"]
+atlas = ExtResource("tex_Pawn_Idle_Gold")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0027"]
+atlas = ExtResource("tex_Pawn_Idle_Gold")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0028"]
+atlas = ExtResource("tex_Pawn_Idle_Gold")
+region = Rect2(1152, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0029"]
+atlas = ExtResource("tex_Pawn_Idle_Gold")
+region = Rect2(1344, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0030"]
+atlas = ExtResource("tex_Pawn_Idle_Hammer")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0031"]
+atlas = ExtResource("tex_Pawn_Idle_Hammer")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0032"]
+atlas = ExtResource("tex_Pawn_Idle_Hammer")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0033"]
+atlas = ExtResource("tex_Pawn_Idle_Hammer")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0034"]
+atlas = ExtResource("tex_Pawn_Idle_Hammer")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0035"]
+atlas = ExtResource("tex_Pawn_Idle_Hammer")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0036"]
+atlas = ExtResource("tex_Pawn_Idle_Hammer")
+region = Rect2(1152, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0037"]
+atlas = ExtResource("tex_Pawn_Idle_Hammer")
+region = Rect2(1344, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0038"]
+atlas = ExtResource("tex_Pawn_Idle_Knife")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0039"]
+atlas = ExtResource("tex_Pawn_Idle_Knife")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0040"]
+atlas = ExtResource("tex_Pawn_Idle_Knife")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0041"]
+atlas = ExtResource("tex_Pawn_Idle_Knife")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0042"]
+atlas = ExtResource("tex_Pawn_Idle_Knife")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0043"]
+atlas = ExtResource("tex_Pawn_Idle_Knife")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0044"]
+atlas = ExtResource("tex_Pawn_Idle_Knife")
+region = Rect2(1152, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0045"]
+atlas = ExtResource("tex_Pawn_Idle_Knife")
+region = Rect2(1344, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0046"]
+atlas = ExtResource("tex_Pawn_Idle_Meat")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0047"]
+atlas = ExtResource("tex_Pawn_Idle_Meat")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0048"]
+atlas = ExtResource("tex_Pawn_Idle_Meat")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0049"]
+atlas = ExtResource("tex_Pawn_Idle_Meat")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0050"]
+atlas = ExtResource("tex_Pawn_Idle_Meat")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0051"]
+atlas = ExtResource("tex_Pawn_Idle_Meat")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0052"]
+atlas = ExtResource("tex_Pawn_Idle_Meat")
+region = Rect2(1152, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0053"]
+atlas = ExtResource("tex_Pawn_Idle_Meat")
+region = Rect2(1344, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0054"]
+atlas = ExtResource("tex_Pawn_Idle_Pickaxe")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0055"]
+atlas = ExtResource("tex_Pawn_Idle_Pickaxe")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0056"]
+atlas = ExtResource("tex_Pawn_Idle_Pickaxe")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0057"]
+atlas = ExtResource("tex_Pawn_Idle_Pickaxe")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0058"]
+atlas = ExtResource("tex_Pawn_Idle_Pickaxe")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0059"]
+atlas = ExtResource("tex_Pawn_Idle_Pickaxe")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0060"]
+atlas = ExtResource("tex_Pawn_Idle_Pickaxe")
+region = Rect2(1152, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0061"]
+atlas = ExtResource("tex_Pawn_Idle_Pickaxe")
+region = Rect2(1344, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0062"]
+atlas = ExtResource("tex_Pawn_Idle_Wood")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0063"]
+atlas = ExtResource("tex_Pawn_Idle_Wood")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0064"]
+atlas = ExtResource("tex_Pawn_Idle_Wood")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0065"]
+atlas = ExtResource("tex_Pawn_Idle_Wood")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0066"]
+atlas = ExtResource("tex_Pawn_Idle_Wood")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0067"]
+atlas = ExtResource("tex_Pawn_Idle_Wood")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0068"]
+atlas = ExtResource("tex_Pawn_Idle_Wood")
+region = Rect2(1152, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0069"]
+atlas = ExtResource("tex_Pawn_Idle_Wood")
+region = Rect2(1344, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0070"]
+atlas = ExtResource("tex_Pawn_Run_Axe")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0071"]
+atlas = ExtResource("tex_Pawn_Run_Axe")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0072"]
+atlas = ExtResource("tex_Pawn_Run_Axe")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0073"]
+atlas = ExtResource("tex_Pawn_Run_Axe")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0074"]
+atlas = ExtResource("tex_Pawn_Run_Axe")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0075"]
+atlas = ExtResource("tex_Pawn_Run_Axe")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0076"]
+atlas = ExtResource("tex_Pawn_Run_Gold")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0077"]
+atlas = ExtResource("tex_Pawn_Run_Gold")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0078"]
+atlas = ExtResource("tex_Pawn_Run_Gold")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0079"]
+atlas = ExtResource("tex_Pawn_Run_Gold")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0080"]
+atlas = ExtResource("tex_Pawn_Run_Gold")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0081"]
+atlas = ExtResource("tex_Pawn_Run_Gold")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0082"]
+atlas = ExtResource("tex_Pawn_Run_Hammer")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0083"]
+atlas = ExtResource("tex_Pawn_Run_Hammer")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0084"]
+atlas = ExtResource("tex_Pawn_Run_Hammer")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0085"]
+atlas = ExtResource("tex_Pawn_Run_Hammer")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0086"]
+atlas = ExtResource("tex_Pawn_Run_Hammer")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0087"]
+atlas = ExtResource("tex_Pawn_Run_Hammer")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0088"]
+atlas = ExtResource("tex_Pawn_Run_Knife")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0089"]
+atlas = ExtResource("tex_Pawn_Run_Knife")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0090"]
+atlas = ExtResource("tex_Pawn_Run_Knife")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0091"]
+atlas = ExtResource("tex_Pawn_Run_Knife")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0092"]
+atlas = ExtResource("tex_Pawn_Run_Knife")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0093"]
+atlas = ExtResource("tex_Pawn_Run_Knife")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0094"]
+atlas = ExtResource("tex_Pawn_Run_Meat")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0095"]
+atlas = ExtResource("tex_Pawn_Run_Meat")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0096"]
+atlas = ExtResource("tex_Pawn_Run_Meat")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0097"]
+atlas = ExtResource("tex_Pawn_Run_Meat")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0098"]
+atlas = ExtResource("tex_Pawn_Run_Meat")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0099"]
+atlas = ExtResource("tex_Pawn_Run_Meat")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0100"]
+atlas = ExtResource("tex_Pawn_Run_Pickaxe")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0101"]
+atlas = ExtResource("tex_Pawn_Run_Pickaxe")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0102"]
+atlas = ExtResource("tex_Pawn_Run_Pickaxe")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0103"]
+atlas = ExtResource("tex_Pawn_Run_Pickaxe")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0104"]
+atlas = ExtResource("tex_Pawn_Run_Pickaxe")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0105"]
+atlas = ExtResource("tex_Pawn_Run_Pickaxe")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0106"]
+atlas = ExtResource("tex_Pawn_Run_Wood")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0107"]
+atlas = ExtResource("tex_Pawn_Run_Wood")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0108"]
+atlas = ExtResource("tex_Pawn_Run_Wood")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0109"]
+atlas = ExtResource("tex_Pawn_Run_Wood")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0110"]
+atlas = ExtResource("tex_Pawn_Run_Wood")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0111"]
+atlas = ExtResource("tex_Pawn_Run_Wood")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0112"]
+atlas = ExtResource("tex_Pawn_Interact_Axe")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0113"]
+atlas = ExtResource("tex_Pawn_Interact_Axe")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0114"]
+atlas = ExtResource("tex_Pawn_Interact_Axe")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0115"]
+atlas = ExtResource("tex_Pawn_Interact_Axe")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0116"]
+atlas = ExtResource("tex_Pawn_Interact_Axe")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0117"]
+atlas = ExtResource("tex_Pawn_Interact_Axe")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0118"]
+atlas = ExtResource("tex_Pawn_Interact_Hammer")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0119"]
+atlas = ExtResource("tex_Pawn_Interact_Hammer")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0120"]
+atlas = ExtResource("tex_Pawn_Interact_Hammer")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0121"]
+atlas = ExtResource("tex_Pawn_Interact_Knife")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0122"]
+atlas = ExtResource("tex_Pawn_Interact_Knife")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0123"]
+atlas = ExtResource("tex_Pawn_Interact_Knife")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0124"]
+atlas = ExtResource("tex_Pawn_Interact_Knife")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0125"]
+atlas = ExtResource("tex_Pawn_Interact_Pickaxe")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0126"]
+atlas = ExtResource("tex_Pawn_Interact_Pickaxe")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0127"]
+atlas = ExtResource("tex_Pawn_Interact_Pickaxe")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0128"]
+atlas = ExtResource("tex_Pawn_Interact_Pickaxe")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0129"]
+atlas = ExtResource("tex_Pawn_Interact_Pickaxe")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0130"]
+atlas = ExtResource("tex_Pawn_Interact_Pickaxe")
+region = Rect2(960, 0, 192, 192)
+[resource]
+animations = [{
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0000")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0001")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0002")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0003")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0004")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0005")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0006")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0007")}],
+"loop": true,
+"name": &"idle",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0008")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0009")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0010")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0011")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0012")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0013")}],
+"loop": true,
+"name": &"run",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0014")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0015")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0016")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0017")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0018")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0019")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0020")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0021")}],
+"loop": true,
+"name": &"idle_axe",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0022")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0023")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0024")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0025")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0026")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0027")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0028")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0029")}],
+"loop": true,
+"name": &"idle_gold",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0030")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0031")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0032")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0033")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0034")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0035")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0036")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0037")}],
+"loop": true,
+"name": &"idle_hammer",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0038")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0039")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0040")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0041")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0042")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0043")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0044")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0045")}],
+"loop": true,
+"name": &"idle_knife",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0046")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0047")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0048")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0049")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0050")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0051")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0052")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0053")}],
+"loop": true,
+"name": &"idle_meat",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0054")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0055")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0056")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0057")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0058")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0059")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0060")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0061")}],
+"loop": true,
+"name": &"idle_pickaxe",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0062")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0063")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0064")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0065")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0066")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0067")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0068")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0069")}],
+"loop": true,
+"name": &"idle_wood",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0070")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0071")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0072")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0073")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0074")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0075")}],
+"loop": true,
+"name": &"run_axe",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0076")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0077")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0078")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0079")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0080")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0081")}],
+"loop": true,
+"name": &"run_gold",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0082")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0083")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0084")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0085")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0086")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0087")}],
+"loop": true,
+"name": &"run_hammer",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0088")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0089")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0090")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0091")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0092")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0093")}],
+"loop": true,
+"name": &"run_knife",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0094")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0095")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0096")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0097")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0098")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0099")}],
+"loop": true,
+"name": &"run_meat",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0100")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0101")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0102")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0103")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0104")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0105")}],
+"loop": true,
+"name": &"run_pickaxe",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0106")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0107")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0108")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0109")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0110")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0111")}],
+"loop": true,
+"name": &"run_wood",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0112")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0113")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0114")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0115")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0116")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0117")}],
+"loop": false,
+"name": &"interact_axe",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0118")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0119")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0120")}],
+"loop": false,
+"name": &"interact_hammer",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0121")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0122")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0123")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0124")}],
+"loop": false,
+"name": &"interact_knife",
+"speed": 10.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_p0125")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0126")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0127")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0128")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0129")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_p0130")}],
+"loop": false,
+"name": &"interact_pickaxe",
+"speed": 10.0
+}]
