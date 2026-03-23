@@ -14,6 +14,7 @@ enum State { FOLLOW, ATTACK, DEAD }
 var state: State = State.FOLLOW
 var player: Node2D = null
 var _attack_cd: float = 0.0
+var _paralysis_time: float = 0.0
 ## Направление удара (к цели) для расчёта точки острия в мировых координатах.
 var _attack_hit_dir: Vector2 = Vector2.RIGHT
 
@@ -46,6 +47,10 @@ func _ready() -> void:
 	player = get_tree().get_first_node_in_group("player") as Node2D
 
 
+func apply_paralysis(duration_sec: float) -> void:
+	_paralysis_time = maxf(_paralysis_time, duration_sec)
+
+
 func _idle_anim() -> StringName:
 	return &"idle"
 
@@ -71,6 +76,15 @@ func _play_run() -> void:
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+
+	if _paralysis_time > 0.0:
+		_paralysis_time = maxf(0.0, _paralysis_time - delta)
+		if state == State.ATTACK:
+			state = State.FOLLOW
+		velocity = Vector2.ZERO
+		_play_idle()
 		move_and_slide()
 		return
 

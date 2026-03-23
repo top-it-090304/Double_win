@@ -982,12 +982,12 @@ rotation = 3.14159
 scale = Vector2(1, -1)
 story_island = 3
 
-[node name="Gnoll" parent="." groups=["BOSS"] instance=ExtResource("47_1pdn6")]
+[node name="Gnoll" parent="." instance=ExtResource("47_1pdn6")]
 position = Vector2(1306, -1476)
 rotation = 3.14159
 scale = Vector2(1, -1)
 
-[node name="Lizard" parent="." groups=["BOSS"] instance=ExtResource("48_pkxvq")]
+[node name="Lizard" parent="." instance=ExtResource("48_pkxvq")]
 position = Vector2(1033, -1111)
 rotation = 3.14159
 scale = Vector2(1, -1)

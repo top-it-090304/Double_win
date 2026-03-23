@@ -392,13 +392,18 @@ func _build_stats_sections() -> Array:
 		if p.get("attack_damage") != null:
 			dmg = int(p.attack_damage)
 	var need_exp := 0
+	var need_exp_label := ""
 	if p and p.has_method("get_exp_to_next_level"):
-		need_exp = maxi(0, p.get_exp_to_next_level() - SaveManager.current_exp)
+		if SaveManager.current_level >= BalanceConfig.MAX_HERO_LEVEL:
+			need_exp_label = "Максимум"
+		else:
+			need_exp = maxi(0, p.get_exp_to_next_level() - SaveManager.current_exp)
+			need_exp_label = "%d опыта" % need_exp
 	var sections: Array = []
 	var prog: Dictionary = {"title": "Прогресс", "items": []}
 	prog["items"].append({"label": "Уровень героя", "value": str(SaveManager.current_level)})
 	prog["items"].append({"label": "Опыт", "value": str(SaveManager.current_exp)})
-	prog["items"].append({"label": "До следующего уровня", "value": "%d опыта" % need_exp})
+	prog["items"].append({"label": "До следующего уровня", "value": need_exp_label})
 	sections.append(prog)
 	var combat: Dictionary = {"title": "Бой и защита", "items": []}
 	combat["items"].append({"label": "Здоровье (сохранение)", "value": "%d / %d" % [SaveManager.current_health, max_hp]})

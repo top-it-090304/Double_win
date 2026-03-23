@@ -3,7 +3,7 @@ extends Node
 var gold: int = 0
 var boss_kill: int = 0
 var current_health = 100
-var current_level = 1
+var current_level: int = 1
 var current_exp = 0
 var archer_count: int = 0
 var lancer_count: int = 0
@@ -168,6 +168,10 @@ func load_game():
 			and abs(resume_player_position_x - BASE_TELEPORT_RESUME_X) < 2.0
 			and abs(resume_player_position_y - BASE_TELEPORT_RESUME_Y) < 2.0
 		)
+
+	current_level = clampi(int(current_level), 1, BalanceConfig.MAX_HERO_LEVEL)
+	if current_level >= BalanceConfig.MAX_HERO_LEVEL:
+		current_exp = 0
 
 	_normalize_settings_fields()
 	call_deferred("apply_window_and_engine_settings")

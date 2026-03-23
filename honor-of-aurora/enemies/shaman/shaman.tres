@@ -343,7 +343,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_yqvdj")
 }],
-"loop": true,
+"loop": false,
 "name": &"throw",
 "speed": 5.0
 }]

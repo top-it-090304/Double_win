@@ -1,1 +1,88 @@
 extends "res://Game/game_level_spawn_layer.gd"
+
+const ISLAND_KEY := "lvl3"
+const ISLAND_TIER := 3
+
+const _LIZARD := preload("res://enemies/lizard/lizard.tscn")
+const _SHAMAN := preload("res://enemies/shaman/shaman.tscn")
+const _SKULL := preload("res://enemies/skull/skull.tscn")
+const _TURTLE := preload("res://enemies/turtle/turtle.tscn")
+const _PADDLE := preload("res://enemies/paddle fish/PaddleFish.tscn")
+
+
+func _ready() -> void:
+	if StoryState.has_flag("story_island_3_cleared"):
+		return
+	IslandEncounterShared.attach_navigation_region(self)
+	var director := EncounterDirector.new()
+	director.island_key = ISLAND_KEY
+	add_child(director)
+	IslandEncounterShared.register_zones(director, self, ISLAND_KEY, ISLAND_TIER, _zones_cfg())
+	_spawn_roamers()
+
+
+func _zones_cfg() -> Array:
+	return [
+		{
+			"id": "east_path",
+			"center": Vector2(-489, 141),
+			"radius": 420.0,
+			"leash": 920.0,
+			"waves":
+			[
+				[IslandEncounterShared.wave(_LIZARD, 2), IslandEncounterShared.wave(_SHAMAN, 2)],
+				[IslandEncounterShared.wave(_SKULL, 2), IslandEncounterShared.wave(_TURTLE, 2)],
+			],
+		},
+		{
+			"id": "north_west",
+			"center": Vector2(-1584, 172),
+			"radius": 450.0,
+			"leash": 950.0,
+			"waves":
+			[
+				[IslandEncounterShared.wave(_SHAMAN, 3)],
+				[IslandEncounterShared.wave(_LIZARD, 2), IslandEncounterShared.wave(_PADDLE, 2)],
+			],
+		},
+		{
+			"id": "deep_ruins",
+			"center": Vector2(-2531, -427),
+			"radius": 480.0,
+			"leash": 1000.0,
+			"waves":
+			[
+				[IslandEncounterShared.wave(_SKULL, 2), IslandEncounterShared.wave(_TURTLE, 2)],
+				[IslandEncounterShared.wave(_SHAMAN, 2), IslandEncounterShared.wave(_LIZARD, 2)],
+			],
+		},
+		{
+			"id": "ridge",
+			"center": Vector2(-1117, -746),
+			"radius": 440.0,
+			"leash": 980.0,
+			"waves":
+			[
+				[IslandEncounterShared.wave(_TURTLE, 2), IslandEncounterShared.wave(_PADDLE, 2)],
+				[IslandEncounterShared.wave(_SKULL, 2), IslandEncounterShared.wave(_SHAMAN, 2)],
+			],
+		},
+		{
+			"id": "south_beach",
+			"center": Vector2(1253, 13),
+			"radius": 460.0,
+			"leash": 1020.0,
+			"waves":
+			[
+				[IslandEncounterShared.wave(_LIZARD, 3)],
+				[IslandEncounterShared.wave(_PADDLE, 2), IslandEncounterShared.wave(_TURTLE, 2)],
+			],
+		},
+	]
+
+
+func _spawn_roamers() -> void:
+	var hub := Vector2(-1100, -120)
+	IslandEncounterShared.spawn_roaming_pack(self, ISLAND_TIER, _LIZARD, 2, hub, 1100.0, 1600.0)
+	IslandEncounterShared.spawn_roaming_pack(self, ISLAND_TIER, _SHAMAN, 2, hub, 1100.0, 1600.0)
+	IslandEncounterShared.spawn_roaming_pack(self, ISLAND_TIER, _SKULL, 1, hub, 1100.0, 1600.0)

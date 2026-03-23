@@ -997,17 +997,17 @@ rotation = 3.14159
 scale = Vector2(1, -1)
 story_island = 4
 
-[node name="HarpoonFish" parent="." groups=["BOSS"] instance=ExtResource("48_0kpym")]
+[node name="HarpoonFish" parent="." instance=ExtResource("48_0kpym")]
 position = Vector2(1087, -1105)
 rotation = 3.14159
 scale = Vector2(1, -1)
 
-[node name="EnemyBase2" parent="." groups=["BOSS"] instance=ExtResource("49_nhb8i")]
+[node name="EnemyBase2" parent="." instance=ExtResource("49_nhb8i")]
 position = Vector2(1360, -1415)
 rotation = 3.14159
 scale = Vector2(1, -1)
 
-[node name="Thief" parent="." groups=["BOSS"] instance=ExtResource("50_yugnq")]
+[node name="Thief" parent="." instance=ExtResource("50_yugnq")]
 position = Vector2(648, -1442)
 rotation = 3.14159
 scale = Vector2(1, -1)

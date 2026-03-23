@@ -18,6 +18,7 @@ extends "res://characters/character_unit.gd"
 
 var enemies_in_range : Array = []
 var facing_right := true
+var _paralysis_time: float = 0.0
 
 @onready var attack_area = $attack_area
 @onready var sprite = $AnimatedSprite2D
@@ -53,6 +54,10 @@ func _ready() -> void:
 	sprite.animation_finished.connect(_on_animation_finished)
 	
 	player = get_tree().get_first_node_in_group("player") as Node2D
+
+
+func apply_paralysis(duration_sec: float) -> void:
+	_paralysis_time = maxf(_paralysis_time, duration_sec)
 
 
 func _get_initial_max_health() -> int:
@@ -125,6 +130,16 @@ func _on_idle_timer_timeout():
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+
+	if _paralysis_time > 0.0:
+		_paralysis_time = maxf(0.0, _paralysis_time - delta)
+		if state == State.SHOOT:
+			state = State.FOLLOW
+		velocity = Vector2.ZERO
+		if sprite:
+			sprite.play("idle")
 		move_and_slide()
 		return
 	

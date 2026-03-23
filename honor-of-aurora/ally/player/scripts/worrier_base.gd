@@ -35,6 +35,8 @@ var health: int:
 var attack_index = 0
 var _player_ready: bool = false
 var _footstep_cooldown: float = 0.0
+## Направление молнии шамана: блокирует движение и атаки.
+var _paralysis_time: float = 0.0
 
 
 func _ready() -> void:
@@ -110,6 +112,18 @@ func _physics_process(delta):
 	var dir = Vector2.ZERO
 	
 	if state == State.DEATH:
+		move_and_slide()
+		return
+	
+	if _paralysis_time > 0.0:
+		_paralysis_time = maxf(0.0, _paralysis_time - delta)
+		if state == State.SHIELD:
+			back_to_movement()
+		state = State.IDLE
+		velocity = Vector2.ZERO
+		if anim:
+			anim.speed_scale = move_anim_speed_scale
+			anim.play("idle")
 		move_and_slide()
 		return
 	
@@ -326,11 +340,18 @@ func _on_health_changed(_current_health):
 	_clear_resume_from_death_if_needed()
 	SaveManager.save_game()
 	
+func apply_paralysis(duration_sec: float) -> void:
+	_paralysis_time = maxf(_paralysis_time, duration_sec)
+
+
 func gain_exp(amount: int):
 	exp += amount
 	
-	while level < BalanceConfig.MAX_HERO_LEVEL and exp >= get_exp_to_next_level():
-		exp -= get_exp_to_next_level()
+	while level < BalanceConfig.MAX_HERO_LEVEL:
+		var need: int = get_exp_to_next_level()
+		if need <= 0 or exp < need:
+			break
+		exp -= need
 		level += 1
 		level_up()
 	

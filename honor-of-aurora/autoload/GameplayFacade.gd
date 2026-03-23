@@ -13,6 +13,13 @@ func try_apply_damage(target: Node, amount: int) -> bool:
 	return true
 
 
+func apply_paralysis(target: Node, duration_sec: float) -> void:
+	if target == null or not is_instance_valid(target) or duration_sec <= 0.0:
+		return
+	if target.has_method("apply_paralysis"):
+		target.call("apply_paralysis", duration_sec)
+
+
 func try_apply_heal(target: Node, amount: int) -> bool:
 	if target == null or not is_instance_valid(target) or amount <= 0:
 		return false

@@ -1,4 +1,4 @@
-[gd_scene load_steps=96 format=4 uid="uid://behypmsdp6r8e"]
+[gd_scene load_steps=98 format=4 uid="uid://behypmsdp6r8e"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_dogb5"]
 [ext_resource type="TileSet" uid="uid://dmxvg38r6drxj" path="res://world/resources/other/water.tres" id="2_kuyrn"]
@@ -45,7 +45,9 @@
 [ext_resource type="Texture2D" uid="uid://npdsd4f6qisb" path="res://Asets/Environment/Deco/13.png" id="43_h5h5x"]
 [ext_resource type="Texture2D" uid="uid://dup5d05xcku5y" path="res://Asets/Environment/Deco/11.png" id="44_2lpet"]
 [ext_resource type="TileSet" uid="uid://firbi0hvr3ji" path="res://world/resources/other/boat.tres" id="45_g7qod"]
-[ext_resource type="PackedScene" uid="uid://dnpvnopyaj0hq" path="res://enemies/lizard/lizard.tscn" id="47_7142n"]
+[ext_resource type="PackedScene" uid="uid://bxsa0ugs36hx7" path="res://enemies/shaman/shaman.tscn" id="47_7142n"]
+[ext_resource type="PackedScene" uid="uid://1n0m1iplnqpt" path="res://enemies/shaman/shaman_lightning_ball.tscn" id="48_0jl1k"]
+[ext_resource type="PackedScene" uid="uid://dfcrogcqk4tat" path="res://ally/player/scenes/lvl_1_black_player.tscn" id="48_rfnuo"]
 [ext_resource type="PackedScene" uid="uid://cfqlhdxlogxku" path="res://objects/buildings/building_template.tscn" id="51_v1sjj"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_jkx30"]
@@ -786,5 +788,13 @@ tile_set = ExtResource("45_g7qod")
 [node name="BuildingTemplate" parent="." instance=ExtResource("51_v1sjj")]
 position = Vector2(-411, 840)
 
-[node name="Lizard" parent="." instance=ExtResource("47_7142n")]
-position = Vector2(662, 254)
+[node name="Shaman" parent="." instance=ExtResource("47_7142n")]
+position = Vector2(653, 234)
+projectile_scene = ExtResource("48_0jl1k")
+projectile_spawn_delay = 0.48
+paralysis_duration = 1.5
+
+[node name="player_blue" parent="." instance=ExtResource("48_rfnuo")]
+position = Vector2(669, 528)
+
+[node name="Camera2D" type="Camera2D" parent="player_blue"]

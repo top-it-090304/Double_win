@@ -35,6 +35,10 @@ var last_dir: Vector2 = Vector2.DOWN
 var patrol_dir: Vector2
 var patrol_timer: float = 0.0
 var attack_cooldown_timer: Timer
+## Если animation_finished не пришёл (loop=true, баг движка, смена клипа) — не зависать в ATTACK/HIT.
+var _anim_safety_timer: Timer
+## Урон за один замах атаки применяется один раз (сигнал и таймер не дублируют).
+var _attack_damage_applied: bool = false
 var potential_targets: Array[Node2D] = []
 
 var home_position: Vector2 = Vector2.ZERO
@@ -67,6 +71,29 @@ func assign_encounter_zone(zone: EncounterZone, spawn_pos: Vector2, leash: float
 	home_position = spawn_pos
 	leash_radius = leash
 	set_meta("_encounter_zone_id", zone.zone_id)
+
+
+func assign_ambient_spawn(spawn_pos: Vector2, leash: float) -> void:
+	encounter_zone = null
+	home_position = spawn_pos
+	leash_radius = leash
+	if has_meta("_encounter_zone_id"):
+		remove_meta("_encounter_zone_id")
+
+
+## Вызывается после базового баланса (call_deferred из зоны): приводит enemy_level к уровню острова.
+func configure_for_island_tier(tier: int) -> void:
+	if tier <= 0:
+		return
+	var old_lvl := enemy_level
+	enemy_level = tier
+	var m_old := BalanceConfig.get_enemy_stat_multiplier(old_lvl)
+	var m_new := BalanceConfig.get_enemy_stat_multiplier(tier)
+	if m_old > 0.0:
+		health = maxi(1, int(round(float(health) * m_new / m_old)))
+		attack_damage = maxi(1, int(round(float(attack_damage) * m_new / m_old)))
+	if health_component:
+		health_component.set_max_and_current(health)
 
 
 func _dir_toward_target(delta_pos: Vector2) -> Vector2:
@@ -102,6 +129,11 @@ func _ready() -> void:
 	attack_cooldown_timer.timeout.connect(_on_attack_cooldown_timeout)
 	add_child(attack_cooldown_timer)
 
+	_anim_safety_timer = Timer.new()
+	_anim_safety_timer.one_shot = true
+	_anim_safety_timer.timeout.connect(_on_anim_safety_timeout)
+	add_child(_anim_safety_timer)
+
 	randomize()
 	patrol_dir = Vector2.RIGHT.rotated(randf_range(0, TAU))
 	home_position = global_position
@@ -113,11 +145,13 @@ func _setup_nav_agent() -> void:
 	if not use_navigation:
 		return
 	_nav_agent = NavigationAgent2D.new()
-	_nav_agent.path_desired_distance = 28.0
-	_nav_agent.target_desired_distance = 36.0
+	_nav_agent.path_desired_distance = 22.0
+	_nav_agent.target_desired_distance = 28.0
 	_nav_agent.radius = 40.0
 	_nav_agent.navigation_layers = 1
-	_nav_agent.avoidance_enabled = false
+	_nav_agent.avoidance_enabled = true
+	_nav_agent.neighbor_distance = 120.0
+	_nav_agent.max_neighbors = 6
 	add_child(_nav_agent)
 	await get_tree().physics_frame
 	if is_instance_valid(_nav_agent):
@@ -144,7 +178,7 @@ func _physics_process(delta):
 					target = null
 					state = State.LEASH
 					velocity = Vector2.ZERO
-				elif attack_area.overlaps_body(target):
+				elif _is_target_in_attack_range():
 					velocity = Vector2.ZERO
 					if can_attack:
 						start_attack()
@@ -176,13 +210,16 @@ func _physics_process(delta):
 
 	move_and_slide()
 
+	if use_navigation and _nav_agent and is_instance_valid(_nav_agent):
+		_nav_agent.velocity = velocity
+
 	if state in [State.CHASE, State.LEASH] and is_on_wall():
 		_apply_wall_slide_velocity()
 		move_and_slide()
 
 	if state == State.CHASE and target and is_instance_valid(target):
 		var moved_distance := previous_position.distance_to(global_position)
-		if attack_area.overlaps_body(target):
+		if _is_target_in_attack_range():
 			_stuck_frames = 0
 		elif moved_distance < 0.55:
 			_stuck_frames += 1
@@ -202,7 +239,7 @@ func _physics_process(delta):
 
 		var to_target := target.global_position - global_position
 		var min_distance := attack_radius * 0.4
-		if to_target.length() < min_distance and not attack_area.overlaps_body(target):
+		if to_target.length() < min_distance and not _is_target_in_attack_range():
 			var push_dir := _away_from_target(to_target)
 			if push_dir.length() > _SEP_EPS:
 				velocity = push_dir * speed * 0.35
@@ -219,10 +256,25 @@ func _apply_chase_velocity() -> void:
 
 	if use_navigation and _nav_agent:
 		_nav_agent.target_position = target.global_position
-		var next_pos := _nav_agent.get_next_path_position()
-		var seg := next_pos - global_position
-		if seg.length() >= _SEP_EPS:
-			base_dir = seg.normalized()
+		if not _nav_agent.is_navigation_finished():
+			var next_pos := _nav_agent.get_next_path_position()
+			var seg := next_pos - global_position
+			if seg.length() >= 14.0:
+				var nav_dir := seg.normalized()
+				if not _wall_ray_blocked(nav_dir):
+					last_dir = nav_dir
+					velocity = last_dir * speed
+					return
+				last_dir = _steer_with_wall_probes(nav_dir, target.global_position)
+				velocity = last_dir * speed
+				return
+			elif seg.length() >= _SEP_EPS:
+				base_dir = seg.normalized()
+		else:
+			var next_pos2 := _nav_agent.get_next_path_position()
+			var seg2 := next_pos2 - global_position
+			if seg2.length() >= _SEP_EPS:
+				base_dir = seg2.normalized()
 
 	last_dir = _steer_with_wall_probes(base_dir, target.global_position)
 	velocity = last_dir * speed
@@ -319,35 +371,105 @@ func _on_attack_area_entered(body):
 		start_attack()
 
 
+## Ближний бой: цель в зоне AttackArea. Переопределить для дальнего боя (шаман).
+func _is_target_in_attack_range() -> bool:
+	if target == null or not is_instance_valid(target):
+		return false
+	return attack_area.overlaps_body(target)
+
+
+func _get_attack_animation_name() -> StringName:
+	return &"attack"
+
+
 func start_attack():
 	SoundManager.play_enemy_attack_swing()
 	state = State.ATTACK
 	can_attack = false
+	_attack_damage_applied = false
 	if target:
 		var dir = _dir_toward_target(target.global_position - global_position)
 		last_dir = dir
 		anim.flip_h = dir.x < 0
-	anim.play("attack")
+	var atk_anim := _get_attack_animation_name()
+	anim.play(atk_anim)
 	attack_cooldown_timer.start(attack_cooldown)
+	_start_anim_safety(atk_anim, 0.95)
 
 
 func apply_damage():
 	if target and attack_area.overlaps_body(target):
-		GameplayFacade.try_apply_damage(target, attack_damage)
+		var amt: int = attack_damage
+		if target.is_in_group("character_unit") and not target.is_in_group("enemy"):
+			amt = maxi(
+				1,
+				int(round(float(attack_damage) * BalanceConfig.get_enemy_outgoing_damage_vs_hero(enemy_level)))
+			)
+		GameplayFacade.try_apply_damage(target, amt)
 
 
 func _on_anim_finished():
-	match anim.animation:
-		"attack":
-			apply_damage()
-			_select_target()
-			state = State.CHASE if target and detection_area.overlaps_body(target) else State.PATROL
-		"hit":
-			_select_target()
-			if target:
-				state = State.ATTACK if attack_area.overlaps_body(target) and can_attack else State.CHASE if detection_area.overlaps_body(target) else State.PATROL
-			else:
-				state = State.PATROL
+	if _anim_safety_timer:
+		_anim_safety_timer.stop()
+	var an: StringName = anim.animation
+	if an == &"attack" or an == &"throw":
+		_finish_attack_phase()
+	elif an == &"hit":
+		_finish_hit_recovery()
+
+
+func _finish_attack_phase() -> void:
+	if state != State.ATTACK:
+		return
+	if not _attack_damage_applied:
+		apply_damage()
+		_attack_damage_applied = true
+	_select_target()
+	state = State.CHASE if target and detection_area.overlaps_body(target) else State.PATROL
+
+
+func _finish_hit_recovery() -> void:
+	if state != State.HIT:
+		return
+	_select_target()
+	if target:
+		state = State.ATTACK if attack_area.overlaps_body(target) and can_attack else State.CHASE if detection_area.overlaps_body(target) else State.PATROL
+	else:
+		state = State.PATROL
+
+
+func _estimate_anim_duration_seconds(anim_name: StringName) -> float:
+	var sf: SpriteFrames = anim.sprite_frames as SpriteFrames
+	if sf == null or not sf.has_animation(anim_name):
+		return 0.75
+	var n: int = sf.get_frame_count(anim_name)
+	var spd: float = 5.0
+	if sf.has_method("get_animation_speed"):
+		var s: Variant = sf.get_animation_speed(anim_name)
+		if s is float or s is int:
+			spd = float(s)
+	spd = maxf(spd, 0.01)
+	# Один цикл; при loop=true animation_finished не приходит — этого времени достаточно, чтобы выйти из стейта.
+	var dur: float = float(n) / spd
+	return clampf(dur + 0.08, 0.18, 2.4)
+
+
+func _start_anim_safety(anim_name: StringName, fallback_sec: float) -> void:
+	if _anim_safety_timer == null:
+		return
+	_anim_safety_timer.stop()
+	var w := fallback_sec
+	if anim.sprite_frames and anim.sprite_frames.has_animation(anim_name):
+		w = _estimate_anim_duration_seconds(anim_name)
+	_anim_safety_timer.wait_time = w
+	_anim_safety_timer.start()
+
+
+func _on_anim_safety_timeout() -> void:
+	if state == State.ATTACK:
+		_finish_attack_phase()
+	elif state == State.HIT:
+		_finish_hit_recovery()
 
 
 func _on_attack_cooldown_timeout():
@@ -387,8 +509,11 @@ func _on_health_damage_applied(amount: int) -> void:
 	if health_component == null or health_component.current_health <= 0:
 		return
 	if state != State.DEATH and state != State.HIT and anim.sprite_frames.has_animation("hit"):
+		if _anim_safety_timer:
+			_anim_safety_timer.stop()
 		state = State.HIT
 		anim.play("hit")
+		_start_anim_safety(&"hit", 0.72)
 
 
 func _handle_death() -> void:
@@ -403,11 +528,13 @@ func die():
 		SoundManager.play_boss_defeat()
 	else:
 		SoundManager.play_death()
-	var hero_lv := SaveManager.current_level
+	var hero_lv: int = SaveManager.current_level
 	var is_boss := is_in_group("BOSS")
 	var xp_reward := int(round(float(BalanceConfig.get_exp_reward(enemy_level, hero_lv, is_boss)) * reward_mult))
 	GameManager.add_exp(xp_reward)
 	state = State.DEATH
+	if _anim_safety_timer:
+		_anim_safety_timer.stop()
 	anim.play("dead")
 
 	if is_in_group("BOSS"):

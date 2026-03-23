@@ -9,9 +9,11 @@ extends Area2D
 @export var trigger_radius: float = 420.0
 ## Волны: каждая волна — массив EncounterWaveEntry.
 @export var waves: Array = []
-@export var max_concurrent_in_zone: int = 8
-@export var spawn_spread: float = 72.0
+@export var max_concurrent_in_zone: int = 14
+@export var spawn_spread: float = 96.0
 @export var leash_radius: float = 950.0
+## Уровень острова (1..5): все враги в зоне получают этот enemy_level для баланса.
+@export var island_tier: int = 1
 
 var _cleared: bool = false
 var _started: bool = false
@@ -65,7 +67,8 @@ func setup_from_config(
 	p_center: Vector2,
 	p_radius: float,
 	p_waves: Array,
-	p_leash: float
+	p_leash: float,
+	p_island_tier: int = 1
 ) -> void:
 	_director = p_director
 	_spawn_parent = p_spawn_parent
@@ -75,6 +78,7 @@ func setup_from_config(
 	trigger_radius = p_radius
 	leash_radius = p_leash
 	waves = p_waves
+	island_tier = p_island_tier
 	global_position = p_center
 	_ensure_shape()
 	if _shape and _shape.shape is CircleShape2D:
@@ -138,6 +142,8 @@ func _spawn_wave_entry(entry: EncounterWaveEntry) -> void:
 			var eb: Node = inst
 			if eb.has_method("assign_encounter_zone"):
 				eb.assign_encounter_zone(self, pos, leash_radius)
+		if inst.has_method("configure_for_island_tier"):
+			inst.call_deferred("configure_for_island_tier", island_tier)
 
 
 func _pick_spawn_position() -> Vector2:
