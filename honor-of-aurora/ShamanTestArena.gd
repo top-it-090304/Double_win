@@ -1,13 +1,13 @@
 extends Node2D
-## Песочница: шаман vs герой с фиксированным HP, камера, WASD + Space (через MobileVirtualInput).
+## Песочница: Harpoon Fish vs герой с фиксированным HP, камера, WASD + Space (через MobileVirtualInput).
 ## Запуск: откройте `ShamanTestArena.tscn` → F6 (Play Scene).
 
 const WORRIER := preload("res://ally/player/scenes/worrier_base.tscn")
-const SHAMAN := preload("res://enemies/shaman/shaman.tscn")
+const HARPOON_FISH := preload("res://enemies/harpoon fish/harpoon_Fish.tscn")
 
 @export var hero_max_hp: int = 100
 @export var hero_spawn: Vector2 = Vector2(480, 460)
-@export var shaman_spawn: Vector2 = Vector2(920, 460)
+@export var enemy_spawn: Vector2 = Vector2(920, 460)
 
 var _hero: CharacterBody2D
 var _hint: Label
@@ -19,7 +19,7 @@ func _ready() -> void:
 	_setup_floor()
 	_setup_hint()
 	_spawn_hero()
-	_spawn_shaman()
+	_spawn_harpoon_fish()
 	await get_tree().process_frame
 	_apply_test_hp()
 
@@ -42,7 +42,7 @@ func _setup_hint() -> void:
 	_hint = Label.new()
 	_hint.position = Vector2(16, 16)
 	_hint.add_theme_font_size_override("font_size", 15)
-	_hint.text = "Тест шамана\nWASD — движение  •  Space — атака\nОдин снаряд за каст; урон — при попадании шара."
+	_hint.text = "Тест Harpoon Fish (гарпун)\nWASD — движение  •  Space — атака\nУрон — при попадании снаряда."
 	layer.add_child(_hint)
 	add_child(layer)
 
@@ -58,12 +58,12 @@ func _spawn_hero() -> void:
 	_hero.add_child(cam)
 
 
-func _spawn_shaman() -> void:
-	var s := SHAMAN.instantiate() as Node2D
-	s.global_position = shaman_spawn
-	add_child(s)
-	if s.has_method("configure_for_island_tier"):
-		s.call_deferred("configure_for_island_tier", 2)
+func _spawn_harpoon_fish() -> void:
+	var h := HARPOON_FISH.instantiate() as Node2D
+	h.global_position = enemy_spawn
+	add_child(h)
+	if h.has_method("configure_for_island_tier"):
+		h.call_deferred("configure_for_island_tier", 2)
 
 
 func _apply_test_hp() -> void:

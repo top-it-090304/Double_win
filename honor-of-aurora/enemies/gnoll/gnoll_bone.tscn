@@ -1,0 +1,19 @@
+[gd_scene load_steps=5 format=3 uid="uid://ckcnqouemnu77"]
+
+[ext_resource type="Script" path="res://enemies/gnoll/gnoll_bone.gd" id="1_script"]
+[ext_resource type="SpriteFrames" uid="uid://bui8xoif372al" path="res://enemies/gnoll/gnoll_frames.tres" id="2_frames"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_bone"]
+radius = 12.0
+
+[node name="GnollBone" type="Area2D"]
+collision_layer = 16
+collision_mask = 14
+script = ExtResource("1_script")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2_frames")
+animation = &"throw"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_bone")
