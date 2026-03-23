@@ -250,6 +250,10 @@ func take_damage(amount: Variant) -> void:
 		SoundManager.play_shield_block()
 	else:
 		SoundManager.play_player_hurt()
+		if SaveManager.haptic_enabled and final_damage > 0:
+			var osn := OS.get_name()
+			if osn == "Android" or osn == "iOS":
+				Input.vibrate_handheld(32)
 	if health_component:
 		health_component.apply_damage(final_damage)
 	show_damage_number(final_damage)
@@ -325,10 +329,13 @@ func _on_health_changed(_current_health):
 func gain_exp(amount: int):
 	exp += amount
 	
-	while exp >= get_exp_to_next_level():
+	while level < BalanceConfig.MAX_HERO_LEVEL and exp >= get_exp_to_next_level():
 		exp -= get_exp_to_next_level()
 		level += 1
 		level_up()
+	
+	if level >= BalanceConfig.MAX_HERO_LEVEL:
+		exp = 0
 	
 	SaveManager.current_level = level
 	SaveManager.current_exp = exp
@@ -337,7 +344,7 @@ func gain_exp(amount: int):
 
 
 func get_exp_to_next_level() -> int:
-	return level * 100
+	return BalanceConfig.get_exp_to_next_level(level)
 
 
 func level_up():

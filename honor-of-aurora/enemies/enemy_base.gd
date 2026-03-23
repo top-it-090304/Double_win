@@ -9,13 +9,15 @@ var state: State = State.PATROL
 @onready var attack_area = $AttackArea
 @onready var detection_shape = $DetectionArea/DetectionShape
 @onready var attack_shape = $AttackArea/AttackShape
-@export var exp_reward: int = 10
+## Игровой уровень угрозы: награды и множитель статов (см. BalanceConfig).
+@export var enemy_level: int = 1
+## Доп. множитель золота/опыта (элита, мини-боссы без группы BOSS).
+@export_range(0.25, 8.0, 0.05) var reward_mult: float = 1.0
 
 @export var speed: float = 100.0
 @export var attack_damage: int = 10
 @export var attack_cooldown: float = 2.0
 @export var patrol_change_time: float = 2.0
-@export var gold_reward: int = 75
 @export var attack_radius: float = 100.0
 @export var detection_radius: float = 500.0
 
@@ -104,6 +106,7 @@ func _ready() -> void:
 	patrol_dir = Vector2.RIGHT.rotated(randf_range(0, TAU))
 	home_position = global_position
 	call_deferred("_setup_nav_agent")
+	call_deferred("_apply_enemy_balance_stats")
 
 
 func _setup_nav_agent() -> void:
@@ -361,6 +364,23 @@ func update_animation():
 			anim.play("idle")
 
 
+func _apply_enemy_balance_stats() -> void:
+	if not is_instance_valid(self):
+		return
+	var mult := BalanceConfig.get_enemy_stat_multiplier(enemy_level)
+	health = maxi(1, int(round(float(health) * mult)))
+	attack_damage = maxi(1, int(round(float(attack_damage) * mult)))
+	if health_component:
+		health_component.set_max_and_current(health)
+
+
+func _modify_incoming_damage(amount: int) -> int:
+	if amount <= 0:
+		return amount
+	var factor := BalanceConfig.get_incoming_damage_factor_vs_enemy(enemy_level)
+	return maxi(1, int(round(float(amount) * factor)))
+
+
 func _on_health_damage_applied(amount: int) -> void:
 	SoundManager.play_enemy_hit()
 	show_damage_number(amount)
@@ -383,7 +403,10 @@ func die():
 		SoundManager.play_boss_defeat()
 	else:
 		SoundManager.play_death()
-	GameManager.add_exp(exp_reward)
+	var hero_lv := SaveManager.current_level
+	var is_boss := is_in_group("BOSS")
+	var xp_reward := int(round(float(BalanceConfig.get_exp_reward(enemy_level, hero_lv, is_boss)) * reward_mult))
+	GameManager.add_exp(xp_reward)
 	state = State.DEATH
 	anim.play("dead")
 
@@ -394,7 +417,8 @@ func die():
 
 	$CollisionShape2D.set_deferred("disabled", true)
 	await anim.animation_finished
-	GameManager.add_gold(gold_reward)
+	var gold_amt := int(round(float(BalanceConfig.get_gold_reward(enemy_level, is_boss)) * reward_mult))
+	GameManager.add_gold(gold_amt)
 	queue_free()
 
 

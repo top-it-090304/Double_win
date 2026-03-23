@@ -2,11 +2,16 @@ extends Control
 
 const SettingsOverlayScene := preload("res://ui/menu/settings_overlay.tscn")
 var _settings: Control
+var _settings_canvas: CanvasLayer
 
 
 func _ready() -> void:
+	# Отдельный слой поверх кнопок: экранные координаты (не мир Node2D).
+	_settings_canvas = CanvasLayer.new()
+	_settings_canvas.layer = 100
+	add_child(_settings_canvas)
 	_settings = SettingsOverlayScene.instantiate()
-	add_child(_settings)
+	_settings_canvas.add_child(_settings)
 
 
 func _on_new_game_pressed() -> void:

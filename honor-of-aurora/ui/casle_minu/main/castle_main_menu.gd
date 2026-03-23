@@ -17,17 +17,14 @@ var _info_layer: InfoLayer = InfoLayer.MAIN
 func get_hud() -> Node:
 	return GameplayFacade.get_hud(get_tree())
 
-## Одна цена на любой тип юнита из меню найма.
-@export var unit_hire_cost: int = 150
+## Одна цена на любой тип юнита из меню найма (по умолчанию из BalanceConfig).
+@export var unit_hire_cost: int = 220
 @export var archer_scene: PackedScene
 @export var lancer_scene: PackedScene
 @export var pawn_scene: PackedScene
 @export var spawn_offset: Vector2 = Vector2(80, 0)
-## Совпадает с `building_template.upgrade_cost_step` (для подписей цен в меню).
-@export var building_upgrade_cost_step: int = 200
-
-
 func _ready() -> void:
+	unit_hire_cost = BalanceConfig.get_unit_hire_cost()
 	_refresh_hire_buy_ui()
 	_refresh_info_hub_portraits()
 
@@ -147,7 +144,7 @@ func _refresh_upgrade_building_buttons() -> void:
 			btn.text = "Максимум"
 			continue
 		btn.disabled = false
-		var cost: int = building_upgrade_cost_step * (b_tier + 1)
+		var cost: int = BalanceConfig.get_building_upgrade_step() * (b_tier + 1)
 		btn.text = "%d зол." % cost
 
 

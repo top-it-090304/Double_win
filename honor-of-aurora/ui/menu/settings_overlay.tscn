@@ -19,89 +19,248 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 0.55)
+mouse_filter = 0
+color = Color(0.02, 0.03, 0.06, 0.88)
 
-[node name="Panel" type="PanelContainer" parent="."]
+[node name="OuterMargin" type="MarginContainer" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -220.0
-offset_top = -200.0
-offset_right = 220.0
-offset_bottom = 200.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
 
-[node name="Margin" type="MarginContainer" parent="Panel"]
+[node name="Center" type="CenterContainer" parent="OuterMargin"]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
+size_flags_horizontal = 4
+size_flags_vertical = 4
 
-[node name="VBox" type="VBoxContainer" parent="Panel/Margin"]
+[node name="MenuCard" type="PanelContainer" parent="OuterMargin/Center"]
+custom_minimum_size = Vector2(520, 0)
 layout_mode = 2
-theme_override_constants/separation = 10
+size_flags_horizontal = 4
 
-[node name="Title" type="Label" parent="Panel/Margin/VBox"]
+[node name="InnerMargin" type="MarginContainer" parent="OuterMargin/Center/MenuCard"]
 layout_mode = 2
-text = "Звук"
-horizontal_alignment = 1
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
 
-[node name="MusicLabel" type="Label" parent="Panel/Margin/VBox"]
+[node name="MainVBox" type="VBoxContainer" parent="OuterMargin/Center/MenuCard/InnerMargin"]
 layout_mode = 2
-text = "Музыка"
+theme_override_constants/separation = 12
 
-[node name="MusicSlider" type="HSlider" parent="Panel/Margin/VBox"]
-unique_name_in_owner = true
+[node name="HeaderRow" type="HBoxContainer" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox"]
 layout_mode = 2
-min_value = 0.0
-max_value = 100.0
-step = 1.0
-value = 100.0
+theme_override_constants/separation = 12
 
-[node name="SfxLabel" type="Label" parent="Panel/Margin/VBox"]
+[node name="Title" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/HeaderRow"]
 layout_mode = 2
-text = "Эффекты и бой"
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(0.88, 0.72, 0.42, 1)
+text = "Настройки"
 
-[node name="SfxSlider" type="HSlider" parent="Panel/Margin/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-min_value = 0.0
-max_value = 100.0
-step = 1.0
-value = 100.0
-
-[node name="UiLabel" type="Label" parent="Panel/Margin/VBox"]
-layout_mode = 2
-text = "Интерфейс"
-
-[node name="UiSlider" type="HSlider" parent="Panel/Margin/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-min_value = 0.0
-max_value = 100.0
-step = 1.0
-value = 100.0
-
-[node name="DialogueLabel" type="Label" parent="Panel/Margin/VBox"]
-layout_mode = 2
-text = "Диалоги"
-
-[node name="DialogueSlider" type="HSlider" parent="Panel/Margin/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-min_value = 0.0
-max_value = 100.0
-step = 1.0
-value = 100.0
-
-[node name="Back" type="Button" parent="Panel/Margin/VBox"]
+[node name="Back" type="Button" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/HeaderRow"]
+custom_minimum_size = Vector2(120, 48)
 layout_mode = 2
 text = "Назад"
 
-[connection signal="pressed" from="Panel/Margin/VBox/Back" to="." method="_on_back_pressed"]
+[node name="Scroll" type="ScrollContainer" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox"]
+custom_minimum_size = Vector2(0, 380)
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ScrollPad" type="MarginContainer" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="Inner" type="VBoxContainer" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="SecGame" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.72, 0.42, 1)
+theme_override_font_sizes/font_size = 20
+text = "Игра"
+
+[node name="DifficultyLabel" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+text = "Сложность"
+
+[node name="DifficultyOption" type="OptionButton" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DifficultyDesc" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.62, 0.66, 0.74, 1)
+theme_override_font_sizes/font_size = 15
+
+[node name="Sep1" type="HSeparator" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+
+[node name="SecAudio" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.72, 0.42, 1)
+theme_override_font_sizes/font_size = 20
+text = "Звук"
+
+[node name="MusicLabel" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+text = "Музыка"
+
+[node name="MusicSlider" type="HSlider" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+value = 100.0
+
+[node name="SfxLabel" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+text = "Игровые звуки"
+
+[node name="SfxHint" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.62, 0.66, 0.74, 1)
+theme_override_font_sizes/font_size = 14
+text = "Бой, шаги, удары, попадания, щит, звуки окружения — всё, что не музыка и не клики по меню."
+
+[node name="SfxSlider" type="HSlider" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+value = 100.0
+
+[node name="UiLabel" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+text = "Кнопки и окна"
+
+[node name="UiHint" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.62, 0.66, 0.74, 1)
+theme_override_font_sizes/font_size = 14
+text = "Звуки кнопок, открытия и закрытия меню и панелей на экране."
+
+[node name="UiSlider" type="HSlider" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+value = 100.0
+
+[node name="DialogueLabel" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+text = "Диалоги"
+
+[node name="DialogueSlider" type="HSlider" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+value = 100.0
+
+[node name="Sep2" type="HSeparator" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+
+[node name="SecScreen" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.72, 0.42, 1)
+theme_override_font_sizes/font_size = 20
+text = "Экран"
+
+[node name="FpsLabel" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+text = "Частота кадров"
+
+[node name="FpsOption" type="OptionButton" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="UiScaleLabel" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+text = "Крупность меню и панелей"
+
+[node name="UiScaleSlider" type="HSlider" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 75.0
+max_value = 130.0
+step = 1.0
+value = 100.0
+
+[node name="Sep3" type="HSeparator" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+
+[node name="SecTouch" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.72, 0.42, 1)
+theme_override_font_sizes/font_size = 20
+text = "Управление (сенсор)"
+
+[node name="TouchModeLabel" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+text = "Виртуальный джойстик и кнопки"
+
+[node name="TouchModeOption" type="OptionButton" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TouchScaleLabel" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+text = "Размер сенсорных элементов"
+
+[node name="TouchScaleSlider" type="HSlider" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 70.0
+max_value = 150.0
+step = 1.0
+value = 100.0
+
+[node name="TouchOpacityLabel" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+text = "Насколько видны стик и кнопки"
+
+[node name="TouchOpacitySlider" type="HSlider" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 25.0
+max_value = 100.0
+step = 1.0
+value = 52.0
+
+[node name="HapticCheck" type="CheckBox" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Вибрация при уроне"
+
+[connection signal="pressed" from="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/HeaderRow/Back" to="." method="_on_back_pressed"]

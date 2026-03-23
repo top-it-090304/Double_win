@@ -5,12 +5,14 @@ extends Control
 
 @export var force_show_in_editor: bool = false
 
-
 func _ready() -> void:
+	add_to_group("touch_controls")
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	visible = false
 	_ensure_full_rect()
+	_connect_touch_zone_resize_signals()
+	call_deferred("apply_user_touch_settings")
 	if not get_viewport().size_changed.is_connected(_on_viewport_size_changed):
 		get_viewport().size_changed.connect(_on_viewport_size_changed)
 	DialogueManager.dialogue_started.connect(_on_dialogue_started_visibility)
@@ -18,8 +20,25 @@ func _ready() -> void:
 	_refresh_visibility()
 
 
+func _connect_touch_zone_resize_signals() -> void:
+	var root := get_node_or_null("Root") as Control
+	if root == null:
+		return
+	var vj := root.get_node_or_null("VirtualJoystick") as Control
+	var rc := root.get_node_or_null("RightCluster") as Control
+	if vj:
+		vj.resized.connect(_on_touch_zone_resized.bind(vj, true))
+	if rc:
+		rc.resized.connect(_on_touch_zone_resized.bind(rc, false))
+
+
+func _on_touch_zone_resized(zone: Control, is_left: bool) -> void:
+	_apply_scaled_touch_zone(zone, is_left)
+
+
 func _on_viewport_size_changed() -> void:
 	_ensure_full_rect()
+	call_deferred("apply_user_touch_settings")
 
 
 func _ensure_full_rect() -> void:
@@ -53,7 +72,42 @@ func _refresh_visibility() -> void:
 	MobileVirtualInput.set_controls_visible(show)
 
 
+func _apply_scaled_touch_zone(zone: Control, is_left: bool) -> void:
+	if zone == null:
+		return
+	var s := float(SaveManager.touch_scale_percent) / 100.0
+	if zone.size.x < 1.0 or zone.size.y < 1.0:
+		return
+	# Масштаб от нижнего угла у края экрана — элементы не «уплывают» при смене размера.
+	if is_left:
+		zone.pivot_offset = Vector2(0.0, zone.size.y)
+	else:
+		zone.pivot_offset = Vector2(zone.size.x, zone.size.y)
+	zone.scale = Vector2(s, s)
+
+
+func apply_user_touch_settings() -> void:
+	var root := get_node_or_null("Root") as Control
+	if root == null:
+		return
+	root.scale = Vector2.ONE
+	root.modulate.a = float(SaveManager.touch_opacity_percent) / 100.0
+	var vj := root.get_node_or_null("VirtualJoystick") as Control
+	var rc := root.get_node_or_null("RightCluster") as Control
+	if vj:
+		_apply_scaled_touch_zone(vj, true)
+	if rc:
+		_apply_scaled_touch_zone(rc, false)
+
+
 func _should_show_touch_ui() -> bool:
+	match SaveManager.touch_mode:
+		1:
+			return true
+		2:
+			return false
+		_:
+			pass
 	if force_show_in_editor:
 		return true
 	var osn := OS.get_name()

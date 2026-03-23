@@ -45,10 +45,24 @@ var volume_music: float = 1.0
 var volume_sfx: float = 1.0
 var volume_ui: float = 1.0
 var volume_dialogue: float = 1.0
+## Сложность: 0 = лёгкий, 1 = нормальный, 2 = сложный (см. DifficultyConfig.Id).
+var difficulty_id: int = 1
+## Масштаб интерфейса окна (75–130, 100 = по умолчанию). См. Window.content_scale_factor.
+var ui_scale_percent: int = 100
+## Ограничение FPS (0 = без ограничения, иначе 30–240).
+var max_fps: int = 60
+## Сенсорное управление: 0 = авто, 1 = всегда показывать, 2 = скрыть (ПК/геймпад).
+var touch_mode: int = 0
+## Размер виртуального джойстика и кнопок, % (70–150).
+var touch_scale_percent: int = 100
+## Прозрачность сенсорного HUD, % (25–100).
+var touch_opacity_percent: int = 52
+## Вибрация при уроне (Android / iOS).
+var haptic_enabled: bool = true
 
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
-const SAVE_DATA = ["gold", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue"]
+const SAVE_DATA = ["gold", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled"]
 const default_data := {
 	"gold" : 0,
 	"boss_kill" : 0,
@@ -77,13 +91,22 @@ const default_data := {
 	"volume_sfx" : 1.0,
 	"volume_ui" : 1.0,
 	"volume_dialogue" : 1.0,
-	}
+	"difficulty_id" : 1,
+	"ui_scale_percent" : 100,
+	"max_fps" : 60,
+	"touch_mode" : 0,
+	"touch_scale_percent" : 100,
+	"touch_opacity_percent" : 52,
+	"haptic_enabled" : true,
+}
 
 
 func load_game():
 	if not FileAccess.file_exists(GAME_SAVE_FILE):
 		current_health = HeroProgression.get_tier_for_level(current_level).max_health
 		building_levels = DEFAULT_BUILDING_LEVELS.duplicate()
+		_normalize_settings_fields()
+		call_deferred("apply_window_and_engine_settings")
 		return
 		
 	var game_save_file = FileAccess.open(GAME_SAVE_FILE, FileAccess.READ)
@@ -108,6 +131,18 @@ func load_game():
 				building_levels = (v as Dictionary).duplicate()
 			elif variable.begins_with("volume_") and typeof(v) in [TYPE_FLOAT, TYPE_INT]:
 				set(variable, clampf(float(v), 0.0, 1.0))
+			elif variable == "ui_scale_percent" and typeof(v) in [TYPE_FLOAT, TYPE_INT]:
+				ui_scale_percent = clampi(int(v), 75, 130)
+			elif variable == "max_fps" and typeof(v) in [TYPE_FLOAT, TYPE_INT]:
+				max_fps = clampi(int(v), 0, 240)
+			elif variable == "touch_mode" and typeof(v) in [TYPE_FLOAT, TYPE_INT]:
+				touch_mode = clampi(int(v), 0, 2)
+			elif variable == "touch_scale_percent" and typeof(v) in [TYPE_FLOAT, TYPE_INT]:
+				touch_scale_percent = clampi(int(v), 70, 150)
+			elif variable == "touch_opacity_percent" and typeof(v) in [TYPE_FLOAT, TYPE_INT]:
+				touch_opacity_percent = clampi(int(v), 25, 100)
+			elif variable == "haptic_enabled":
+				haptic_enabled = bool(v)
 			else:
 				set(variable, v)
 		elif variable == "island_zone_state":
@@ -119,6 +154,9 @@ func load_game():
 
 	_migrate_story_island_flags_from_legacy_boss_kill()
 	_migrate_truth_choice_flags()
+	if not game_data.has("difficulty_id"):
+		difficulty_id = 1
+	difficulty_id = clampi(int(difficulty_id), 0, 2)
 	if not game_data.has("lancer_count"):
 		lancer_count = 0
 	if not game_data.has("pawn_count"):
@@ -130,6 +168,29 @@ func load_game():
 			and abs(resume_player_position_x - BASE_TELEPORT_RESUME_X) < 2.0
 			and abs(resume_player_position_y - BASE_TELEPORT_RESUME_Y) < 2.0
 		)
+
+	_normalize_settings_fields()
+	call_deferred("apply_window_and_engine_settings")
+
+
+func _normalize_settings_fields() -> void:
+	ui_scale_percent = clampi(int(ui_scale_percent), 75, 130)
+	max_fps = clampi(int(max_fps), 0, 240)
+	touch_mode = clampi(int(touch_mode), 0, 2)
+	touch_scale_percent = clampi(int(touch_scale_percent), 70, 150)
+	touch_opacity_percent = clampi(int(touch_opacity_percent), 25, 100)
+	difficulty_id = clampi(int(difficulty_id), 0, 2)
+
+
+## Окно и движок после загрузки сохранения или смены настроек.
+func apply_window_and_engine_settings() -> void:
+	var w := get_window()
+	if w:
+		w.content_scale_factor = clampf(float(ui_scale_percent) / 100.0, 0.75, 1.5)
+	if max_fps <= 0:
+		Engine.max_fps = 0
+	else:
+		Engine.max_fps = clampi(max_fps, 30, 240)
 
 
 ## Старые сохранения без развилки: кто уже прошёл последний остров или финал монаха — считаем «добить цепь».

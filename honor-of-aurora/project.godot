@@ -17,6 +17,8 @@ config/features=PackedStringArray("4.4", "GL Compatibility")
 [autoload]
 
 SaveManager="*res://autoload/Save_manager.gd"
+DifficultyConfig="*res://autoload/DifficultyConfig.gd"
+BalanceConfig="*res://autoload/BalanceConfig.gd"
 Events="*res://autoload/Events.gd"
 StoryState="*res://autoload/StoryState.gd"
 GameplayFacade="*res://autoload/GameplayFacade.gd"

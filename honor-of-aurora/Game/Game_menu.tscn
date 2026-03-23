@@ -764,7 +764,10 @@ tile_set = SubResource("TileSet_bmc6v")
 tile_map_data = PackedByteArray("AAAtACgAAAAAAAAAAAA=")
 tile_set = ExtResource("46_chuwt")
 
-[node name="Menu" parent="." instance=ExtResource("47_afjly")]
+[node name="MenuCanvas" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="Menu" parent="MenuCanvas" instance=ExtResource("47_afjly")]
 offset_left = -1.0
 offset_top = 4.0
 offset_right = -1.0

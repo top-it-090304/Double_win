@@ -14,9 +14,6 @@ const ARMORY_SHIELD_FACTOR_DELTA: float = 0.035
 const ARMORY_SHIELD_FACTOR_MIN: float = 0.07
 ## Базовая доля урона, проходящая в блоке щитом (20%).
 const ARMORY_SHIELD_BASE_DAMAGE_FACTOR: float = 0.2
-## Цена разовой заточки / правки в оружейной (золото).
-const ARMORY_SWORD_BUFF_COST: int = 90
-const ARMORY_SHIELD_BUFF_COST: int = 90
 ## На каждый уровень здания Barracks (0→4): +12.5% к силе временного бафа (заточка / щит).
 const ARMORY_TIER_BUFF_PER_LEVEL: float = 0.125
 
@@ -32,11 +29,11 @@ func get_armory_prep_strength_multiplier() -> float:
 
 
 func get_armory_sword_buff_cost() -> int:
-	return ARMORY_SWORD_BUFF_COST
+	return BalanceConfig.get_armory_sword_buff_cost()
 
 
 func get_armory_shield_buff_cost() -> int:
-	return ARMORY_SHIELD_BUFF_COST
+	return BalanceConfig.get_armory_shield_buff_cost()
 
 
 ## Сколько урона добавит следующая заточка (к атаке героя, до конца похода).
@@ -57,7 +54,7 @@ func get_armory_shield_factor_after_buff_preview() -> float:
 func try_prepare_armory_sword() -> bool:
 	if armory_sword_prepared:
 		return false
-	if not GameplayFacade.try_spend_gold(ARMORY_SWORD_BUFF_COST):
+	if not GameplayFacade.try_spend_gold(BalanceConfig.get_armory_sword_buff_cost()):
 		return false
 	armory_sword_prepared = true
 	var mul := get_armory_prep_strength_multiplier()
@@ -71,7 +68,7 @@ func try_prepare_armory_sword() -> bool:
 func try_prepare_armory_shield() -> bool:
 	if armory_shield_prepared:
 		return false
-	if not GameplayFacade.try_spend_gold(ARMORY_SHIELD_BUFF_COST):
+	if not GameplayFacade.try_spend_gold(BalanceConfig.get_armory_shield_buff_cost()):
 		return false
 	armory_shield_prepared = true
 	var mul := get_armory_prep_strength_multiplier()

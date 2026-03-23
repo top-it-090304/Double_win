@@ -7,6 +7,6 @@ func _ready():
 	speed = 150.0  
 	health = 100   
 	attack_damage = 10 
-	gold_reward = 200 
+	enemy_level = 2 
 	detection_radius = 700.0  
 	attack_radius = 200.0
