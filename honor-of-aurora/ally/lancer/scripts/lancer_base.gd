@@ -1,21 +1,40 @@
 extends "res://characters/companion_unit.gd"
 
-## Чёрный копейщик: все клипы из `black_lancer_frames.tres` (клетки атласа 320×320, не 192).
-## idle, run, down_attack, down_defence, down_right_attack, down_right_defence,
-## right_attack, right_defence, up_attack, up_defence, up_right_attack, up_right_defence.
-@export var speed: float = 150.0
-
+## Копейщик: `black_lancer_frames.tres` — направленные атаки копьём.
 
 func _ready() -> void:
+	speed = 150.0
 	super._ready()
-	play_unit_animation(&"idle")
+	add_to_group("ally_lancer")
 
 
-func play_unit_animation(anim: StringName) -> void:
-	var sprite := _sprite()
-	if sprite:
-		sprite.play(anim)
+func _get_melee_hit_reach() -> float:
+	return 108.0
 
 
-func _sprite() -> AnimatedSprite2D:
-	return get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
+func _get_melee_hit_radius() -> float:
+	return 22.0
+
+
+func _attack_anim_for_direction(dir: Vector2) -> StringName:
+	if sprite == null:
+		return &"right_attack"
+	var d := dir
+	if d.length() < 0.01:
+		d = Vector2.RIGHT
+	else:
+		d = d.normalized()
+	var x: float = d.x
+	var y: float = d.y
+	var ax: float = absf(x)
+	var ay: float = absf(y)
+	sprite.flip_h = x < 0.0
+	if ay > ax * 1.05:
+		if y > 0.0:
+			return &"down_attack"
+		return &"up_attack"
+	if ax > ay * 1.05:
+		return &"right_attack"
+	if y > 0.0:
+		return &"down_right_attack"
+	return &"up_right_attack"

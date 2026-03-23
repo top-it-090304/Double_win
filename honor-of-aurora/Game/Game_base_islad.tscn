@@ -1,4 +1,4 @@
-[gd_scene load_steps=104 format=4 uid="uid://bos5r41ll0qqe"]
+[gd_scene load_steps=105 format=4 uid="uid://bos5r41ll0qqe"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_lc62k"]
 [ext_resource type="Script" uid="uid://drx5ypae7garp" path="res://Game/game_base_islad.gd" id="1_xjk1y"]
@@ -57,6 +57,7 @@
 [ext_resource type="PackedScene" uid="uid://d31shusm8kcnv" path="res://objects/buildings/types/Monastery/Monastery.tscn" id="55_n0ibi"]
 [ext_resource type="PackedScene" uid="uid://ds31l027ndmtr" path="res://objects/buildings/types/Tower/Tower.tscn" id="56_bq7kj"]
 [ext_resource type="PackedScene" uid="uid://erxes3g6not7" path="res://objects/SquadSpawnZone/squad_spawn_zone.tscn" id="58_squad"]
+[ext_resource type="PackedScene" uid="uid://c7brrck0menu1" path="res://objects/BarracksMenuZone/barracks_menu_zone.tscn" id="59_barrz"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t7r2l"]
 texture = ExtResource("1_lc62k")
@@ -794,6 +795,9 @@ position = Vector2(-367, 897)
 [node name="CastleMenuZone" parent="." instance=ExtResource("51_dyndt")]
 position = Vector2(1445, -170)
 
+[node name="BarracksMenuZone" parent="." instance=ExtResource("59_barrz")]
+position = Vector2(2464, -320)
+
 [node name="buildings" type="Node2D" parent="."]
 position = Vector2(1197, 237)
 
@@ -853,15 +857,19 @@ position = Vector2(2679, -203)
 
 [node name="archer5" parent="charecters" instance=ExtResource("50_yrcvs")]
 position = Vector2(1908, 320)
+stationary_guard = true
 
 [node name="archer6" parent="charecters" instance=ExtResource("50_yrcvs")]
 position = Vector2(881, -1023)
+stationary_guard = true
 
 [node name="archer7" parent="charecters" instance=ExtResource("50_yrcvs")]
 position = Vector2(875, 718)
+stationary_guard = true
 
 [node name="archer8" parent="charecters" instance=ExtResource("50_yrcvs")]
 position = Vector2(-633, 918)
+stationary_guard = true
 
 [node name="archer9" parent="charecters" instance=ExtResource("50_yrcvs")]
 position = Vector2(1308, -358)

@@ -196,7 +196,7 @@ sprite_frames = SubResource("SpriteFrames_p75y6")
 animation = &"attack"
 
 [node name="DetectionArea" type="Area2D" parent="."]
-collision_mask = 3
+collision_mask = 11
 
 [node name="DetectionShape" type="CollisionShape2D" parent="DetectionArea"]
 shape = SubResource("CircleShape2D_xiu3r")
@@ -206,7 +206,7 @@ position = Vector2(-7, 4)
 shape = SubResource("CircleShape2D_s7wk4")
 
 [node name="AttackArea" type="Area2D" parent="."]
-collision_mask = 2
+collision_mask = 10
 
 [node name="AttackShape" type="CollisionShape2D" parent="AttackArea"]
 shape = SubResource("CircleShape2D_q0ggh")

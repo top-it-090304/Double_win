@@ -23,7 +23,9 @@ const COLOR_FOLDERS := {
 
 @onready var sprite = $Sprite
 
-func _ready():
+func _ready() -> void:
+	var saved_tier: int = SaveManager.get_building_tier(building_type)
+	current_color = clampi(saved_tier, 0, int(BuildingColor.YELLOW)) as BuildingColor
 	update_texture()
 
 func update_texture() -> bool:
@@ -44,4 +46,6 @@ func upgrade_building() -> bool:
 	if not GameplayFacade.try_spend_gold(cost):
 		return false
 	current_color = current_color + 1
+	SaveManager.set_building_tier(building_type, int(current_color))
+	SaveManager.save_game()
 	return update_texture()

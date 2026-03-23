@@ -13,6 +13,10 @@
 [ext_resource type="Texture2D" uid="uid://vk1p8nbjygtl" path="res://ally/lancer/art/black/Lancer_Up_Attack.png" id="tex_Lancer_Up_Attack"]
 [ext_resource type="Texture2D" uid="uid://bl3wfgrn48mhp" path="res://ally/lancer/art/black/Lancer_Up_Defence.png" id="tex_Lancer_Up_Defence"]
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_l0011"]
+atlas = ExtResource("tex_Lancer_Idle")
+region = Rect2(3520, 0, 320, 320)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_l0018"]
 atlas = ExtResource("tex_Lancer_Down_Attack")
 region = Rect2(0, 0, 320, 320)
@@ -128,10 +132,6 @@ region = Rect2(2880, 0, 320, 320)
 [sub_resource type="AtlasTexture" id="AtlasTexture_l0010"]
 atlas = ExtResource("tex_Lancer_Idle")
 region = Rect2(3200, 0, 320, 320)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_l0011"]
-atlas = ExtResource("tex_Lancer_Idle")
-region = Rect2(3520, 0, 320, 320)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_l0036"]
 atlas = ExtResource("tex_Lancer_Right_Attack")
@@ -267,6 +267,41 @@ region = Rect2(1600, 0, 320, 320)
 
 [resource]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l0011")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l0011")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l0011")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l0011")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l0011")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l0011")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l0011")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l0011")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l0011")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l0011")
+}],
+"loop": false,
+"name": &"dead",
+"speed": 10.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_l0018")

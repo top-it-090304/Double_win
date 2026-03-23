@@ -1,20 +1,20 @@
 extends "res://characters/companion_unit.gd"
 
-## Чёрная пешка: все клипы из `black_pawn_frames.tres` (полосы 192×192).
-## idle, run; idle_axe … idle_wood; run_axe … run_wood; interact_axe, interact_hammer, interact_knife, interact_pickaxe.
-@export var speed: float = 120.0
-
+## Чёрная пешка: `black_pawn_frames.tres` — idle, run, interact_* (атака ножом).
 
 func _ready() -> void:
+	speed = 120.0
 	super._ready()
-	play_unit_animation(&"idle")
+	add_to_group("ally_pawn")
 
 
-func play_unit_animation(anim: StringName) -> void:
-	var sprite := _sprite()
-	if sprite:
-		sprite.play(anim)
+func _get_melee_hit_reach() -> float:
+	return 58.0
 
 
-func _sprite() -> AnimatedSprite2D:
-	return get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
+func _get_melee_hit_radius() -> float:
+	return 20.0
+
+
+func _attack_anim_for_direction(_dir: Vector2) -> StringName:
+	return &"interact_knife"

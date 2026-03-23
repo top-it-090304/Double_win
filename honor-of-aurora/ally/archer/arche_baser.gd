@@ -13,6 +13,8 @@ extends "res://characters/character_unit.gd"
 
 @export var flee_distance: float = 220.0
 @export var flee_speed_multiplier: float = 1.25
+## Стоит на башне / не следует за героем: только idle + смена flip по таймеру и стрельба по врагам.
+@export var stationary_guard: bool = false
 
 var enemies_in_range : Array = []
 var facing_right := true
@@ -31,6 +33,7 @@ var flee_target: Vector2 = Vector2.ZERO
 func _ready() -> void:
 	super._ready()
 	add_to_group("ally")
+	add_to_group("ally_archer")
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	sprite.play("idle")
 	
@@ -111,6 +114,10 @@ func _on_animation_finished():
 		_refresh_state()
 
 func _on_idle_timer_timeout():
+	if state == State.DEAD or state == State.FLEE:
+		return
+	if stationary_guard:
+		return
 	if not enemies_in_range and sprite.animation != "attack":
 		facing_right = !facing_right
 		sprite.flip_h = !facing_right
@@ -160,6 +167,8 @@ func _physics_process(delta: float) -> void:
 		_refresh_state()
 
 func _get_follow_velocity() -> Vector2:
+	if stationary_guard:
+		return Vector2.ZERO
 	if not player:
 		return Vector2.ZERO
 	
@@ -196,14 +205,19 @@ func _refresh_state() -> void:
 func take_damage(amount: Variant) -> void:
 	if state == State.DEAD:
 		return
-	if health_component == null:
-		return
 	var a: int = int(amount)
-	health_component.apply_damage(a)
-	if health_component.current_health <= 0:
+	super.take_damage(amount)
+	if health_component == null or health_component.current_health <= 0:
 		return
 	if a > 0:
 		_start_flee()
+
+
+func _on_health_damage_applied(amount: int) -> void:
+	if amount <= 0 or state == State.DEAD:
+		return
+	SoundManager.play_player_hurt()
+	GameplayFacade.spawn_damage_number(self, amount, Vector2(-26, -100))
 
 
 func _handle_death() -> void:
@@ -235,7 +249,14 @@ func _die() -> void:
 	state = State.DEAD
 	attack_timer.stop()
 	velocity = Vector2.ZERO
-	if sprite.sprite_frames.has_animation("dead"):
+	if not bool(get_meta("no_squad_death", false)):
+		SaveManager.notify_squad_member_died(self)
+	var col := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if col:
+		col.set_deferred("disabled", true)
+	if attack_area:
+		attack_area.set_deferred("monitoring", false)
+	if sprite and sprite.sprite_frames and sprite.sprite_frames.has_animation("dead"):
 		sprite.play("dead")
 		await sprite.animation_finished
 	queue_free()

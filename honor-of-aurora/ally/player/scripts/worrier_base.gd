@@ -94,6 +94,10 @@ func _refresh_health_bar_ui() -> void:
 		health_bar.value = health
 
 
+func apply_armory_attack_bonus_from_manager() -> void:
+	_apply_hero_tier_for_level(level)
+
+
 func sync_from_save() -> void:
 	level = SaveManager.current_level
 	exp = SaveManager.current_exp
@@ -240,7 +244,8 @@ func take_damage(amount: Variant) -> void:
 		if health_component:
 			health_component.heal(-a)
 		return
-	var final_damage: int = int(a * 0.2) if state == State.SHIELD else a
+	var shield_factor: float = GameManager.armory_shield_damage_factor
+	var final_damage: int = int(a * shield_factor) if state == State.SHIELD else a
 	if state == State.SHIELD:
 		SoundManager.play_shield_block()
 	else:
@@ -351,7 +356,7 @@ func _apply_hero_tier_for_level(hero_level: int) -> void:
 	anim.sprite_frames = tier.sprite_frames
 	speed = tier.speed
 	max_health = tier.max_health
-	attack_damage = tier.attack_damage
+	attack_damage = tier.attack_damage + GameManager.armory_attack_bonus
 	attack_anim_speed_scale = tier.attack_anim_speed_scale
 	move_anim_speed_scale = tier.move_anim_speed_scale
 	if health_component:

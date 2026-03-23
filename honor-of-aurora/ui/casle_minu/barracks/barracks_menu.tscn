@@ -1,0 +1,424 @@
+[gd_scene load_steps=16 format=3 uid="uid://b8krmenu1brrx"]
+
+[ext_resource type="Script" path="res://ui/casle_minu/barracks/barracks_menu.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://cj4nta75kb3fi" path="res://ui/font/AlumniSansCollegiateOne-Italic.ttf" id="2_font"]
+[ext_resource type="Texture2D" uid="uid://cjha34kojfsit" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_08.png" id="3_back"]
+[ext_resource type="Texture2D" uid="uid://cf5kysi7be050" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_05.png" id="4_sword"]
+[ext_resource type="Texture2D" uid="uid://dgwuk12s7shin" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_06.png" id="5_shield"]
+[ext_resource type="Texture2D" uid="uid://5rocvcom335g" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_03.png" id="6_coin"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_root"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_btn"]
+bg_color = Color(0.16, 0.19, 0.26, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.4, 0.52, 0.9)
+corner_radius_top_left = 8.0
+corner_radius_top_right = 8.0
+corner_radius_bottom_left = 8.0
+corner_radius_bottom_right = 8.0
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+shadow_color = Color(0, 0, 0, 0.25)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_btn_h"]
+bg_color = Color(0.2, 0.24, 0.33, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.55, 0.68, 0.95)
+corner_radius_top_left = 8.0
+corner_radius_top_right = 8.0
+corner_radius_bottom_left = 8.0
+corner_radius_bottom_right = 8.0
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 5
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_btn_p"]
+bg_color = Color(0.11, 0.13, 0.18, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.3, 0.4, 1)
+corner_radius_top_left = 8.0
+corner_radius_top_right = 8.0
+corner_radius_bottom_left = 8.0
+corner_radius_bottom_right = 8.0
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal"]
+bg_color = Color(0.11, 0.13, 0.19, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.38, 0.48, 0.62, 0.75)
+corner_radius_top_left = 14.0
+corner_radius_top_right = 14.0
+corner_radius_bottom_left = 14.0
+corner_radius_bottom_right = 14.0
+shadow_color = Color(0, 0, 0, 0.55)
+shadow_size = 16
+shadow_offset = Vector2(0, 6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cta_gold"]
+bg_color = Color(0.78, 0.62, 0.22, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.55, 0.42, 0.12, 1)
+corner_radius_top_left = 8.0
+corner_radius_top_right = 8.0
+corner_radius_bottom_left = 8.0
+corner_radius_bottom_right = 8.0
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+shadow_color = Color(0, 0, 0, 0.2)
+shadow_size = 3
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cta_gold_h"]
+bg_color = Color(0.9, 0.75, 0.32, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.65, 0.52, 0.18, 1)
+corner_radius_top_left = 8.0
+corner_radius_top_right = 8.0
+corner_radius_bottom_left = 8.0
+corner_radius_bottom_right = 8.0
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+shadow_color = Color(0, 0, 0, 0.25)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cta_gold_p"]
+bg_color = Color(0.62, 0.48, 0.14, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.42, 0.32, 0.08, 1)
+corner_radius_top_left = 8.0
+corner_radius_top_right = 8.0
+corner_radius_bottom_left = 8.0
+corner_radius_bottom_right = 8.0
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hire_slot"]
+bg_color = Color(0.14, 0.17, 0.24, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.35, 0.46, 0.8)
+corner_radius_top_left = 10.0
+corner_radius_top_right = 10.0
+corner_radius_bottom_left = 10.0
+corner_radius_bottom_right = 10.0
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_portrait_frame"]
+bg_color = Color(0.08, 0.09, 0.12, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.72, 0.58, 0.28, 0.65)
+corner_radius_top_left = 8.0
+corner_radius_top_right = 8.0
+corner_radius_bottom_left = 8.0
+corner_radius_bottom_right = 8.0
+
+[node name="BarracksMenu" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="BarracksPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -360.0
+offset_top = -260.0
+offset_right = 360.0
+offset_bottom = 260.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_root")
+
+[node name="BarracksBackdrop" type="Panel" parent="BarracksPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
+
+[node name="barracks_back_btn" type="Button" parent="BarracksPanel"]
+z_index = 1
+process_mode = 3
+layout_mode = 0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = 90.0
+offset_bottom = 90.0
+theme_override_constants/icon_max_width = 56
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_colors/font_hover_pressed_color = Color(1, 0.96, 0.8, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+icon = ExtResource("3_back")
+flat = true
+expand_icon = false
+
+[node name="BarracksTitle" type="Label" parent="BarracksPanel"]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 26.0
+offset_right = 648.0
+offset_bottom = 88.0
+theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 44
+horizontal_alignment = 1
+text = "Оружейная"
+
+[node name="BarracksSubtitle" type="Label" parent="BarracksPanel"]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 92.0
+offset_right = 680.0
+offset_bottom = 176.0
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 0.92)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+autowrap_mode = 3
+text = ""
+
+[node name="BarracksDivider" type="ColorRect" parent="BarracksPanel"]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 186.0
+offset_right = 680.0
+offset_bottom = 188.0
+mouse_filter = 2
+color = Color(0.28, 0.35, 0.46, 0.55)
+
+[node name="MainActions" type="VBoxContainer" parent="BarracksPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = 196.0
+offset_right = -32.0
+offset_bottom = -88.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="SlotsRow" type="HBoxContainer" parent="BarracksPanel/MainActions"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 20
+alignment = 0
+
+[node name="slot_sword" type="PanelContainer" parent="BarracksPanel/MainActions/SlotsRow"]
+custom_minimum_size = Vector2(280, 318)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hire_slot")
+
+[node name="ColumnSword" type="VBoxContainer" parent="BarracksPanel/MainActions/SlotsRow/slot_sword"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 0
+
+[node name="PortraitFrameSword" type="Panel" parent="BarracksPanel/MainActions/SlotsRow/slot_sword/ColumnSword"]
+custom_minimum_size = Vector2(136, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_portrait_frame")
+
+[node name="IconSwordTex" type="TextureRect" parent="BarracksPanel/MainActions/SlotsRow/slot_sword/ColumnSword/PortraitFrameSword"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+texture = ExtResource("4_sword")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelSwordTitle" type="Label" parent="BarracksPanel/MainActions/SlotsRow/slot_sword/ColumnSword"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.88, 0.84, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+text = "Заточка"
+
+[node name="SwordBuffDesc" type="Label" parent="BarracksPanel/MainActions/SlotsRow/slot_sword/ColumnSword"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 0.95)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+text = ""
+
+[node name="BtnSharpenSword" type="Button" parent="BarracksPanel/MainActions/SlotsRow/slot_sword/ColumnSword"]
+custom_minimum_size = Vector2(176, 54)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 10
+theme_override_constants/icon_max_width = 40
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
+theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 34
+theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
+theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
+text = "0"
+icon = ExtResource("6_coin")
+flat = true
+alignment = 1
+icon_alignment = 0
+expand_icon = false
+
+[node name="slot_shield" type="PanelContainer" parent="BarracksPanel/MainActions/SlotsRow"]
+custom_minimum_size = Vector2(280, 318)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hire_slot")
+
+[node name="ColumnShield" type="VBoxContainer" parent="BarracksPanel/MainActions/SlotsRow/slot_shield"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 0
+
+[node name="PortraitFrameShield" type="Panel" parent="BarracksPanel/MainActions/SlotsRow/slot_shield/ColumnShield"]
+custom_minimum_size = Vector2(136, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_portrait_frame")
+
+[node name="IconShieldTex" type="TextureRect" parent="BarracksPanel/MainActions/SlotsRow/slot_shield/ColumnShield/PortraitFrameShield"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+texture = ExtResource("5_shield")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelShieldTitle" type="Label" parent="BarracksPanel/MainActions/SlotsRow/slot_shield/ColumnShield"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.88, 0.84, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+text = "Щит"
+
+[node name="ShieldBuffDesc" type="Label" parent="BarracksPanel/MainActions/SlotsRow/slot_shield/ColumnShield"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 0.95)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+text = ""
+
+[node name="BtnRepairShield" type="Button" parent="BarracksPanel/MainActions/SlotsRow/slot_shield/ColumnShield"]
+custom_minimum_size = Vector2(176, 54)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 10
+theme_override_constants/icon_max_width = 40
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
+theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 34
+theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
+theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
+text = "0"
+icon = ExtResource("6_coin")
+flat = true
+alignment = 1
+icon_alignment = 0
+expand_icon = false
+
+[connection signal="pressed" from="BarracksPanel/barracks_back_btn" to="." method="_on_back_pressed"]
+[connection signal="pressed" from="BarracksPanel/MainActions/SlotsRow/slot_sword/ColumnSword/BtnSharpenSword" to="." method="_on_sharpen_sword_pressed"]
+[connection signal="pressed" from="BarracksPanel/MainActions/SlotsRow/slot_shield/ColumnShield/BtnRepairShield" to="." method="_on_repair_shield_pressed"]

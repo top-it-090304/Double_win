@@ -408,17 +408,12 @@ func _select_target() -> void:
 		target = null
 		return
 
-	for t in potential_targets:
-		if t and t.is_in_group("player"):
-			target = t
-			return
-
 	var best: Node2D = null
 	var best_dist := INF
 	for t in potential_targets:
 		if not t:
 			continue
-		var d = global_position.distance_to(t.global_position)
+		var d := global_position.distance_to(t.global_position)
 		if d < best_dist:
 			best_dist = d
 			best = t

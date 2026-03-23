@@ -17,6 +17,14 @@ func hide_castle_menu() -> void:
 	pass
 
 
+func show_barracks_menu() -> void:
+	pass
+
+
+func hide_barracks_menu() -> void:
+	pass
+
+
 func teleport_to(_location: Events.LOCATION) -> void:
 	pass
 

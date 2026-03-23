@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=4 uid="uid://bdhapr120iqry"]
+﻿[gd_scene load_steps=14 format=4 uid="uid://bdhapr120iqry"]
 
 [ext_resource type="Script" uid="uid://dtfup2chrte7q" path="res://ui/casle_minu/main/castle_main_menu.gd" id="1_7l04m"]
 [ext_resource type="Texture2D" uid="uid://bdxdoi12667fp" path="res://Asets/Unit_pack/UI Elements/UI Banners from the store page/Ribbons/Ribbon_Black.png" id="1_x7hsw"]
@@ -9,9 +9,6 @@
 [ext_resource type="Texture2D" uid="uid://5rocvcom335g" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_03.png" id="6_2llpa"]
 [ext_resource type="Texture2D" uid="uid://djxaxn100yy3x" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_01.png" id="7_sbu3m"]
 [ext_resource type="Texture2D" uid="uid://8bdu2gxxatje" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_11.png" id="8_2llpa"]
-[ext_resource type="Texture2D" uid="uid://cc031q0vafl73" path="res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_02.png" id="9_avatar02"]
-[ext_resource type="Texture2D" uid="uid://0emguf32khfj" path="res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_03.png" id="10_avatar03"]
-[ext_resource type="Texture2D" uid="uid://c4vkykcv7un4y" path="res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_05.png" id="11_avatar05"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_io6xc"]
 texture = ExtResource("1_x7hsw")
@@ -1426,165 +1423,7 @@ sources/0 = SubResource("TileSetAtlasSource_io6xc")
 sources/1 = SubResource("TileSetAtlasSource_mkwp4")
 sources/2 = SubResource("TileSetAtlasSource_0woup")
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hire"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_btn"]
-bg_color = Color(0.16, 0.19, 0.26, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.32, 0.4, 0.52, 0.9)
-corner_radius_top_left = 8.0
-corner_radius_top_right = 8.0
-corner_radius_bottom_left = 8.0
-corner_radius_bottom_right = 8.0
-content_margin_left = 16.0
-content_margin_top = 10.0
-content_margin_right = 16.0
-content_margin_bottom = 10.0
-shadow_color = Color(0, 0, 0, 0.25)
-shadow_size = 4
-shadow_offset = Vector2(0, 2)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_btn_h"]
-bg_color = Color(0.2, 0.24, 0.33, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.45, 0.55, 0.68, 0.95)
-corner_radius_top_left = 8.0
-corner_radius_top_right = 8.0
-corner_radius_bottom_left = 8.0
-corner_radius_bottom_right = 8.0
-content_margin_left = 16.0
-content_margin_top = 10.0
-content_margin_right = 16.0
-content_margin_bottom = 10.0
-shadow_color = Color(0, 0, 0, 0.3)
-shadow_size = 5
-shadow_offset = Vector2(0, 2)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_btn_p"]
-bg_color = Color(0.11, 0.13, 0.18, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.25, 0.3, 0.4, 1)
-corner_radius_top_left = 8.0
-corner_radius_top_right = 8.0
-corner_radius_bottom_left = 8.0
-corner_radius_bottom_right = 8.0
-content_margin_left = 16.0
-content_margin_top = 10.0
-content_margin_right = 16.0
-content_margin_bottom = 10.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hire_modal"]
-bg_color = Color(0.11, 0.13, 0.19, 0.98)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.38, 0.48, 0.62, 0.75)
-corner_radius_top_left = 14.0
-corner_radius_top_right = 14.0
-corner_radius_bottom_left = 14.0
-corner_radius_bottom_right = 14.0
-shadow_color = Color(0, 0, 0, 0.55)
-shadow_size = 16
-shadow_offset = Vector2(0, 6)
-content_margin_left = 0.0
-content_margin_top = 0.0
-content_margin_right = 0.0
-content_margin_bottom = 0.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hire_slot"]
-bg_color = Color(0.14, 0.17, 0.24, 0.92)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.28, 0.35, 0.46, 0.8)
-corner_radius_top_left = 10.0
-corner_radius_top_right = 10.0
-corner_radius_bottom_left = 10.0
-corner_radius_bottom_right = 10.0
-content_margin_left = 12.0
-content_margin_top = 12.0
-content_margin_right = 12.0
-content_margin_bottom = 12.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_portrait_frame"]
-bg_color = Color(0.08, 0.09, 0.12, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.72, 0.58, 0.28, 0.65)
-corner_radius_top_left = 8.0
-corner_radius_top_right = 8.0
-corner_radius_bottom_left = 8.0
-corner_radius_bottom_right = 8.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cta_gold"]
-bg_color = Color(0.78, 0.62, 0.22, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.55, 0.42, 0.12, 1)
-corner_radius_top_left = 8.0
-corner_radius_top_right = 8.0
-corner_radius_bottom_left = 8.0
-corner_radius_bottom_right = 8.0
-content_margin_left = 12.0
-content_margin_top = 8.0
-content_margin_right = 14.0
-content_margin_bottom = 8.0
-shadow_color = Color(0, 0, 0, 0.2)
-shadow_size = 3
-shadow_offset = Vector2(0, 2)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cta_gold_h"]
-bg_color = Color(0.9, 0.75, 0.32, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.65, 0.52, 0.18, 1)
-corner_radius_top_left = 8.0
-corner_radius_top_right = 8.0
-corner_radius_bottom_left = 8.0
-corner_radius_bottom_right = 8.0
-content_margin_left = 12.0
-content_margin_top = 8.0
-content_margin_right = 14.0
-content_margin_bottom = 8.0
-shadow_color = Color(0, 0, 0, 0.25)
-shadow_size = 4
-shadow_offset = Vector2(0, 2)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cta_gold_p"]
-bg_color = Color(0.62, 0.48, 0.14, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.42, 0.32, 0.08, 1)
-corner_radius_top_left = 8.0
-corner_radius_top_right = 8.0
-corner_radius_bottom_left = 8.0
-corner_radius_bottom_right = 8.0
-content_margin_left = 12.0
-content_margin_top = 8.0
-content_margin_right = 14.0
-content_margin_bottom = 8.0
-
 [node name="CasleMainMenu" type="Control"]
-process_mode = 3
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -1594,166 +1433,90 @@ grow_vertical = 2
 script = ExtResource("1_7l04m")
 
 [node name="background" type="TileMapLayer" parent="."]
-visible = false
 position = Vector2(40, -14)
 
 [node name="TileMapLayer" type="TileMapLayer" parent="background"]
 tile_map_data = PackedByteArray("AAARAA4AAAAgACIAAAARAA8AAAAgACMAAAARABAAAQAAAAgAAAARABEAAQAAAAkAAAARABIAAQAAAAoAAAARABMAAQAAAAsAAAARABQAAQAAAAgAAAARABUAAQAAAAkAAAARABYAAQAAAAoAAAARABcAAQAAAAkAAAARABgAAQAAAAoAAAARABkAAQAAAAgAAAARABoAAQAAAAkAAAARABsAAQAAAAoAAAARABwAAQAAAAsAAAARAB0AAQAAAAoAAAARAB4AAQAAAAsAAAARAB8AAAAgAAAAAAARACAAAAAgAAEAAAASAAwAAAAhACAAAAASAA0AAAAhACEAAAASAA4AAAAhACIAAAASAA8AAAAhACMAAAASABAAAQABAAgAAAASABEAAQABAAkAAAASABIAAQABAAoAAAASABMAAQABAAsAAAASABQAAQABAAgAAAASABUAAQABAAkAAAASABYAAQABAAoAAAASABcAAQABAAkAAAASABgAAQABAAoAAAASABkAAQABAAgAAAASABoAAQABAAkAAAASABsAAQABAAoAAAASABwAAQABAAsAAAASAB0AAQABAAoAAAASAB4AAQABAAsAAAASAB8AAAAhAAAAAAASACAAAAAhAAEAAAATAAwAAAAiACAAAAATAA0AAAAiACEAAAATAA4AAAAiACIAAAATAA8AAAAiACMAAAATABAAAQACAAgAAAATABEAAQACAAkAAAATABIAAQACAAoAAAATABMAAQACAAsAAAATABQAAQACAAgAAAATABUAAQACAAkAAAATABYAAQACAAoAAAATABcAAQACAAkAAAATABgAAQACAAoAAAATABkAAQACAAgAAAATABoAAQACAAkAAAATABsAAQACAAoAAAATABwAAQACAAsAAAATAB0AAQACAAoAAAATAB4AAQACAAsAAAATAB8AAAAiAAAAAAATACAAAAAiAAEAAAAUAAkAAAAjAB0AAAAUAAoAAAAjAB4AAAAUAAsAAAAjAB8AAAAUAAwAAAAjACAAAAAUAA0AAAAjACEAAAAUAA4AAAAjACIAAAAUAA8AAAAjACMAAAAUABAAAQADAAgAAAAUABEAAQADAAkAAAAUABIAAQADAAoAAAAUABMAAQADAAsAAAAUABQAAQADAAgAAAAUABUAAQADAAkAAAAUABYAAQADAAoAAAAUABcAAQADAAkAAAAUABgAAQADAAoAAAAUABkAAQADAAgAAAAUABoAAQADAAkAAAAUABsAAQADAAoAAAAUABwAAQADAAsAAAAUAB0AAQADAAoAAAAUAB4AAQADAAsAAAAUAB8AAAAjAAAAAAAUACAAAAAjAAEAAAAUACEAAAAjAAIAAAAUACIAAAAjAAMAAAAUACMAAAAjAAQAAAAUACQAAAAjAAUAAAAUACUAAAAjAAYAAAAVAAgAAAAkABwAAAAVAAkAAAAkAB0AAAAVAAoAAAAkAB4AAAAVAAsAAAAkAB8AAAAVAAwAAAAkACAAAAAVAA0AAAAkACEAAAAVAA4AAAAkACIAAAAVAA8AAAAkACMAAAAVABAAAQAUAAgAAAAVABEAAQAUAAkAAAAVABIAAQAUAAoAAAAVABMAAQAUAAsAAAAVABQAAQAUAAgAAAAVABUAAQAUAAkAAAAVABYAAQAUAAoAAAAVABcAAQAUAAkAAAAVABgAAQAUAAoAAAAVABkAAQAUAAsAAAAVABoAAQAUAAgAAAAVABsAAQAUAAkAAAAVABwAAQAUAAoAAAAVAB0AAQAUAAsAAAAVAB4AAQAUAAgAAAAVAB8AAQAUAAkAAAAVACAAAAAkAAEAAAAVACEAAAAkAAIAAAAVACIAAAAkAAMAAAAVACMAAAAkAAQAAAAVACQAAAAkAAUAAAAVACUAAAAkAAYAAAAWAAcAAAAlABsAAAAWAAgAAAAlABwAAAAWAAkAAAAlAB0AAAAWAAoAAAAlAB4AAAAWAAsAAAAlAB8AAAAWAAwAAAAlACAAAAAWAA0AAAAlACEAAAAWAA4AAAAlACIAAAAWAA8AAAAlACMAAAAWABAAAQAVAAgAAAAWABEAAQAVAAkAAAAWABIAAQAVAAoAAAAWABMAAQAVAAsAAAAWABQAAQAVAAgAAAAWABUAAQAVAAkAAAAWABYAAQAVAAoAAAAWABcAAQAVAAkAAAAWABgAAQAVAAoAAAAWABkAAQAVAAsAAAAWABoAAQAVAAgAAAAWABsAAQAVAAkAAAAWABwAAQAVAAoAAAAWAB0AAQAVAAsAAAAWAB4AAQAVAAgAAAAWAB8AAQAVAAkAAAAWACAAAAAlAAEAAAAWACEAAAAlAAIAAAAWACIAAAAlAAMAAAAWACMAAAAlAAQAAAAWACQAAAAlAAUAAAAXAAYAAAAmABoAAAAXAAcAAAAmABsAAAAXAAgAAAAmABwAAAAXAAkAAAAmAB0AAAAXAAoAAAAmAB4AAAAXAAsAAAAmAB8AAAAXAAwAAAAmACAAAAAXAA0AAAAmACEAAAAXAA4AAAAmACIAAAAXAA8AAAAmACMAAAAXABAAAQAWAAgAAAAXABEAAQAWAAkAAAAXABIAAQAWAAoAAAAXABMAAQAWAAsAAAAXABQAAQAWAAgAAAAXABUAAQAWAAkAAAAXABYAAQAWAAoAAAAXABcAAQAWAAkAAAAXABgAAQAWAAoAAAAXABkAAQAWAAsAAAAXABoAAQAWAAgAAAAXABsAAQAWAAkAAAAXABwAAQAWAAoAAAAXAB0AAQAWAAsAAAAXAB4AAQAWAAgAAAAXAB8AAQAWAAkAAAAXACAAAAAmAAEAAAAXACEAAAAmAAIAAAAXACIAAAAmAAMAAAAXACMAAAAmAAQAAAAYAAUAAAAnABkAAAAYAAYAAAAnABoAAAAYAAcAAAAnABsAAAAYAAgAAAAnABwAAAAYAAkAAAAnAB0AAAAYAAoAAAAnAB4AAAAYAAsAAAAnAB8AAAAYAAwAAAAnACAAAAAYAA0AAAAnACEAAAAYAA4AAAAnACIAAAAYAA8AAAAnACMAAAAYABAAAQAXAAgAAAAYABEAAQAXAAkAAAAYABIAAQAXAAoAAAAYABMAAQAXAAsAAAAYABQAAQAXAAgAAAAYABUAAQAXAAkAAAAYABYAAQAXAAoAAAAYABcAAQAXAAkAAAAYABgAAQAXAAoAAAAYABkAAQAXAAsAAAAYABoAAQAXAAgAAAAYABsAAQAXAAkAAAAYABwAAQAXAAoAAAAYAB0AAQAXAAsAAAAYAB4AAQAXAAgAAAAYAB8AAQAXAAkAAAAYACAAAAAnAAEAAAAYACEAAAAnAAIAAAAYACIAAAAnAAMAAAAYACMAAAAnAAQAAAAYACQAAAAnAAUAAAAZAAUAAAAoABkAAAAZAAYAAAAoABoAAAAZAAcAAAAoABsAAAAZAAgAAAAoABwAAAAZAAkAAAAoAB0AAAAZAAoAAAAoAB4AAAAZAAsAAAAoAB8AAAAZAAwAAAAoACAAAAAZAA0AAAAoACEAAAAZAA4AAAAoACIAAAAZAA8AAAAoACMAAAAZABAAAQAUAAgAAAAZABEAAQAUAAkAAAAZABIAAQAUAAoAAAAZABMAAQAUAAsAAAAZABQAAQAUAAgAAAAZABUAAQAUAAkAAAAZABYAAQAUAAoAAAAZABcAAQAUAAkAAAAZABgAAQAUAAoAAAAZABkAAQAUAAsAAAAZABoAAQAUAAgAAAAZABsAAQAUAAkAAAAZABwAAQAUAAoAAAAZAB0AAQAUAAsAAAAZAB4AAQAUAAgAAAAZAB8AAQAUAAkAAAAZACAAAAAoAAEAAAAZACEAAAAoAAIAAAAZACIAAAAoAAMAAAAZACMAAAAoAAQAAAAZACQAAAAoAAUAAAAZACUAAAAoAAYAAAAaAAUAAAApABkAAAAaAAYAAAApABoAAAAaAAgAAAApABwAAAAaAAkAAAApAB0AAAAaAAoAAAApAB4AAAAaAAwAAAApACAAAAAaAA0AAAApACEAAAAaAA4AAAApACIAAAAaAA8AAAApACMAAAAaABAAAQAVAAgAAAAaABEAAQAVAAkAAAAaABIAAQAVAAoAAAAaABMAAQAVAAsAAAAaABQAAQAVAAgAAAAaABUAAQAVAAkAAAAaABYAAQAVAAoAAAAaABcAAQAVAAkAAAAaABgAAQAVAAoAAAAaABkAAQAVAAsAAAAaABoAAQAVAAgAAAAaABsAAQAVAAkAAAAaABwAAQAVAAoAAAAaAB0AAQAVAAsAAAAaAB4AAQAVAAgAAAAaAB8AAQAVAAkAAAAaACAAAAApAAEAAAAbAAUAAAAqABkAAAAbAAYAAAAqABoAAAAbAAgAAAAqABwAAAAbAAkAAAAqAB0AAAAbAAoAAAAqAB4AAAAbAAwAAAAqACAAAAAbAA0AAAAqACEAAAAbAA4AAAAqACIAAAAbAA8AAAAqACMAAAAbABAAAQAWAAgAAAAbABEAAQAWAAkAAAAbABIAAQAWAAoAAAAbABMAAQAWAAsAAAAbABQAAQAWAAgAAAAbABUAAQAWAAkAAAAbABYAAQAWAAoAAAAbABcAAQAWAAkAAAAbABgAAQAWAAoAAAAbABkAAQAWAAsAAAAbABoAAQAWAAgAAAAbABsAAQAWAAkAAAAbABwAAQAWAAoAAAAbAB0AAQAWAAsAAAAbAB4AAQAWAAgAAAARACEAAAAgAAIAAAARACIAAAAgAAMAAAARACMAAAAgAAQAAAARACQAAAAgAAUAAAASACEAAAAhAAIAAAASACIAAAAhAAMAAAASACMAAAAhAAQAAAASACQAAAAhAAUAAAATACEAAAAiAAIAAAATACIAAAAiAAMAAAATACMAAAAiAAQAAAATACQAAAAiAAUAAAAUACYAAAAjAAcAAAAUACcAAAAjAAgAAAAUACgAAAAjAAkAAAAUACkAAAAjAAoAAAAVACYAAAAkAAcAAAAVACcAAAAkAAgAAAAVACgAAAAkAAkAAAAVACkAAAAkAAoAAAAWACUAAAAlAAYAAAAWACYAAAAlAAcAAAAWACcAAAAlAAgAAAAWACgAAAAlAAkAAAAXACQAAAAmAAUAAAAXACUAAAAmAAYAAAAXACYAAAAmAAcAAAAXACcAAAAmAAgAAAAYACUAAAAnAAYAAAAYACYAAAAnAAcAAAAYACcAAAAnAAgAAAAYACgAAAAnAAkAAAAZACYAAAAoAAcAAAAZACcAAAAoAAgAAAAZACgAAAAoAAkAAAAZACkAAAAoAAoAAAAaAAcAAAApABsAAAAaACEAAAApAAIAAAAaACIAAAApAAMAAAAaACMAAAApAAQAAAAaACQAAAApAAUAAAAbAAcAAAAqABsAAAAbAB8AAQAWAAkAAAAbACAAAAAqAAEAAAAbACEAAAAqAAIAAAAbACIAAAAqAAMAAAAgAAUAAAAPAAEAAAAgAAYAAAAPAAIAAAAgAAcAAAAPAAMAAAAgAAgAAAAPAAQAAAAgAAkAAAAPAAUAAAAgAAoAAAAPAAYAAAAgAAwAAQATAAAAAAAgAA0AAQATAAEAAAAgAA4AAQATAAIAAAAgAA8AAQATAAMAAAAgABAAAQAXAAgAAAAgABEAAQAXAAkAAAAgABIAAQAXAAoAAAAgABMAAQAXAAsAAAAgABQAAQAXAAgAAAAgABUAAQAXAAkAAAAgABYAAQAXAAoAAAAgABcAAQAXAAkAAAAgABgAAQAXAAoAAAAgABkAAQAXAAsAAAAgABoAAQAXAAgAAAAgABsAAQAXAAkAAAAgABwAAQAXAAoAAAAgAB0AAQAXAAsAAAAgAB4AAQAXAAgAAAAgAB8AAQAXAAkAAAAgACAAAQATABEAAAAgACEAAQATABIAAAAgACIAAQATABMAAAAhAAUAAAAMAAEAAAAhAAYAAAAMAAIAAAAhAAcAAAAMAAMAAAAhAAgAAAAMAAQAAAAhAAkAAAAMAAUAAAAhAAoAAAAMAAYAAAAhAAwAAQAQAAAAAAAhAA0AAQAQAAEAAAAhAA4AAQAQAAIAAAAhAA8AAQAQAAMAAAAhABAAAQAUAAgAAAAhABEAAQAUAAkAAAAhABIAAQAUAAoAAAAhABMAAQAUAAsAAAAhABQAAQAUAAgAAAAhABUAAQAUAAkAAAAhABYAAQAUAAoAAAAhABcAAQAUAAkAAAAhABgAAQAUAAoAAAAhABkAAQAUAAsAAAAhABoAAQAUAAgAAAAhABsAAQAUAAkAAAAhABwAAQAUAAoAAAAhAB0AAQAUAAsAAAAhAB4AAQAUAAgAAAAhAB8AAQAUAAkAAAAhACAAAQAYABEAAAAhACEAAQAYABIAAAAhACIAAQAYABMAAAAiAAUAAAANAAEAAAAiAAYAAAANAAIAAAAiAAcAAAANAAMAAAAiAAgAAAANAAQAAAAiAAkAAAANAAUAAAAiAAoAAAANAAYAAAAiAAwAAQARAAAAAAAiAA0AAQARAAEAAAAiAA4AAQARAAIAAAAiAA8AAQARAAMAAAAiABAAAQAVAAgAAAAiABEAAQAVAAkAAAAiABIAAQAVAAoAAAAiABMAAQAVAAsAAAAiABQAAQAVAAgAAAAiABUAAQAVAAkAAAAiABYAAQAVAAoAAAAiABcAAQAVAAkAAAAiABgAAQAVAAoAAAAiABkAAQAVAAsAAAAiABoAAQAVAAgAAAAiABsAAQAVAAkAAAAiABwAAQAVAAoAAAAiAB0AAQAVAAsAAAAiAB4AAQAVAAgAAAAiAB8AAQAVAAkAAAAiACAAAQAZABEAAAAiACEAAQAZABIAAAAiACIAAQAZABMAAAAjAAUAAAAOAAEAAAAjAAYAAAAOAAIAAAAjAAcAAAAOAAMAAAAjAAgAAAAOAAQAAAAjAAkAAAAOAAUAAAAjAAoAAAAOAAYAAAAjAAwAAQASAAAAAAAjAA0AAQASAAEAAAAjAA4AAQASAAIAAAAjAA8AAQASAAMAAAAjABAAAQAWAAgAAAAjABEAAQAWAAkAAAAjABIAAQAWAAoAAAAjABMAAQAWAAsAAAAjABQAAQAWAAgAAAAjABUAAQAWAAkAAAAjABYAAQAWAAoAAAAjABcAAQAWAAkAAAAjABgAAQAWAAoAAAAjABkAAQAWAAsAAAAjABoAAQAWAAgAAAAjABsAAQAWAAkAAAAjABwAAQAWAAoAAAAjAB0AAQAWAAsAAAAjAB4AAQAWAAgAAAAjAB8AAQAWAAkAAAAjACAAAQAaABEAAAAjACEAAQAaABIAAAAjACIAAQAaABMAAAAkAAUAAAAPAAEAAAAkAAYAAAAPAAIAAAAkAAcAAAAPAAMAAAAkAAgAAAAPAAQAAAAkAAkAAAAPAAUAAAAkAAoAAAAPAAYAAAAkAAwAAQATAAAAAAAkAA0AAQATAAEAAAAkAA4AAQATAAIAAAAkAA8AAQATAAMAAAAkABAAAQAXAAgAAAAkABEAAQAXAAkAAAAkABIAAQAXAAoAAAAkABMAAQAXAAsAAAAkABQAAQAXAAgAAAAkABUAAQAXAAkAAAAkABYAAQAXAAoAAAAkABcAAQAXAAkAAAAkABgAAQAXAAoAAAAkABkAAQAXAAsAAAAkABoAAQAXAAgAAAAkABsAAQAXAAkAAAAkABwAAQAXAAoAAAAkAB0AAQAXAAsAAAAkAB4AAQAXAAgAAAAkAB8AAQAXAAkAAAAkACAAAQAbABEAAAAkACEAAQAbABIAAAAkACIAAQAbABMAAAAlAAUAAAAMAAEAAAAlAAYAAAAMAAIAAAAlAAcAAAAMAAMAAAAlAAgAAAAMAAQAAAAlAAkAAAAMAAUAAAAlAAoAAAAMAAYAAAAlAAwAAQAQAAAAAAAlAA0AAQAQAAEAAAAlAA4AAQAQAAIAAAAlAA8AAQAQAAMAAAAlABAAAQAUAAgAAAAlABEAAQAUAAkAAAAlABIAAQAUAAoAAAAlABMAAQAUAAsAAAAlABQAAQAUAAgAAAAlABUAAQAUAAkAAAAlABYAAQAUAAoAAAAlABcAAQAUAAkAAAAlABgAAQAUAAoAAAAlABkAAQAUAAsAAAAlABoAAQAUAAgAAAAlABsAAQAUAAkAAAAlABwAAQAUAAoAAAAlAB0AAQAUAAsAAAAlAB4AAQAUAAgAAAAlAB8AAQAUAAkAAAAlACAAAQAQABEAAAAlACEAAQAQABIAAAAlACIAAQAQABMAAAAmAAUAAAANAAEAAAAmAAYAAAANAAIAAAAmAAcAAAANAAMAAAAmAAgAAAANAAQAAAAmAAkAAAANAAUAAAAmAAoAAAANAAYAAAAmAAwAAQARAAAAAAAmAA0AAQARAAEAAAAmAA4AAQARAAIAAAAmAA8AAQARAAMAAAAmABAAAQAVAAgAAAAmABEAAQAVAAkAAAAmABIAAQAVAAoAAAAmABMAAQAVAAsAAAAmABQAAQAVAAgAAAAmABUAAQAVAAkAAAAmABYAAQAVAAoAAAAmABcAAQAVAAkAAAAmABgAAQAVAAoAAAAmABkAAQAVAAsAAAAmABoAAQAVAAgAAAAmABsAAQAVAAkAAAAmABwAAQAVAAoAAAAmAB0AAQAVAAsAAAAmAB4AAQAVAAgAAAAmAB8AAQAVAAkAAAAmACAAAQARABEAAAAmACEAAQARABIAAAAmACIAAQARABMAAAAnAAUAAAAOAAEAAAAnAAYAAAAOAAIAAAAnAAcAAAAOAAMAAAAnAAgAAAAOAAQAAAAnAAkAAAAOAAUAAAAnAAoAAAAOAAYAAAAnAAwAAQASAAAAAAAnAA0AAQASAAEAAAAnAA4AAQASAAIAAAAnAA8AAQASAAMAAAAnABAAAQAWAAgAAAAnABEAAQAWAAkAAAAnABIAAQAWAAoAAAAnABMAAQAWAAsAAAAnABQAAQAWAAgAAAAnABUAAQAWAAkAAAAnABYAAQAWAAoAAAAnABcAAQAWAAkAAAAnABgAAQAWAAoAAAAnABkAAQAWAAsAAAAnABoAAQAWAAgAAAAnABsAAQAWAAkAAAAnABwAAQAWAAoAAAAnAB0AAQAWAAsAAAAnAB4AAQAWAAgAAAAnAB8AAQAWAAkAAAAnACAAAQASABEAAAAnACEAAQASABIAAAAnACIAAQASABMAAAAoAAUAAAAPAAEAAAAoAAYAAAAPAAIAAAAoAAcAAAAPAAMAAAAoAAgAAAAPAAQAAAAoAAkAAAAPAAUAAAAoAAoAAAAPAAYAAAAoAAwAAQATAAAAAAAoAA0AAQATAAEAAAAoAA4AAQATAAIAAAAoAA8AAQATAAMAAAAoABAAAQAXAAgAAAAoABEAAQAXAAkAAAAoABIAAQAXAAoAAAAoABMAAQAXAAsAAAAoABQAAQAXAAgAAAAoABUAAQAXAAkAAAAoABYAAQAXAAoAAAAoABcAAQAXAAkAAAAoABgAAQAXAAoAAAAoABkAAQAXAAsAAAAoABoAAQAXAAgAAAAoABsAAQAXAAkAAAAoABwAAQAXAAoAAAAoAB0AAQAXAAsAAAAoAB4AAQAXAAgAAAAoAB8AAQAXAAkAAAAoACAAAQATABEAAAAoACEAAQATABIAAAAoACIAAQATABMAAAApAAUAAAAMAAEAAAApAAYAAAAMAAIAAAApAAcAAAAMAAMAAAApAAgAAAAMAAQAAAApAAkAAAAMAAUAAAApAAoAAAAMAAYAAAApAAwAAQAQAAAAAAApAA0AAQAQAAEAAAApAA4AAQAQAAIAAAApAA8AAQAQAAMAAAApABAAAQAUAAgAAAApABEAAQAUAAkAAAApABIAAQAUAAoAAAApABMAAQAUAAsAAAApABQAAQAUAAgAAAApABUAAQAUAAkAAAApABYAAQAUAAoAAAApABcAAQAUAAkAAAApABgAAQAUAAoAAAApABkAAQAUAAsAAAApABoAAQAUAAgAAAApABsAAQAUAAkAAAApABwAAQAUAAoAAAApAB0AAQAUAAsAAAApAB4AAQAUAAgAAAApAB8AAQAUAAkAAAApACAAAQAQABEAAAApACEAAQAQABIAAAApACIAAQAQABMAAAAqAAUAAAANAAEAAAAqAAYAAAANAAIAAAAqAAcAAAANAAMAAAAqAAgAAAANAAQAAAAqAAkAAAANAAUAAAAqAAoAAAANAAYAAAAqAAwAAQARAAAAAAAqAA0AAQARAAEAAAAqAA4AAQARAAIAAAAqAA8AAQARAAMAAAAqABAAAQAVAAgAAAAqABEAAQAVAAkAAAAqABIAAQAVAAoAAAAqABMAAQAVAAsAAAAqABQAAQAVAAgAAAAqABUAAQAVAAkAAAAqABYAAQAVAAoAAAAqABcAAQAVAAkAAAAqABgAAQAVAAoAAAAqABkAAQAVAAsAAAAqABoAAQAVAAgAAAAqABsAAQAVAAkAAAAqABwAAQAVAAoAAAAqAB0AAQAVAAsAAAAqAB4AAQAVAAgAAAAqAB8AAQAVAAkAAAAqACAAAQARABEAAAAqACEAAQARABIAAAAqACIAAQARABMAAAArAAUAAAAOAAEAAAArAAYAAAAOAAIAAAArAAcAAAAOAAMAAAArAAgAAAAOAAQAAAArAAkAAAAOAAUAAAArAAoAAAAOAAYAAAArAAwAAQASAAAAAAArAA0AAQASAAEAAAArAA4AAQASAAIAAAArAA8AAQASAAMAAAArABAAAQAWAAgAAAArABEAAQAWAAkAAAArABIAAQAWAAoAAAArABMAAQAWAAsAAAArABQAAQAWAAgAAAArABUAAQAWAAkAAAArABYAAQAWAAoAAAArABcAAQAWAAkAAAArABgAAQAWAAoAAAArABkAAQAWAAsAAAArABoAAQAWAAgAAAArABsAAQAWAAkAAAArABwAAQAWAAoAAAArAB0AAQAWAAsAAAArAB4AAQAWAAgAAAArAB8AAQAWAAkAAAArACAAAQASABEAAAArACEAAQASABIAAAArACIAAQASABMAAAAsAAUAAAAPAAEAAAAsAAYAAAAPAAIAAAAsAAcAAAAPAAMAAAAsAAgAAAAPAAQAAAAsAAkAAAAPAAUAAAAsAAoAAAAPAAYAAAAsAAwAAQATAAAAAAAsAA0AAQATAAEAAAAsAA4AAQATAAIAAAAsAA8AAQATAAMAAAAsABAAAQAXAAgAAAAsABEAAQAXAAkAAAAsABIAAQAXAAoAAAAsABMAAQAXAAsAAAAsABQAAQAXAAgAAAAsABUAAQAXAAkAAAAsABYAAQAXAAoAAAAsABcAAQAXAAkAAAAsABgAAQAXAAoAAAAsABkAAQAXAAsAAAAsABoAAQAXAAgAAAAsABsAAQAXAAkAAAAsABwAAQAXAAoAAAAsAB0AAQAXAAsAAAAsAB4AAQAXAAgAAAAsAB8AAQAXAAkAAAAsACAAAQATABEAAAAsACEAAQATABIAAAAsACIAAQATABMAAAAtAAUAAAAMAAEAAAAtAAYAAAAMAAIAAAAtAAcAAAAMAAMAAAAtAAgAAAAMAAQAAAAtAAkAAAAMAAUAAAAtAAoAAAAMAAYAAAAtAAwAAQAQAAAAAAAtAA0AAQAQAAEAAAAtAA4AAQAQAAIAAAAtAA8AAQAQAAMAAAAtABAAAQAUAAgAAAAtABEAAQAUAAkAAAAtABIAAQAUAAoAAAAtABMAAQAUAAsAAAAtABQAAQAUAAgAAAAtABUAAQAUAAkAAAAtABYAAQAUAAoAAAAtABcAAQAUAAkAAAAtABgAAQAUAAoAAAAtABkAAQAUAAsAAAAtABoAAQAUAAgAAAAtABsAAQAUAAkAAAAtABwAAQAUAAoAAAAtAB0AAQAUAAsAAAAtAB4AAQAUAAgAAAAtAB8AAQAUAAkAAAAtACAAAQAQABEAAAAtACEAAQAQABIAAAAtACIAAQAQABMAAAAcAAUAAAAPAAEAAAAcAAYAAAAPAAIAAAAcAAcAAAAPAAMAAAAcAAgAAAAPAAQAAAAcAAkAAAAPAAUAAAAcAAoAAAAPAAYAAAAcAAwAAQATAAAAAAAcAA0AAQATAAEAAAAcAA4AAQATAAIAAAAcAA8AAQATAAMAAAAcABAAAQAXAAgAAAAcABEAAQAXAAkAAAAcABIAAQAXAAoAAAAcABMAAQAXAAsAAAAcABQAAQAXAAgAAAAcABUAAQAXAAkAAAAcABYAAQAXAAoAAAAcABcAAQAXAAkAAAAcABgAAQAXAAoAAAAcABkAAQAXAAsAAAAcABoAAQAXAAgAAAAcABsAAQAXAAkAAAAcABwAAQAXAAoAAAAcAB0AAQAXAAsAAAAcAB4AAQAXAAgAAAAcAB8AAQAXAAkAAAAcACAAAQATABEAAAAcACEAAQATABIAAAAcACIAAQATABMAAAAdAAUAAAAMAAEAAAAdAAYAAAAMAAIAAAAdAAcAAAAMAAMAAAAdAAgAAAAMAAQAAAAdAAkAAAAMAAUAAAAdAAoAAAAMAAYAAAAdAAwAAQAQAAAAAAAdAA0AAQAQAAEAAAAdAA4AAQAQAAIAAAAdAA8AAQAQAAMAAAAdABAAAQAUAAgAAAAdABEAAQAUAAkAAAAdABIAAQAUAAoAAAAdABMAAQAUAAsAAAAdABQAAQAUAAgAAAAdABUAAQAUAAkAAAAdABYAAQAUAAoAAAAdABcAAQAUAAkAAAAdABgAAQAUAAoAAAAdABkAAQAUAAsAAAAdABoAAQAUAAgAAAAdABsAAQAUAAkAAAAdABwAAQAUAAoAAAAdAB0AAQAUAAsAAAAdAB4AAQAUAAgAAAAdAB8AAQAUAAkAAAAdACAAAQAQABEAAAAdACEAAQAQABIAAAAdACIAAQAQABMAAAAeAAUAAAANAAEAAAAeAAYAAAANAAIAAAAeAAcAAAANAAMAAAAeAAgAAAANAAQAAAAeAAkAAAANAAUAAAAeAAoAAAANAAYAAAAeAAwAAQARAAAAAAAeAA0AAQARAAEAAAAeAA4AAQARAAIAAAAeAA8AAQARAAMAAAAeABAAAQAVAAgAAAAeABEAAQAVAAkAAAAeABIAAQAVAAoAAAAeABMAAQAVAAsAAAAeABQAAQAVAAgAAAAeABUAAQAVAAkAAAAeABYAAQAVAAoAAAAeABcAAQAVAAkAAAAeABgAAQAVAAoAAAAeABkAAQAVAAsAAAAeABoAAQAVAAgAAAAeABsAAQAVAAkAAAAeABwAAQAVAAoAAAAeAB0AAQAVAAsAAAAeAB4AAQAVAAgAAAAeAB8AAQAVAAkAAAAeACAAAQARABEAAAAeACEAAQARABIAAAAeACIAAQARABMAAAAfAAUAAAAOAAEAAAAfAAYAAAAOAAIAAAAfAAcAAAAOAAMAAAAfAAgAAAAOAAQAAAAfAAkAAAAOAAUAAAAfAAoAAAAOAAYAAAAfAAwAAQASAAAAAAAfAA0AAQASAAEAAAAfAA4AAQASAAIAAAAfAA8AAQASAAMAAAAfABAAAQAWAAgAAAAfABEAAQAWAAkAAAAfABIAAQAWAAoAAAAfABMAAQAWAAsAAAAfABQAAQAWAAgAAAAfABUAAQAWAAkAAAAfABYAAQAWAAoAAAAfABcAAQAWAAkAAAAfABgAAQAWAAoAAAAfABkAAQAWAAsAAAAfABoAAQAWAAgAAAAfABsAAQAWAAkAAAAfABwAAQAWAAoAAAAfAB0AAQAWAAsAAAAfAB4AAQAWAAgAAAAfAB8AAQAWAAkAAAAfACAAAQASABEAAAAfACEAAQASABIAAAAfACIAAQASABMAAAA1AAgAAAAXAAwAAAA1AAkAAAAXAA0AAAA1AAoAAAAXAA4AAAA1AAwAAQAbAAAAAAA1AA0AAQAbAAEAAAA1AA4AAQAbAAIAAAA1AA8AAQAbAAMAAAA1ABAAAQAXAAgAAAA1ABEAAQAXAAkAAAA1ABIAAQAXAAoAAAA1ABMAAQAXAAsAAAA1ABQAAQAXAAgAAAA1ABUAAQAXAAkAAAA1ABYAAQAXAAoAAAA1ABcAAQAXAAkAAAA1ABgAAQAXAAoAAAA1ABkAAQAXAAsAAAA1ABoAAQAXAAgAAAA1ABsAAQAXAAkAAAA1ABwAAQAXAAoAAAA1AB0AAQAXAAsAAAA1AB4AAQAXAAgAAAA1AB8AAQAXAAkAAAA1ACAAAAA3AAEAAAA1ACEAAAA3AAIAAAA1ACIAAAA3AAMAAAA2AAkAAAAYAA0AAAA2AAoAAAAYAA4AAAA2AAwAAQAoAAAAAAA2AA0AAQAoAAEAAAA2AA4AAQAoAAIAAAA2AA8AAQAoAAMAAAA2ABAAAQAUAAgAAAA2ABEAAQAUAAkAAAA2ABIAAQAUAAoAAAA2ABMAAQAUAAsAAAA2ABQAAQAUAAgAAAA2ABUAAQAUAAkAAAA2ABYAAQAUAAoAAAA2ABcAAQAUAAkAAAA2ABgAAQAUAAoAAAA2ABkAAQAUAAsAAAA2ABoAAQAUAAgAAAA2ABsAAQAUAAkAAAA2ABwAAQAUAAoAAAA2AB0AAQAUAAsAAAA2AB4AAQAUAAgAAAA2AB8AAQAUAAkAAAA2ACAAAAA4AAEAAAA2ACEAAAA4AAIAAAA2ACIAAAA4AAMAAAA2ACMAAAA4AAQAAAA2ACQAAAA4AAUAAAA2ACUAAAA4AAYAAAA3AAwAAQApAAAAAAA3AA0AAQApAAEAAAA3AA4AAQApAAIAAAA3AA8AAQApAAMAAAA3ABAAAQApAAgAAAA3ABEAAQApAAkAAAA3ABIAAQApAAoAAAA3ABMAAQApAAsAAAA3ABQAAQApAAgAAAA3ABUAAQApAAkAAAA3ABYAAQApAAoAAAA3ABcAAQApAAkAAAA3ABgAAQApAAoAAAA3ABkAAQApAAsAAAA3ABoAAQApAAgAAAA3ABsAAQApAAkAAAA3ABwAAQApAAgAAAA3AB0AAQApAAkAAAA3AB4AAQApAAoAAAA3AB8AAQApAAsAAAA3ACAAAAA5AAEAAAA3ACEAAAA5AAIAAAA3ACIAAAA5AAMAAAA3ACMAAAA5AAQAAAA3ACQAAAA5AAUAAAA4AAwAAQAqAAAAAAA4AA0AAQAqAAEAAAA4AA4AAQAqAAIAAAA4AA8AAQAqAAMAAAA4ABAAAQAqAAgAAAA4ABEAAQAqAAkAAAA4ABIAAQAqAAoAAAA4ABMAAQAqAAsAAAA4ABQAAQAqAAgAAAA4ABUAAQAqAAkAAAA4ABYAAQAqAAoAAAA4ABcAAQAqAAkAAAA4ABgAAQAqAAoAAAA4ABkAAQAqAAsAAAA4ABoAAQAqAAgAAAA4ABsAAQAqAAkAAAA4ABwAAQAqAAgAAAA4AB0AAQAqAAkAAAA4AB4AAQAqAAoAAAA4AB8AAQAqAAsAAAA4ACAAAAA6AAEAAAA4ACEAAAA6AAIAAAA4ACIAAAA6AAMAAAA4ACMAAAA6AAQAAAAuAAUAAAAQAAkAAAAuAAYAAAAQAAoAAAAuAAcAAAAQAAsAAAAuAAgAAAAQAAwAAAAuAAkAAAAQAA0AAAAuAAoAAAAQAA4AAAAuAAwAAQAQAAAAAAAuAA0AAQAQAAEAAAAuAA4AAQAQAAIAAAAuAA8AAQAQAAMAAAAuABAAAQAUAAgAAAAuABEAAQAUAAkAAAAuABIAAQAUAAoAAAAuABMAAQAUAAsAAAAuABQAAQAUAAgAAAAuABUAAQAUAAkAAAAuABYAAQAUAAoAAAAuABcAAQAUAAkAAAAuABgAAQAUAAoAAAAuABkAAQAUAAsAAAAuABoAAQAUAAgAAAAuABsAAQAUAAkAAAAuABwAAQAUAAoAAAAuAB0AAQAUAAsAAAAuAB4AAQAUAAgAAAAuAB8AAQAUAAkAAAAuACAAAAAwAAEAAAAuACEAAAAwAAIAAAAuACIAAAAwAAMAAAAvAAUAAAARAAkAAAAvAAYAAAARAAoAAAAvAAcAAAARAAsAAAAvAAgAAAARAAwAAAAvAAkAAAARAA0AAAAvAAoAAAARAA4AAAAvAAwAAQARAAAAAAAvAA0AAQARAAEAAAAvAA4AAQARAAIAAAAvAA8AAQARAAMAAAAvABAAAQAVAAgAAAAvABEAAQAVAAkAAAAvABIAAQAVAAoAAAAvABMAAQAVAAsAAAAvABQAAQAVAAgAAAAvABUAAQAVAAkAAAAvABYAAQAVAAoAAAAvABcAAQAVAAkAAAAvABgAAQAVAAoAAAAvABkAAQAVAAsAAAAvABoAAQAVAAgAAAAvABsAAQAVAAkAAAAvABwAAQAVAAoAAAAvAB0AAQAVAAsAAAAvAB4AAQAVAAgAAAAvAB8AAQAVAAkAAAAvACAAAAAxAAEAAAAvACEAAAAxAAIAAAAvACIAAAAxAAMAAAAvACMAAAAxAAQAAAAvACQAAAAxAAUAAAAvACUAAAAxAAYAAAAwAAUAAAASAAkAAAAwAAYAAAASAAoAAAAwAAcAAAASAAsAAAAwAAgAAAASAAwAAAAwAAkAAAASAA0AAAAwAAoAAAASAA4AAAAwAAwAAQASAAAAAAAwAA0AAQASAAEAAAAwAA4AAQASAAIAAAAwAA8AAQASAAMAAAAwABAAAQAWAAgAAAAwABEAAQAWAAkAAAAwABIAAQAWAAoAAAAwABMAAQAWAAsAAAAwABQAAQAWAAgAAAAwABUAAQAWAAkAAAAwABYAAQAWAAoAAAAwABcAAQAWAAkAAAAwABgAAQAWAAoAAAAwABkAAQAWAAsAAAAwABoAAQAWAAgAAAAwABsAAQAWAAkAAAAwABwAAQAWAAoAAAAwAB0AAQAWAAsAAAAwAB4AAQAWAAgAAAAwAB8AAQAWAAkAAAAwACAAAAAyAAEAAAAwACEAAAAyAAIAAAAwACIAAAAyAAMAAAAwACMAAAAyAAQAAAAwACQAAAAyAAUAAAAwACUAAAAyAAYAAAAxAAUAAAATAAkAAAAxAAYAAAATAAoAAAAxAAcAAAATAAsAAAAxAAgAAAATAAwAAAAxAAkAAAATAA0AAAAxAAoAAAATAA4AAAAxAAsAAAATAA8AAAAxAAwAAQATAAAAAAAxAA0AAQATAAEAAAAxAA4AAQATAAIAAAAxAA8AAQATAAMAAAAxABAAAQAXAAgAAAAxABEAAQAXAAkAAAAxABIAAQAXAAoAAAAxABMAAQAXAAsAAAAxABQAAQAXAAgAAAAxABUAAQAXAAkAAAAxABYAAQAXAAoAAAAxABcAAQAXAAkAAAAxABgAAQAXAAoAAAAxABkAAQAXAAsAAAAxABoAAQAXAAgAAAAxABsAAQAXAAkAAAAxABwAAQAXAAoAAAAxAB0AAQAXAAsAAAAxAB4AAQAXAAgAAAAxAB8AAQAXAAkAAAAxACAAAAAzAAEAAAAxACEAAAAzAAIAAAAxACIAAAAzAAMAAAAxACMAAAAzAAQAAAAxACQAAAAzAAUAAAAxACUAAAAzAAYAAAAxACYAAAAzAAcAAAAxACcAAAAzAAgAAAAxACgAAAAzAAkAAAAyAAUAAAAUAAkAAAAyAAYAAAAUAAoAAAAyAAcAAAAUAAsAAAAyAAgAAAAUAAwAAAAyAAkAAAAUAA0AAAAyAAoAAAAUAA4AAAAyAAsAAAAUAA8AAAAyAAwAAQAYAAAAAAAyAA0AAQAYAAEAAAAyAA4AAQAYAAIAAAAyAA8AAQAYAAMAAAAyABAAAQAUAAgAAAAyABEAAQAUAAkAAAAyABIAAQAUAAoAAAAyABMAAQAUAAsAAAAyABQAAQAUAAgAAAAyABUAAQAUAAkAAAAyABYAAQAUAAoAAAAyABcAAQAUAAkAAAAyABgAAQAUAAoAAAAyABkAAQAUAAsAAAAyABoAAQAUAAgAAAAyABsAAQAUAAkAAAAyABwAAQAUAAoAAAAyAB0AAQAUAAsAAAAyAB4AAQAUAAgAAAAyAB8AAQAUAAkAAAAyACAAAAA0AAEAAAAyACEAAAA0AAIAAAAyACIAAAA0AAMAAAAyACMAAAA0AAQAAAAyACQAAAA0AAUAAAAyACUAAAA0AAYAAAAyACYAAAA0AAcAAAAyACcAAAA0AAgAAAAyACgAAAA0AAkAAAAzAAYAAAAVAAoAAAAzAAcAAAAVAAsAAAAzAAgAAAAVAAwAAAAzAAkAAAAVAA0AAAAzAAoAAAAVAA4AAAAzAAsAAAAVAA8AAAAzAAwAAQAZAAAAAAAzAA0AAQAZAAEAAAAzAA4AAQAZAAIAAAAzAA8AAQAZAAMAAAAzABAAAQAVAAgAAAAzABEAAQAVAAkAAAAzABIAAQAVAAoAAAAzABMAAQAVAAsAAAAzABQAAQAVAAgAAAAzABUAAQAVAAkAAAAzABYAAQAVAAoAAAAzABcAAQAVAAkAAAAzABgAAQAVAAoAAAAzABkAAQAVAAsAAAAzABoAAQAVAAgAAAAzABsAAQAVAAkAAAAzABwAAQAVAAoAAAAzAB0AAQAVAAsAAAAzAB4AAQAVAAgAAAAzAB8AAQAVAAkAAAAzACAAAAA1AAEAAAAzACEAAAA1AAIAAAAzACIAAAA1AAMAAAAzACMAAAA1AAQAAAAzACQAAAA1AAUAAAAzACUAAAA1AAYAAAAzACYAAAA1AAcAAAAzACcAAAA1AAgAAAAzACgAAAA1AAkAAAA0AAcAAAAWAAsAAAA0AAgAAAAWAAwAAAA0AAkAAAAWAA0AAAA0AAoAAAAWAA4AAAA0AAsAAAAWAA8AAAA0AAwAAQAaAAAAAAA0AA0AAQAaAAEAAAA0AA4AAQAaAAIAAAA0AA8AAQAaAAMAAAA0ABAAAQAWAAgAAAA0ABEAAQAWAAkAAAA0ABIAAQAWAAoAAAA0ABMAAQAWAAsAAAA0ABQAAQAWAAgAAAA0ABUAAQAWAAkAAAA0ABYAAQAWAAoAAAA0ABcAAQAWAAkAAAA0ABgAAQAWAAoAAAA0ABkAAQAWAAsAAAA0ABoAAQAWAAgAAAA0ABsAAQAWAAkAAAA0ABwAAQAWAAoAAAA0AB0AAQAWAAsAAAA0AB4AAQAWAAgAAAA0AB8AAQAWAAkAAAA0ACAAAAA2AAEAAAA0ACEAAAA2AAIAAAA0ACIAAAA2AAMAAAA0ACMAAAA2AAQAAAA0ACQAAAA2AAUAAAA0ACUAAAA2AAYAAAA0ACYAAAA2AAcAAAA0ACcAAAA2AAgAAAA1AAsAAAAXAA8AAAA1ACMAAAA3AAQAAAA1ACQAAAA3AAUAAAA1ACUAAAA3AAYAAAA1ACYAAAA3AAcAAAA1ACcAAAA3AAgAAAA1ACgAAAA3AAkAAAA2AAsAAAAYAA8AAAA2ACYAAAA4AAcAAAA2ACcAAAA4AAgAAAA2ACgAAAA4AAkAAAAxACkAAAAzAAoAAAAyACkAAAA0AAoAAAA2ACkAAAA4AAoAAAA=")
 tile_set = SubResource("TileSet_7l04m")
 
-[node name="CastleMenuPanel" type="Panel" parent="."]
+[node name="buttons" type="TextureRect" parent="."]
 process_mode = 3
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -360.0
-offset_top = -234.0
-offset_right = 360.0
-offset_bottom = 234.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 0
-theme_override_styles/panel = SubResource("StyleBoxEmpty_hire")
-
-[node name="CastleBackdrop" type="Panel" parent="CastleMenuPanel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 0.0
-offset_bottom = 0.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_hire_modal")
 
-[node name="castle_back_btn" type="Button" parent="CastleMenuPanel"]
-z_index = 1
+[node name="back" type="Button" parent="buttons"]
 process_mode = 3
 layout_mode = 0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 84.0
-offset_bottom = 84.0
-theme_override_constants/icon_max_width = 44
-theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
-theme_override_colors/font_hover_pressed_color = Color(1, 0.96, 0.8, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+offset_left = 373.0
+offset_top = 211.0
+offset_right = 445.0
+offset_bottom = 283.0
 icon = ExtResource("4_ltan3")
 flat = true
-expand_icon = false
 
-[node name="CastleTitle" type="Label" parent="CastleMenuPanel"]
+[node name="hire" type="Button" parent="buttons"]
+process_mode = 3
 layout_mode = 0
-offset_left = 72.0
-offset_top = 28.0
-offset_right = 648.0
-offset_bottom = 88.0
-theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
+offset_left = 499.0
+offset_top = 254.0
+offset_right = 761.0
+offset_bottom = 326.0
+theme_override_colors/font_hover_pressed_color = Color(0.843137, 0.819608, 0.654902, 1)
+theme_override_colors/icon_hover_pressed_color = Color(0, 0.34902, 0, 0.176471)
+theme_override_colors/font_color = Color(0.286275, 0.294118, 0.364706, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("5_sbu3m")
 theme_override_font_sizes/font_size = 40
-horizontal_alignment = 1
-text = "Замок Аврора"
-
-[node name="CastleDivider" type="ColorRect" parent="CastleMenuPanel"]
-layout_mode = 0
-offset_left = 40.0
-offset_top = 96.0
-offset_right = 680.0
-offset_bottom = 98.0
-mouse_filter = 2
-color = Color(0.28, 0.35, 0.46, 0.55)
-
-[node name="MainActions" type="VBoxContainer" parent="CastleMenuPanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 40.0
-offset_top = 112.0
-offset_right = -40.0
-offset_bottom = -28.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 14
-alignment = 1
-
-[node name="hire" type="Button" parent="CastleMenuPanel/MainActions"]
-process_mode = 3
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/h_separation = 12
-theme_override_constants/icon_max_width = 40
-theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
-theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
-theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
-theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
-text = "Нанять людей"
+text = "╨Э╨░╨╜╤П╤В╤М ╨╗╤О╨┤╨╡╨╣"
 icon = ExtResource("6_2llpa")
 flat = true
-alignment = 0
-icon_alignment = 0
-expand_icon = false
 
-[node name="upgreat" type="Button" parent="CastleMenuPanel/MainActions"]
+[node name="upgreat" type="Button" parent="buttons"]
 process_mode = 3
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/h_separation = 12
-theme_override_constants/icon_max_width = 40
-theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
-theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
-theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
+layout_mode = 0
+offset_left = 501.0
+offset_top = 332.0
+offset_right = 809.0
+offset_bottom = 404.0
+theme_override_colors/font_hover_pressed_color = Color(0.862745, 0.862745, 0.647059, 1)
+theme_override_colors/icon_hover_pressed_color = Color(0.843137, 0.819608, 0.654902, 0.337255)
+theme_override_colors/font_color = Color(0.286275, 0.294118, 0.364706, 1)
 theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
-theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
-text = "Улучшить здания"
+theme_override_font_sizes/font_size = 40
+text = "╨г╨╗╤Г╤З╤И╨╕╤В╤М ╨╖╨┤╨░╨╜╨╕╤П"
 icon = ExtResource("7_sbu3m")
 flat = true
-alignment = 0
-icon_alignment = 0
-expand_icon = false
 
-[node name="info" type="Button" parent="CastleMenuPanel/MainActions"]
+[node name="info" type="Button" parent="buttons"]
 process_mode = 3
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/h_separation = 12
-theme_override_constants/icon_max_width = 40
-theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
-theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
-theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
+layout_mode = 0
+offset_left = 504.0
+offset_top = 411.0
+offset_right = 646.0
+offset_bottom = 483.0
+theme_override_colors/font_hover_pressed_color = Color(0.843137, 0.819608, 0.654902, 1)
+theme_override_colors/icon_hover_pressed_color = Color(0.862745, 0.858824, 0.647059, 0.219608)
+theme_override_colors/font_color = Color(0.286275, 0.294118, 0.364706, 1)
 theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
-theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
-text = "Инфо"
+theme_override_font_sizes/font_size = 40
+text = "╨Ш╨╜╤Д╨╛"
 icon = ExtResource("8_2llpa")
 flat = true
-alignment = 0
-icon_alignment = 0
-expand_icon = false
+
+[node name="signature" type="Label" parent="."]
+layout_mode = 0
+offset_left = 526.0
+offset_top = 86.0
+offset_right = 761.0
+offset_bottom = 146.0
+theme_override_colors/font_color = Color(0.878431, 0.87451, 0.854902, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 50
+text = "╨Ч╨░╨╝╨╛╨║ ╨Р╨▓╤А╨╛╤А╨░"
 
 [node name="InfoPanel" type="Panel" parent="."]
 visible = false
@@ -1762,535 +1525,25 @@ offset_left = 300.0
 offset_top = 180.0
 offset_right = 980.0
 offset_bottom = 520.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_hire_modal")
 
 [node name="InfoLabel" type="Label" parent="InfoPanel"]
 layout_mode = 0
 offset_left = 20.0
-offset_top = 96.0
+offset_top = 20.0
 offset_right = 640.0
 offset_bottom = 300.0
-text = "Замок Аврора
+text = "╨Ч╨░╨╝╨╛╨║ ╨Р╨▓╤А╨╛╤А╨░
 
-Здесь вы можете:
-- Нанимать лучников (по цене, зависящей от сложности).
-- Улучшать здания за золото.
+╨Ч╨┤╨╡╤Б╤М ╨▓╤Л ╨╝╨╛╨╢╨╡╤В╨╡:
+- ╨Э╨░╨╜╨╕╨╝╨░╤В╤М ╨╗╤Г╤З╨╜╨╕╨║╨╛╨▓ (╨┐╨╛ ╤Ж╨╡╨╜╨╡, ╨╖╨░╨▓╨╕╤Б╤П╤Й╨╡╨╣ ╨╛╤В ╤Б╨╗╨╛╨╢╨╜╨╛╤Б╤В╨╕).
+- ╨г╨╗╤Г╤З╤И╨░╤В╤М ╨╖╨┤╨░╨╜╨╕╤П ╨╖╨░ ╨╖╨╛╨╗╨╛╤В╨╛.
 
-Лучники:
-- Следуют за героем.
-- Останавливаются и стреляют по врагам в зоне.
-- Отступают при получении урона и затем продолжают стрелять."
+╨Ы╤Г╤З╨╜╨╕╨║╨╕:
+- ╨б╨╗╨╡╨┤╤Г╤О╤В ╨╖╨░ ╨│╨╡╤А╨╛╨╡╨╝.
+- ╨Ю╤Б╤В╨░╨╜╨░╨▓╨╗╨╕╨▓╨░╤О╤В╤Б╤П ╨╕ ╤Б╤В╤А╨╡╨╗╤П╤О╤В ╨┐╨╛ ╨▓╤А╨░╨│╨░╨╝ ╨▓ ╨╖╨╛╨╜╨╡.
+- ╨Ю╤В╤Б╤В╤Г╨┐╨░╤О╤В ╨┐╤А╨╕ ╨┐╨╛╨╗╤Г╤З╨╡╨╜╨╕╨╕ ╤Г╤А╨╛╨╜╨░ ╨╕ ╨╖╨░╤В╨╡╨╝ ╨┐╤А╨╛╨┤╨╛╨╗╨╢╨░╤О╤В ╤Б╤В╤А╨╡╨╗╤П╤В╤М."
 
-[node name="info_back_btn" type="Button" parent="InfoPanel"]
-process_mode = 3
-layout_mode = 0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 84.0
-offset_bottom = 84.0
-theme_override_constants/icon_max_width = 44
-theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
-theme_override_colors/font_hover_pressed_color = Color(1, 0.96, 0.8, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
-icon = ExtResource("4_ltan3")
-flat = true
-expand_icon = false
-
-[node name="HireSelectPanel" type="Control" parent="."]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 0
-
-[node name="HirePanel" type="Panel" parent="HireSelectPanel"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -360.0
-offset_top = -234.0
-offset_right = 360.0
-offset_bottom = 234.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 0
-theme_override_styles/panel = SubResource("StyleBoxEmpty_hire")
-
-[node name="HireBackdrop" type="Panel" parent="HireSelectPanel/HirePanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 0.0
-offset_bottom = 0.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_hire_modal")
-
-[node name="HireDivider" type="ColorRect" parent="HireSelectPanel/HirePanel"]
-layout_mode = 0
-offset_left = 40.0
-offset_top = 156.0
-offset_right = 680.0
-offset_bottom = 158.0
-mouse_filter = 2
-color = Color(0.28, 0.35, 0.46, 0.55)
-
-[node name="hire_back_btn" type="Button" parent="HireSelectPanel/HirePanel"]
-layout_mode = 0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 84.0
-offset_bottom = 84.0
-theme_override_constants/icon_max_width = 44
-theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
-theme_override_colors/font_hover_pressed_color = Color(1, 0.96, 0.8, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
-icon = ExtResource("4_ltan3")
-flat = true
-expand_icon = false
-
-[node name="TitleHire" type="Label" parent="HireSelectPanel/HirePanel"]
-layout_mode = 0
-offset_left = 72.0
-offset_top = 28.0
-offset_right = 648.0
-offset_bottom = 88.0
-theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 40
-horizontal_alignment = 1
-text = "Найм войск"
-
-[node name="SubtitleHire" type="Label" parent="HireSelectPanel/HirePanel"]
-layout_mode = 0
-offset_left = 48.0
-offset_top = 92.0
-offset_right = 672.0
-offset_bottom = 124.0
-theme_override_colors/font_color = Color(0.88, 0.9, 0.95, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 22
-horizontal_alignment = 1
-vertical_alignment = 1
-autowrap_mode = 3
-clip_text = true
-text = "Война — путь обмана."
-
-[node name="HirePriceLabel" type="Label" parent="HireSelectPanel/HirePanel"]
-layout_mode = 0
-offset_left = 48.0
-offset_top = 124.0
-offset_right = 672.0
-offset_bottom = 150.0
-theme_override_colors/font_color = Color(0.96, 0.92, 0.78, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 18
-horizontal_alignment = 1
-text = "Одинаковая цена для всех типов"
-
-[node name="slot_archer" type="PanelContainer" parent="HireSelectPanel/HirePanel"]
-layout_mode = 0
-offset_left = 30.0
-offset_top = 172.0
-offset_right = 210.0
-offset_bottom = 428.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_hire_slot")
-
-[node name="ColumnArcher" type="VBoxContainer" parent="HireSelectPanel/HirePanel/slot_archer"]
-layout_mode = 2
-theme_override_constants/separation = 10
-alignment = 1
-
-[node name="PortraitFrameArcher" type="Panel" parent="HireSelectPanel/HirePanel/slot_archer/ColumnArcher"]
-custom_minimum_size = Vector2(136, 136)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_styles/panel = SubResource("StyleBoxFlat_portrait_frame")
-
-[node name="PortraitArcher" type="TextureRect" parent="HireSelectPanel/HirePanel/slot_archer/ColumnArcher/PortraitFrameArcher"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 4.0
-offset_top = 4.0
-offset_right = -4.0
-offset_bottom = -4.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 0
-texture = ExtResource("10_avatar03")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="LabelArcher" type="Label" parent="HireSelectPanel/HirePanel/slot_archer/ColumnArcher"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.88, 0.84, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 22
-horizontal_alignment = 1
-text = "Лучник"
-
-[node name="BuyArcher" type="Button" parent="HireSelectPanel/HirePanel/slot_archer/ColumnArcher"]
-custom_minimum_size = Vector2(176, 48)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/h_separation = 10
-theme_override_constants/icon_max_width = 36
-theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
-theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
-theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
-theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
-text = "150"
-icon = ExtResource("6_2llpa")
-flat = true
-alignment = 0
-icon_alignment = 0
-expand_icon = false
-
-[node name="slot_lancer" type="PanelContainer" parent="HireSelectPanel/HirePanel"]
-layout_mode = 0
-offset_left = 270.0
-offset_top = 172.0
-offset_right = 450.0
-offset_bottom = 428.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_hire_slot")
-
-[node name="ColumnLancer" type="VBoxContainer" parent="HireSelectPanel/HirePanel/slot_lancer"]
-layout_mode = 2
-theme_override_constants/separation = 10
-alignment = 1
-
-[node name="PortraitFrameLancer" type="Panel" parent="HireSelectPanel/HirePanel/slot_lancer/ColumnLancer"]
-custom_minimum_size = Vector2(136, 136)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_styles/panel = SubResource("StyleBoxFlat_portrait_frame")
-
-[node name="PortraitLancer" type="TextureRect" parent="HireSelectPanel/HirePanel/slot_lancer/ColumnLancer/PortraitFrameLancer"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 4.0
-offset_top = 4.0
-offset_right = -4.0
-offset_bottom = -4.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 0
-texture = ExtResource("9_avatar02")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="LabelLancer" type="Label" parent="HireSelectPanel/HirePanel/slot_lancer/ColumnLancer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.88, 0.84, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 22
-horizontal_alignment = 1
-text = "Копейщик"
-
-[node name="BuyLancer" type="Button" parent="HireSelectPanel/HirePanel/slot_lancer/ColumnLancer"]
-custom_minimum_size = Vector2(176, 48)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/h_separation = 10
-theme_override_constants/icon_max_width = 36
-theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
-theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
-theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
-theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
-text = "150"
-icon = ExtResource("6_2llpa")
-flat = true
-alignment = 0
-icon_alignment = 0
-expand_icon = false
-
-[node name="slot_pawn" type="PanelContainer" parent="HireSelectPanel/HirePanel"]
-layout_mode = 0
-offset_left = 510.0
-offset_top = 172.0
-offset_right = 690.0
-offset_bottom = 428.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_hire_slot")
-
-[node name="ColumnPawn" type="VBoxContainer" parent="HireSelectPanel/HirePanel/slot_pawn"]
-layout_mode = 2
-theme_override_constants/separation = 10
-alignment = 1
-
-[node name="PortraitFramePawn" type="Panel" parent="HireSelectPanel/HirePanel/slot_pawn/ColumnPawn"]
-custom_minimum_size = Vector2(136, 136)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_styles/panel = SubResource("StyleBoxFlat_portrait_frame")
-
-[node name="PortraitPawn" type="TextureRect" parent="HireSelectPanel/HirePanel/slot_pawn/ColumnPawn/PortraitFramePawn"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 4.0
-offset_top = 4.0
-offset_right = -4.0
-offset_bottom = -4.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 0
-texture = ExtResource("11_avatar05")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="LabelPawn" type="Label" parent="HireSelectPanel/HirePanel/slot_pawn/ColumnPawn"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.88, 0.84, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 22
-horizontal_alignment = 1
-text = "Рабочий"
-
-[node name="BuyPawn" type="Button" parent="HireSelectPanel/HirePanel/slot_pawn/ColumnPawn"]
-custom_minimum_size = Vector2(176, 48)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/h_separation = 10
-theme_override_constants/icon_max_width = 36
-theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
-theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
-theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
-theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
-text = "150"
-icon = ExtResource("6_2llpa")
-flat = true
-alignment = 0
-icon_alignment = 0
-expand_icon = false
-
-[node name="UpgradeSelectPanel" type="Control" parent="."]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 0
-
-[node name="UpgradePanel" type="Panel" parent="UpgradeSelectPanel"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -360.0
-offset_top = -280.0
-offset_right = 360.0
-offset_bottom = 280.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 0
-theme_override_styles/panel = SubResource("StyleBoxEmpty_hire")
-
-[node name="UpgradeBackdrop" type="Panel" parent="UpgradeSelectPanel/UpgradePanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_hire_modal")
-
-[node name="upgrade_back_btn" type="Button" parent="UpgradeSelectPanel/UpgradePanel"]
-layout_mode = 0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 84.0
-offset_bottom = 84.0
-theme_override_constants/icon_max_width = 44
-theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
-theme_override_colors/font_hover_pressed_color = Color(1, 0.96, 0.8, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
-icon = ExtResource("4_ltan3")
-flat = true
-expand_icon = false
-
-[node name="TitleUpgrade" type="Label" parent="UpgradeSelectPanel/UpgradePanel"]
-layout_mode = 0
-offset_left = 72.0
-offset_top = 28.0
-offset_right = 648.0
-offset_bottom = 88.0
-theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 40
-horizontal_alignment = 1
-text = "Улучшение зданий"
-
-[node name="SubtitleUpgrade" type="Label" parent="UpgradeSelectPanel/UpgradePanel"]
-layout_mode = 0
-offset_left = 48.0
-offset_top = 92.0
-offset_right = 672.0
-offset_bottom = 132.0
-theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 0.92)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 20
-horizontal_alignment = 1
-autowrap_mode = 3
-text = "Выберите здание. Цена на кнопке. Сила временных бафов оружейной растёт с уровнем оружейной."
-
-[node name="UpgradeDivider" type="ColorRect" parent="UpgradeSelectPanel/UpgradePanel"]
-layout_mode = 0
-offset_left = 40.0
-offset_top = 140.0
-offset_right = 680.0
-offset_bottom = 142.0
-mouse_filter = 2
-color = Color(0.28, 0.35, 0.46, 0.55)
-
-[node name="UpgradeActions" type="VBoxContainer" parent="UpgradeSelectPanel/UpgradePanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 40.0
-offset_top = 152.0
-offset_right = -40.0
-offset_bottom = -28.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 12
-alignment = 1
-
-[node name="BtnMonastery" type="Button" parent="UpgradeSelectPanel/UpgradePanel/UpgradeActions"]
-process_mode = 3
-custom_minimum_size = Vector2(0, 48)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/h_separation = 12
-theme_override_constants/icon_max_width = 40
-theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
-theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
-theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
-theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
-text = "Монастырь (церковь)"
-flat = true
-alignment = 0
-
-[node name="BtnCastle" type="Button" parent="UpgradeSelectPanel/UpgradePanel/UpgradeActions"]
-process_mode = 3
-custom_minimum_size = Vector2(0, 48)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/h_separation = 12
-theme_override_constants/icon_max_width = 40
-theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
-theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
-theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
-theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
-text = "Замок (штаб)"
-flat = true
-alignment = 0
-
-[node name="BtnBarracks" type="Button" parent="UpgradeSelectPanel/UpgradePanel/UpgradeActions"]
-process_mode = 3
-custom_minimum_size = Vector2(0, 48)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/h_separation = 12
-theme_override_constants/icon_max_width = 40
-theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
-theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
-theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
-theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
-text = "Оружейная"
-flat = true
-alignment = 0
-
-[node name="BtnArchery" type="Button" parent="UpgradeSelectPanel/UpgradePanel/UpgradeActions"]
-process_mode = 3
-custom_minimum_size = Vector2(0, 48)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/h_separation = 12
-theme_override_constants/icon_max_width = 40
-theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
-theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
-theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
-theme_override_fonts/font = ExtResource("5_sbu3m")
-theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
-theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
-text = "Стрельбище"
-flat = true
-alignment = 0
-
-[connection signal="pressed" from="CastleMenuPanel/castle_back_btn" to="." method="_on_back_pressed"]
-[connection signal="pressed" from="CastleMenuPanel/MainActions/hire" to="." method="_on_hire_pressed"]
-[connection signal="pressed" from="CastleMenuPanel/MainActions/upgreat" to="." method="_on_upgreat_pressed"]
-[connection signal="pressed" from="CastleMenuPanel/MainActions/info" to="." method="_on_info_pressed"]
-[connection signal="pressed" from="InfoPanel/info_back_btn" to="." method="_on_info_back_pressed"]
-[connection signal="pressed" from="HireSelectPanel/HirePanel/hire_back_btn" to="." method="_on_hire_pick_back_pressed"]
-[connection signal="pressed" from="HireSelectPanel/HirePanel/slot_archer/ColumnArcher/BuyArcher" to="." method="_on_hire_archer_pressed"]
-[connection signal="pressed" from="HireSelectPanel/HirePanel/slot_lancer/ColumnLancer/BuyLancer" to="." method="_on_hire_lancer_pressed"]
-[connection signal="pressed" from="HireSelectPanel/HirePanel/slot_pawn/ColumnPawn/BuyPawn" to="." method="_on_hire_pawn_pressed"]
-[connection signal="pressed" from="UpgradeSelectPanel/UpgradePanel/upgrade_back_btn" to="." method="_on_upgrade_pick_back_pressed"]
-[connection signal="pressed" from="UpgradeSelectPanel/UpgradePanel/UpgradeActions/BtnMonastery" to="." method="_on_upgrade_monastery_pressed"]
-[connection signal="pressed" from="UpgradeSelectPanel/UpgradePanel/UpgradeActions/BtnCastle" to="." method="_on_upgrade_castle_pressed"]
-[connection signal="pressed" from="UpgradeSelectPanel/UpgradePanel/UpgradeActions/BtnBarracks" to="." method="_on_upgrade_barracks_pressed"]
-[connection signal="pressed" from="UpgradeSelectPanel/UpgradePanel/UpgradeActions/BtnArchery" to="." method="_on_upgrade_archery_pressed"]
+[connection signal="pressed" from="buttons/back" to="." method="_on_back_pressed"]
+[connection signal="pressed" from="buttons/hire" to="." method="_on_hire_pressed"]
+[connection signal="pressed" from="buttons/upgreat" to="." method="_on_upgreat_pressed"]
+[connection signal="pressed" from="buttons/info" to="." method="_on_info_pressed"]

@@ -3,6 +3,11 @@ extends CharacterBody2D
 
 const HEALTH_NODE_NAME := "HealthComponent"
 const _HealthComponentScript := preload("res://characters/components/health_component.gd")
+const _WorldMiniHpBar := preload("res://ui/hp_bar/world_mini_hp_bar.gd")
+
+## Мини HP-бар над головой (игрок, враги, союзники).
+@export var show_mini_hp_bar: bool = true
+@export var mini_hp_bar_offset: Vector2 = Vector2(0, -92)
 
 var health_component: Node
 
@@ -10,6 +15,15 @@ var health_component: Node
 func _ready() -> void:
 	add_to_group("character_unit")
 	_ensure_health_component()
+	if show_mini_hp_bar:
+		_setup_mini_hp_bar()
+
+
+func _setup_mini_hp_bar() -> void:
+	var bar: Control = _WorldMiniHpBar.new()
+	add_child(bar)
+	bar.setup(self)
+	bar.position = mini_hp_bar_offset + Vector2(-bar.custom_minimum_size.x * 0.5, 0)
 
 
 func _ensure_health_component() -> void:

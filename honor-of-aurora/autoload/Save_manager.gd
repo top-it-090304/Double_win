@@ -6,6 +6,8 @@ var current_health = 100
 var current_level = 1
 var current_exp = 0
 var archer_count: int = 0
+var lancer_count: int = 0
+var pawn_count: int = 0
 ## Сколько раз герой умер (остров / бой).
 var death_count: int = 0
 ## Сколько раз вернулся на базу с острова (поход завершён телепортом).
@@ -30,6 +32,14 @@ const BASE_TELEPORT_RESUME_Y := 865.0
 var story_flags: Dictionary = {}
 ## Зачищенные зоны островов: ключ IslandProgress.zone_save_key(island, zone_id) → true.
 var island_zone_state: Dictionary = {}
+## Уровни зданий на базе: ключ building_type → 0..4 (BuildingColor: 0 = первая текстура / «уровень 1» … 4 = макс.).
+const DEFAULT_BUILDING_LEVELS := {
+	"Monastery": 0,
+	"Castle": 0,
+	"Barracks": 0,
+	"Archery": 0,
+}
+var building_levels: Dictionary = DEFAULT_BUILDING_LEVELS.duplicate()
 ## Громкости шин (0.0–1.0), см. SoundManager.apply_user_volume_settings().
 var volume_music: float = 1.0
 var volume_sfx: float = 1.0
@@ -38,7 +48,7 @@ var volume_dialogue: float = 1.0
 
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
-const SAVE_DATA = ["gold", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue"]
+const SAVE_DATA = ["gold", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue"]
 const default_data := {
 	"gold" : 0,
 	"boss_kill" : 0,
@@ -46,6 +56,8 @@ const default_data := {
 	"current_level" : 1,
 	"current_exp" : 0,
 	"archer_count" : 0,
+	"lancer_count" : 0,
+	"pawn_count" : 0,
 	"death_count" : 0,
 	"expedition_return_count" : 0,
 	"was_on_adventure_before_menu" : false,
@@ -55,6 +67,12 @@ const default_data := {
 	"resume_from_death" : false,
 	"story_flags" : {},
 	"island_zone_state" : {},
+	"building_levels" : {
+		"Monastery": 0,
+		"Castle": 0,
+		"Barracks": 0,
+		"Archery": 0,
+	},
 	"volume_music" : 1.0,
 	"volume_sfx" : 1.0,
 	"volume_ui" : 1.0,
@@ -65,6 +83,7 @@ const default_data := {
 func load_game():
 	if not FileAccess.file_exists(GAME_SAVE_FILE):
 		current_health = HeroProgression.get_tier_for_level(current_level).max_health
+		building_levels = DEFAULT_BUILDING_LEVELS.duplicate()
 		return
 		
 	var game_save_file = FileAccess.open(GAME_SAVE_FILE, FileAccess.READ)
@@ -85,15 +104,25 @@ func load_game():
 				story_flags = (v as Dictionary).duplicate()
 			elif variable == "island_zone_state" and v is Dictionary:
 				island_zone_state = (v as Dictionary).duplicate()
+			elif variable == "building_levels" and v is Dictionary:
+				building_levels = (v as Dictionary).duplicate()
 			elif variable.begins_with("volume_") and typeof(v) in [TYPE_FLOAT, TYPE_INT]:
 				set(variable, clampf(float(v), 0.0, 1.0))
 			else:
 				set(variable, v)
 		elif variable == "island_zone_state":
 			island_zone_state = {}
+		elif variable == "building_levels":
+			building_levels = DEFAULT_BUILDING_LEVELS.duplicate()
+
+	building_levels = _normalize_building_levels(building_levels)
 
 	_migrate_story_island_flags_from_legacy_boss_kill()
 	_migrate_truth_choice_flags()
+	if not game_data.has("lancer_count"):
+		lancer_count = 0
+	if not game_data.has("pawn_count"):
+		pawn_count = 0
 	if not game_data.has("resume_from_death"):
 		resume_from_death = (
 			current_health == 1
@@ -140,6 +169,20 @@ func _migrate_story_island_flags_from_legacy_boss_kill() -> void:
 	save_game()
 
 
+func notify_squad_member_died(unit: Node) -> void:
+	if unit == null:
+		return
+	if bool(unit.get_meta("no_squad_death", false)):
+		return
+	if unit.is_in_group("ally_archer"):
+		archer_count = maxi(0, archer_count - 1)
+	elif unit.is_in_group("ally_lancer"):
+		lancer_count = maxi(0, lancer_count - 1)
+	elif unit.is_in_group("ally_pawn"):
+		pawn_count = maxi(0, pawn_count - 1)
+	save_game()
+
+
 func save_game():
 	var game_save_file = FileAccess.open(GAME_SAVE_FILE, FileAccess.WRITE)
 	if game_save_file == null:
@@ -151,6 +194,26 @@ func save_game():
 		game_data[variable] = get(variable)
 	var json_object := JSON.new()
 	game_save_file.store_line(json_object.stringify(game_data))
+
+
+func _normalize_building_levels(src: Dictionary) -> Dictionary:
+	var out := DEFAULT_BUILDING_LEVELS.duplicate()
+	if src.is_empty():
+		return out
+	for k in out.keys():
+		if src.has(k):
+			out[k] = clampi(int(src[k]), 0, 4)
+	return out
+
+
+func get_building_tier(building_type: String) -> int:
+	if not building_levels.has(building_type):
+		return 0
+	return clampi(int(building_levels[building_type]), 0, 4)
+
+
+func set_building_tier(building_type: String, tier: int) -> void:
+	building_levels[building_type] = clampi(tier, 0, 4)
 
 
 func get_resume_location_enum() -> Events.LOCATION:
@@ -184,8 +247,13 @@ func reset_data():
 		var v: Variant = default_data[variable]
 		if variable == "story_flags" or variable == "island_zone_state":
 			v = (v as Dictionary).duplicate()
+		elif variable == "building_levels":
+			v = DEFAULT_BUILDING_LEVELS.duplicate()
 		game_data[variable] = v
 		set(variable, v)
+
+	building_levels = DEFAULT_BUILDING_LEVELS.duplicate()
+	game_data["building_levels"] = building_levels.duplicate()
 
 	volume_music = keep_vm
 	volume_sfx = keep_vs

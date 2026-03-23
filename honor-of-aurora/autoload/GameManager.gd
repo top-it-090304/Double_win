@@ -2,23 +2,158 @@ extends Node
 
 var current_scene_player: Node = null
 
+## Оружейная (Barracks): бонусы до возврата с острова. Сбрасываются при прибытии на базу с похода.
+var armory_attack_bonus: int = 0
+## Доля входящего урона в блоке щитом (база 0.2). Меньше — лучше защита.
+var armory_shield_damage_factor: float = 0.2
+var armory_sword_prepared: bool = false
+var armory_shield_prepared: bool = false
+
+const ARMORY_SWORD_DAMAGE_BONUS: int = 12
+const ARMORY_SHIELD_FACTOR_DELTA: float = 0.035
+const ARMORY_SHIELD_FACTOR_MIN: float = 0.07
+## Базовая доля урона, проходящая в блоке щитом (20%).
+const ARMORY_SHIELD_BASE_DAMAGE_FACTOR: float = 0.2
+## Цена разовой заточки / правки в оружейной (золото).
+const ARMORY_SWORD_BUFF_COST: int = 90
+const ARMORY_SHIELD_BUFF_COST: int = 90
+## На каждый уровень здания Barracks (0→4): +12.5% к силе временного бафа (заточка / щит).
+const ARMORY_TIER_BUFF_PER_LEVEL: float = 0.125
+
+
+## Уровень оружейной на базе (0 = чёрная текстура … 4 = жёлтая). Влияет только на величину временных бафов.
+func get_armory_building_tier() -> int:
+	return SaveManager.get_building_tier("Barracks")
+
+
+## Множитель силы бафа «перед походом» от прокачки здания Barracks.
+func get_armory_prep_strength_multiplier() -> float:
+	return 1.0 + ARMORY_TIER_BUFF_PER_LEVEL * float(get_armory_building_tier())
+
+
+func get_armory_sword_buff_cost() -> int:
+	return ARMORY_SWORD_BUFF_COST
+
+
+func get_armory_shield_buff_cost() -> int:
+	return ARMORY_SHIELD_BUFF_COST
+
+
+## Сколько урона добавит следующая заточка (к атаке героя, до конца похода).
+func get_armory_sword_buff_damage_preview() -> int:
+	return int(round(float(ARMORY_SWORD_DAMAGE_BONUS) * get_armory_prep_strength_multiplier()))
+
+
+## На сколько снизится доля урона в блоке (абсолютные процентные пункты от полного удара).
+func get_armory_shield_buff_delta_ratio() -> float:
+	return ARMORY_SHIELD_FACTOR_DELTA * get_armory_prep_strength_multiplier()
+
+
+## Доля урона в блоке после следующей правки (0…1).
+func get_armory_shield_factor_after_buff_preview() -> float:
+	return maxf(ARMORY_SHIELD_FACTOR_MIN, ARMORY_SHIELD_BASE_DAMAGE_FACTOR - get_armory_shield_buff_delta_ratio())
+
+
+func try_prepare_armory_sword() -> bool:
+	if armory_sword_prepared:
+		return false
+	if not GameplayFacade.try_spend_gold(ARMORY_SWORD_BUFF_COST):
+		return false
+	armory_sword_prepared = true
+	var mul := get_armory_prep_strength_multiplier()
+	armory_attack_bonus += int(round(float(ARMORY_SWORD_DAMAGE_BONUS) * mul))
+	var player := _find_player_node_in_current_scene()
+	if player and player.has_method("apply_armory_attack_bonus_from_manager"):
+		player.apply_armory_attack_bonus_from_manager()
+	return true
+
+
+func try_prepare_armory_shield() -> bool:
+	if armory_shield_prepared:
+		return false
+	if not GameplayFacade.try_spend_gold(ARMORY_SHIELD_BUFF_COST):
+		return false
+	armory_shield_prepared = true
+	var mul := get_armory_prep_strength_multiplier()
+	var delta := ARMORY_SHIELD_FACTOR_DELTA * mul
+	armory_shield_damage_factor = maxf(ARMORY_SHIELD_FACTOR_MIN, armory_shield_damage_factor - delta)
+	return true
+
+
+func reset_armory_preparation() -> void:
+	armory_attack_bonus = 0
+	armory_shield_damage_factor = ARMORY_SHIELD_BASE_DAMAGE_FACTOR
+	armory_sword_prepared = false
+	armory_shield_prepared = false
+
+
 func _ready() -> void:
 	SaveManager.load_game()
 	Events.sync_story_state_from_save()
 	Events.location_changed.connect(handle_location_changed)
 
 var _archer_scene: PackedScene
+var _lancer_scene: PackedScene
+var _pawn_scene: PackedScene
+
+## Уже в памяти при старте: нет подвисания на load() при первом «Новая игра».
+const BASE_SCENE_PACKED: PackedScene = preload("res://Game/Game_base_islad.tscn")
+const PLAYER_SCENE_PACKED: PackedScene = preload("res://ally/player/scenes/worrier_base.tscn")
+
+
+func _get_player_scene() -> PackedScene:
+	return PLAYER_SCENE_PACKED
 
 const ARCHER_SPAWN_SPACING := 80.0
 const ARCHER_MIN_SPAWN_SEPARATION := 72.0
 
 const _GROUND_TILE_LAYER_NAMES := ["floor_0", "floor_1", "floor_2", "bridge", "steps"]
 const _ARCHER_LAND_SEARCH_RADIUS_CELLS := 48
+## Если зона спавна отряда покрывает слишком много тайлов — полный перебор клеток подвисает игру.
+const _MAX_SQUAD_ZONE_TILES := 12000
 
 func _get_archer_scene() -> PackedScene:
 	if _archer_scene == null:
 		_archer_scene = load("res://ally/archer/arche_baser.tscn") as PackedScene
 	return _archer_scene
+
+
+func _get_lancer_scene() -> PackedScene:
+	if _lancer_scene == null:
+		_lancer_scene = load("res://ally/lancer/scenes/lancer_base.tscn") as PackedScene
+	return _lancer_scene
+
+
+func _get_pawn_scene() -> PackedScene:
+	if _pawn_scene == null:
+		_pawn_scene = load("res://ally/pawn/scenes/pawn_base.tscn") as PackedScene
+	return _pawn_scene
+
+
+func _find_boat_tilemap_layer(node: Node) -> TileMapLayer:
+	if node is TileMapLayer and node.name == "boat":
+		return node as TileMapLayer
+	for c in node.get_children():
+		var found := _find_boat_tilemap_layer(c)
+		if found:
+			return found
+	return null
+
+
+## Центр занятых тайлов слоя «boat» в мировых координатах (среднее, если тайлов несколько).
+func get_boat_tile_center_global(scene_root: Node) -> Vector2:
+	var boat := _find_boat_tilemap_layer(scene_root)
+	if boat == null or boat.tile_set == null:
+		return Vector2.ZERO
+	var cells := boat.get_used_cells()
+	if cells.is_empty():
+		return Vector2.ZERO
+	var ts := boat.tile_set.tile_size
+	var acc := Vector2.ZERO
+	for cell in cells:
+		var local := boat.map_to_local(cell) + Vector2(ts) * 0.5
+		acc += boat.to_global(local)
+	return acc / float(cells.size())
 
 
 func _spawn_point_clear(pos: Vector2, avoid: Array[Vector2], min_dist: float) -> bool:
@@ -83,6 +218,10 @@ func _world_centers_on_land_in_rect(scene_root: Node, floor_ref: TileMapLayer, g
 		max_x = maxi(max_x, mc.x)
 		min_y = mini(min_y, mc.y)
 		max_y = maxi(max_y, mc.y)
+	var span_x: int = max_x - min_x + 3
+	var span_y: int = max_y - min_y + 3
+	if span_x > 0 and span_y > 0 and span_x * span_y > _MAX_SQUAD_ZONE_TILES:
+		return out
 	for x in range(min_x - 1, max_x + 2):
 		for y in range(min_y - 1, max_y + 2):
 			var c := Vector2i(x, y)
@@ -103,6 +242,8 @@ func pick_archer_spawn_positions(scene_root: Node, count: int, avoid: Array[Vect
 	var seed := avoid[0] if not avoid.is_empty() else Vector2.ZERO
 	if zone_rect.size.x > 0.0 and zone_rect.size.y > 0.0:
 		var candidates := _world_centers_on_land_in_rect(scene_root, floor_ref, zone_rect)
+		if candidates.is_empty() and count > 0:
+			return _pick_archer_spawn_fallback(scene_root, count, avoid, min_sep)
 		var center := zone_rect.get_center()
 		candidates.sort_custom(func(a: Vector2, b: Vector2) -> bool:
 			return a.distance_squared_to(center) < b.distance_squared_to(center))
@@ -173,6 +314,8 @@ var _location_scene_cache: Dictionary = {}
 
 
 func _get_location_scene(loc: Events.LOCATION) -> Variant:
+	if loc == Events.LOCATION.BASE:
+		return BASE_SCENE_PACKED
 	if _location_scene_cache.has(loc):
 		return _location_scene_cache[loc]
 	var path: String = _LOCATION_SCENE_PATHS.get(loc, "") as String
@@ -185,13 +328,13 @@ func _get_location_scene(loc: Events.LOCATION) -> Variant:
 func handle_location_changed(new_location: Events.LOCATION):
 	var prev_location := Events.current_location
 
-	# Выход в меню (HUD): сохраняем сцену и позицию героя; персонаж не попадает в сцену меню (см. teleport_player_to_scene).
+	# Выход в меню (HUD): сохраняем сцену и позицию героя; герой в меню не создаётся — только UI.
 	# После смерти resume уже задан (база, зона телепорта, 1 HP) — не перезаписывать.
 	if new_location == Events.LOCATION.MENU:
 		if SaveManager.death_resume_pending:
 			SaveManager.death_resume_pending = false
 		else:
-			var player: Node = get_tree().get_first_node_in_group("player")
+			var player: Node = _find_player_node_in_current_scene()
 			if player and is_instance_valid(player) and player.get("health") != null:
 				SaveManager.current_health = int(player.get("health"))
 				SaveManager.resume_game_location = int(prev_location)
@@ -204,6 +347,7 @@ func handle_location_changed(new_location: Events.LOCATION):
 
 	# Прямой телепорт: база ← остров.
 	if new_location == Events.LOCATION.BASE and Events.is_adventure_location(prev_location):
+		reset_armory_preparation()
 		SaveManager.expedition_return_count += 1
 		Events.pending_healer_dialogue_after_expedition = true
 		Events.was_on_adventure_before_menu = false
@@ -213,6 +357,7 @@ func handle_location_changed(new_location: Events.LOCATION):
 	# Главное меню → база («Продолжить»): если до меню были на острове, считаем это возвратом с похода.
 	if new_location == Events.LOCATION.BASE and prev_location == Events.LOCATION.MENU:
 		if SaveManager.was_on_adventure_before_menu:
+			reset_armory_preparation()
 			SaveManager.expedition_return_count += 1
 			Events.pending_healer_dialogue_after_expedition = true
 			Events.was_on_adventure_before_menu = false
@@ -220,12 +365,18 @@ func handle_location_changed(new_location: Events.LOCATION):
 			SaveManager.save_game()
 
 	Events.current_location = new_location
-	teleport_player_to_scene(new_location)
 	var packed: Variant = _get_location_scene(new_location)
 	if packed == null or not (packed is PackedScene):
 		push_error("GameManager: no PackedScene for location %s" % new_location)
 		return
+	# Старый герой — дочерний узел текущей сцены; change_scene_to_packed освобождает дерево вместе с ним.
+	current_scene_player = null
 	get_tree().change_scene_to_packed(packed as PackedScene)
+	# change_scene_to_packed откладывает смену: сразу после вызова current_scene ещё старая сцена — герой попадал в меню и удалялся вместе с ним.
+	# Нужно дождаться, пока новая сцена станет текущей (см. godotengine/godot#86286 — часто два кадра).
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_finish_player_placement_after_scene_change(new_location)
 	# После загрузки базы монах применяет жетон (см. monk_base).
 	if new_location == Events.LOCATION.BASE:
 		call_deferred("_apply_pending_healer_dialogue_token_on_base")
@@ -243,7 +394,7 @@ func add_gold(amount: int):
 
 
 func add_exp(amount: int) -> void:
-	var player: Node = get_tree().get_first_node_in_group("player")
+	var player: Node = _find_player_node_in_current_scene()
 	if player and player.has_method("gain_exp"):
 		player.gain_exp(amount)
 
@@ -251,84 +402,119 @@ func add_exp(amount: int) -> void:
 func _resolve_spawn_position(scene: Node) -> Variant:
 	if scene == null:
 		return null
+	var boat_pos := get_boat_tile_center_global(scene)
+	if boat_pos != Vector2.ZERO:
+		return boat_pos
 	if scene.has_method("get_spawn_position"):
-		return scene.call("get_spawn_position")
+		var sp: Variant = scene.call("get_spawn_position")
+		if sp is Vector2:
+			return sp
 	var v: Variant = scene.get("spawn_position")
 	if v is Vector2:
 		return v
 	return null
 
 
-func teleport_player_to_scene(location: Events.LOCATION):
-	var current_scene: Node = get_tree().current_scene
-	var player: Node = get_tree().get_first_node_in_group("player")
-	
-	if player and is_instance_valid(player):
-		var player_parent := player.get_parent()
-		if player_parent:
-			player_parent.remove_child(player)
-		current_scene_player = player
-	
-	await get_tree().process_frame
-	await get_tree().process_frame
-	
+func _find_player_node_in_current_scene() -> Node:
+	var scene_root: Node = get_tree().current_scene
+	if scene_root == null:
+		return null
+	for p in get_tree().get_nodes_in_group("player"):
+		if p and is_instance_valid(p) and scene_root.is_ancestor_of(p):
+			return p
+	return null
+
+
+func _finish_player_placement_after_scene_change(location: Events.LOCATION) -> void:
 	var new_scene: Node = get_tree().current_scene
 	if not new_scene:
 		return
 	
 	if location == Events.LOCATION.MENU:
-		# Герой остаётся под GameManager, не добавляется в сцену меню.
-		if current_scene_player and is_instance_valid(current_scene_player):
-			add_child(current_scene_player)
-			current_scene_player.visible = false
-			current_scene_player.process_mode = Node.PROCESS_MODE_DISABLED
-			remove_camera_from_player(current_scene_player)
 		return
 	
-	if current_scene_player and is_instance_valid(current_scene_player):
-		new_scene.add_child(current_scene_player)
-		current_scene_player.visible = true
-		current_scene_player.process_mode = Node.PROCESS_MODE_INHERIT
+	var ps: PackedScene = _get_player_scene()
+	if ps == null:
+		push_error("GameManager: missing player PackedScene")
+		return
+	current_scene_player = ps.instantiate() as Node
+	if current_scene_player == null:
+		return
+	new_scene.add_child(current_scene_player)
+	if current_scene_player.has_method("sync_from_save"):
+		current_scene_player.sync_from_save()
+	current_scene_player.visible = true
+	current_scene_player.process_mode = Node.PROCESS_MODE_INHERIT
 		
-		if SaveManager.apply_resume_position_on_next_scene and int(location) == SaveManager.resume_game_location:
-			current_scene_player.global_position = Vector2(SaveManager.resume_player_position_x, SaveManager.resume_player_position_y)
-			SaveManager.apply_resume_position_on_next_scene = false
-		else:
-			var sp: Variant = _resolve_spawn_position(new_scene)
-			if sp != null:
-				current_scene_player.global_position = sp as Vector2
+	if SaveManager.apply_resume_position_on_next_scene and int(location) == SaveManager.resume_game_location:
+		current_scene_player.global_position = Vector2(SaveManager.resume_player_position_x, SaveManager.resume_player_position_y)
+		SaveManager.apply_resume_position_on_next_scene = false
+	else:
+		var sp: Variant = _resolve_spawn_position(new_scene)
+		if sp is Vector2:
+			current_scene_player.global_position = sp as Vector2
 		
-		add_camera_to_player(current_scene_player)
+	add_camera_to_player(current_scene_player)
 		
-		if current_scene_player.has_method("gain_exp"):
-			current_scene_player.health = SaveManager.current_health
-		if current_scene_player.has_method("reset_after_death_resume"):
-			current_scene_player.reset_after_death_resume()
+	if current_scene_player.has_method("gain_exp"):
+		current_scene_player.health = SaveManager.current_health
+	if current_scene_player.has_method("reset_after_death_resume"):
+		current_scene_player.reset_after_death_resume()
 		
-		_spawn_saved_archers(new_scene)
+	_spawn_saved_archers(new_scene)
 		
-		SaveManager.resume_game_location = int(location)
-		SaveManager.resume_player_position_x = current_scene_player.global_position.x
-		SaveManager.resume_player_position_y = current_scene_player.global_position.y
-		SaveManager.save_game()
+	SaveManager.resume_game_location = int(location)
+	SaveManager.resume_player_position_x = current_scene_player.global_position.x
+	SaveManager.resume_player_position_y = current_scene_player.global_position.y
+	SaveManager.save_game()
 
 func _spawn_saved_archers(root: Node) -> void:
-	var n: int = SaveManager.archer_count
-	if n <= 0 or not current_scene_player or not is_instance_valid(current_scene_player):
+	if not current_scene_player or not is_instance_valid(current_scene_player):
+		return
+	var na: int = SaveManager.archer_count
+	var nl: int = SaveManager.lancer_count
+	var np: int = SaveManager.pawn_count
+	var total: int = na + nl + np
+	if total <= 0:
 		return
 	var base_pos: Vector2 = current_scene_player.global_position
 	var avoid: Array[Vector2] = [base_pos]
-	var positions := pick_archer_spawn_positions(root, n, avoid, ARCHER_MIN_SPAWN_SEPARATION)
-	var scene := _get_archer_scene()
-	if scene == null:
-		return
-	for i in range(n):
-		var archer := scene.instantiate() as Node2D
+	var positions := pick_archer_spawn_positions(root, total, avoid, ARCHER_MIN_SPAWN_SEPARATION)
+	var archer_scene := _get_archer_scene()
+	var lancer_scene := _get_lancer_scene()
+	var pawn_scene := _get_pawn_scene()
+	var squad_stationary_on_base := Events.current_location == Events.LOCATION.BASE
+	for i in range(na):
+		if archer_scene == null:
+			break
+		var archer := archer_scene.instantiate() as Node2D
 		if not archer:
 			continue
 		root.add_child(archer)
 		if i < positions.size():
 			archer.global_position = positions[i]
+		if squad_stationary_on_base:
+			archer.set("stationary_guard", true)
+	for j in range(nl):
+		if lancer_scene == null:
+			break
+		var lancer := lancer_scene.instantiate() as Node2D
+		if not lancer:
+			continue
+		root.add_child(lancer)
+		var idx: int = na + j
+		if idx < positions.size():
+			lancer.global_position = positions[idx]
+	for k in range(np):
+		if pawn_scene == null:
+			break
+		var pawn := pawn_scene.instantiate() as Node2D
+		if not pawn:
+			continue
+		root.add_child(pawn)
+		var idx2: int = na + nl + k
+		if idx2 < positions.size():
+			pawn.global_position = positions[idx2]
 
 func add_camera_to_player(player: Node):
 	var camera = player.get_node_or_null("Camera2D")
@@ -337,11 +523,6 @@ func add_camera_to_player(player: Node):
 		camera.name = "Camera2D"
 		player.add_child(camera)
 	camera.make_current()
-
-func remove_camera_from_player(player: Node):
-	var camera = player.get_node_or_null("Camera2D")
-	if camera:
-		camera.queue_free()
 
 func boss_kill():
 	SaveManager.boss_kill += 1

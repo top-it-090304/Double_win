@@ -1,4 +1,4 @@
-[gd_scene load_steps=95 format=4 uid="uid://b0oiqjmnjpppv"]
+[gd_scene load_steps=94 format=4 uid="uid://b0oiqjmnjpppv"]
 
 [ext_resource type="Script" uid="uid://b2w1ontyogkqw" path="res://ui/menu/menu_scene.gd" id="1_0pui4"]
 [ext_resource type="PackedScene" uid="uid://dcadwipnt18nr" path="res://objects/clouds/cloud.tscn" id="2_fqxwl"]
@@ -47,7 +47,6 @@
 [ext_resource type="Texture2D" uid="uid://dup5d05xcku5y" path="res://Asets/Environment/Deco/11.png" id="45_ifi3r"]
 [ext_resource type="TileSet" uid="uid://firbi0hvr3ji" path="res://world/resources/other/boat.tres" id="46_chuwt"]
 [ext_resource type="PackedScene" uid="uid://odmcdls13s41" path="res://ui/menu/menu.tscn" id="47_afjly"]
-[ext_resource type="PackedScene" uid="uid://dr1fit5f1q2ii" path="res://ally/player/scenes/worrier_base.tscn" id="48_0pui4"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4v8e7"]
 texture = ExtResource("3_g6lub")
@@ -777,8 +776,5 @@ one_shot = true
 
 [node name="cloud" parent="." instance=ExtResource("2_fqxwl")]
 position = Vector2(32, 497)
-
-[node name="player_blue" parent="." instance=ExtResource("48_0pui4")]
-position = Vector2(610, 66)
 
 [connection signal="timeout" from="CloudSpawnTimer" to="." method="_on_cloud_spawn_timer_timeout"]

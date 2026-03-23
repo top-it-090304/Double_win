@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://l4nc3rbs0tscn"]
+[gd_scene load_steps=5 format=3 uid="uid://l4nc3rbs0tscn"]
 
 [ext_resource type="Script" uid="uid://l4nc3rbs0gd01" path="res://ally/lancer/scripts/lancer_base.gd" id="1_lancer"]
 [ext_resource type="SpriteFrames" uid="uid://c2l4ncr0frms1" path="res://ally/lancer/resources/black_lancer_frames.tres" id="2_frames"]
@@ -6,14 +6,25 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_lancer"]
 radius = 18.0
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_lancer_atk"]
+radius = 88.0
+
 [node name="LancerBase" type="CharacterBody2D"]
-collision_layer = 2
+collision_layer = 8
 collision_mask = 47
 script = ExtResource("1_lancer")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 24)
 shape = SubResource("CircleShape2D_lancer")
+
+[node name="AttackArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 1
+monitoring = true
+
+[node name="AttackShape" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("CircleShape2D_lancer_atk")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -32)
