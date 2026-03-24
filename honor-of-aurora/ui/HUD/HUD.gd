@@ -3,6 +3,7 @@ extends "res://ui/HUD/game_hud.gd"
 @export var teleport_menu: Control
 @export var castle_menu: Control
 @export var barracks_menu: Control
+@export var squad_orders_menu: Control
 
 
 func set_target_location(location: Events.LOCATION) -> void:
@@ -27,6 +28,11 @@ func _input(event: InputEvent) -> void:
 		hide_barracks_menu()
 		get_viewport().set_input_as_handled()
 		return
+	if squad_orders_menu != null and squad_orders_menu.visible and event.is_action_pressed("ui_cancel"):
+		if squad_orders_menu.has_method("close"):
+			squad_orders_menu.close()
+		get_viewport().set_input_as_handled()
+		return
 	if castle_menu != null and castle_menu.visible and event.is_action_pressed("ui_cancel"):
 		if castle_menu.has_method("try_close_hire_submenu") and castle_menu.try_close_hire_submenu():
 			get_viewport().set_input_as_handled()
@@ -37,6 +43,8 @@ func _input(event: InputEvent) -> void:
 func show_teleport_menu():
 	if teleport_menu.visible:
 		return
+	if squad_orders_menu and squad_orders_menu.visible and squad_orders_menu.has_method("close"):
+		squad_orders_menu.close()
 	if barracks_menu:
 		barracks_menu.hide()
 	if castle_menu:
@@ -63,6 +71,8 @@ func teleport_to(location: Events.LOCATION):
 
 func show_castle_menu():
 	SoundManager.play_menu_open()
+	if squad_orders_menu and squad_orders_menu.visible and squad_orders_menu.has_method("close"):
+		squad_orders_menu.close()
 	if barracks_menu:
 		barracks_menu.hide()
 	if castle_menu == null:
@@ -85,6 +95,8 @@ func show_barracks_menu():
 	if teleport_menu and teleport_menu.visible:
 		hide_teleport_menu()
 	SoundManager.play_menu_open()
+	if squad_orders_menu and squad_orders_menu.visible and squad_orders_menu.has_method("close"):
+		squad_orders_menu.close()
 	if castle_menu:
 		castle_menu.hide()
 	if barracks_menu == null:
@@ -101,3 +113,24 @@ func hide_barracks_menu():
 		return
 	barracks_menu.hide()
 	get_tree().paused = false
+
+
+func try_open_squad_orders_menu(unit: Node2D) -> bool:
+	if DialogueManager.is_active():
+		return false
+	if SquadCombatState.is_engaged():
+		return false
+	if unit == null or not is_instance_valid(unit):
+		return false
+	if squad_orders_menu == null or not squad_orders_menu.has_method("open_for"):
+		return false
+	if squad_orders_menu.visible:
+		return false
+	if teleport_menu and teleport_menu.visible:
+		return false
+	if barracks_menu and barracks_menu.visible:
+		return false
+	if castle_menu and castle_menu.visible:
+		return false
+	squad_orders_menu.open_for(unit)
+	return true

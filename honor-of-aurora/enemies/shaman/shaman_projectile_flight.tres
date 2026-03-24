@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=4 format=3 uid="uid://53p3yeyd16or"]
+[gd_resource type="SpriteFrames" load_steps=5 format=3 uid="uid://53p3yeyd16or"]
 
 [ext_resource type="Texture2D" uid="uid://bltkvyepoxvki" path="res://Asets/Enemy/Enemy Pack/Shaman/Shaman_Projectile.png" id="1_atlas"]
 

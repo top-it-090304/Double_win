@@ -1,6 +1,8 @@
 extends Control
 ## Полноэкранные настройки: сложность, звук, экран, сенсорное управление. Сохранение в SaveManager.
+## При emulate_mouse_from_touch=false жест по ScrollContainer не доходит от дочерних контролов — дублируем скролл в _input.
 
+@onready var _scroll: ScrollContainer = $OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll
 @onready var _difficulty: OptionButton = %DifficultyOption
 @onready var _difficulty_desc: Label = %DifficultyDesc
 @onready var _music_slider: HSlider = %MusicSlider
@@ -14,12 +16,18 @@ extends Control
 @onready var _touch_opacity: HSlider = %TouchOpacitySlider
 @onready var _haptic: CheckBox = %HapticCheck
 
+var _settings_scroll_touch_index: int = -1
+
 
 func _ready() -> void:
 	theme = GameUITheme.create_theme()
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	set_process_input(true)
 	set_process_unhandled_input(true)
+	if _scroll:
+		_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	_fill_difficulty_options()
 	_fill_fps_options()
 	_fill_touch_mode_options()
@@ -83,6 +91,7 @@ func _fill_touch_mode_options() -> void:
 
 func show_settings() -> void:
 	_load_all_from_save()
+	_settings_scroll_touch_index = -1
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	visible = true
 
@@ -190,8 +199,55 @@ func _on_haptic_toggled(pressed: bool) -> void:
 
 func _on_back_pressed() -> void:
 	SoundManager.play_ui_button()
+	_settings_scroll_touch_index = -1
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
+func _settings_scroll_touch_blocks_scroll(global_pos: Vector2) -> bool:
+	## Не перехватывать жест, если палец на слайдере/списке/чекбоксе — иначе будет конфликт с их drag.
+	for c in [
+		_difficulty,
+		_music_slider,
+		_sfx_slider,
+		_ui_slider,
+		_dialogue_slider,
+		_fps_option,
+		_ui_scale_slider,
+		_touch_mode,
+		_touch_scale,
+		_touch_opacity,
+		_haptic,
+	]:
+		if c != null and is_instance_valid(c) and c.visible and c.get_global_rect().has_point(global_pos):
+			return true
+	return false
+
+
+func _input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if event is InputEventScreenDrag:
+		if _scroll and _settings_scroll_touch_index >= 0:
+			var sd := event as InputEventScreenDrag
+			if sd.index == _settings_scroll_touch_index:
+				_scroll.scroll_vertical -= int(sd.relative.y)
+				get_viewport().set_input_as_handled()
+		return
+	if event is InputEventScreenTouch:
+		if _scroll:
+			var st := event as InputEventScreenTouch
+			if st.pressed:
+				if _scroll.get_global_rect().has_point(st.position):
+					if _settings_scroll_touch_blocks_scroll(st.position):
+						_settings_scroll_touch_index = -1
+					else:
+						_settings_scroll_touch_index = st.index
+				else:
+					_settings_scroll_touch_index = -1
+			elif st.index == _settings_scroll_touch_index:
+				_settings_scroll_touch_index = -1
+		return
 
 
 func _unhandled_input(event: InputEvent) -> void:

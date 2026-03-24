@@ -11,6 +11,7 @@ const DEFINITION_PATHS: PackedStringArray = [
 	"res://dialogue/definitions/boss_post_5_def.tres",
 	"res://dialogue/definitions/gate_lv5_blocked_def.tres",
 	"res://dialogue/definitions/intro_base_island_def.tres",
+	"res://dialogue/definitions/monk_interact_hub_def.tres",
 	"res://dialogue/definitions/lore_crown_purse_def.tres",
 	"res://dialogue/definitions/lore_crown_contract_def.tres",
 	"res://dialogue/definitions/lore_order_oath_def.tres",
@@ -87,6 +88,6 @@ func _on_dialogue_ended(sequence: DialogueSequence) -> void:
 		StoryState.set_flag(flag, true)
 	if sequence.id == "monk_story_6":
 		MonkInteractiveDialogue.grant_ending_flag_after_finale()
-	# Случайный бантер должен собираться заново при следующем заходе в зону.
-	if sequence.id == "heal_banter" or sequence.id == "healer_idle_fallback":
+	# Случайный бантер и меню целителя должны собираться заново при следующем открытии.
+	if sequence.id == "heal_banter" or sequence.id == "healer_idle_fallback" or sequence.id == "monk_interact_hub":
 		sequence.lines.clear()

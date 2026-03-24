@@ -15,6 +15,12 @@ extends "res://characters/character_unit.gd"
 @export var flee_speed_multiplier: float = 1.25
 ## Стоит на башне / не следует за героем: только idle + смена flip по таймеру и стрельба по врагам.
 @export var stationary_guard: bool = false
+## Патруль (как у спутников): целевая точка в круге, без метания.
+@export var base_patrol_leash_radius: float = 1400.0
+@export var patrol_reach_distance: float = 44.0
+@export var patrol_max_segment_time: float = 50.0
+@export var patrol_wall_stuck_frames: int = 12
+@export_range(0.15, 1.0, 0.01) var patrol_speed_scale: float = 0.62
 
 var enemies_in_range : Array = []
 var facing_right := true
@@ -30,6 +36,13 @@ enum State { FOLLOW, SHOOT, FLEE, DEAD }
 var state: State = State.FOLLOW
 var player: Node2D = null
 var flee_target: Vector2 = Vector2.ZERO
+var _base_patrol_spawn: Vector2 = Vector2.ZERO
+var _patrol_goal: Vector2 = Vector2.ZERO
+var _patrol_has_goal: bool = false
+var _patrol_segment_time: float = 0.0
+var _patrol_stuck_frames: int = 0
+## Приказ идти к монаху (только лучник, база).
+var _order_to_healer: bool = false
 
 func _ready() -> void:
 	super._ready()
@@ -54,6 +67,29 @@ func _ready() -> void:
 	sprite.animation_finished.connect(_on_animation_finished)
 	
 	player = get_tree().get_first_node_in_group("player") as Node2D
+	call_deferred("_capture_base_patrol_spawn_after_placed")
+	if health_component:
+		health_component.health_changed.connect(_on_squad_health_changed)
+
+
+func _on_squad_health_changed(_current: int, _maximum: int) -> void:
+	if _order_to_healer and is_health_full():
+		_order_to_healer = false
+
+
+func squad_order_go_to_healer() -> void:
+	if Events.current_location != Events.LOCATION.BASE:
+		return
+	if not is_in_group("ally_archer"):
+		return
+	if is_health_full():
+		return
+	_order_to_healer = true
+
+
+func _capture_base_patrol_spawn_after_placed() -> void:
+	_base_patrol_spawn = global_position
+	_patrol_has_goal = false
 
 
 func apply_paralysis(duration_sec: float) -> void:
@@ -121,11 +157,10 @@ func _on_animation_finished():
 func _on_idle_timer_timeout():
 	if state == State.DEAD or state == State.FLEE:
 		return
-	if stationary_guard:
-		return
 	if not enemies_in_range and sprite.animation != "attack":
-		facing_right = !facing_right
-		sprite.flip_h = !facing_right
+		if stationary_guard or sprite.animation == &"idle":
+			facing_right = !facing_right
+			sprite.flip_h = !facing_right
 
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
@@ -184,6 +219,12 @@ func _physics_process(delta: float) -> void:
 func _get_follow_velocity() -> Vector2:
 	if stationary_guard:
 		return Vector2.ZERO
+	if _order_to_healer:
+		return _get_healer_trek_velocity()
+	if SquadOrders.mode == SquadOrders.Mode.HOLD:
+		return Vector2.ZERO
+	if SquadOrders.mode == SquadOrders.Mode.PATROL:
+		return _get_base_patrol_velocity()
 	if not player:
 		return Vector2.ZERO
 	
@@ -193,6 +234,61 @@ func _get_follow_velocity() -> Vector2:
 	if dist < follow_stop_distance:
 		return Vector2.ZERO
 	return Vector2.ZERO
+
+
+func _get_healer_trek_velocity() -> Vector2:
+	if is_health_full():
+		_order_to_healer = false
+		return Vector2.ZERO
+	var healer := get_tree().get_first_node_in_group("healer") as Node2D
+	if healer == null or not is_instance_valid(healer):
+		_order_to_healer = false
+		return Vector2.ZERO
+	var ha := healer.get_node_or_null("heal_area") as Area2D
+	if ha == null:
+		_order_to_healer = false
+		return Vector2.ZERO
+	if ha.overlaps_body(self):
+		return Vector2.ZERO
+	var dir := global_position.direction_to(healer.global_position)
+	if dir.length_squared() < 1e-6:
+		return Vector2.ZERO
+	return dir * speed
+
+
+func _get_base_patrol_velocity() -> Vector2:
+	var delta := get_physics_process_delta_time()
+	if not _patrol_has_goal:
+		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
+		_patrol_has_goal = true
+		_patrol_segment_time = 0.0
+	_patrol_segment_time += delta
+	if global_position.distance_to(_base_patrol_spawn) > base_patrol_leash_radius * 0.94:
+		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius * 0.42)
+		_patrol_segment_time = 0.0
+		_patrol_stuck_frames = 0
+	var to_goal := _patrol_goal - global_position
+	if to_goal.length() <= patrol_reach_distance:
+		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
+		_patrol_segment_time = 0.0
+		_patrol_stuck_frames = 0
+	elif _patrol_segment_time >= patrol_max_segment_time:
+		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
+		_patrol_segment_time = 0.0
+		_patrol_stuck_frames = 0
+	if is_on_wall():
+		_patrol_stuck_frames += 1
+		if _patrol_stuck_frames >= patrol_wall_stuck_frames:
+			_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
+			_patrol_segment_time = 0.0
+			_patrol_stuck_frames = 0
+	else:
+		_patrol_stuck_frames = 0
+	var dir := global_position.direction_to(_patrol_goal)
+	if dir.length_squared() < 1e-8:
+		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
+		dir = global_position.direction_to(_patrol_goal)
+	return dir * speed * patrol_speed_scale
 
 func _start_shooting_if_needed() -> void:
 	if state != State.SHOOT:
@@ -208,6 +304,11 @@ func _refresh_state() -> void:
 	enemies_in_range = enemies_in_range.filter(func(e): return is_instance_valid(e))
 	
 	if state in [State.DEAD, State.FLEE]:
+		return
+	
+	if _order_to_healer:
+		state = State.FOLLOW
+		attack_timer.stop()
 		return
 	
 	if not enemies_in_range.is_empty():
@@ -239,6 +340,7 @@ func _handle_death() -> void:
 	_die()
 
 func _start_flee() -> void:
+	_order_to_healer = false
 	var away_dir := Vector2.ZERO
 	var nearest_dist := INF
 	

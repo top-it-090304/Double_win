@@ -368,11 +368,15 @@ func handle_location_changed(new_location: Events.LOCATION):
 		return
 	# Старый герой — дочерний узел текущей сцены; change_scene_to_packed освобождает дерево вместе с ним.
 	current_scene_player = null
-	get_tree().change_scene_to_packed(packed as PackedScene)
-	# change_scene_to_packed откладывает смену: сразу после вызова current_scene ещё старая сцена — герой попадал в меню и удалялся вместе с ним.
-	# Нужно дождаться, пока новая сцена станет текущей (см. godotengine/godot#86286 — часто два кадра).
+	var err := get_tree().change_scene_to_packed(packed as PackedScene)
+	if err != OK:
+		push_error("GameManager: change_scene_to_packed failed: %s" % err)
+		return
+	# Ожидание кадра: current_scene и дерево должны стабилизироваться (см. godot#86286).
+	# Без этого _finish_player_placement часто видел пустую сцену — герой и камера не создавались.
 	await get_tree().process_frame
-	await get_tree().process_frame
+	if get_tree().current_scene == null:
+		await get_tree().process_frame
 	_finish_player_placement_after_scene_change(new_location)
 	# После загрузки базы монах применяет жетон (см. monk_base).
 	if new_location == Events.LOCATION.BASE:
@@ -480,7 +484,6 @@ func _spawn_saved_archers(root: Node) -> void:
 	var archer_scene := _get_archer_scene()
 	var lancer_scene := _get_lancer_scene()
 	var pawn_scene := _get_pawn_scene()
-	var squad_stationary_on_base := Events.current_location == Events.LOCATION.BASE
 	for i in range(na):
 		if archer_scene == null:
 			break
@@ -490,8 +493,7 @@ func _spawn_saved_archers(root: Node) -> void:
 		root.add_child(archer)
 		if i < positions.size():
 			archer.global_position = positions[i]
-		if squad_stationary_on_base:
-			archer.set("stationary_guard", true)
+		archer.add_to_group("squad_member")
 	for j in range(nl):
 		if lancer_scene == null:
 			break
@@ -502,6 +504,7 @@ func _spawn_saved_archers(root: Node) -> void:
 		var idx: int = na + j
 		if idx < positions.size():
 			lancer.global_position = positions[idx]
+		lancer.add_to_group("squad_member")
 	for k in range(np):
 		if pawn_scene == null:
 			break
@@ -512,14 +515,16 @@ func _spawn_saved_archers(root: Node) -> void:
 		var idx2: int = na + nl + k
 		if idx2 < positions.size():
 			pawn.global_position = positions[idx2]
+		pawn.add_to_group("squad_member")
 
-func add_camera_to_player(player: Node):
-	var camera = player.get_node_or_null("Camera2D")
-	if not camera:
-		camera = Camera2D.new()
-		camera.name = "Camera2D"
-		player.add_child(camera)
-	camera.make_current()
+func add_camera_to_player(player: Node) -> void:
+	var cam := player.get_node_or_null("Camera2D") as Camera2D
+	if cam == null:
+		cam = Camera2D.new()
+		cam.name = "Camera2D"
+		player.add_child(cam)
+	cam.enabled = true
+	cam.make_current()
 
 func boss_kill():
 	SaveManager.boss_kill += 1

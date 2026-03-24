@@ -185,7 +185,12 @@ animation = &"level_up"
 frame = 8
 frame_progress = 1.0
 
+[node name="Camera2D" type="Camera2D" parent="."]
+position_smoothing_enabled = true
+
 [node name="AttackArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 63
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea"]
 shape = SubResource("CircleShape2D_ycnn0")

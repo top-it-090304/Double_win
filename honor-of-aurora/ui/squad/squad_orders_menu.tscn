@@ -1,6 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://cxrosschd3sn8"]
+[gd_scene load_steps=4 format=3 uid="uid://squadordersmenu01"]
 
-[ext_resource type="Script" uid="uid://duj86my2k57sy" path="res://ui/dialogue/dialogue_window.gd" id="8_dwin"]
+[ext_resource type="Script" path="res://ui/squad/squad_orders_menu.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxDialog"]
 bg_color = Color(0.1, 0.11, 0.14, 0.96)
@@ -29,7 +29,7 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[node name="DialogueWindow" type="Control"]
+[node name="SquadOrdersMenu" type="Control"]
 process_mode = 3
 layout_mode = 3
 anchors_preset = 15
@@ -37,7 +37,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("8_dwin")
+mouse_filter = 1
+script = ExtResource("1_script")
 
 [node name="DialogueChrome" type="Control" parent="."]
 layout_mode = 1
@@ -45,12 +46,13 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 40.0
+offset_left = 80.0
 offset_top = -360.0
-offset_right = -40.0
-offset_bottom = -20.0
+offset_right = -80.0
+offset_bottom = -136.0
 grow_horizontal = 2
 grow_vertical = 0
+mouse_filter = 0
 
 [node name="PanelRoot" type="PanelContainer" parent="DialogueChrome"]
 layout_mode = 1
@@ -75,6 +77,8 @@ size_flags_vertical = 3
 theme_override_constants/separation = 10
 
 [node name="Row" type="HBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox"]
+custom_minimum_size = Vector2(0, 140)
+custom_maximum_size = Vector2(0, 140)
 layout_mode = 2
 size_flags_vertical = 0
 theme_override_constants/separation = 22
@@ -82,6 +86,7 @@ theme_override_constants/separation = 22
 [node name="LeftCol" type="VBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox/Row"]
 layout_mode = 2
 size_flags_horizontal = 0
+size_flags_vertical = 0
 theme_override_constants/separation = 10
 
 [node name="FaceFrame" type="PanelContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox/Row/LeftCol"]
@@ -97,37 +102,22 @@ stretch_mode = 5
 [node name="Name" type="Label" parent="DialogueChrome/PanelRoot/MarginMain/VBox/Row/LeftCol"]
 custom_minimum_size = Vector2(108, 0)
 layout_mode = 2
+size_flags_vertical = 0
 horizontal_alignment = 1
 autowrap_mode = 3
+clip_text = true
 
 [node name="text" type="Label" parent="DialogueChrome/PanelRoot/MarginMain/VBox/Row"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 autowrap_mode = 3
-
-[node name="ChoicesScroll" type="ScrollContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox"]
-visible = false
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
-
-[node name="ScrollPad" type="MarginContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ChoicesScroll"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/margin_left = 2
-theme_override_constants/margin_right = 10
-
-[node name="ChoicesVBox" type="VBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ChoicesScroll/ScrollPad"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 6
-alignment = 1
+clip_text = true
 
 [node name="ContinueHBox" type="HBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 0
 theme_override_constants/separation = 12
 
 [node name="CloseButton" type="Button" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ContinueHBox"]
@@ -141,3 +131,21 @@ size_flags_horizontal = 3
 [node name="ContinueButton" type="Button" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ContinueHBox"]
 layout_mode = 2
 text = "Далее"
+
+[node name="ChoicesScroll" type="ScrollContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+custom_minimum_size = Vector2(0, 200)
+custom_maximum_size = Vector2(0, 200)
+clip_contents = true
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 1
+
+[node name="ChoicesVBox" type="VBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ChoicesScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+alignment = 1
+theme_override_constants/separation = 8

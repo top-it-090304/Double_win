@@ -84,8 +84,9 @@ func _is_story_dialogue_id(d_id: String) -> bool:
 	return not d_id.is_empty() and d_id in STORY_DIALOGUE_IDS
 
 
-func _on_dialogue_ended_zone_flags(_sequence: DialogueSequence) -> void:
+func _on_dialogue_ended_zone_flags(sequence: DialogueSequence) -> void:
 	_block_zone_story_autostart_until_leave_heal_area = true
+	_handle_monk_hub_deferred(sequence)
 
 
 func _on_heal_zone_player_exited(body: Node2D) -> void:
@@ -130,11 +131,6 @@ func _physics_process(delta):
 	if can_heal and not _collect_wounded_healable_in_zone().is_empty():
 		_heal_pulse()
 	
-	if MobileVirtualInput.enabled and MobileVirtualInput.has_attack_pending() and not DialogueManager.is_active():
-		if _try_healer_interact_from_player_close():
-			MobileVirtualInput.consume_attack()
-			get_viewport().set_input_as_handled()
-
 	update_animation()
 
 func update_animation():
@@ -223,20 +219,58 @@ func _attempt_start_attack_dialogue() -> bool:
 	return true
 
 
+func try_open_interact_dialog() -> bool:
+	return _try_healer_interact_from_player_close()
+
+
+func _handle_monk_hub_deferred(sequence: DialogueSequence) -> void:
+	if sequence == null or sequence.id != "monk_interact_hub":
+		return
+	if StoryState.has_flag("monk_hub_def_story"):
+		StoryState.set_flag("monk_hub_def_story", false)
+		call_deferred("_deferred_run_story_after_hub")
+		return
+	if StoryState.has_flag("monk_hub_def_banter"):
+		StoryState.set_flag("monk_hub_def_banter", false)
+		call_deferred("_deferred_run_banter_after_hub")
+
+
+func _deferred_run_story_after_hub() -> void:
+	if not is_inside_tree():
+		return
+	await get_tree().process_frame
+	if DialogueManager.is_active():
+		return
+	if _attempt_start_zone_story_dialogue(true):
+		return
+	if _attempt_start_attack_dialogue():
+		return
+	DialogueRegistry.try_start("healer_idle_fallback", heal_zone_dialogue_pause_game)
+
+
+func _deferred_run_banter_after_hub() -> void:
+	if not is_inside_tree():
+		return
+	await get_tree().process_frame
+	if DialogueManager.is_active():
+		return
+	if _attempt_start_attack_dialogue():
+		return
+	DialogueRegistry.try_start("healer_idle_fallback", heal_zone_dialogue_pause_game)
+
+
 func _try_healer_interact_from_player_close() -> bool:
 	if DialogueManager.is_active():
 		return false
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if player == null or not is_instance_valid(player):
 		return false
-	## Диалог по «атаке» только в круге хила (heal_area), не во всей зоне detection.
+	## Диалог по «атаке» только в зоне лечения (heal_area), не во всей зоне detection.
 	if not heal_area.overlaps_body(player):
 		return false
-	if _attempt_start_zone_story_dialogue():
-		return true
-	if _attempt_start_attack_dialogue():
-		return true
-	return DialogueRegistry.try_start("healer_idle_fallback", heal_zone_dialogue_pause_game)
+	if not DialogueRegistry.can_play("monk_interact_hub"):
+		return false
+	return DialogueRegistry.try_start("monk_interact_hub", heal_zone_dialogue_pause_game)
 
 
 func _on_heal_zone_enter_for_story_dialogue(body: Node2D) -> void:

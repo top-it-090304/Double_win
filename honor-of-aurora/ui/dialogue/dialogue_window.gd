@@ -7,6 +7,10 @@ const TEXT_FONT_COLOR := Color(1, 1, 1, 1)
 const NAME_FONT_MIN := 8
 const TEXT_FONT_MIN := 8
 const TEXT_MEASURE_HEIGHT_TRIM := 2.0
+## После открытия диалога тем же кликом, что был «атакой», UI успевает нажать первую кнопку — кратко игнорируем мышь.
+const CHOICE_MOUSE_ARM_DELAY_SEC := 0.12
+## Минимальная высота строки варианта (компактнее — больше пунктов в видимой области скролла).
+const CHOICE_BUTTON_MIN_HEIGHT := 40
 
 const TEX_HEALER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/aa_healler.png")
 const TEX_PLAYER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/aa_player.png")
@@ -28,11 +32,14 @@ const SPEAKER_FACES := {
 @onready var _text_label: Label = $DialogueChrome/PanelRoot/MarginMain/VBox/Row/text
 @onready var _close_btn: Button = $DialogueChrome/PanelRoot/MarginMain/VBox/ContinueHBox/CloseButton
 @onready var _continue_btn: Button = $DialogueChrome/PanelRoot/MarginMain/VBox/ContinueHBox/ContinueButton
-@onready var _choices_vbox: VBoxContainer = $DialogueChrome/PanelRoot/MarginMain/VBox/ChoicesVBox
+@onready var _choices_scroll: ScrollContainer = $DialogueChrome/PanelRoot/MarginMain/VBox/ChoicesScroll
+@onready var _choices_vbox: VBoxContainer = $DialogueChrome/PanelRoot/MarginMain/VBox/ChoicesScroll/ScrollPad/ChoicesVBox
 
 var _text_pages: PackedStringArray = []
 var _text_page_index: int = 0
 var _choice_buttons: Array[Button] = []
+## Касание, начатое в области списка вариантов (при emulate_mouse_from_touch=false дочерние Button не отдают drag в ScrollContainer).
+var _choice_scroll_touch_index: int = -1
 
 
 func _ready() -> void:
@@ -43,8 +50,11 @@ func _ready() -> void:
 		_continue_btn.pressed.connect(_on_continue_pressed)
 	if _close_btn:
 		_close_btn.pressed.connect(_force_close_dialogue)
-	if _face == null or _name_label == null or _text_label == null or _choices_vbox == null:
-		push_error("DialogueWindow: не найдены узлы face / Name / text / ChoicesVBox под DialogueChrome — проверьте дерево сцены.")
+	if _face == null or _name_label == null or _text_label == null or _choices_scroll == null or _choices_vbox == null:
+		push_error("DialogueWindow: не найдены узлы face / Name / text / ChoicesScroll / ChoicesVBox под DialogueChrome — проверьте дерево сцены.")
+	if _choices_scroll:
+		_choices_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		_choices_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	_apply_label_theme()
 	DialogueManager.dialogue_started.connect(_on_dialogue_started)
 	DialogueManager.line_changed.connect(_on_line_changed)
@@ -70,6 +80,26 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		_force_close_dialogue()
 		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventScreenDrag:
+		if DialogueManager.is_current_line_choice() and _choices_scroll and _choices_scroll.visible:
+			var sd := event as InputEventScreenDrag
+			if sd.index == _choice_scroll_touch_index and _choice_scroll_touch_index >= 0:
+				_choices_scroll.scroll_vertical -= int(sd.relative.y)
+				get_viewport().set_input_as_handled()
+		return
+	if event is InputEventScreenTouch:
+		if DialogueManager.is_current_line_choice() and _choices_scroll and _choices_scroll.visible:
+			var st := event as InputEventScreenTouch
+			if st.pressed:
+				if _choices_scroll.get_global_rect().has_point(st.position):
+					_choice_scroll_touch_index = st.index
+				else:
+					_choice_scroll_touch_index = -1
+			else:
+				if st.index == _choice_scroll_touch_index:
+					_choice_scroll_touch_index = -1
+		return
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -153,7 +183,8 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 
 	if line is DialogueChoiceLine:
 		var dcl := line as DialogueChoiceLine
-		_choices_vbox.visible = true
+		_choices_scroll.visible = true
+		_choices_scroll.scroll_vertical = 0
 		_text_pages = _build_text_pages(line.text)
 		_text_page_index = 0
 		_text_label.text = _text_pages[0] if not _text_pages.is_empty() else ""
@@ -165,8 +196,10 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 			var opt: DialogueChoiceOption = dcl.options[i]
 			var btn := Button.new()
 			btn.text = "%d. %s" % [i + 1, opt.label]
+			btn.custom_minimum_size = Vector2(0, CHOICE_BUTTON_MIN_HEIGHT)
 			btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 			btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			var captured: int = i
 			btn.pressed.connect(func() -> void:
 				SoundManager.play_ui_button()
@@ -176,6 +209,11 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 			_choices_vbox.add_child(btn)
 			_choice_buttons.append(btn)
 		_refresh_continue_button()
+		## process_always: таймер срабатывает даже при паузе дерева (диалог с pause_game).
+		await get_tree().create_timer(CHOICE_MOUSE_ARM_DELAY_SEC, true, false, true).timeout
+		for b in _choice_buttons:
+			if is_instance_valid(b):
+				b.mouse_filter = Control.MOUSE_FILTER_STOP
 		return
 
 	await get_tree().process_frame
@@ -190,9 +228,12 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 
 func _clear_choice_ui() -> void:
 	_choice_buttons.clear()
+	_choice_scroll_touch_index = -1
 	for c in _choices_vbox.get_children():
 		c.queue_free()
-	_choices_vbox.visible = false
+	if _choices_scroll:
+		_choices_scroll.visible = false
+		_choices_scroll.scroll_vertical = 0
 
 
 func _on_dialogue_ended(_sequence: DialogueSequence) -> void:
@@ -212,11 +253,26 @@ func _font_for_label(label: Label) -> Font:
 
 
 func _text_max_width() -> float:
-	return maxf(_text_label.size.x, 8.0)
+	## После выбора варианта лейбл один кадр может иметь нулевую ширину — пагинация тогда режет текст по одному слову на «страницу».
+	var w: float = _text_label.size.x
+	if w < 48.0:
+		var row: Control = _text_label.get_parent() as Control
+		if row:
+			w = row.size.x
+	if w < 48.0:
+		var vp: Viewport = get_viewport()
+		if vp:
+			w = vp.get_visible_rect().size.x * 0.5
+	return maxf(w, 280.0)
 
 
 func _text_max_height() -> float:
-	return maxf(_text_label.size.y - TEXT_MEASURE_HEIGHT_TRIM, 1.0)
+	var h: float = _text_label.size.y - TEXT_MEASURE_HEIGHT_TRIM
+	if h < 32.0:
+		var vp: Viewport = get_viewport()
+		if vp:
+			h = vp.get_visible_rect().size.y * 0.22
+	return maxf(h, float(TEXT_FONT_SIZE) * 2.0)
 
 
 func _label_effective_size(label: Label) -> Vector2:

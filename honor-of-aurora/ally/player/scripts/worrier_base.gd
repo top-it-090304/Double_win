@@ -35,6 +35,8 @@ var health: int:
 var attack_index = 0
 var _player_ready: bool = false
 var _footstep_cooldown: float = 0.0
+## После закрытия окна приказов отряду: игнорировать attack несколько кадров (ЛКМ с UI попадает в игру).
+var _squad_ui_attack_suppress_sec: float = 0.0
 ## Направление молнии шамана: блокирует движение и атаки.
 var _paralysis_time: float = 0.0
 
@@ -53,6 +55,24 @@ func _ready() -> void:
 	if health_component:
 		health_component.health_changed.connect(_on_health_component_health_changed)
 	_player_ready = true
+	_ensure_attack_action_has_default_events()
+	if attack_area:
+		attack_area.monitoring = true
+	if not Events.squad_orders_menu_closed.is_connected(_on_squad_orders_menu_closed):
+		Events.squad_orders_menu_closed.connect(_on_squad_orders_menu_closed)
+
+
+func _ensure_attack_action_has_default_events() -> void:
+	if not InputMap.has_action("attack"):
+		InputMap.add_action("attack")
+	if not InputMap.action_get_events("attack").is_empty():
+		return
+	var mb := InputEventMouseButton.new()
+	mb.button_index = MOUSE_BUTTON_LEFT
+	InputMap.action_add_event("attack", mb)
+	var k := InputEventKey.new()
+	k.keycode = KEY_SPACE
+	InputMap.action_add_event("attack", k)
 
 
 func _apply_save_health_to_component() -> void:
@@ -115,6 +135,9 @@ func _physics_process(delta):
 		move_and_slide()
 		return
 	
+	if _squad_ui_attack_suppress_sec > 0.0:
+		_squad_ui_attack_suppress_sec = maxf(0.0, _squad_ui_attack_suppress_sec - delta)
+
 	if _paralysis_time > 0.0:
 		_paralysis_time = maxf(0.0, _paralysis_time - delta)
 		if state == State.SHIELD:
@@ -156,13 +179,27 @@ func _physics_process(delta):
 	if DialogueManager.is_active():
 		attack_just = false
 	elif MobileVirtualInput.enabled:
-		attack_just = MobileVirtualInput.consume_attack()
+		attack_just = MobileVirtualInput.has_attack_pending()
 		if MobileVirtualInput.shield_held and state != State.SHIELD:
+			MobileVirtualInput.consume_attack()
 			SoundManager.play_shield_raise()
 			change_state(State.SHIELD)
+	else:
+		attack_just = Input.is_action_just_pressed("attack")
+
+	if _squad_ui_attack_suppress_sec > 0.0:
+		attack_just = false
 
 	if attack_just and state not in [State.ATTACK, State.SHIELD]:
-		change_state(State.ATTACK)
+		## Как у монаха: взаимодействие с отрядом — без анимации удара, только окно приказов.
+		if not _try_squad_orders_instead_of_attack():
+			if _try_healer_interact_instead_of_attack():
+				if MobileVirtualInput.enabled:
+					MobileVirtualInput.consume_attack()
+				return
+			if MobileVirtualInput.enabled:
+				MobileVirtualInput.consume_attack()
+			change_state(State.ATTACK)
 
 	if state == State.SHIELD:
 		if DialogueManager.is_active():
@@ -301,6 +338,33 @@ func reset_after_death_resume() -> void:
 		anim.play("idle")
 	_refresh_health_bar_ui()
 	
+func _on_squad_orders_menu_closed() -> void:
+	_squad_ui_attack_suppress_sec = maxf(_squad_ui_attack_suppress_sec, 0.35)
+
+
+func _try_squad_orders_instead_of_attack() -> bool:
+	if DialogueManager.is_active():
+		return false
+	if SquadCombatState.is_engaged():
+		return false
+	for body in attack_area.get_overlapping_bodies():
+		if body.is_in_group("squad_member"):
+			var hud: Node = GameplayFacade.get_hud(get_tree())
+			if hud and hud.has_method("try_open_squad_orders_menu"):
+				return hud.try_open_squad_orders_menu(body as Node2D)
+	return false
+
+
+func _try_healer_interact_instead_of_attack() -> bool:
+	if DialogueManager.is_active():
+		return false
+	for node in get_tree().get_nodes_in_group("healer"):
+		if node.has_method("try_open_interact_dialog"):
+			if node.try_open_interact_dialog():
+				return true
+	return false
+
+
 func apply_damage():
 	for body in attack_area.get_overlapping_bodies():
 		if body.is_in_group("enemy"):

@@ -10,11 +10,26 @@ enum State { FOLLOW, ATTACK, DEAD }
 @export var follow_stop_distance: float = 100.0
 @export var attack_damage: int = 16
 @export var attack_cooldown: float = 1.05
+## Патруль: радиус от точки спавна, куда можно уходить.
+@export var base_patrol_leash_radius: float = 1400.0
+## Считаем цель достигнутой на этом расстоянии (пикс.).
+@export var patrol_reach_distance: float = 44.0
+## Максимум секунд на один отрезок пути к цели — потом новая точка (если застряли в открытом месте).
+@export var patrol_max_segment_time: float = 50.0
+## Кадров подряд у стены — новая цель.
+@export var patrol_wall_stuck_frames: int = 12
+## Доля от `speed` при патрулировании (медленнее обычного бега за героем).
+@export_range(0.15, 1.0, 0.01) var patrol_speed_scale: float = 0.62
 
 var state: State = State.FOLLOW
 var player: Node2D = null
 var _attack_cd: float = 0.0
 var _paralysis_time: float = 0.0
+var _base_patrol_spawn: Vector2 = Vector2.ZERO
+var _patrol_goal: Vector2 = Vector2.ZERO
+var _patrol_has_goal: bool = false
+var _patrol_segment_time: float = 0.0
+var _patrol_stuck_frames: int = 0
 ## Направление удара (к цели) для расчёта точки острия в мировых координатах.
 var _attack_hit_dir: Vector2 = Vector2.RIGHT
 
@@ -45,6 +60,12 @@ func _ready() -> void:
 		sprite.animation_finished.connect(_on_sprite_animation_finished)
 	_play_idle()
 	player = get_tree().get_first_node_in_group("player") as Node2D
+	call_deferred("_capture_base_patrol_spawn_after_placed")
+
+
+func _capture_base_patrol_spawn_after_placed() -> void:
+	_base_patrol_spawn = global_position
+	_patrol_has_goal = false
 
 
 func apply_paralysis(duration_sec: float) -> void:
@@ -108,6 +129,15 @@ func _process_follow(_delta: float) -> void:
 		_start_attack(enemy)
 		return
 
+	if SquadOrders.mode == SquadOrders.Mode.HOLD:
+		velocity = Vector2.ZERO
+		_play_idle()
+		return
+
+	if SquadOrders.mode == SquadOrders.Mode.PATROL:
+		_process_base_patrol(_delta)
+		return
+
 	if not player:
 		velocity = Vector2.ZERO
 		_play_idle()
@@ -123,6 +153,46 @@ func _process_follow(_delta: float) -> void:
 		_play_idle()
 	else:
 		velocity = Vector2.ZERO
+		_play_idle()
+
+
+func _process_base_patrol(delta: float) -> void:
+	if not _patrol_has_goal:
+		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
+		_patrol_has_goal = true
+		_patrol_segment_time = 0.0
+	_patrol_segment_time += delta
+	var to_spawn := global_position.distance_to(_base_patrol_spawn)
+	if to_spawn > base_patrol_leash_radius * 0.94:
+		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius * 0.42)
+		_patrol_segment_time = 0.0
+		_patrol_stuck_frames = 0
+	var to_goal := _patrol_goal - global_position
+	if to_goal.length() <= patrol_reach_distance:
+		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
+		_patrol_segment_time = 0.0
+		_patrol_stuck_frames = 0
+	elif _patrol_segment_time >= patrol_max_segment_time:
+		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
+		_patrol_segment_time = 0.0
+		_patrol_stuck_frames = 0
+	if is_on_wall():
+		_patrol_stuck_frames += 1
+		if _patrol_stuck_frames >= patrol_wall_stuck_frames:
+			_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
+			_patrol_segment_time = 0.0
+			_patrol_stuck_frames = 0
+	else:
+		_patrol_stuck_frames = 0
+	var dir := global_position.direction_to(_patrol_goal)
+	if dir.length_squared() < 1e-8:
+		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
+		dir = global_position.direction_to(_patrol_goal)
+	velocity = dir * speed * patrol_speed_scale
+	_face_velocity(velocity)
+	if velocity.length() > 0.1:
+		_play_run()
+	else:
 		_play_idle()
 
 

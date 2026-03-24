@@ -13,6 +13,8 @@ var was_on_adventure_before_menu: bool = false
 
 signal location_changed(location: LOCATION)
 signal gold_changed(gold: int)
+## Закрыто окно приказов отряду (после беседы / «Далее»): нужно сбросить «attack», иначе ЛКМ снова откроет меню.
+signal squad_orders_menu_closed()
 
 
 func is_adventure_location(loc: LOCATION) -> bool:

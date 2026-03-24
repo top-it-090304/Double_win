@@ -447,8 +447,8 @@ func _build_stats_sections() -> Array:
 func _story_bbcode() -> String:
 	return (
 		"[font_size=24][b]Мир Авроры[/b][/font_size]\n\n"
-		+ "[color=#aab8cc]Сюжет и главы кампании будут добавляться по мере разработки. Этот раздел свяжет походы по островам в единую историю: ключевые персонажи, повороты и цели кампании.[/color]\n\n"
-		+ "[font_size=20][b]План[/b][/font_size]\n"
+		+ "[color=#aab8cc]Архипелаг назван не в честь дворца: в лоциях и песнях «Аврора» — примета, будто море светлеет раньше неба, а острова — бусины на цепи первого света. В орденских текстах к тому же слову прибавляли устав: не будить узлы до часа. Поход по островам — это и политика короны, и разжимание старой клятвы.[/color]\n\n"
+		+ "[font_size=20][b]Дальше[/b][/font_size]\n"
 		+ "• Главы кампании и кат-сцены\n"
 		+ "• События между выездами на базе\n"
 		+ "• Новые союзники и диалоги"
@@ -588,8 +588,7 @@ func _hire_unit(kind: HireKind) -> void:
 	var positions := GameManager.pick_archer_spawn_positions(get_tree().current_scene, 1, avoid)
 	get_tree().current_scene.add_child(unit)
 	unit.global_position = positions[0]
-	if kind == HireKind.ARCHER and Events.current_location == Events.LOCATION.BASE:
-		unit.set("stationary_guard", true)
+	unit.add_to_group("squad_member")
 	SaveManager.save_game()
 	_close_hire_select()
 

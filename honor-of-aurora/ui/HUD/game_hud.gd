@@ -25,6 +25,10 @@ func hide_barracks_menu() -> void:
 	pass
 
 
+func try_open_squad_orders_menu(_unit: Node2D) -> bool:
+	return false
+
+
 func teleport_to(_location: Events.LOCATION) -> void:
 	pass
 
