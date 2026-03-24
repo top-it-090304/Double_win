@@ -1,4 +1,4 @@
-[gd_scene load_steps=107 format=4 uid="uid://bos5r41ll0qqe"]
+[gd_scene load_steps=115 format=4 uid="uid://bos5r41ll0qqe"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_lc62k"]
 [ext_resource type="Script" uid="uid://drx5ypae7garp" path="res://Game/game_base_islad.gd" id="1_xjk1y"]
@@ -40,6 +40,7 @@
 [ext_resource type="TileSet" uid="uid://d0bwv7m550lav" path="res://world/resources/buildings/mine.tres" id="37_s1jv7"]
 [ext_resource type="Texture2D" uid="uid://bys8fgmavllwx" path="res://Asets/Environment/Deco/01.png" id="38_opyl2"]
 [ext_resource type="Texture2D" uid="uid://c6mev5b0khuwf" path="res://Asets/Environment/Deco/03.png" id="39_3gpd6"]
+[ext_resource type="Texture2D" uid="uid://dnaq28kx7db1l" path="res://Asets/Environment/Resources/Gold Mine/GoldMine_Inactive.png" id="39_hf3c7"]
 [ext_resource type="Texture2D" uid="uid://ck1vpngoc3keu" path="res://Asets/Environment/Deco/15.png" id="40_620qg"]
 [ext_resource type="Texture2D" uid="uid://lpnsodxovyvi" path="res://Asets/Environment/Deco/17.png" id="41_w4aex"]
 [ext_resource type="Texture2D" uid="uid://cux1t3r75go8f" path="res://Asets/Environment/Deco/18.png" id="42_2whhj"]
@@ -58,8 +59,9 @@
 [ext_resource type="PackedScene" uid="uid://ds31l027ndmtr" path="res://objects/buildings/types/Tower/Tower.tscn" id="56_bq7kj"]
 [ext_resource type="PackedScene" uid="uid://erxes3g6not7" path="res://objects/SquadSpawnZone/squad_spawn_zone.tscn" id="58_squad"]
 [ext_resource type="PackedScene" uid="uid://c7brrck0menu1" path="res://objects/BarracksMenuZone/barracks_menu_zone.tscn" id="59_barrz"]
-[ext_resource type="PackedScene" uid="uid://sheepres001" path="res://objects/world/sheep_resource.tscn" id="62_sheep"]
+[ext_resource type="PackedScene" uid="uid://bw03pe0y05i4g" path="res://ally/sheep/sheep_pasture.tscn" id="62_sheep"]
 [ext_resource type="PackedScene" uid="uid://woodtree001" path="res://objects/world/wood_tree_chop.tscn" id="63_wood"]
+[ext_resource type="Script" uid="uid://sk5nigvcky3a" path="res://world/islads/base/mine_off_visual.gd" id="mine_off_v"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t7r2l"]
 texture = ExtResource("1_lc62k")
@@ -521,6 +523,14 @@ physics_layer_0/collision_layer = 4
 physics_layer_0/collision_mask = 3
 sources/0 = SubResource("TileSetAtlasSource_we8lf")
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_u52s7"]
+texture = ExtResource("39_hf3c7")
+texture_region_size = Vector2i(192, 128)
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_pe2qa"]
+sources/0 = SubResource("TileSetAtlasSource_u52s7")
+
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_dvg7w"]
 texture = ExtResource("38_opyl2")
 texture_region_size = Vector2i(64, 64)
@@ -576,6 +586,27 @@ texture_region_size = Vector2i(64, 64)
 
 [sub_resource type="TileSet" id="TileSet_cvmx0"]
 sources/0 = SubResource("TileSetAtlasSource_jwasc")
+
+[sub_resource type="Curve2D" id="Curve2D_r2scm"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, -230, 791, 0, 0, 0, 0, 73, 782, 0, 0, 0, 0, 453, 645, 0, 0, 0, 0, 901, 642, 0, 0, 0, 0, 1314, 606, 0, 0, 0, 0, 1647, 374, 0, 0, 0, 0, 1649, 198, 0, 0, 0, 0, 1542, 536, 0, 0, 0, 0, 852, 618, 0, 0, 0, 0, 580, 550, 0, 0, 0, 0, 491, 470, 0, 0, 0, 0, 154, 431, 0, 0, 0, 0, 5, 229, 0, 0, 0, 0, -93, 215, 0, 0, 0, 0, -551, 221, 0, 0, 0, 0, -1149, 150)
+}
+point_count = 16
+
+[sub_resource type="Curve2D" id="Curve2D_wood2"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, -230, 791, 0, 0, 0, 0, 73, 782, 0, 0, 0, 0, 453, 645, 0, 0, 0, 0, 901, 642, 0, 0, 0, 0, 1314, 606, 0, 0, 0, 0, 1647, 374, 0, 0, 0, 0, 1649, 198, 0, 0, 0, 0, 1542, 536, 0, 0, 0, 0, 852, 618, 0, 0, 0, 0, 580, 550, 0, 0, 0, 0, 491, 470, 0, 0, 0, 0, 154, 431, 0, 0, 0, 0, 5, 229, 0, 0, 0, 0, -93, 215, 0, 0, 0, 0, -551, 221, 0, 0, 0, 0, -1149, 150)
+}
+point_count = 16
+
+[sub_resource type="Curve2D" id="Curve2D_meat"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, -230, 791, 0, 0, 0, 0, 73, 782, 0, 0, 0, 0, 453, 645, 0, 0, 0, 0, 901, 642, 0, 0, 0, 0, 1314, 606, 0, 0, 0, 0, 1647, 374, 0, 0, 0, 0, 1649, 198, 0, 0, 0, 0, 1542, 536, 0, 0, 0, 0, 852, 618, 0, 0, 0, 0, 580, 550, 0, 0, 0, 0, 491, 470, 0, 0, 0, 0, 154, 431, 0, 0, 0, 0, 5, 229, 0, 0, 0, 0, -93, 215, 0, 0, 0, 0, -551, 221, 0, 0, 0, 0, -1149, 150)
+}
+point_count = 16
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_u52s7"]
+radius = 5.38516
 
 [node name="Game_base_islad" type="TileMapLayer"]
 script = ExtResource("1_xjk1y")
@@ -664,19 +695,19 @@ tile_set = ExtResource("18_3vasq")
 [node name="rock_island" type="TileMapLayer" parent="island"]
 
 [node name="rock_1" type="TileMapLayer" parent="island/rock_island"]
-tile_map_data = PackedByteArray("AAAlAOr/AAAAAAAAAAA9AOr/AAAAAAAAAAA7APD/AAAAAAAAAAAzANr/AAAAAAAAAAAxAMr/AAAAAAAAAAASANL/AAAAAAAAAAAkAOj/AAAAAAAAAAASAAEAAAAAAAAAAAABAB4AAAAAAAAAAAADADYAAAAAAAAAAAA6ADUAAAAAAAAAAABuAAgAAAAAAAAAAABrAAgAAAAAAAAAAAAmAPX/AAAAAAAAAAA=")
+tile_map_data = PackedByteArray("AAAlAOr/AAAAAAAAAAA9AOr/AAAAAAAAAAA7APD/AAAAAAAAAAAzANr/AAAAAAAAAAAxAMr/AAAAAAAAAAASANL/AAAAAAAAAAAkAOj/AAAAAAAAAAASAAEAAAAAAAAAAAABAB4AAAAAAAAAAAADADYAAAAAAAAAAAA6ADUAAAAAAAAAAABuAAgAAAAAAAAAAABrAAgAAAAAAAAAAAAmAPX/AAAAAAAAAABhAAgAAAAAAAAAAABvAA4AAAAAAAAAAABgABQAAAAAAAAAAABoAAcAAAAAAAAAAAB2AAwAAAAAAAAAAABgABIAAAAAAAAAAAB1ABkAAAAAAAAAAAA=")
 tile_set = SubResource("TileSet_s2u1i")
 
 [node name="rock_2" type="TileMapLayer" parent="island/rock_island"]
-tile_map_data = PackedByteArray("AAAlAOr/AAAAAAAAAAA9AOr/AAAAAAAAAAA7APD/AAAAAAAAAAAzANr/AAAAAAAAAAAxAMr/AAAAAAAAAAASANL/AAAAAAAAAAAkAOj/AAAAAAAAAAASAAEAAAAAAAAAAAABAB4AAAAAAAAAAAADADYAAAAAAAAAAAA6ADUAAAAAAAAAAABuAAgAAAAAAAAAAABrAAgAAAAAAAAAAACKAPL/AAAAAAAAAACpAP3/AAAAAAAAAACJACIAAAAAAAAAAADI//n/AAAAAAAAAADO/+n/AAAAAAAAAACp/xEAAAAAAAAAAAA=")
+tile_map_data = PackedByteArray("AAAlAOr/AAAAAAAAAAA9AOr/AAAAAAAAAAA7APD/AAAAAAAAAAAzANr/AAAAAAAAAAAxAMr/AAAAAAAAAAASANL/AAAAAAAAAAAkAOj/AAAAAAAAAAASAAEAAAAAAAAAAAABAB4AAAAAAAAAAAADADYAAAAAAAAAAAA6ADUAAAAAAAAAAABuAAgAAAAAAAAAAABrAAgAAAAAAAAAAACKAPL/AAAAAAAAAACpAP3/AAAAAAAAAACJACIAAAAAAAAAAADI//n/AAAAAAAAAADO/+n/AAAAAAAAAACp/xEAAAAAAAAAAABhABUAAAAAAAAAAABuAAsAAAAAAAAAAABiAAcAAAAAAAAAAABhABMAAAAAAAAAAAA=")
 tile_set = SubResource("TileSet_jol7y")
 
 [node name="rock_3" type="TileMapLayer" parent="island/rock_island"]
-tile_map_data = PackedByteArray("AAAlAOr/AAAAAAAAAAA9AOr/AAAAAAAAAAA7APD/AAAAAAAAAAAzANr/AAAAAAAAAAAxAMr/AAAAAAAAAAASANL/AAAAAAAAAAAkAOj/AAAAAAAAAAASAAEAAAAAAAAAAAABAB4AAAAAAAAAAAADADYAAAAAAAAAAAA6ADUAAAAAAAAAAABuAAgAAAAAAAAAAABrAAgAAAAAAAAAAADD/xoAAAAAAAAAAAA=")
+tile_map_data = PackedByteArray("AAAlAOr/AAAAAAAAAAA9AOr/AAAAAAAAAAA7APD/AAAAAAAAAAAzANr/AAAAAAAAAAAxAMr/AAAAAAAAAAASANL/AAAAAAAAAAAkAOj/AAAAAAAAAAASAAEAAAAAAAAAAAABAB4AAAAAAAAAAAADADYAAAAAAAAAAAA6ADUAAAAAAAAAAABuAAgAAAAAAAAAAABrAAgAAAAAAAAAAADD/xoAAAAAAAAAAABiABMAAAAAAAAAAABiABIAAAAAAAAAAABvAA0AAAAAAAAAAAA=")
 tile_set = SubResource("TileSet_2hhbb")
 
 [node name="rock_4" type="TileMapLayer" parent="island/rock_island"]
-tile_map_data = PackedByteArray("AAAlAOr/AAAAAAAAAAA9AOr/AAAAAAAAAAA7APD/AAAAAAAAAAAzANr/AAAAAAAAAAAxAMr/AAAAAAAAAAASANL/AAAAAAAAAAAkAOj/AAAAAAAAAAASAAEAAAAAAAAAAAABAB4AAAAAAAAAAAADADYAAAAAAAAAAAA6ADUAAAAAAAAAAABuAAgAAAAAAAAAAABrAAgAAAAAAAAAAADN/xQAAAAAAAAAAAD1//n/AAAAAAAAAAA=")
+tile_map_data = PackedByteArray("AAAlAOr/AAAAAAAAAAA9AOr/AAAAAAAAAAA7APD/AAAAAAAAAAAzANr/AAAAAAAAAAAxAMr/AAAAAAAAAAASANL/AAAAAAAAAAAkAOj/AAAAAAAAAAASAAEAAAAAAAAAAAABAB4AAAAAAAAAAAADADYAAAAAAAAAAAA6ADUAAAAAAAAAAABuAAgAAAAAAAAAAABrAAgAAAAAAAAAAADN/xQAAAAAAAAAAAD1//n/AAAAAAAAAABtAA4AAAAAAAAAAAB0AA4AAAAAAAAAAAA=")
 tile_set = SubResource("TileSet_sbvqx")
 
 [node name="trees" type="TileMapLayer" parent="island"]
@@ -752,6 +783,12 @@ tile_set = SubResource("TileSet_e7r6s")
 tile_map_data = PackedByteArray("AABlAAQAAAAAAAAAAAA=")
 tile_set = ExtResource("37_s1jv7")
 
+[node name="mine_off" type="TileMapLayer" parent="island/builings"]
+visible = false
+tile_map_data = PackedByteArray("AABlAAQAAAAAAAAAAAA=")
+tile_set = SubResource("TileSet_pe2qa")
+script = ExtResource("mine_off_v")
+
 [node name="decor" type="TileMapLayer" parent="island"]
 
 [node name="TileMapLayer" type="TileMapLayer" parent="island/decor"]
@@ -793,6 +830,47 @@ position = Vector2(-660, 865)
 
 [node name="SquadSpawnZone" parent="." instance=ExtResource("58_squad")]
 position = Vector2(-367, 897)
+
+[node name="WorkerNavPath" type="Node2D" parent="."]
+
+[node name="WorkerRoute_mine" type="Path2D" parent="WorkerNavPath"]
+curve = SubResource("Curve2D_r2scm")
+
+[node name="WorkerRoute2_wood" type="Path2D" parent="WorkerNavPath"]
+curve = SubResource("Curve2D_wood2")
+
+[node name="WorkerRoute_meat" type="Path2D" parent="WorkerNavPath"]
+curve = SubResource("Curve2D_meat")
+
+[node name="Nav0" type="Marker2D" parent="WorkerNavPath"]
+position = Vector2(-520, 880)
+
+[node name="Nav1" type="Marker2D" parent="WorkerNavPath"]
+position = Vector2(-380, 800)
+
+[node name="Nav2" type="Marker2D" parent="WorkerNavPath"]
+position = Vector2(-240, 700)
+
+[node name="Nav3" type="Marker2D" parent="WorkerNavPath"]
+position = Vector2(-100, 580)
+
+[node name="Nav4" type="Marker2D" parent="WorkerNavPath"]
+position = Vector2(40, 440)
+
+[node name="Nav5" type="Marker2D" parent="WorkerNavPath"]
+position = Vector2(260, 300)
+
+[node name="Nav6" type="Marker2D" parent="WorkerNavPath"]
+position = Vector2(520, 160)
+
+[node name="Nav7" type="Marker2D" parent="WorkerNavPath"]
+position = Vector2(900, -20)
+
+[node name="Nav8" type="Marker2D" parent="WorkerNavPath"]
+position = Vector2(1280, -200)
+
+[node name="Nav9" type="Marker2D" parent="WorkerNavPath"]
+position = Vector2(1580, -340)
 
 [node name="CastleMenuZone" parent="." instance=ExtResource("51_dyndt")]
 position = Vector2(1445, -170)
@@ -889,8 +967,56 @@ stationary_guard = true
 [node name="Monk_base" parent="charecters" instance=ExtResource("51_80jge")]
 position = Vector2(1197, 237)
 
-[node name="SheepResource" parent="charecters" instance=ExtResource("62_sheep")]
-position = Vector2(1520, -420)
+[node name="SheepPasture" parent="charecters" instance=ExtResource("62_sheep")]
+position = Vector2(1680, -380)
 
 [node name="WoodTreeChop" parent="charecters" instance=ExtResource("63_wood")]
 position = Vector2(1680, -380)
+
+[node name="sheep_zone" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="sheep_zone"]
+position = Vector2(15, -59)
+shape = SubResource("CircleShape2D_u52s7")
+
+[node name="Node_zone_1" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node_zone_1"]
+position = Vector2(612, 547)
+shape = SubResource("CircleShape2D_u52s7")
+
+[node name="Node_zone_2" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node_zone_2"]
+position = Vector2(442, 456)
+shape = SubResource("CircleShape2D_u52s7")
+
+[node name="Node_zone_3" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node_zone_3"]
+position = Vector2(90, 355)
+shape = SubResource("CircleShape2D_u52s7")
+
+[node name="Node_zone_4" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node_zone_4"]
+position = Vector2(-45, 202)
+shape = SubResource("CircleShape2D_u52s7")
+
+[node name="Node_zone_5" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node_zone_5"]
+position = Vector2(-579, 208)
+shape = SubResource("CircleShape2D_u52s7")
+
+[node name="Node_zone_6" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node_zone_6"]
+position = Vector2(-1153, 154)
+shape = SubResource("CircleShape2D_u52s7")
+
+[node name="Node_zone_7" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node_zone_7"]
+position = Vector2(1436, 585)
+shape = SubResource("CircleShape2D_u52s7")

@@ -33,6 +33,8 @@ func _physics_process(_delta: float) -> void:
 
 func _pawn_axe_hit() -> bool:
 	for pawn in get_tree().get_nodes_in_group("ally_pawn"):
+		if pawn.has_method("get_worker_job_name") and pawn.get_worker_job_name() != "wood":
+			continue
 		if not pawn is Node2D:
 			continue
 		var n2: Node2D = pawn as Node2D

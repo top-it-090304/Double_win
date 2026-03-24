@@ -15,6 +15,8 @@ signal location_changed(location: LOCATION)
 signal gold_changed(gold: int)
 signal meat_changed(meat: int)
 signal wood_changed(wood: int)
+## Запас руды с базовой шахты (пока только счётчик для будущей механики).
+signal ore_changed(ore: int)
 ## Закрыто окно приказов отряду (после беседы / «Далее»): нужно сбросить «attack», иначе ЛКМ снова откроет меню.
 signal squad_orders_menu_closed()
 

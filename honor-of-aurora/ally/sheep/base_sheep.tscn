@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://basesheep001"]
+
+[ext_resource type="Script" uid="uid://4jgim511cp7i" path="res://ally/sheep/base_sheep.gd" id="1_sheep"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_sheep"]
+radius = 22.0
+
+[node name="BaseSheep" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 63
+motion_mode = 1
+script = ExtResource("1_sheep")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 27)
+shape = SubResource("CircleShape2D_sheep")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -18)

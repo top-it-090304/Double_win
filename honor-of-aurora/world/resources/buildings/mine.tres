@@ -1,6 +1,7 @@
-[gd_resource type="TileSet" load_steps=3 format=3 uid="uid://d0bwv7m550lav"]
+[gd_resource type="TileSet" load_steps=5 format=3 uid="uid://d0bwv7m550lav"]
 
 [ext_resource type="Texture2D" uid="uid://kwg7iqpg0bfn" path="res://Asets/Environment/Resources/Gold Mine/GoldMine_Active.png" id="1_1pb1w"]
+[ext_resource type="Texture2D" uid="uid://dnaq28kx7db1l" path="res://Asets/Environment/Resources/Gold Mine/GoldMine_Inactive.png" id="2_bw75a"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_e7r6s"]
 texture = ExtResource("1_1pb1w")
@@ -8,7 +9,11 @@ texture_region_size = Vector2i(192, 128)
 0:0/0 = 0
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-75.3573, 22.0145, -60.6809, -10.1605, 58.9875, -22.0145, 80.4375, 22.5789, 39.7954, 33.8684, -7.05592, 34.4329, -81.5665, 25.4013)
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_n8be8"]
+texture = ExtResource("2_bw75a")
+
 [resource]
 physics_layer_0/collision_layer = 4
 physics_layer_0/collision_mask = 3
+sources/1 = SubResource("TileSetAtlasSource_n8be8")
 sources/0 = SubResource("TileSetAtlasSource_e7r6s")

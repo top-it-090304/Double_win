@@ -5,6 +5,8 @@ var gold: int = 0
 var meat_count: int = 5
 ## Дерево: улучшение зданий.
 var wood_count: int = 20
+## Руда с шахты на базе (пока учёт без расхода в геймплее).
+var ore_count: int = 0
 var boss_kill: int = 0
 var current_health = 100
 var current_level: int = 1
@@ -66,11 +68,12 @@ var haptic_enabled: bool = true
 
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
-const SAVE_DATA = ["gold", "meat_count", "wood_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled"]
+const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled"]
 const default_data := {
 	"gold" : 0,
 	"meat_count" : 5,
 	"wood_count" : 20,
+	"ore_count" : 0,
 	"boss_kill" : 0,
 	"current_health" : 100,
 	"current_level" : 1,
@@ -171,6 +174,8 @@ func load_game():
 		meat_count = 5
 	if not game_data.has("wood_count"):
 		wood_count = 8
+	if not game_data.has("ore_count"):
+		ore_count = 0
 	var _warriors := archer_count + lancer_count
 	if meat_count < _warriors:
 		meat_count = _warriors

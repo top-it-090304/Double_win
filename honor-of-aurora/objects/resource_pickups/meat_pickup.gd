@@ -1,15 +1,14 @@
 extends Area2D
-## Подбор золота после G_Spawn → G_Idle; начисление при касании игрока.
+## Подбор мяса после M_Spawn → M_Idle; начисление при касании игрока (как золото).
 
-const TEX_SPAWN := preload("res://Asets/Environment/Resources/Resources/G_Spawn.png")
-const TEX_IDLE := preload("res://Asets/Environment/Resources/Resources/G_Idle.png")
+const TEX_SPAWN := preload("res://Asets/Environment/Resources/Resources/M_Spawn.png")
+const TEX_IDLE := preload("res://Asets/Environment/Resources/Resources/M_Idle.png")
 
-## G_Spawn.png — 896×128: 7 колонок по 128 px; первая колонка пустая, в анимацию берём 2–7.
 const _STRIP_COLS := 7
 const _FRAME_W := 128
 const _SPAWN_START_COL := 1
 
-@export var gold_amount: int = 1
+@export var meat_amount: int = 1
 
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var _shape: CollisionShape2D = $CollisionShape2D
@@ -38,7 +37,7 @@ func _build_frames() -> void:
 	var tw: int = TEX_SPAWN.get_width()
 	var th: int = TEX_SPAWN.get_height()
 	if tw != _FRAME_W * _STRIP_COLS:
-		push_warning("gold_pickup: G_Spawn.png expected width %d, got %d" % [_FRAME_W * _STRIP_COLS, tw])
+		push_warning("meat_pickup: M_Spawn.png expected width %d, got %d" % [_FRAME_W * _STRIP_COLS, tw])
 	var sf := SpriteFrames.new()
 	if sf.has_animation(&"default"):
 		sf.remove_animation(&"default")
@@ -72,5 +71,5 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 	if not GameplayFacade.is_player_body(body):
 		return
-	GameManager.add_gold(gold_amount)
+	GameManager.add_meat(meat_amount)
 	queue_free()

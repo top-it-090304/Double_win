@@ -543,10 +543,10 @@ func die():
 			GameManager.on_story_island_boss_defeated(story_island)
 
 	$CollisionShape2D.set_deferred("disabled", true)
-	await anim.animation_finished
 	var gold_amt := int(round(float(BalanceConfig.get_gold_reward(enemy_level, is_boss)) * reward_mult))
 	if gold_amt > 0:
-		GameManager.spawn_gold_pickup_at(global_position, gold_amt)
+		GameManager.spawn_gold_pickup_at(global_position, gold_amt, self)
+	await anim.animation_finished
 	queue_free()
 
 

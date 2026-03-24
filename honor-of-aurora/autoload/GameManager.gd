@@ -1,6 +1,7 @@
 extends Node
 
 const GOLD_PICKUP_SCENE := preload("res://objects/resource_pickups/gold_pickup.tscn")
+const MEAT_PICKUP_SCENE := preload("res://objects/resource_pickups/meat_pickup.tscn")
 
 var current_scene_player: Node = null
 
@@ -396,7 +397,13 @@ func add_gold(amount: int):
 		SoundManager.play_pickup_gold()
 
 
-func spawn_gold_pickup_at(world_pos: Vector2, amount: int) -> void:
+## draw_under_node: если задан (например умирающий враг), подбор вставляется в того же родителя
+## раньше по списку детей — рисуется под ним (анимация смерти поверх монет).
+func spawn_gold_pickup_at(world_pos: Vector2, amount: int, draw_under_node: Node2D = null) -> void:
+	call_deferred("_spawn_gold_pickup_at_impl", world_pos, amount, draw_under_node)
+
+
+func _spawn_gold_pickup_at_impl(world_pos: Vector2, amount: int, draw_under_node: Node2D) -> void:
 	var scene_root: Node = get_tree().current_scene
 	if scene_root == null:
 		return
@@ -404,7 +411,38 @@ func spawn_gold_pickup_at(world_pos: Vector2, amount: int) -> void:
 	if p == null:
 		return
 	p.set("gold_amount", maxi(0, amount))
-	scene_root.add_child(p)
+	var parent: Node = scene_root
+	var insert_index: int = -1
+	if draw_under_node != null and is_instance_valid(draw_under_node) and draw_under_node.get_parent() != null:
+		parent = draw_under_node.get_parent()
+		insert_index = draw_under_node.get_index()
+	parent.add_child(p)
+	if insert_index >= 0:
+		parent.move_child(p, insert_index)
+	if p is Node2D:
+		(p as Node2D).global_position = world_pos + Vector2(0, -14)
+
+
+func spawn_meat_pickup_at(world_pos: Vector2, amount: int, draw_under_node: Node2D = null) -> void:
+	call_deferred("_spawn_meat_pickup_at_impl", world_pos, amount, draw_under_node)
+
+
+func _spawn_meat_pickup_at_impl(world_pos: Vector2, amount: int, draw_under_node: Node2D) -> void:
+	var scene_root: Node = get_tree().current_scene
+	if scene_root == null:
+		return
+	var p: Node = MEAT_PICKUP_SCENE.instantiate()
+	if p == null:
+		return
+	p.set("meat_amount", maxi(0, amount))
+	var parent: Node = scene_root
+	var insert_index: int = -1
+	if draw_under_node != null and is_instance_valid(draw_under_node) and draw_under_node.get_parent() != null:
+		parent = draw_under_node.get_parent()
+		insert_index = draw_under_node.get_index()
+	parent.add_child(p)
+	if insert_index >= 0:
+		parent.move_child(p, insert_index)
 	if p is Node2D:
 		(p as Node2D).global_position = world_pos + Vector2(0, -14)
 
@@ -423,6 +461,12 @@ func add_meat(amount: int) -> void:
 func add_wood(amount: int) -> void:
 	SaveManager.wood_count = maxi(0, SaveManager.wood_count + amount)
 	Events.wood_changed.emit(SaveManager.wood_count)
+	SaveManager.save_game()
+
+
+func add_ore(amount: int) -> void:
+	SaveManager.ore_count = maxi(0, SaveManager.ore_count + amount)
+	Events.ore_changed.emit(SaveManager.ore_count)
 	SaveManager.save_game()
 
 
@@ -507,6 +551,9 @@ func _spawn_saved_archers(root: Node) -> void:
 	var na: int = SaveManager.archer_count
 	var nl: int = SaveManager.lancer_count
 	var np: int = SaveManager.pawn_count
+	## Рудокопы остаются только на базовом острове, в поход не переходят.
+	if Events.current_location != Events.LOCATION.BASE:
+		np = 0
 	var total: int = na + nl + np
 	if total <= 0:
 		return

@@ -103,7 +103,10 @@ func _show_squad_greeting_stage() -> void:
 	_face.texture = _portrait_for_unit(u)
 	_face.visible = true
 	_name_label.text = _squad_speaker_title(u)
-	_text_label.text = "Какие указания, милорд?"
+	if u != null and u.is_in_group("ally_pawn"):
+		_text_label.text = "Слушаю, милорд. Где нужна кирка — у шахты, у дерева или у стада?"
+	else:
+		_text_label.text = "Какие указания, милорд?"
 	call_deferred("_deferred_fit_labels")
 
 
@@ -112,7 +115,10 @@ func _show_hero_orders_stage() -> void:
 	_face.texture = TEX_HERO
 	_face.visible = true
 	_name_label.text = "Рыцарь"
-	_text_label.text = "Что прикажете отряду?"
+	if _context_unit != null and _context_unit.is_in_group("ally_pawn"):
+		_text_label.text = "Что поручить рабочему?"
+	else:
+		_text_label.text = "Что прикажете отряду?"
 	_continue_btn.visible = false
 	_choices_scroll.visible = true
 	_build_order_choice_buttons()
@@ -165,6 +171,10 @@ func _clear_choice_buttons() -> void:
 
 func _build_order_choice_buttons() -> void:
 	_clear_choice_buttons()
+	var u := _context_unit
+	if u != null and u.is_in_group("ally_pawn"):
+		_build_pawn_worker_choice_buttons()
+		return
 	var idx := 1
 	var at_base := Events.current_location == Events.LOCATION.BASE
 	var patrolling := at_base and SquadOrders.mode == SquadOrders.Mode.PATROL
@@ -187,6 +197,55 @@ func _build_order_choice_buttons() -> void:
 	idx = _add_choice_btn(idx, "Готовиться к бою", _apply_combat)
 	if _should_show_healer_button():
 		idx = _add_choice_btn(idx, "Сходить к целителю", _apply_healer)
+
+
+func _build_pawn_worker_choice_buttons() -> void:
+	var idx := 1
+	var at_base := Events.current_location == Events.LOCATION.BASE
+	var patrolling := at_base and SquadOrders.mode == SquadOrders.Mode.PATROL
+	if not patrolling:
+		_stop_banter_cooldown_timer()
+	if patrolling:
+		idx = _add_choice_btn(idx, "Продолжить работу", _apply_continue_patrol_close)
+		var now: float = Time.get_ticks_msec() / 1000.0
+		if now < _patrol_banter_available_at:
+			_start_banter_cooldown_timer()
+		else:
+			_stop_banter_cooldown_timer()
+			var ex: Dictionary = WorkerPatrolBanter.pick_exchange()
+			var q_label: String = WorkerPatrolBanter.format_question_for_choice_button(str(ex.get("q", "…")), 140)
+			var answer: String = str(ex.get("a", "…"))
+			idx = _add_choice_btn(idx, q_label, func(): _apply_patrol_banter_answer(answer))
+	if at_base and not patrolling:
+		idx = _add_choice_btn(idx, "Патрулировать", _apply_patrol)
+	if at_base:
+		idx = _add_choice_btn(idx, "Добывать руду", _apply_pawn_job_ore)
+		idx = _add_choice_btn(idx, "Добывать мясо", _apply_pawn_job_meat)
+		idx = _add_choice_btn(idx, "Добывать дерево", _apply_pawn_job_wood)
+
+
+func _apply_pawn_job_ore() -> void:
+	var u := _context_unit
+	if u != null and is_instance_valid(u) and u.has_method("set_worker_job_from_dialogue"):
+		u.set_worker_job_from_dialogue("ore")
+	SquadOrders.set_mode(SquadOrders.Mode.PATROL)
+	close()
+
+
+func _apply_pawn_job_meat() -> void:
+	var u := _context_unit
+	if u != null and is_instance_valid(u) and u.has_method("set_worker_job_from_dialogue"):
+		u.set_worker_job_from_dialogue("meat")
+	SquadOrders.set_mode(SquadOrders.Mode.PATROL)
+	close()
+
+
+func _apply_pawn_job_wood() -> void:
+	var u := _context_unit
+	if u != null and is_instance_valid(u) and u.has_method("set_worker_job_from_dialogue"):
+		u.set_worker_job_from_dialogue("wood")
+	SquadOrders.set_mode(SquadOrders.Mode.PATROL)
+	close()
 
 
 func _add_choice_btn(line_index: int, label: String, callback: Callable) -> int:
