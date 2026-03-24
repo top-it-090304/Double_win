@@ -96,6 +96,9 @@ var _archer_scene: PackedScene
 var _lancer_scene: PackedScene
 var _pawn_scene: PackedScene
 
+## Полноэкранная заглушка на 1 кадр между сменой сцены и спавном героя: иначе виден мир с «камерой по умолчанию» в (0,0), не там где resume/spawn.
+var _scene_transition_blocker_layer: CanvasLayer = null
+
 ## Уже в памяти при старте: нет подвисания на load() при первом «Новая игра».
 const BASE_SCENE_PACKED: PackedScene = preload("res://Game/Game_base_islad.tscn")
 const PLAYER_SCENE_PACKED: PackedScene = preload("res://ally/player/scenes/worrier_base.tscn")
@@ -369,11 +372,39 @@ func handle_location_changed(new_location: Events.LOCATION):
 	if packed == null or not (packed is PackedScene):
 		push_error("GameManager: no PackedScene for location %s" % new_location)
 		return
+	## Из главного меню: не использовать чёрный экран — оставить сцену меню поверх, пока не заспавнится герой
+	## (change_scene_to_packed уничтожил бы корень меню сразу).
+	var use_menu_overlay := prev_location == Events.LOCATION.MENU and new_location != Events.LOCATION.MENU
+	var hide_world_until_player := new_location != Events.LOCATION.MENU and not use_menu_overlay
+	if hide_world_until_player:
+		_show_scene_transition_blocker()
 	# Старый герой — дочерний узел текущей сцены; change_scene_to_packed освобождает дерево вместе с ним.
 	current_scene_player = null
+	if use_menu_overlay and get_tree().current_scene != null:
+		var menu_root: Node = get_tree().current_scene
+		var new_scene: Node = (packed as PackedScene).instantiate()
+		if new_scene == null:
+			push_error("GameManager: instantiate failed for location %s" % new_location)
+			if hide_world_until_player:
+				_hide_scene_transition_blocker()
+			return
+		var root := get_tree().root
+		root.add_child(new_scene)
+		get_tree().set_current_scene(new_scene)
+		root.move_child(menu_root, -1)
+		await get_tree().process_frame
+		if get_tree().current_scene == null:
+			await get_tree().process_frame
+		_finish_player_placement_after_scene_change(new_location)
+		menu_root.queue_free()
+		if new_location == Events.LOCATION.BASE:
+			call_deferred("_apply_pending_healer_dialogue_token_on_base")
+		return
 	var err := get_tree().change_scene_to_packed(packed as PackedScene)
 	if err != OK:
 		push_error("GameManager: change_scene_to_packed failed: %s" % err)
+		if hide_world_until_player:
+			_hide_scene_transition_blocker()
 		return
 	# Ожидание кадра: current_scene и дерево должны стабилизироваться (см. godot#86286).
 	# Без этого _finish_player_placement часто видел пустую сцену — герой и камера не создавались.
@@ -381,6 +412,8 @@ func handle_location_changed(new_location: Events.LOCATION):
 	if get_tree().current_scene == null:
 		await get_tree().process_frame
 	_finish_player_placement_after_scene_change(new_location)
+	if hide_world_until_player:
+		_hide_scene_transition_blocker()
 	# После загрузки базы монах применяет жетон (см. monk_base).
 	if new_location == Events.LOCATION.BASE:
 		call_deferred("_apply_pending_healer_dialogue_token_on_base")
@@ -596,6 +629,27 @@ func _spawn_saved_archers(root: Node) -> void:
 			pawn.global_position = positions[idx2]
 		pawn.add_to_group("squad_member")
 
+func _show_scene_transition_blocker() -> void:
+	if _scene_transition_blocker_layer != null and is_instance_valid(_scene_transition_blocker_layer):
+		return
+	var layer := CanvasLayer.new()
+	layer.layer = 1000
+	layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	var rect := ColorRect.new()
+	rect.color = Color.BLACK
+	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(rect)
+	get_tree().root.add_child(layer)
+	_scene_transition_blocker_layer = layer
+
+
+func _hide_scene_transition_blocker() -> void:
+	if _scene_transition_blocker_layer != null and is_instance_valid(_scene_transition_blocker_layer):
+		_scene_transition_blocker_layer.queue_free()
+	_scene_transition_blocker_layer = null
+
+
 func add_camera_to_player(player: Node) -> void:
 	var cam := player.get_node_or_null("Camera2D") as Camera2D
 	if cam == null:
@@ -604,6 +658,8 @@ func add_camera_to_player(player: Node) -> void:
 		player.add_child(cam)
 	cam.enabled = true
 	cam.make_current()
+	if cam.position_smoothing_enabled:
+		cam.reset_smoothing()
 
 func boss_kill():
 	SaveManager.boss_kill += 1
