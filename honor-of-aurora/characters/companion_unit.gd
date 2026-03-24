@@ -124,6 +124,8 @@ func _physics_process(delta: float) -> void:
 
 
 func _process_follow(_delta: float) -> void:
+	if _process_follow_custom(_delta):
+		return
 	var enemy := _nearest_enemy_in_attack_area()
 	if enemy and _attack_cd <= 0.0 and attack_area:
 		_start_attack(enemy)
@@ -154,6 +156,11 @@ func _process_follow(_delta: float) -> void:
 	else:
 		velocity = Vector2.ZERO
 		_play_idle()
+
+
+## Рабочий (pawn): шахта, «сбор» на острове. По умолчанию — обычное следование.
+func _process_follow_custom(_delta: float) -> bool:
+	return false
 
 
 func _process_base_patrol(delta: float) -> void:

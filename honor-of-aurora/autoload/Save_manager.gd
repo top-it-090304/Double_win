@@ -1,6 +1,10 @@
 extends Node
 
 var gold: int = 0
+## «Запас мяса» — лимит лучников+копейщиков (и отображение в HUD).
+var meat_count: int = 5
+## Дерево: улучшение зданий.
+var wood_count: int = 20
 var boss_kill: int = 0
 var current_health = 100
 var current_level: int = 1
@@ -62,9 +66,11 @@ var haptic_enabled: bool = true
 
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
-const SAVE_DATA = ["gold", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled"]
+const SAVE_DATA = ["gold", "meat_count", "wood_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled"]
 const default_data := {
 	"gold" : 0,
+	"meat_count" : 5,
+	"wood_count" : 20,
 	"boss_kill" : 0,
 	"current_health" : 100,
 	"current_level" : 1,
@@ -161,6 +167,13 @@ func load_game():
 		lancer_count = 0
 	if not game_data.has("pawn_count"):
 		pawn_count = 0
+	if not game_data.has("meat_count"):
+		meat_count = 5
+	if not game_data.has("wood_count"):
+		wood_count = 8
+	var _warriors := archer_count + lancer_count
+	if meat_count < _warriors:
+		meat_count = _warriors
 	if not game_data.has("resume_from_death"):
 		resume_from_death = (
 			current_health == 1

@@ -21,6 +21,9 @@ extends Resource
 ## Лучники на базе (SaveManager.archer_count).
 @export var min_archer_count: int = -1
 @export var max_archer_count: int = -1
+## Рудокопы / рабочие смены (SaveManager.pawn_count).
+@export var min_pawn_count: int = -1
+@export var max_pawn_count: int = -1
 ## Сколько раз герой вернулся на базу с острова (SaveManager.expedition_return_count).
 @export var min_expedition_return_count: int = -1
 @export var max_expedition_return_count: int = -1
@@ -54,6 +57,10 @@ func is_satisfied() -> bool:
 	if min_archer_count >= 0 and SaveManager.archer_count < min_archer_count:
 		return false
 	if max_archer_count >= 0 and SaveManager.archer_count > max_archer_count:
+		return false
+	if min_pawn_count >= 0 and SaveManager.pawn_count < min_pawn_count:
+		return false
+	if max_pawn_count >= 0 and SaveManager.pawn_count > max_pawn_count:
 		return false
 	if min_expedition_return_count >= 0 and SaveManager.expedition_return_count < min_expedition_return_count:
 		return false

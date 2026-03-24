@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://woodtree001"]
+
+[ext_resource type="Texture2D" uid="uid://fth5miksiwwq" path="res://Asets/Environment/Resources/Trees/Tree.png" id="1_tree"]
+[ext_resource type="Script" path="res://objects/world/wood_tree_chop.gd" id="2_script"]
+
+[node name="WoodTreeChop" type="Node2D"]
+script = ExtResource("2_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(0, -32)
+texture = ExtResource("1_tree")
+
+[node name="FxSprite" type="AnimatedSprite2D" parent="."]
+visible = false
+position = Vector2(0, -16)

@@ -12,6 +12,8 @@ const BUILDING_UPGRADE_STEP := 260
 ## Оружейная: разовые бафы перед походом.
 const ARMORY_SWORD_BUFF_COST := 115
 const ARMORY_SHIELD_BUFF_COST := 115
+## Дерево за шаг улучшения здания (умножается на (tier + 1) как золото).
+const BUILDING_UPGRADE_WOOD_STEP := 18
 
 ## Множитель награды за босса (к группе BOSS).
 const BOSS_GOLD_MULT := 2.75
@@ -55,6 +57,11 @@ func get_unit_hire_cost() -> int:
 
 func get_building_upgrade_step() -> int:
 	return maxi(1, int(round(float(BUILDING_UPGRADE_STEP) * _economy_mult())))
+
+
+func get_building_upgrade_wood_cost(tier_before_upgrade: int) -> int:
+	var t: int = clampi(tier_before_upgrade, 0, 10)
+	return maxi(0, int(round(float(BUILDING_UPGRADE_WOOD_STEP) * float(t + 1) * _economy_mult())))
 
 
 func get_armory_sword_buff_cost() -> int:

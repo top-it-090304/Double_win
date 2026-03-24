@@ -1,15 +1,17 @@
-[gd_scene load_steps=12 format=3 uid="uid://blv7sgugmhgu4"]
+[gd_scene load_steps=13 format=3 uid="uid://blv7sgugmhgu4"]
 
 [ext_resource type="PackedScene" uid="uid://cnpf1px7wa4c4" path="res://ui/hp_bar/hp_bar.tscn" id="1_2ux7j"]
 [ext_resource type="Script" uid="uid://cxjk4ntx4c07e" path="res://ui/HUD/HUD.gd" id="1_smmqc"]
+[ext_resource type="PackedScene" uid="uid://clk25u74jc8oy" path="res://ui/resources_hud/meat_counter.tscn" id="2a_meat"]
+[ext_resource type="PackedScene" uid="uid://bayvhqk64xlqe" path="res://ui/resources_hud/wood_counter.tscn" id="2b_wood"]
 [ext_resource type="PackedScene" uid="uid://c5sanv15hjusy" path="res://ui/gold/gold.tscn" id="2_5vgpw"]
 [ext_resource type="Texture2D" uid="uid://cjha34kojfsit" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_08.png" id="4_ap7xm"]
 [ext_resource type="PackedScene" uid="uid://cmfxxbaugd182" path="res://ui/level_menu/teleport_menu.tscn" id="5_ap7xm"]
+[ext_resource type="PackedScene" uid="uid://b8krmenu1brrx" path="res://ui/casle_minu/barracks/barracks_menu.tscn" id="6a_barracks"]
 [ext_resource type="PackedScene" uid="uid://bdhapr120iqry" path="res://ui/casle_minu/main/castle_main_menu.tscn" id="6_swbn3"]
-[ext_resource type="PackedScene" path="res://ui/casle_minu/barracks/barracks_menu.tscn" id="6a_barracks"]
+[ext_resource type="PackedScene" uid="uid://duvvelmi0nd4g" path="res://ui/squad/squad_orders_menu.tscn" id="7a_squad"]
 [ext_resource type="PackedScene" uid="uid://cxrosschd3sn8" path="res://ui/dialogue/dialogue_window.tscn" id="7_dialogue"]
-[ext_resource type="PackedScene" path="res://ui/squad/squad_orders_menu.tscn" id="7a_squad"]
-[ext_resource type="PackedScene" uid="uid://cmobiletouch001" path="res://ui/mobile_touch_controls/mobile_touch_controls.tscn" id="8_mobile"]
+[ext_resource type="PackedScene" uid="uid://br3bcwtq1i8ae" path="res://ui/mobile_touch_controls/mobile_touch_controls.tscn" id="8_mobile"]
 
 [node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("teleport_menu", "castle_menu", "barracks_menu", "squad_orders_menu") groups=["hud"]]
 layer = 5
@@ -28,22 +30,34 @@ grow_vertical = 2
 
 [node name="hp_bar" parent="TextureRect" instance=ExtResource("1_2ux7j")]
 layout_mode = 0
-offset_left = 156.0
-offset_top = 39.0
-offset_right = 368.0
-offset_bottom = 79.0
+offset_left = 151.0
+offset_top = 34.0
+offset_right = 363.0
+offset_bottom = 74.0
 
 [node name="Gold" parent="." instance=ExtResource("2_5vgpw")]
 offset_left = 388.0
-offset_top = 24.0
-offset_right = 428.0
-offset_bottom = 64.0
+offset_top = 18.0
+offset_right = 572.0
+offset_bottom = 90.0
+
+[node name="WoodCounter" parent="." instance=ExtResource("2b_wood")]
+offset_left = 780.0
+offset_top = 18.0
+offset_right = 964.0
+offset_bottom = 90.0
+
+[node name="MeatCounter" parent="." instance=ExtResource("2a_meat")]
+offset_left = 584.0
+offset_top = 18.0
+offset_right = 768.0
+offset_bottom = 90.0
 
 [node name="Button" type="Button" parent="."]
 offset_left = 56.0
-offset_top = 17.0
+offset_top = 18.0
 offset_right = 128.0
-offset_bottom = 89.0
+offset_bottom = 90.0
 icon = ExtResource("4_ap7xm")
 flat = true
 
@@ -52,13 +66,11 @@ process_mode = 3
 visible = false
 
 [node name="CastleMainMenu" parent="." instance=ExtResource("6_swbn3")]
-process_mode = 3
 visible = false
 offset_top = 20.0
 offset_bottom = 20.0
 
 [node name="BarracksMenu" parent="." instance=ExtResource("6a_barracks")]
-process_mode = 3
 visible = false
 
 [node name="MobileTouchControls" parent="." instance=ExtResource("8_mobile")]
@@ -66,7 +78,6 @@ visible = false
 [node name="DialogueWindow" parent="." instance=ExtResource("7_dialogue")]
 
 [node name="SquadOrdersMenu" parent="." instance=ExtResource("7a_squad")]
-process_mode = 3
 visible = false
 
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

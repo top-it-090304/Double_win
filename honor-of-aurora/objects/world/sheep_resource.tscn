@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://sheepres001"]
+
+[ext_resource type="Script" path="res://objects/world/sheep_resource.gd" id="1_script"]
+
+[node name="SheepResource" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -12)

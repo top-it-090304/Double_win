@@ -43,7 +43,11 @@ func upgrade_building() -> bool:
 		return false
 	
 	var cost := BalanceConfig.get_building_upgrade_step() * (current_color + 1)
+	var wood_cost := BalanceConfig.get_building_upgrade_wood_cost(int(current_color))
 	if not GameplayFacade.try_spend_gold(cost):
+		return false
+	if not GameplayFacade.try_spend_wood(wood_cost):
+		GameManager.add_gold(cost)
 		return false
 	current_color = current_color + 1
 	SaveManager.set_building_tier(building_type, int(current_color))

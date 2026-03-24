@@ -1,5 +1,7 @@
 extends Node
 
+const GOLD_PICKUP_SCENE := preload("res://objects/resource_pickups/gold_pickup.tscn")
+
 var current_scene_player: Node = null
 
 ## Оружейная (Barracks): бонусы до возврата с острова. Сбрасываются при прибытии на базу с похода.
@@ -392,6 +394,36 @@ func add_gold(amount: int):
 	SaveManager.save_game()
 	if amount > 0:
 		SoundManager.play_pickup_gold()
+
+
+func spawn_gold_pickup_at(world_pos: Vector2, amount: int) -> void:
+	var scene_root: Node = get_tree().current_scene
+	if scene_root == null:
+		return
+	var p: Node = GOLD_PICKUP_SCENE.instantiate()
+	if p == null:
+		return
+	p.set("gold_amount", maxi(0, amount))
+	scene_root.add_child(p)
+	if p is Node2D:
+		(p as Node2D).global_position = world_pos + Vector2(0, -14)
+
+
+## Максимум лучников + копейщиков по запасу мяса.
+func get_max_warriors_allowed() -> int:
+	return maxi(0, SaveManager.meat_count)
+
+
+func add_meat(amount: int) -> void:
+	SaveManager.meat_count = maxi(0, SaveManager.meat_count + amount)
+	Events.meat_changed.emit(SaveManager.meat_count)
+	SaveManager.save_game()
+
+
+func add_wood(amount: int) -> void:
+	SaveManager.wood_count = maxi(0, SaveManager.wood_count + amount)
+	Events.wood_changed.emit(SaveManager.wood_count)
+	SaveManager.save_game()
 
 
 func add_exp(amount: int) -> void:

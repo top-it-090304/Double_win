@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://bayvhqk64xlqe"]
+
+[ext_resource type="Texture2D" uid="uid://c2yb0ddmumn38" path="res://Asets/Environment/Resources/Resources/W_Idle.png" id="1_icon"]
+[ext_resource type="Script" uid="uid://b6gnbv20edoi0" path="res://ui/resources_hud/wood_counter.gd" id="2_script"]
+
+[node name="WoodCounter" type="NinePatchRect"]
+custom_minimum_size = Vector2(184, 72)
+offset_right = 184.0
+offset_bottom = 72.0
+script = ExtResource("2_script")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = -75.0
+offset_top = -79.0
+offset_right = 168.0
+offset_bottom = 99.0
+texture = ExtResource("1_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WoodLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 92.0
+offset_top = 8.0
+offset_right = 208.0
+offset_bottom = 58.0
+theme_override_font_sizes/font_size = 36
+text = "0"
+vertical_alignment = 1

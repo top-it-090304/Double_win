@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://clk25u74jc8oy"]
+
+[ext_resource type="Texture2D" uid="uid://dltpvkd2iefjo" path="res://Asets/Environment/Resources/Resources/M_Idle.png" id="1_icon"]
+[ext_resource type="Script" uid="uid://21i8jhoieo2o" path="res://ui/resources_hud/meat_counter.gd" id="2_script"]
+
+[node name="MeatCounter" type="NinePatchRect"]
+custom_minimum_size = Vector2(184, 72)
+offset_right = 184.0
+offset_bottom = 72.0
+script = ExtResource("2_script")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = -52.0
+offset_top = -74.0
+offset_right = 131.0
+offset_bottom = 108.0
+texture = ExtResource("1_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="MeatLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 11.0
+offset_right = 176.0
+offset_bottom = 61.0
+theme_override_font_sizes/font_size = 36
+text = "0"
+vertical_alignment = 1

@@ -18,6 +18,8 @@ const DEFINITION_PATHS: PackedStringArray = [
 	"res://dialogue/definitions/lore_chain_seal_def.tres",
 	"res://dialogue/definitions/lore_deaths_liturgy_def.tres",
 	"res://dialogue/definitions/lore_archer_sentinel_def.tres",
+	"res://dialogue/definitions/lore_mine_chain_def.tres",
+	"res://dialogue/definitions/lore_worker_island_def.tres",
 	"res://dialogue/definitions/lore_gold_blood_def.tres",
 	"res://dialogue/definitions/lore_return_veteran_def.tres",
 	"res://dialogue/definitions/monk_story_1_def.tres",

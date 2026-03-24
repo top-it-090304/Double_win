@@ -45,6 +45,8 @@ const NON_STORY_DIALOGUE_IDS: PackedStringArray = [
 	"lore_chain_seal",
 	"lore_deaths_liturgy",
 	"lore_archer_sentinel",
+	"lore_mine_chain",
+	"lore_worker_island",
 	"lore_gold_blood",
 	"lore_return_veteran",
 	"heal_banter",

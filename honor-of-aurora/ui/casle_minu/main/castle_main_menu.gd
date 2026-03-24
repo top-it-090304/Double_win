@@ -566,6 +566,9 @@ func _hire_unit(kind: HireKind) -> void:
 	var scene := _resolve_scene_for_hire(kind)
 	if not scene:
 		return
+	if kind == HireKind.ARCHER or kind == HireKind.LANCER:
+		if SaveManager.archer_count + SaveManager.lancer_count >= GameManager.get_max_warriors_allowed():
+			return
 	if not GameplayFacade.try_spend_gold(unit_hire_cost):
 		return
 	var player := get_tree().get_first_node_in_group("player") as Node2D
