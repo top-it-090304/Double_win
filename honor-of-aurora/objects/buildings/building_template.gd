@@ -19,7 +19,7 @@ const COLOR_FOLDERS := {
 
 @export var building_type: String = "Archery"
 @export var current_color: BuildingColor = BuildingColor.BLACK
-@export var upgrade_cost_step: int = 260
+@export var upgrade_cost_step: int = 300
 
 @onready var sprite = $Sprite
 

@@ -18,7 +18,7 @@ func get_hud() -> Node:
 	return GameplayFacade.get_hud(get_tree())
 
 ## Одна цена на любой тип юнита из меню найма (по умолчанию из BalanceConfig).
-@export var unit_hire_cost: int = 220
+@export var unit_hire_cost: int = 340
 @export var archer_scene: PackedScene
 @export var lancer_scene: PackedScene
 @export var pawn_scene: PackedScene
