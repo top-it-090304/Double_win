@@ -1,0 +1,432 @@
+[gd_scene load_steps=17 format=3 uid="uid://dbugmenu001"]
+
+[ext_resource type="Script" path="res://ui/debug_menu/debug_menu.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://cj4nta75kb3fi" path="res://ui/font/AlumniSansCollegiateOne-Italic.ttf" id="2_font"]
+[ext_resource type="Texture2D" uid="uid://cjha34kojfsit" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_08.png" id="3_back"]
+[ext_resource type="Texture2D" uid="uid://5rocvcom335g" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_03.png" id="4_coin"]
+[ext_resource type="Texture2D" uid="uid://c2yb0ddmumn38" path="res://Asets/Environment/Resources/Resources/W_Idle.png" id="5_wood"]
+[ext_resource type="Texture2D" uid="uid://dltpvkd2iefjo" path="res://Asets/Environment/Resources/Resources/M_Idle.png" id="6_meat"]
+[ext_resource type="Texture2D" uid="uid://i63dx8gd1h5m" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_07.png" id="7_ore"]
+[ext_resource type="Texture2D" uid="uid://bygplsu8pi5pk" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_02.png" id="8_exp"]
+[ext_resource type="Texture2D" uid="uid://djxaxn100yy3x" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_01.png" id="9_buff"]
+[ext_resource type="Texture2D" uid="uid://cf5kysi7be050" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_05.png" id="11_sword"]
+[ext_resource type="Texture2D" uid="uid://8bdu2gxxatje" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_11.png" id="12_level"]
+[ext_resource type="Texture2D" uid="uid://c2sncif5w46no" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_09.png" id="13_skull"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_root"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal"]
+bg_color = Color(0.11, 0.13, 0.19, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.38, 0.48, 0.62, 0.75)
+corner_radius_top_left = 14.0
+corner_radius_top_right = 14.0
+corner_radius_bottom_left = 14.0
+corner_radius_bottom_right = 14.0
+shadow_color = Color(0, 0, 0, 0.55)
+shadow_size = 16
+shadow_offset = Vector2(0, 6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_btn"]
+bg_color = Color(0.16, 0.19, 0.26, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.4, 0.52, 0.9)
+corner_radius_top_left = 8.0
+corner_radius_top_right = 8.0
+corner_radius_bottom_left = 8.0
+corner_radius_bottom_right = 8.0
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+shadow_color = Color(0, 0, 0, 0.25)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_btn_h"]
+bg_color = Color(0.2, 0.24, 0.33, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.55, 0.68, 0.95)
+corner_radius_top_left = 8.0
+corner_radius_top_right = 8.0
+corner_radius_bottom_left = 8.0
+corner_radius_bottom_right = 8.0
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 5
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_btn_p"]
+bg_color = Color(0.11, 0.13, 0.18, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.3, 0.4, 1)
+corner_radius_top_left = 8.0
+corner_radius_top_right = 8.0
+corner_radius_bottom_left = 8.0
+corner_radius_bottom_right = 8.0
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+
+[node name="DebugMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+process_mode = 3
+visible = false
+mouse_filter = 0
+script = ExtResource("1_script")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.02, 0.03, 0.06, 0.88)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="DebugMenuPanel" type="Panel" parent="Center"]
+custom_minimum_size = Vector2(720, 520)
+layout_mode = 2
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_root")
+
+[node name="CastleBackdrop" type="Panel" parent="Center/DebugMenuPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
+
+[node name="debug_back_btn" type="Button" parent="Center/DebugMenuPanel"]
+z_index = 1
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 84.0
+offset_bottom = 84.0
+theme_override_constants/icon_max_width = 44
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_colors/font_hover_pressed_color = Color(1, 0.96, 0.8, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+icon = ExtResource("3_back")
+flat = true
+expand_icon = false
+
+[node name="DebugTitle" type="Label" parent="Center/DebugMenuPanel"]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 28.0
+offset_right = 648.0
+offset_bottom = 88.0
+theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 40
+horizontal_alignment = 1
+text = "Отладка"
+
+[node name="DebugDivider" type="ColorRect" parent="Center/DebugMenuPanel"]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 96.0
+offset_right = 680.0
+offset_bottom = 98.0
+mouse_filter = 2
+color = Color(0.28, 0.35, 0.46, 0.55)
+
+[node name="Hint" type="Label" parent="Center/DebugMenuPanel"]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 102.0
+offset_right = 680.0
+offset_bottom = 126.0
+theme_override_colors/font_color = Color(0.62, 0.66, 0.74, 1)
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+text = "F3 — отладка  •  Esc — закрыть  •  H — полное HP"
+autowrap_mode = 2
+
+[node name="ScrollCheat" type="ScrollContainer" parent="Center/DebugMenuPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = 132.0
+offset_right = -32.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
+
+[node name="MarginScroll" type="MarginContainer" parent="Center/DebugMenuPanel/ScrollCheat"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="CheatList" type="VBoxContainer" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="SecRes" type="Label" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.72, 0.42, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+text = "Ресурсы"
+
+[node name="BtnGold" type="Button" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+text = "+1000 золота"
+icon = ExtResource("4_coin")
+flat = true
+alignment = 0
+theme_override_constants/icon_max_width = 40
+
+[node name="BtnWood" type="Button" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+text = "+500 дерева"
+icon = ExtResource("5_wood")
+flat = true
+alignment = 0
+theme_override_constants/icon_max_width = 40
+
+[node name="BtnMeat" type="Button" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+text = "+50 мяса (лимит отряда)"
+icon = ExtResource("6_meat")
+flat = true
+alignment = 0
+theme_override_constants/icon_max_width = 40
+
+[node name="BtnOre" type="Button" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+text = "+25 руды"
+icon = ExtResource("7_ore")
+flat = true
+alignment = 0
+theme_override_constants/icon_max_width = 40
+
+[node name="SepHero" type="HSeparator" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList"]
+layout_mode = 2
+
+[node name="SecHero" type="Label" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.72, 0.42, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+text = "Герой"
+
+[node name="BtnHp" type="Button" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+text = "+50 HP"
+icon = ExtResource("9_buff")
+flat = true
+alignment = 0
+theme_override_constants/icon_max_width = 40
+
+[node name="BtnDamage" type="Button" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+text = "+10 урона"
+icon = ExtResource("11_sword")
+flat = true
+alignment = 0
+theme_override_constants/icon_max_width = 40
+
+[node name="BtnLevel" type="Button" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+text = "Повысить уровень (на 1)"
+icon = ExtResource("12_level")
+flat = true
+alignment = 0
+theme_override_constants/icon_max_width = 40
+
+[node name="BtnExp" type="Button" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+text = "+5000 опыта"
+icon = ExtResource("8_exp")
+flat = true
+alignment = 0
+theme_override_constants/icon_max_width = 40
+
+[node name="BtnSpeed" type="Button" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+text = "+80 к скорости передвижения"
+icon = ExtResource("12_level")
+flat = true
+alignment = 0
+theme_override_constants/icon_max_width = 40
+
+[node name="SepTest" type="HSeparator" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList"]
+layout_mode = 2
+
+[node name="SecTest" type="Label" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.72, 0.42, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+text = "Тест / бой"
+
+[node name="BtnClearEnemies" type="Button" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+text = "Убить всех врагов на экране"
+icon = ExtResource("11_sword")
+flat = true
+alignment = 0
+theme_override_constants/icon_max_width = 40
+
+[node name="BtnResetDeaths" type="Button" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+text = "Сбросить счётчик смертей"
+icon = ExtResource("13_skull")
+flat = true
+alignment = 0
+theme_override_constants/icon_max_width = 40
+
+[node name="BtnResetLikeNewGame" type="Button" parent="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+text = "Сбросить прогресс (как при новой игре)"
+icon = ExtResource("9_buff")
+flat = true
+alignment = 0
+theme_override_constants/icon_max_width = 40
+
+[connection signal="pressed" from="Center/DebugMenuPanel/debug_back_btn" to="." method="_on_back_pressed"]
+[connection signal="pressed" from="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList/BtnGold" to="." method="_on_gold_pressed"]
+[connection signal="pressed" from="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList/BtnWood" to="." method="_on_wood_pressed"]
+[connection signal="pressed" from="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList/BtnMeat" to="." method="_on_meat_pressed"]
+[connection signal="pressed" from="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList/BtnOre" to="." method="_on_ore_pressed"]
+[connection signal="pressed" from="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList/BtnHp" to="." method="_on_hp_pressed"]
+[connection signal="pressed" from="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList/BtnDamage" to="." method="_on_damage_pressed"]
+[connection signal="pressed" from="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList/BtnLevel" to="." method="_on_level_pressed"]
+[connection signal="pressed" from="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList/BtnExp" to="." method="_on_exp_pressed"]
+[connection signal="pressed" from="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList/BtnSpeed" to="." method="_on_speed_pressed"]
+[connection signal="pressed" from="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList/BtnClearEnemies" to="." method="_on_clear_enemies_pressed"]
+[connection signal="pressed" from="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList/BtnResetDeaths" to="." method="_on_reset_deaths_pressed"]
+[connection signal="pressed" from="Center/DebugMenuPanel/ScrollCheat/MarginScroll/CheatList/BtnResetLikeNewGame" to="." method="_on_reset_like_new_game_pressed"]

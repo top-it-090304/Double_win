@@ -42,7 +42,7 @@ func _setup_hint() -> void:
 	_hint = Label.new()
 	_hint.position = Vector2(16, 16)
 	_hint.add_theme_font_size_override("font_size", 15)
-	_hint.text = "Тест Harpoon Fish (гарпун)\nWASD — движение  •  Space — атака\nУрон — при попадании снаряда."
+	_hint.text = "Тест Harpoon Fish (гарпун)\nWASD — движение  •  Space — атака (только в этой сцене)\nУрон — при попадании снаряда."
 	layer.add_child(_hint)
 	add_child(layer)
 
@@ -75,21 +75,6 @@ func _apply_test_hp() -> void:
 	if hc and hc.has_method("set_max_health"):
 		hc.call("set_max_health", hero_max_hp)
 		hc.call("set_current_health", hero_max_hp)
-
-
-func _physics_process(_delta: float) -> void:
-	if not MobileVirtualInput.enabled:
-		return
-	var d := Vector2.ZERO
-	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
-		d.x += 1.0
-	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
-		d.x -= 1.0
-	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
-		d.y += 1.0
-	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
-		d.y -= 1.0
-	MobileVirtualInput.move_vector = d.normalized() if d.length_squared() > 0.0001 else Vector2.ZERO
 
 
 func _unhandled_input(event: InputEvent) -> void:

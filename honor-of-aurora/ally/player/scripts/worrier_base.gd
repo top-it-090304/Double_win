@@ -37,6 +37,8 @@ var _player_ready: bool = false
 var _footstep_cooldown: float = 0.0
 ## После закрытия окна приказов отряду: игнорировать attack несколько кадров (ЛКМ с UI попадает в игру).
 var _squad_ui_attack_suppress_sec: float = 0.0
+## Отладка: не писать HP в SaveManager при heal / level up без сохранения.
+var _suppress_health_save: bool = false
 ## Направление молнии шамана: блокирует движение и атаки.
 var _paralysis_time: float = 0.0
 
@@ -120,6 +122,40 @@ func apply_armory_attack_bonus_from_manager() -> void:
 	_apply_hero_tier_for_level(level)
 
 
+## Пересчитать скорость/макс. HP с учётом SaveManager.hero_*_bonus (после правок в отладке).
+func apply_hero_stat_bonuses_from_save() -> void:
+	_apply_hero_tier_for_level(level)
+	_refresh_health_bar_ui()
+
+
+## Отладка: +к макс. HP (сохраняется), полоска заполняется до нового максимума.
+func debug_add_max_hp_and_fill(amount: int) -> void:
+	if amount <= 0:
+		return
+	SaveManager.hero_max_health_bonus += amount
+	_apply_hero_tier_for_level(level)
+	if health_component:
+		health_component.set_current_health(max_health)
+	SaveManager.current_health = health_component.current_health if health_component else 0
+	_clear_resume_from_death_if_needed()
+	SaveManager.save_game()
+	_refresh_health_bar_ui()
+	health_changed.emit(health)
+
+
+## Текущее HP = макс. (сохранение на диск).
+func fill_health_to_max_persistent() -> void:
+	if health_component == null:
+		return
+	_apply_hero_tier_for_level(level)
+	health_component.set_current_health(max_health)
+	SaveManager.current_health = max_health
+	_clear_resume_from_death_if_needed()
+	SaveManager.save_game()
+	_refresh_health_bar_ui()
+	health_changed.emit(health)
+
+
 func sync_from_save() -> void:
 	level = SaveManager.current_level
 	exp = SaveManager.current_exp
@@ -151,8 +187,14 @@ func _physics_process(delta):
 		return
 	
 	if state not in [State.ATTACK, State.SHIELD]:
-		if MobileVirtualInput.enabled:
-			dir = MobileVirtualInput.move_vector
+		## Как у меню замка: во время диалога нельзя управлять движением, но мир не на паузе (монах и др. продолжают логику).
+		if not DialogueManager.is_active():
+			if MobileVirtualInput.enabled:
+				dir = MobileVirtualInput.move_vector
+			## Дополнительно к сенсору: WASD / стрелки (действия move_* задаёт GameManager при старте).
+			var kb := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+			if kb.length_squared() > 0.0001:
+				dir = kb
 	
 	if dir != Vector2.ZERO:
 		last_dir = dir
@@ -373,13 +415,27 @@ func apply_damage():
 func show_damage_number(amount: int) -> void:
 	GameplayFacade.spawn_damage_number(self, amount, Vector2(-26, -120))
 
-func heal(amount: int) -> void:
+func heal(amount: int, persist: bool = true) -> void:
+	if not persist:
+		_suppress_health_save = true
 	if health_component:
 		health_component.heal(amount)
-	SaveManager.current_health = health_component.current_health if health_component else 0
-	_clear_resume_from_death_if_needed()
-	SaveManager.save_game()
+	if persist:
+		SaveManager.current_health = health_component.current_health if health_component else 0
+		_clear_resume_from_death_if_needed()
+		SaveManager.save_game()
 	health_changed.emit(health)
+	if not persist:
+		_suppress_health_save = false
+
+
+func fill_health_volatile() -> void:
+	if health_component == null:
+		return
+	_suppress_health_save = true
+	health_component.set_current_health(max_health)
+	health_changed.emit(health)
+	_suppress_health_save = false
 
 func play_heal_effect():
 	if effect_sprite.sprite_frames.has_animation("heal_effect"):
@@ -400,6 +456,8 @@ func play_level_up_effect():
 	effect_sprite.visible = false
 
 func _on_health_changed(_current_health):
+	if _suppress_health_save:
+		return
 	SaveManager.current_health = health_component.current_health if health_component else 0
 	_clear_resume_from_death_if_needed()
 	SaveManager.save_game()
@@ -408,36 +466,41 @@ func apply_paralysis(duration_sec: float) -> void:
 	_paralysis_time = maxf(_paralysis_time, duration_sec)
 
 
-func gain_exp(amount: int):
+func gain_exp(amount: int, persist: bool = true):
+	if not persist:
+		_suppress_health_save = true
 	exp += amount
-	
+
 	while level < BalanceConfig.MAX_HERO_LEVEL:
 		var need: int = get_exp_to_next_level()
 		if need <= 0 or exp < need:
 			break
 		exp -= need
 		level += 1
-		level_up()
-	
+		level_up(persist)
+
 	if level >= BalanceConfig.MAX_HERO_LEVEL:
 		exp = 0
-	
-	SaveManager.current_level = level
-	SaveManager.current_exp = exp
-	SaveManager.save_game()
-	
+
+	if persist:
+		SaveManager.current_level = level
+		SaveManager.current_exp = exp
+		SaveManager.save_game()
+	if not persist:
+		_suppress_health_save = false
 
 
 func get_exp_to_next_level() -> int:
 	return BalanceConfig.get_exp_to_next_level(level)
 
 
-func level_up():
+func level_up(persist: bool = true):
 	_apply_hero_tier_for_level(level)
 	if health_component:
 		health_component.set_current_health(max_health)
-	SaveManager.current_health = health_component.current_health if health_component else 0
-	_clear_resume_from_death_if_needed()
+	if persist:
+		SaveManager.current_health = health_component.current_health if health_component else 0
+		_clear_resume_from_death_if_needed()
 	_refresh_health_bar_ui()
 	SoundManager.play_level_up()
 	play_level_up_effect()
@@ -446,8 +509,8 @@ func level_up():
 func _apply_hero_tier_for_level(hero_level: int) -> void:
 	var tier := HeroProgression.get_tier_for_level(hero_level)
 	anim.sprite_frames = tier.sprite_frames
-	speed = tier.speed
-	max_health = tier.max_health
+	speed = tier.speed + SaveManager.hero_speed_bonus
+	max_health = tier.max_health + SaveManager.hero_max_health_bonus
 	attack_damage = tier.attack_damage + GameManager.armory_attack_bonus
 	attack_anim_speed_scale = tier.attack_anim_speed_scale
 	move_anim_speed_scale = tier.move_anim_speed_scale

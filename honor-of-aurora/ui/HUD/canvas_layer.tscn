@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://blv7sgugmhgu4"]
+[gd_scene load_steps=14 format=3 uid="uid://blv7sgugmhgu4"]
 
 [ext_resource type="PackedScene" uid="uid://cnpf1px7wa4c4" path="res://ui/hp_bar/hp_bar.tscn" id="1_2ux7j"]
 [ext_resource type="Script" uid="uid://cxjk4ntx4c07e" path="res://ui/HUD/HUD.gd" id="1_smmqc"]
@@ -12,14 +12,16 @@
 [ext_resource type="PackedScene" uid="uid://duvvelmi0nd4g" path="res://ui/squad/squad_orders_menu.tscn" id="7a_squad"]
 [ext_resource type="PackedScene" uid="uid://cxrosschd3sn8" path="res://ui/dialogue/dialogue_window.tscn" id="7_dialogue"]
 [ext_resource type="PackedScene" uid="uid://br3bcwtq1i8ae" path="res://ui/mobile_touch_controls/mobile_touch_controls.tscn" id="8_mobile"]
+[ext_resource type="PackedScene" uid="uid://dbugmenu001" path="res://ui/debug_menu/debug_menu.tscn" id="9_debug"]
 
-[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("teleport_menu", "castle_menu", "barracks_menu", "squad_orders_menu") groups=["hud"]]
+[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("teleport_menu", "castle_menu", "barracks_menu", "squad_orders_menu", "debug_menu") groups=["hud"]]
 layer = 5
 script = ExtResource("1_smmqc")
 teleport_menu = NodePath("teleport_menu")
 castle_menu = NodePath("CastleMainMenu")
 barracks_menu = NodePath("BarracksMenu")
 squad_orders_menu = NodePath("SquadOrdersMenu")
+debug_menu = NodePath("DebugMenu")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 anchors_preset = 15
@@ -78,6 +80,9 @@ visible = false
 [node name="DialogueWindow" parent="." instance=ExtResource("7_dialogue")]
 
 [node name="SquadOrdersMenu" parent="." instance=ExtResource("7a_squad")]
+visible = false
+
+[node name="DebugMenu" parent="." instance=ExtResource("9_debug")]
 visible = false
 
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

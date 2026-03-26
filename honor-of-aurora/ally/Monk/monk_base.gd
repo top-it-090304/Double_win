@@ -56,7 +56,8 @@ const NON_STORY_DIALOGUE_IDS: PackedStringArray = [
 @export var heal_zone_dialogue_ids: PackedStringArray = []
 ## Устаревшее: один id. Используется только если heal_zone_dialogue_ids пуст.
 @export var heal_zone_dialogue_id: String = ""
-@export var heal_zone_dialogue_pause_game: bool = false
+## Диалоги монаха не ставят дерево сцен на паузу — целитель продолжает ход и хил в реальном времени.
+const MONK_DIALOGUE_FREEZES_TREE: bool = false
 
 @onready var anim = $AnimatedSprite2D
 @onready var detection = $detection_area
@@ -205,7 +206,7 @@ func _attempt_start_zone_story_dialogue(ignore_zone_block: bool = false) -> bool
 	var d_id := _pick_story_dialogue_id()
 	if d_id.is_empty() or not DialogueRegistry.can_play(d_id):
 		return false
-	return DialogueRegistry.try_start(d_id, heal_zone_dialogue_pause_game)
+	return DialogueRegistry.try_start(d_id, MONK_DIALOGUE_FREEZES_TREE)
 
 
 func _attempt_start_attack_dialogue() -> bool:
@@ -214,7 +215,7 @@ func _attempt_start_attack_dialogue() -> bool:
 	var d_id := _pick_non_story_dialogue_id()
 	if d_id.is_empty() or not DialogueRegistry.can_play(d_id):
 		return false
-	if not DialogueRegistry.try_start(d_id, heal_zone_dialogue_pause_game):
+	if not DialogueRegistry.try_start(d_id, MONK_DIALOGUE_FREEZES_TREE):
 		return false
 	if d_id == "heal_banter":
 		_expedition_click_jokes_remaining = maxi(0, _expedition_click_jokes_remaining - 1)
@@ -247,7 +248,7 @@ func _deferred_run_story_after_hub() -> void:
 		return
 	if _attempt_start_attack_dialogue():
 		return
-	DialogueRegistry.try_start("healer_idle_fallback", heal_zone_dialogue_pause_game)
+	DialogueRegistry.try_start("healer_idle_fallback", MONK_DIALOGUE_FREEZES_TREE)
 
 
 func _deferred_run_banter_after_hub() -> void:
@@ -258,7 +259,7 @@ func _deferred_run_banter_after_hub() -> void:
 		return
 	if _attempt_start_attack_dialogue():
 		return
-	DialogueRegistry.try_start("healer_idle_fallback", heal_zone_dialogue_pause_game)
+	DialogueRegistry.try_start("healer_idle_fallback", MONK_DIALOGUE_FREEZES_TREE)
 
 
 func _try_healer_interact_from_player_close() -> bool:
@@ -272,7 +273,7 @@ func _try_healer_interact_from_player_close() -> bool:
 		return false
 	if not DialogueRegistry.can_play("monk_interact_hub"):
 		return false
-	return DialogueRegistry.try_start("monk_interact_hub", heal_zone_dialogue_pause_game)
+	return DialogueRegistry.try_start("monk_interact_hub", MONK_DIALOGUE_FREEZES_TREE)
 
 
 func _on_heal_zone_enter_for_story_dialogue(body: Node2D) -> void:

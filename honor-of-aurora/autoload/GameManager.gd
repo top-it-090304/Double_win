@@ -88,9 +88,52 @@ func reset_armory_preparation() -> void:
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	set_process_input(true)
 	SaveManager.load_game()
 	Events.sync_story_state_from_save()
 	Events.location_changed.connect(handle_location_changed)
+	_ensure_pc_input_map()
+
+
+func _ensure_pc_input_map() -> void:
+	var pairs: Array = [
+		["move_up", KEY_W],
+		["move_down", KEY_S],
+		["move_left", KEY_A],
+		["move_right", KEY_D],
+	]
+	for pair in pairs:
+		var action: String = pair[0]
+		var keycode: int = pair[1]
+		if not InputMap.has_action(action):
+			InputMap.add_action(action)
+		if InputMap.action_get_events(action).is_empty():
+			var k := InputEventKey.new()
+			k.keycode = keycode
+			InputMap.action_add_event(action, k)
+	if not InputMap.has_action("toggle_debug_menu"):
+		InputMap.add_action("toggle_debug_menu")
+	if InputMap.action_get_events("toggle_debug_menu").is_empty():
+		var k2 := InputEventKey.new()
+		k2.keycode = KEY_F3
+		InputMap.action_add_event("toggle_debug_menu", k2)
+	if not InputMap.has_action("debug_full_health"):
+		InputMap.add_action("debug_full_health")
+	if InputMap.action_get_events("debug_full_health").is_empty():
+		var kh := InputEventKey.new()
+		kh.keycode = KEY_H
+		InputMap.action_add_event("debug_full_health", kh)
+
+
+func _input(event: InputEvent) -> void:
+	if not event.is_action_pressed("debug_full_health"):
+		return
+	var p: Node = _find_player_node_in_current_scene()
+	if p != null and p.has_method("fill_health_to_max_persistent"):
+		p.fill_health_to_max_persistent()
+	get_viewport().set_input_as_handled()
+
 
 var _archer_scene: PackedScene
 var _lancer_scene: PackedScene
@@ -337,7 +380,16 @@ func handle_location_changed(new_location: Events.LOCATION):
 		if SaveManager.death_resume_pending:
 			SaveManager.death_resume_pending = false
 		else:
+			# Перед записью resume подтягиваем сохранение с диска: отладка без save_game не попадёт в файл.
+			SaveManager.load_game()
+			Events.sync_story_state_from_save()
+			Events.gold_changed.emit(SaveManager.gold)
+			Events.meat_changed.emit(SaveManager.meat_count)
+			Events.wood_changed.emit(SaveManager.wood_count)
+			Events.ore_changed.emit(SaveManager.ore_count)
 			var player: Node = _find_player_node_in_current_scene()
+			if player and player.has_method("sync_from_save"):
+				player.sync_from_save()
 			if player and is_instance_valid(player) and player.get("health") != null:
 				SaveManager.current_health = int(player.get("health"))
 				SaveManager.resume_game_location = int(prev_location)
@@ -430,6 +482,14 @@ func add_gold(amount: int):
 		SoundManager.play_pickup_gold()
 
 
+## Как add_gold, но без записи на диск (отладка; сбрасывается при смене сцены).
+func add_gold_volatile(amount: int) -> void:
+	SaveManager.gold += amount
+	Events.gold_changed.emit(SaveManager.gold)
+	if amount > 0:
+		SoundManager.play_pickup_gold()
+
+
 ## draw_under_node: если задан (например умирающий враг), подбор вставляется в того же родителя
 ## раньше по списку детей — рисуется под ним (анимация смерти поверх монет).
 func spawn_gold_pickup_at(world_pos: Vector2, amount: int, draw_under_node: Node2D = null) -> void:
@@ -491,10 +551,20 @@ func add_meat(amount: int) -> void:
 	SaveManager.save_game()
 
 
+func add_meat_volatile(amount: int) -> void:
+	SaveManager.meat_count = maxi(0, SaveManager.meat_count + amount)
+	Events.meat_changed.emit(SaveManager.meat_count)
+
+
 func add_wood(amount: int) -> void:
 	SaveManager.wood_count = maxi(0, SaveManager.wood_count + amount)
 	Events.wood_changed.emit(SaveManager.wood_count)
 	SaveManager.save_game()
+
+
+func add_wood_volatile(amount: int) -> void:
+	SaveManager.wood_count = maxi(0, SaveManager.wood_count + amount)
+	Events.wood_changed.emit(SaveManager.wood_count)
 
 
 func add_ore(amount: int) -> void:
@@ -503,10 +573,21 @@ func add_ore(amount: int) -> void:
 	SaveManager.save_game()
 
 
+func add_ore_volatile(amount: int) -> void:
+	SaveManager.ore_count = maxi(0, SaveManager.ore_count + amount)
+	Events.ore_changed.emit(SaveManager.ore_count)
+
+
 func add_exp(amount: int) -> void:
 	var player: Node = _find_player_node_in_current_scene()
 	if player and player.has_method("gain_exp"):
 		player.gain_exp(amount)
+
+
+func add_exp_volatile(amount: int) -> void:
+	var player: Node = _find_player_node_in_current_scene()
+	if player and player.has_method("gain_exp"):
+		player.gain_exp(amount, false)
 
 
 func _resolve_spawn_position(scene: Node) -> Variant:

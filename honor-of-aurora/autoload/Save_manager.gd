@@ -65,10 +65,14 @@ var touch_scale_percent: int = 100
 var touch_opacity_percent: int = 52
 ## Вибрация при уроне (Android / iOS).
 var haptic_enabled: bool = true
+## Бонус к макс. HP героя поверх значения тира (сохраняется).
+var hero_max_health_bonus: int = 0
+## Бонус к скорости героя поверх значения тира (сохраняется).
+var hero_speed_bonus: float = 0.0
 
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
-const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled"]
+const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus"]
 const default_data := {
 	"gold" : 0,
 	"meat_count" : 0,
@@ -107,6 +111,8 @@ const default_data := {
 	"touch_scale_percent" : 100,
 	"touch_opacity_percent" : 52,
 	"haptic_enabled" : true,
+	"hero_max_health_bonus" : 0,
+	"hero_speed_bonus" : 0.0,
 }
 
 
@@ -176,6 +182,12 @@ func load_game():
 		wood_count = 0
 	if not game_data.has("ore_count"):
 		ore_count = 0
+	if not game_data.has("hero_max_health_bonus"):
+		hero_max_health_bonus = 0
+	if not game_data.has("hero_speed_bonus"):
+		hero_speed_bonus = 0.0
+	hero_max_health_bonus = maxi(0, int(hero_max_health_bonus))
+	hero_speed_bonus = float(hero_speed_bonus)
 	var _warriors := archer_count + lancer_count
 	if meat_count < _warriors:
 		meat_count = _warriors

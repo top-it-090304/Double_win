@@ -1,5 +1,5 @@
-extends "res://characters/character_unit.gd"
-## Союзник-лучник (группа ally в _ready).
+extends "res://characters/ally_unit.gd"
+## Союзник-лучник.
 
 @export var arrow_scene : PackedScene
 @export var attack_cooldown : float = 3.0
@@ -46,7 +46,6 @@ var _order_to_healer: bool = false
 
 func _ready() -> void:
 	super._ready()
-	add_to_group("ally")
 	add_to_group("ally_archer")
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	sprite.play("idle")
