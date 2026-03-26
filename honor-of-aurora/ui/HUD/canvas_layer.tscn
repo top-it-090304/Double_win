@@ -1,9 +1,10 @@
-[gd_scene load_steps=14 format=3 uid="uid://blv7sgugmhgu4"]
+[gd_scene load_steps=15 format=3 uid="uid://blv7sgugmhgu4"]
 
 [ext_resource type="PackedScene" uid="uid://cnpf1px7wa4c4" path="res://ui/hp_bar/hp_bar.tscn" id="1_2ux7j"]
 [ext_resource type="Script" uid="uid://cxjk4ntx4c07e" path="res://ui/HUD/HUD.gd" id="1_smmqc"]
 [ext_resource type="PackedScene" uid="uid://clk25u74jc8oy" path="res://ui/resources_hud/meat_counter.tscn" id="2a_meat"]
 [ext_resource type="PackedScene" uid="uid://bayvhqk64xlqe" path="res://ui/resources_hud/wood_counter.tscn" id="2b_wood"]
+[ext_resource type="PackedScene" uid="uid://bqhud0re0cntr" path="res://ui/resources_hud/ore_counter.tscn" id="2c_ore"]
 [ext_resource type="PackedScene" uid="uid://c5sanv15hjusy" path="res://ui/gold/gold.tscn" id="2_5vgpw"]
 [ext_resource type="Texture2D" uid="uid://cjha34kojfsit" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_08.png" id="4_ap7xm"]
 [ext_resource type="PackedScene" uid="uid://cmfxxbaugd182" path="res://ui/level_menu/teleport_menu.tscn" id="5_ap7xm"]
@@ -44,16 +45,22 @@ offset_top = 18.0
 offset_right = 572.0
 offset_bottom = 90.0
 
-[node name="WoodCounter" parent="." instance=ExtResource("2b_wood")]
+[node name="OreCounter" parent="." instance=ExtResource("2c_ore")]
+offset_left = 584.0
+offset_top = 18.0
+offset_right = 768.0
+offset_bottom = 90.0
+
+[node name="MeatCounter" parent="." instance=ExtResource("2a_meat")]
 offset_left = 780.0
 offset_top = 18.0
 offset_right = 964.0
 offset_bottom = 90.0
 
-[node name="MeatCounter" parent="." instance=ExtResource("2a_meat")]
-offset_left = 584.0
+[node name="WoodCounter" parent="." instance=ExtResource("2b_wood")]
+offset_left = 976.0
 offset_top = 18.0
-offset_right = 768.0
+offset_right = 1160.0
 offset_bottom = 90.0
 
 [node name="Button" type="Button" parent="."]

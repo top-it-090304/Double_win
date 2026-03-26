@@ -1,0 +1,34 @@
+[gd_scene load_steps=5 format=3 uid="uid://bqhud0re0cntr"]
+
+[ext_resource type="Texture2D" uid="uid://i63dx8gd1h5m" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_07.png" id="1_icon"]
+[ext_resource type="Script" uid="uid://csorehud0cnt1" path="res://ui/resources_hud/ore_counter.gd" id="2_script"]
+[ext_resource type="Shader" uid="uid://dore1c0ng0ldsh" path="res://ui/resources_hud/ore_icon_gold.gdshader" id="3_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ore"]
+shader = ExtResource("3_shader")
+
+[node name="OreCounter" type="NinePatchRect"]
+custom_minimum_size = Vector2(184, 72)
+offset_right = 184.0
+offset_bottom = 72.0
+script = ExtResource("2_script")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_ore")
+layout_mode = 0
+offset_right = 72.0
+offset_bottom = 72.0
+texture = ExtResource("1_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="OreLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 53.0
+offset_top = 8.0
+offset_right = 157.0
+offset_bottom = 58.0
+theme_override_font_sizes/font_size = 36
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
