@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://bsbcyd51rqalg"]
+
+[ext_resource type="Script" path="res://objects/world/wood_job_tree.gd" id="1_script"]
+
+[node name="WoodJobTree" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -32)

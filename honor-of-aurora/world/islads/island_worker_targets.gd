@@ -68,7 +68,10 @@ static func find_target_global(scene: Node, job_key: String, from_global: Vector
 		"meat":
 			return find_meat_job_gather_point(scene, from_global)
 		"wood":
-			return _find_random_tree_tile_global(scene)
+			var wn := find_or_spawn_wood_job_tree(scene, from_global)
+			if wn == null:
+				return Vector2.ZERO
+			return wn.global_position
 		"ore", _:
 			return _find_random_ore_tile_global(scene)
 
@@ -108,13 +111,41 @@ static func _find_random_ore_tile_global(scene: Node) -> Vector2:
 	return pts[randi() % pts.size()]
 
 
-static func _find_random_tree_tile_global(scene: Node) -> Vector2:
-	var trees := scene.find_child("trees", true, false)
-	if trees == null:
-		return Vector2.ZERO
-	var pts: Array[Vector2] = []
-	_collect_tile_centers_from_root(trees, pts)
-	if pts.is_empty():
-		return Vector2.ZERO
-	return pts[randi() % pts.size()]
+static func find_nearest_ready_wood_job_tree(scene: Node, from_global: Vector2) -> Node2D:
+	if scene == null:
+		return null
+	var best: Node2D = null
+	var bd := INF
+	for n in scene.get_tree().get_nodes_in_group("wood_job_tree"):
+		if not n is Node2D:
+			continue
+		if not (n as Node).has_method("is_ready_for_worker"):
+			continue
+		var ok: Variant = (n as Object).call("is_ready_for_worker")
+		if not bool(ok):
+			continue
+		var n2: Node2D = n as Node2D
+		var d := from_global.distance_squared_to(n2.global_position)
+		if d < bd:
+			bd = d
+			best = n2
+	return best
+
+
+static func find_or_spawn_wood_job_tree(scene: Node, from_global: Vector2) -> Node2D:
+	var t := find_nearest_ready_wood_job_tree(scene, from_global)
+	if t != null:
+		return t
+	var zones: Array[Node] = []
+	for z in scene.get_tree().get_nodes_in_group("wood_zone"):
+		zones.append(z as Node)
+	if zones.is_empty():
+		return null
+	zones.shuffle()
+	for z in zones:
+		if z.has_method("try_spawn_job_tree"):
+			var spawned: Variant = z.call("try_spawn_job_tree")
+			if spawned is Node2D:
+				return spawned as Node2D
+	return null
 

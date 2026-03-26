@@ -12,6 +12,8 @@ enum OreWorkerPhase { NONE, TO_MINE, TO_CASTLE }
 
 enum MeatWorkerPhase { CHASE, TO_CASTLE }
 
+enum WoodWorkerPhase { CHASE_TREE, CHOPPING, TO_LOG, TO_CASTLE }
+
 var _worker_job: WorkerJob = WorkerJob.ORE
 var _pawn_cosmetic_busy: bool = false
 
@@ -29,6 +31,11 @@ var _meat_chase_repath_cd: float = 0.0
 var _meat_phase: MeatWorkerPhase = MeatWorkerPhase.CHASE
 var _meat_carry_sheep: Node2D = null
 var _meat_carry_amount: int = 0
+var _wood_phase: WoodWorkerPhase = WoodWorkerPhase.CHASE_TREE
+var _wood_chase_tree: Node2D = null
+var _wood_chop_timer: float = 0.0
+var _wood_log_target: Node2D = null
+var _wood_carry_amount: int = 1
 ## Цикл руды: шахта → 10 с под землёй → замок с run_gold → снова шахта.
 var _ore_phase: OreWorkerPhase = OreWorkerPhase.TO_MINE
 var _ore_underground_timer: float = 0.0
@@ -323,11 +330,11 @@ func _idle_anim() -> StringName:
 			return &"idle_knife"
 		if _worker_job == WorkerJob.ORE:
 			return &"idle"
-		match _worker_job:
-			WorkerJob.WOOD:
-				return &"idle_axe"
-			_:
-				return &"idle_pickaxe"
+		if _worker_job == WorkerJob.WOOD:
+			if _wood_phase == WoodWorkerPhase.TO_CASTLE:
+				return &"idle_wood"
+			return &"idle_axe"
+		return &"idle_pickaxe"
 	return &"idle_knife"
 
 
@@ -341,11 +348,11 @@ func _run_anim() -> StringName:
 			if _ore_phase == OreWorkerPhase.TO_CASTLE:
 				return &"run_gold"
 			return &"run_pickaxe"
-		match _worker_job:
-			WorkerJob.WOOD:
-				return &"run_axe"
-			_:
-				return &"run_pickaxe"
+		if _worker_job == WorkerJob.WOOD:
+			if _wood_phase == WoodWorkerPhase.TO_CASTLE:
+				return &"run_wood"
+			return &"run_axe"
+		return &"run_pickaxe"
 	return &"run_knife"
 
 
@@ -364,12 +371,17 @@ func _attack_anim_for_direction(_dir: Vector2) -> StringName:
 func _cancel_base_worker() -> void:
 	_ore_restore_if_submerged()
 	_meat_abort_carry_if_cancelled()
+	_wood_abort_carry_if_cancelled()
+	_wood_cancel_chop_if_needed()
 	_base_worker_state = BaseWorkerState.IDLE
 	_island_gathering = false
 	_move_timeout = 0.0
 	_gather_cd = 0.0
 	_meat_chase_node = null
 	_meat_chase_repath_cd = 0.0
+	_wood_chase_tree = null
+	_wood_log_target = null
+	_wood_chop_timer = 0.0
 	_ore_mine_near_timer = 0.0
 	_srv_path.clear()
 	_srv_path_idx = 0
@@ -383,6 +395,24 @@ func _cancel_base_worker() -> void:
 		_ore_phase = OreWorkerPhase.NONE
 	if _worker_job != WorkerJob.MEAT:
 		_meat_phase = MeatWorkerPhase.CHASE
+	if _worker_job != WorkerJob.WOOD:
+		_wood_phase = WoodWorkerPhase.CHASE_TREE
+
+
+func _wood_abort_carry_if_cancelled() -> void:
+	if _wood_phase != WoodWorkerPhase.TO_CASTLE:
+		return
+	_wood_phase = WoodWorkerPhase.CHASE_TREE
+	_wood_log_target = null
+
+
+func _wood_cancel_chop_if_needed() -> void:
+	if _wood_phase != WoodWorkerPhase.CHOPPING:
+		return
+	if is_instance_valid(_wood_chase_tree) and _wood_chase_tree.has_method("cancel_chop"):
+		_wood_chase_tree.cancel_chop()
+	_wood_phase = WoodWorkerPhase.CHASE_TREE
+	_wood_chop_timer = 0.0
 
 
 func try_begin_meat_castle_run(sheep: Node2D, amount: int) -> bool:
@@ -452,6 +482,233 @@ func _process_meat_castle_run(delta: float) -> bool:
 			if _castle_dropoff_overlaps_body():
 				_meat_on_castle_delivered()
 				return true
+			_path_repath_timer -= delta
+			if _move_timeout > 22.0:
+				_move_timeout = 0.0
+				_rebuild_nav_server_path()
+				return true
+			var need_repath := (
+				_path_repath_timer <= 0.0
+				or _move_stuck_frames > 12
+				or (_move_stuck_frames > 8 and is_on_wall())
+			)
+			if not base_worker_use_physics_steering:
+				need_repath = need_repath or _srv_path.is_empty()
+			if need_repath:
+				_rebuild_nav_server_path()
+				_path_repath_timer = 0.22 if not base_worker_use_physics_steering else 0.35
+				if _move_stuck_frames > 12:
+					_move_stuck_frames = 6
+			if base_worker_use_physics_steering:
+				velocity = _steer_toward_goal(_gather_target) * speed
+				_apply_base_move_wall_slide()
+				_face_velocity(velocity)
+				_play_run()
+				return true
+			if base_move_use_navigation_agent_path and _nav_agent:
+				_nav_agent.target_position = _gather_target
+				var next := _nav_agent.get_next_path_position()
+				var to_next := next - global_position
+				if to_next.length_squared() < 4.0:
+					to_next = _gather_target - global_position
+				if to_next.length_squared() < 1.0:
+					velocity = _nav_fallback_velocity()
+				else:
+					velocity = to_next.normalized() * speed
+				_apply_base_move_wall_slide()
+				_face_velocity(velocity)
+				_play_run()
+				return true
+			if _srv_path.size() >= 2:
+				while (
+					_srv_path_idx < _srv_path.size() - 1
+					and global_position.distance_to(_srv_path[_srv_path_idx]) < _BASE_NAV_WP_ADVANCE_DIST
+				):
+					_srv_path_idx += 1
+				var wp: Vector2 = _srv_path[_srv_path_idx]
+				var to_wp := wp - global_position
+				if to_wp.length_squared() < 4.0 and _srv_path_idx < _srv_path.size() - 1:
+					_srv_path_idx += 1
+					wp = _srv_path[_srv_path_idx]
+					to_wp = wp - global_position
+				if to_wp.length_squared() > 0.25:
+					velocity = to_wp.normalized() * speed
+				else:
+					velocity = _nav_fallback_velocity()
+			else:
+				velocity = _nav_fallback_velocity()
+			_apply_base_move_wall_slide()
+			_face_velocity(velocity)
+			_play_run()
+			return true
+		_:
+			return false
+
+
+func try_begin_wood_castle_run(log: Node2D) -> bool:
+	if _worker_job != WorkerJob.WOOD:
+		return false
+	if Events.current_location != Events.LOCATION.BASE:
+		return false
+	if _wood_phase != WoodWorkerPhase.TO_LOG:
+		return false
+	if _wood_log_target != log:
+		return false
+	_wood_phase = WoodWorkerPhase.TO_CASTLE
+	_wood_log_target = null
+	if is_instance_valid(log):
+		log.queue_free()
+	_base_worker_state = BaseWorkerState.MOVE
+	_gather_target = _ore_get_castle_global()
+	if _gather_target == Vector2.ZERO:
+		_gather_target = global_position
+	if _nav_agent and is_instance_valid(_nav_agent):
+		_nav_agent.target_position = _gather_target
+	_move_timeout = 0.0
+	_move_stuck_frames = 0
+	_path_repath_timer = 0.0
+	_srv_path.clear()
+	_srv_path_idx = 0
+	_rebuild_nav_server_path()
+	_face_toward_global(_gather_target)
+	_play_run()
+	return true
+
+
+func _wood_on_castle_delivered() -> void:
+	GameManager.add_wood(_wood_carry_amount)
+	_wood_phase = WoodWorkerPhase.CHASE_TREE
+	_base_worker_state = BaseWorkerState.IDLE
+	_gather_cd = 0.0
+	_move_timeout = 0.0
+	_srv_path.clear()
+	_srv_path_idx = 0
+
+
+func _process_wood_castle_run(delta: float) -> bool:
+	if _nav_agent == null or not is_instance_valid(_nav_agent):
+		return false
+	match _base_worker_state:
+		BaseWorkerState.MOVE:
+			_move_timeout += delta
+			if _castle_dropoff_overlaps_body():
+				_wood_on_castle_delivered()
+				return true
+			_path_repath_timer -= delta
+			if _move_timeout > 22.0:
+				_move_timeout = 0.0
+				_rebuild_nav_server_path()
+				return true
+			var need_repath := (
+				_path_repath_timer <= 0.0
+				or _move_stuck_frames > 12
+				or (_move_stuck_frames > 8 and is_on_wall())
+			)
+			if not base_worker_use_physics_steering:
+				need_repath = need_repath or _srv_path.is_empty()
+			if need_repath:
+				_rebuild_nav_server_path()
+				_path_repath_timer = 0.22 if not base_worker_use_physics_steering else 0.35
+				if _move_stuck_frames > 12:
+					_move_stuck_frames = 6
+			if base_worker_use_physics_steering:
+				velocity = _steer_toward_goal(_gather_target) * speed
+				_apply_base_move_wall_slide()
+				_face_velocity(velocity)
+				_play_run()
+				return true
+			if base_move_use_navigation_agent_path and _nav_agent:
+				_nav_agent.target_position = _gather_target
+				var next := _nav_agent.get_next_path_position()
+				var to_next := next - global_position
+				if to_next.length_squared() < 4.0:
+					to_next = _gather_target - global_position
+				if to_next.length_squared() < 1.0:
+					velocity = _nav_fallback_velocity()
+				else:
+					velocity = to_next.normalized() * speed
+				_apply_base_move_wall_slide()
+				_face_velocity(velocity)
+				_play_run()
+				return true
+			if _srv_path.size() >= 2:
+				while (
+					_srv_path_idx < _srv_path.size() - 1
+					and global_position.distance_to(_srv_path[_srv_path_idx]) < _BASE_NAV_WP_ADVANCE_DIST
+				):
+					_srv_path_idx += 1
+				var wp: Vector2 = _srv_path[_srv_path_idx]
+				var to_wp := wp - global_position
+				if to_wp.length_squared() < 4.0 and _srv_path_idx < _srv_path.size() - 1:
+					_srv_path_idx += 1
+					wp = _srv_path[_srv_path_idx]
+					to_wp = wp - global_position
+				if to_wp.length_squared() > 0.25:
+					velocity = to_wp.normalized() * speed
+				else:
+					velocity = _nav_fallback_velocity()
+			else:
+				velocity = _nav_fallback_velocity()
+			_apply_base_move_wall_slide()
+			_face_velocity(velocity)
+			_play_run()
+			return true
+		_:
+			return false
+
+
+func _process_wood_chop(delta: float) -> bool:
+	velocity = Vector2.ZERO
+	_wood_chop_timer -= delta
+	if is_instance_valid(_wood_chase_tree):
+		_face_toward_global(_wood_chase_tree.global_position)
+	if _wood_chop_timer <= 0.0:
+		var tr := _wood_chase_tree
+		_wood_chase_tree = null
+		if is_instance_valid(tr) and tr.has_method("finish_chop"):
+			var log_pickup: Node2D = tr.finish_chop()
+			if log_pickup != null:
+				_wood_log_target = log_pickup
+				_wood_phase = WoodWorkerPhase.TO_LOG
+				_base_worker_state = BaseWorkerState.MOVE
+				_gather_target = _wood_log_target.global_position
+				if _nav_agent and is_instance_valid(_nav_agent):
+					_nav_agent.target_position = _gather_target
+				_move_timeout = 0.0
+				_move_stuck_frames = 0
+				_path_repath_timer = 0.0
+				_srv_path.clear()
+				_srv_path_idx = 0
+				_rebuild_nav_server_path()
+				_play_run()
+			else:
+				_wood_phase = WoodWorkerPhase.CHASE_TREE
+				_base_worker_state = BaseWorkerState.IDLE
+				_gather_cd = 0.0
+		else:
+			_wood_phase = WoodWorkerPhase.CHASE_TREE
+			_base_worker_state = BaseWorkerState.IDLE
+			_gather_cd = 0.0
+		return true
+	if sprite and sprite.animation != &"interact_axe":
+		sprite.play(&"interact_axe")
+	return true
+
+
+func _process_wood_to_log(delta: float) -> bool:
+	if _nav_agent == null or not is_instance_valid(_nav_agent):
+		return false
+	if _wood_log_target == null or not is_instance_valid(_wood_log_target):
+		_wood_phase = WoodWorkerPhase.CHASE_TREE
+		_base_worker_state = BaseWorkerState.IDLE
+		_gather_cd = 0.0
+		velocity = Vector2.ZERO
+		_play_idle()
+		return true
+	match _base_worker_state:
+		BaseWorkerState.MOVE:
+			_gather_target = _wood_log_target.global_position
+			_move_timeout += delta
 			_path_repath_timer -= delta
 			if _move_timeout > 22.0:
 				_move_timeout = 0.0
@@ -649,6 +906,22 @@ func _process_follow_custom(_delta: float) -> bool:
 		):
 			_cancel_base_worker()
 			return false
+	## Не отменять добычу дерева, если find_or_spawn вернул null (все зоны заняты / очередь) — иначе
+	## каждый кадр срабатывал cancel + return false, и пешка уходила в следование за героем («хаотичный» бег).
+	if _worker_job == WorkerJob.WOOD and _wood_phase == WoodWorkerPhase.CHASE_TREE:
+		var scene_w: Node = get_tree().current_scene
+		if scene_w != null:
+			var has_ready_tree := IslandWorkerTargets.find_nearest_ready_wood_job_tree(scene_w, global_position) != null
+			var has_wood_zone := not scene_w.get_tree().get_nodes_in_group("wood_zone").is_empty()
+			if not has_ready_tree and not has_wood_zone:
+				_cancel_base_worker()
+				return false
+	if _worker_job == WorkerJob.WOOD and _wood_phase == WoodWorkerPhase.CHOPPING:
+		return _process_wood_chop(_delta)
+	if _worker_job == WorkerJob.WOOD and _wood_phase == WoodWorkerPhase.TO_LOG:
+		return _process_wood_to_log(_delta)
+	if _worker_job == WorkerJob.WOOD and _wood_phase == WoodWorkerPhase.TO_CASTLE:
+		return _process_wood_castle_run(_delta)
 	if _worker_job == WorkerJob.MEAT and _meat_phase == MeatWorkerPhase.TO_CASTLE:
 		return _process_meat_castle_run(_delta)
 	if _worker_job == WorkerJob.ORE:
@@ -776,6 +1049,8 @@ func _process_ore_worker_gather(delta: float) -> bool:
 func _process_base_worker_gather(delta: float) -> bool:
 	if _nav_agent == null or not is_instance_valid(_nav_agent):
 		return false
+	if _worker_job == WorkerJob.WOOD and _wood_phase != WoodWorkerPhase.CHASE_TREE:
+		return false
 	var scene: Node = get_tree().current_scene
 	match _base_worker_state:
 		BaseWorkerState.IDLE:
@@ -788,8 +1063,16 @@ func _process_base_worker_gather(delta: float) -> bool:
 			_meat_chase_node = null
 			if job == "meat":
 				_meat_chase_node = IslandWorkerTargets.find_nearest_live_meat_node(scene, global_position)
+			elif job == "wood":
+				_wood_chase_tree = IslandWorkerTargets.find_or_spawn_wood_job_tree(scene, global_position)
+				if _wood_chase_tree == null:
+					velocity = Vector2.ZERO
+					_play_idle()
+					return true
 			var tgt: Vector2
-			if _meat_chase_node != null and is_instance_valid(_meat_chase_node):
+			if job == "wood":
+				tgt = _wood_chase_tree.global_position
+			elif _meat_chase_node != null and is_instance_valid(_meat_chase_node):
 				tgt = _meat_chase_node.global_position
 			else:
 				tgt = IslandWorkerTargets.find_target_global(scene, job, global_position)
@@ -812,6 +1095,21 @@ func _process_base_worker_gather(delta: float) -> bool:
 			_rebuild_nav_server_path()
 			return true
 		BaseWorkerState.MOVE:
+			if _worker_job == WorkerJob.WOOD and _wood_phase == WoodWorkerPhase.CHASE_TREE:
+				if _wood_chase_tree == null or not is_instance_valid(_wood_chase_tree):
+					_wood_chase_tree = null
+					_srv_path.clear()
+					_srv_path_idx = 0
+					_path_repath_timer = 0.0
+					_move_stuck_frames = 0
+					_base_worker_state = BaseWorkerState.IDLE
+					_gather_cd = 0.0
+					_move_timeout = 0.0
+					velocity = Vector2.ZERO
+					if _nav_agent and is_instance_valid(_nav_agent):
+						_nav_agent.target_position = global_position
+					_play_idle()
+					return true
 			if _worker_job == WorkerJob.MEAT and _meat_chase_node != null and not is_instance_valid(_meat_chase_node):
 				_meat_chase_node = null
 				_srv_path.clear()
@@ -835,12 +1133,26 @@ func _process_base_worker_gather(delta: float) -> bool:
 				if _meat_chase_repath_cd <= 0.0:
 					_meat_chase_repath_cd = 0.1
 					_rebuild_nav_server_path()
+			if _worker_job == WorkerJob.WOOD and _wood_phase == WoodWorkerPhase.CHASE_TREE and _wood_chase_tree != null and is_instance_valid(_wood_chase_tree):
+				_gather_target = _wood_chase_tree.global_position
 			var sheep_in_atk := _nearest_sheep_in_attack_area()
 			if sheep_in_atk != null and _attack_cd <= 0.0:
 				_start_attack(sheep_in_atk)
 				return true
 			var dist := global_position.distance_to(_gather_target)
 			if dist <= 44.0:
+				if _worker_job == WorkerJob.WOOD and _wood_phase == WoodWorkerPhase.CHASE_TREE:
+					if _wood_chase_tree != null and is_instance_valid(_wood_chase_tree) and _wood_chase_tree.has_method("begin_chop"):
+						_wood_chase_tree.begin_chop()
+					_wood_phase = WoodWorkerPhase.CHOPPING
+					_base_worker_state = BaseWorkerState.GATHER
+					_wood_chop_timer = 5.0
+					_move_timeout = 0.0
+					velocity = Vector2.ZERO
+					_face_toward_global(_gather_target)
+					if sprite:
+						sprite.play(&"interact_axe")
+					return true
 				if _worker_job == WorkerJob.MEAT and _meat_chase_node != null and is_instance_valid(_meat_chase_node):
 					## Живая овца: встать в зоне атаки; туша — не останавливаться по дистанции, идти до overlap MeatPickupArea.
 					if _meat_chase_node.has_method("is_alive_for_meat") and _meat_chase_node.is_alive_for_meat():
@@ -848,18 +1160,10 @@ func _process_base_worker_gather(delta: float) -> bool:
 						_face_toward_global(_gather_target)
 						_play_idle()
 						return true
-				elif _worker_job == WorkerJob.WOOD:
-					_move_stuck_frames = 0
-					_begin_island_gather()
-					return true
 			if _move_timeout > 22.0:
 				if get_worker_job_name() == "meat":
 					_move_timeout = 0.0
 					_rebuild_nav_server_path()
-					return true
-				if get_worker_job_name() == "wood":
-					_move_stuck_frames = 0
-					_begin_island_gather()
 					return true
 				_move_timeout = 0.0
 				_rebuild_nav_server_path()
@@ -979,12 +1283,16 @@ func _apply_island_gather_rewards() -> void:
 		"ore":
 			pass
 		"wood":
-			GameManager.add_wood(1)
+			pass
 		"meat":
 			pass
 
 
 func _on_sprite_animation_finished() -> void:
+	if _worker_job == WorkerJob.WOOD and _wood_phase == WoodWorkerPhase.CHOPPING:
+		if _wood_chop_timer > 0.0 and sprite:
+			sprite.play(&"interact_axe")
+		return
 	if _island_gathering:
 		_apply_island_gather_rewards()
 		_island_gathering = false

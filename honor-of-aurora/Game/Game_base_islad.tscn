@@ -1,4 +1,4 @@
-[gd_scene load_steps=111 format=4 uid="uid://bos5r41ll0qqe"]
+[gd_scene load_steps=112 format=4 uid="uid://bos5r41ll0qqe"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_lc62k"]
 [ext_resource type="Script" uid="uid://drx5ypae7garp" path="res://Game/game_base_islad.gd" id="1_xjk1y"]
@@ -42,6 +42,7 @@
 [ext_resource type="Texture2D" uid="uid://c6mev5b0khuwf" path="res://Asets/Environment/Deco/03.png" id="39_3gpd6"]
 [ext_resource type="Texture2D" uid="uid://dnaq28kx7db1l" path="res://Asets/Environment/Resources/Gold Mine/GoldMine_Inactive.png" id="39_hf3c7"]
 [ext_resource type="Texture2D" uid="uid://ck1vpngoc3keu" path="res://Asets/Environment/Deco/15.png" id="40_620qg"]
+[ext_resource type="PackedScene" uid="uid://2su04soqxyyn" path="res://objects/wood_zone/wood_zone.tscn" id="41_pe2qa"]
 [ext_resource type="Texture2D" uid="uid://lpnsodxovyvi" path="res://Asets/Environment/Deco/17.png" id="41_w4aex"]
 [ext_resource type="Texture2D" uid="uid://cux1t3r75go8f" path="res://Asets/Environment/Deco/18.png" id="42_2whhj"]
 [ext_resource type="Texture2D" uid="uid://npdsd4f6qisb" path="res://Asets/Environment/Deco/13.png" id="43_1wd1t"]
@@ -954,3 +955,41 @@ script = null
 [node name="sheep_zone11" parent="sheep_zones" instance=ExtResource("62_u52s7")]
 position = Vector2(1107, -204)
 script = null
+
+[node name="wood_zone" type="Node" parent="."]
+
+[node name="wood_zone" parent="wood_zone" instance=ExtResource("41_pe2qa")]
+position = Vector2(1691, 614)
+
+[node name="wood_zone2" parent="wood_zone" instance=ExtResource("41_pe2qa")]
+position = Vector2(695, 705)
+
+[node name="wood_zone3" parent="wood_zone" instance=ExtResource("41_pe2qa")]
+position = Vector2(-179, 540)
+
+[node name="wood_zone4" parent="wood_zone" instance=ExtResource("41_pe2qa")]
+position = Vector2(-1247, 168)
+
+[node name="wood_zone5" parent="wood_zone" instance=ExtResource("41_pe2qa")]
+position = Vector2(-1088, 261)
+
+[node name="wood_zone6" parent="wood_zone" instance=ExtResource("41_pe2qa")]
+position = Vector2(-1066, 86)
+
+[node name="wood_zone7" parent="wood_zone" instance=ExtResource("41_pe2qa")]
+position = Vector2(-330, 544)
+
+[node name="wood_zone8" parent="wood_zone" instance=ExtResource("41_pe2qa")]
+position = Vector2(126, -57)
+
+[node name="wood_zone9" parent="wood_zone" instance=ExtResource("41_pe2qa")]
+position = Vector2(144, -320)
+
+[node name="wood_zone10" parent="wood_zone" instance=ExtResource("41_pe2qa")]
+position = Vector2(1116, -682)
+
+[node name="wood_zone11" parent="wood_zone" instance=ExtResource("41_pe2qa")]
+position = Vector2(2315, -232)
+
+[node name="wood_zone12" parent="wood_zone" instance=ExtResource("41_pe2qa")]
+position = Vector2(1348, 501)
