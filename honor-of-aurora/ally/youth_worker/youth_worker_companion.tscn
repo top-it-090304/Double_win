@@ -1,6 +1,6 @@
-[gd_scene load_steps=5 format=3 uid="uid://p4wnb4s0tscn"]
+[gd_scene load_steps=5 format=3]
 
-[ext_resource type="Script" uid="uid://p4wnb4s3gd01" path="res://ally/pawn/scripts/pawn_base.gd" id="1_pawn"]
+[ext_resource type="Script" path="res://ally/youth_worker/youth_worker_companion.gd" id="1_youth"]
 [ext_resource type="SpriteFrames" uid="uid://oa5xdvy5xrly" path="res://ally/pawn/resources/black_pawn_frames.tres" id="2_frames"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pawn"]
@@ -8,10 +8,10 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_pawn_atk"]
 radius = 88.0
 
-[node name="PawnBase" type="CharacterBody2D"]
+[node name="YouthWorkerCompanion" type="CharacterBody2D"]
 collision_layer = 8
 collision_mask = 47
-script = ExtResource("1_pawn")
+script = ExtResource("1_youth")
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
 path_desired_distance = 16.0
@@ -24,6 +24,8 @@ shape = SubResource("CircleShape2D_pawn")
 
 [node name="AttackArea" type="Area2D" parent="."]
 collision_layer = 0
+collision_mask = 1
+monitoring = true
 
 [node name="AttackShape" type="CollisionShape2D" parent="AttackArea"]
 shape = SubResource("CircleShape2D_pawn_atk")
@@ -31,6 +33,5 @@ shape = SubResource("CircleShape2D_pawn_atk")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -16)
 sprite_frames = ExtResource("2_frames")
-animation = &"dead"
-frame = 9
-frame_progress = 1.0
+animation = &"run_pickaxe"
+frame_progress = 0.225186

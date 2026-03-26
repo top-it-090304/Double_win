@@ -562,17 +562,26 @@ func _resolve_scene_for_hire(kind: HireKind) -> PackedScene:
 	return null
 
 
+func _show_hire_fail(msg: String) -> void:
+	var quote_lbl := get_node_or_null("HireSelectPanel/HirePanel/SubtitleHire") as Label
+	if quote_lbl:
+		quote_lbl.text = msg
+
+
 func _hire_unit(kind: HireKind) -> void:
 	var scene := _resolve_scene_for_hire(kind)
 	if not scene:
 		return
 	if kind == HireKind.ARCHER or kind == HireKind.LANCER:
 		if SaveManager.archer_count + SaveManager.lancer_count >= GameManager.get_max_warriors_allowed():
+			_show_hire_fail("Нужен запас мяса: добывайте на базе (овцы), чтобы увеличить лимит лучников и копейщиков.")
 			return
 	if not GameplayFacade.try_spend_gold(unit_hire_cost):
+		_show_hire_fail("Недостаточно золота.")
 		return
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if not player:
+		_show_hire_fail("Герой не найден в сцене.")
 		return
 	var unit := scene.instantiate() as Node2D
 	if not unit:

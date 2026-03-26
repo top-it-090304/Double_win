@@ -1,8 +1,9 @@
 extends Node
 
-var gold: int = 0
+## Старт совпадает с default_data (новая игра / первый запуск без файла сохранения).
+var gold: int = 500
 ## «Запас мяса» — лимит лучников+копейщиков (и отображение в HUD).
-var meat_count: int = 0
+var meat_count: int = 5
 ## Дерево: улучшение зданий.
 var wood_count: int = 0
 ## Руда с шахты на базе (пока учёт без расхода в геймплее).
@@ -74,8 +75,8 @@ var hero_speed_bonus: float = 0.0
 const GAME_SAVE_FILE := "user://game_save_file.save"
 const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus"]
 const default_data := {
-	"gold" : 0,
-	"meat_count" : 0,
+	"gold" : 500,
+	"meat_count" : 5,
 	"wood_count" : 0,
 	"ore_count" : 0,
 	"boss_kill" : 0,
@@ -191,6 +192,10 @@ func load_game():
 	var _warriors := archer_count + lancer_count
 	if meat_count < _warriors:
 		meat_count = _warriors
+	# Старые сохранения: при meat_count=0 лимит лучников+копейщиков был 0, условие найма «0 >= 0» блокировало набор.
+	if meat_count == 0 and _warriors == 0:
+		meat_count = 1
+		Events.meat_changed.emit(meat_count)
 	if not game_data.has("resume_from_death"):
 		resume_from_death = (
 			current_health == 1
@@ -268,6 +273,9 @@ func notify_squad_member_died(unit: Node) -> void:
 	if unit == null:
 		return
 	if bool(unit.get_meta("no_squad_death", false)):
+		return
+	if unit.is_in_group("story_youth_companion"):
+		StoryState.set_flag("worker_youth_dead", true)
 		return
 	if unit.is_in_group("ally_archer"):
 		archer_count = maxi(0, archer_count - 1)

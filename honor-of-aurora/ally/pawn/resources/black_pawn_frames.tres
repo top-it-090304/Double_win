@@ -1,5 +1,6 @@
-[gd_resource type="SpriteFrames" load_steps=152 format=3 uid="uid://oa5xdvy5xrly"]
+[gd_resource type="SpriteFrames" load_steps=163 format=3 uid="uid://oa5xdvy5xrly"]
 
+[ext_resource type="Texture2D" uid="uid://cs6irs3maxpip" path="res://Asets/Unit_pack/Particle FX/Dust_02.png" id="1_x5byu"]
 [ext_resource type="Texture2D" uid="uid://df1e6bdxa0i7g" path="res://ally/pawn/art/black/Pawn_Idle.png" id="tex_Pawn_Idle"]
 [ext_resource type="Texture2D" uid="uid://dp04667eb1eke" path="res://ally/pawn/art/black/Pawn_Idle Axe.png" id="tex_Pawn_Idle_Axe"]
 [ext_resource type="Texture2D" uid="uid://bewtjqsggwuda" path="res://ally/pawn/art/black/Pawn_Idle Gold.png" id="tex_Pawn_Idle_Gold"]
@@ -21,9 +22,45 @@
 [ext_resource type="Texture2D" uid="uid://d2app74wgkl80" path="res://ally/pawn/art/black/Pawn_Run Pickaxe.png" id="tex_Pawn_Run_Pickaxe"]
 [ext_resource type="Texture2D" uid="uid://c2uup6vauhajo" path="res://ally/pawn/art/black/Pawn_Run Wood.png" id="tex_Pawn_Run_Wood"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_p0007"]
-atlas = ExtResource("tex_Pawn_Idle")
-region = Rect2(1344, 0, 192, 192)
+[sub_resource type="AtlasTexture" id="AtlasTexture_ndam8"]
+atlas = ExtResource("1_x5byu")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bj5xu"]
+atlas = ExtResource("1_x5byu")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3gpei"]
+atlas = ExtResource("1_x5byu")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pyyqn"]
+atlas = ExtResource("1_x5byu")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8qea4"]
+atlas = ExtResource("1_x5byu")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xjfqi"]
+atlas = ExtResource("1_x5byu")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ejcua"]
+atlas = ExtResource("1_x5byu")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2uyrs"]
+atlas = ExtResource("1_x5byu")
+region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2anhk"]
+atlas = ExtResource("1_x5byu")
+region = Rect2(512, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lje3f"]
+atlas = ExtResource("1_x5byu")
+region = Rect2(576, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_p0000"]
 atlas = ExtResource("tex_Pawn_Idle")
@@ -52,6 +89,10 @@ region = Rect2(960, 0, 192, 192)
 [sub_resource type="AtlasTexture" id="AtlasTexture_p0006"]
 atlas = ExtResource("tex_Pawn_Idle")
 region = Rect2(1152, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0007"]
+atlas = ExtResource("tex_Pawn_Idle")
+region = Rect2(1344, 0, 192, 192)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_p0014"]
 atlas = ExtResource("tex_Pawn_Idle_Axe")
@@ -549,34 +590,34 @@ region = Rect2(960, 0, 192, 192)
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
+"texture": SubResource("AtlasTexture_ndam8")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
+"texture": SubResource("AtlasTexture_bj5xu")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
+"texture": SubResource("AtlasTexture_3gpei")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
+"texture": SubResource("AtlasTexture_pyyqn")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
+"texture": SubResource("AtlasTexture_8qea4")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
+"texture": SubResource("AtlasTexture_xjfqi")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
+"texture": SubResource("AtlasTexture_ejcua")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
+"texture": SubResource("AtlasTexture_2uyrs")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
+"texture": SubResource("AtlasTexture_2anhk")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
+"texture": SubResource("AtlasTexture_lje3f")
 }],
 "loop": false,
 "name": &"dead",

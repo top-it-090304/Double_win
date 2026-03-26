@@ -137,8 +137,13 @@ func _process_follow(_delta: float) -> void:
 		return
 
 	if SquadOrders.mode == SquadOrders.Mode.PATROL:
-		_process_base_patrol(_delta)
-		return
+		## На островах пешки не спавнятся из экономики; единственная — сюжетный юноша.
+		## Режим PATROL здесь — наследие «работы» на базе: иначе он кружит и не дерётся.
+		if Events.current_location != Events.LOCATION.BASE and is_in_group("ally_pawn"):
+			pass
+		else:
+			_process_base_patrol(_delta)
+			return
 
 	if not player:
 		velocity = Vector2.ZERO

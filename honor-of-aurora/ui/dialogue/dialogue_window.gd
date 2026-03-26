@@ -14,10 +14,13 @@ const CHOICE_BUTTON_MIN_HEIGHT := 32
 
 const TEX_HEALER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/aa_healler.png")
 const TEX_PLAYER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/aa_player.png")
+## Тот же аватар, что у рабочего в меню отряда (squad_orders_menu TEX_PAWN).
+const TEX_WORKER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_05.png")
 
 const SPEAKER_LABELS := {
 	"healer": "Целитель",
 	"hero": "Рыцарь",
+	"young_worker": "Юноша",
 	"narrator": "Повествование",
 	"letter": "Письмо",
 }
@@ -25,6 +28,7 @@ const SPEAKER_LABELS := {
 const SPEAKER_FACES := {
 	"healer": TEX_HEALER,
 	"hero": TEX_PLAYER,
+	"young_worker": TEX_WORKER,
 }
 
 @onready var _face: TextureRect = $DialogueChrome/PanelRoot/MarginMain/VBox/Row/LeftCol/FaceFrame/face

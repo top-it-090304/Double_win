@@ -28,6 +28,8 @@ const STORY_DIALOGUE_IDS: PackedStringArray = [
 	"monk_finale_refused",
 	"boss_post_5",
 	"intro_base_island",
+	"monk_worker_youth_warning",
+	"monk_worker_youth_lament",
 	"monk_story_1",
 	"monk_story_2",
 	"monk_story_3",

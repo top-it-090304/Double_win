@@ -103,7 +103,9 @@ func _show_squad_greeting_stage() -> void:
 	_face.texture = _portrait_for_unit(u)
 	_face.visible = true
 	_name_label.text = _squad_speaker_title(u)
-	if u != null and u.is_in_group("ally_pawn"):
+	if u != null and u.is_in_group("story_youth_companion"):
+		_text_label.text = "Слушаю, милорд. Где нужна кирка — у шахты, у дерева или у стада? Я готов."
+	elif u != null and u.is_in_group("ally_pawn"):
 		_text_label.text = "Слушаю, милорд. Где нужна кирка — у шахты, у дерева или у стада?"
 	else:
 		_text_label.text = "Какие указания, милорд?"
@@ -115,7 +117,9 @@ func _show_hero_orders_stage() -> void:
 	_face.texture = TEX_HERO
 	_face.visible = true
 	_name_label.text = "Рыцарь"
-	if _context_unit != null and _context_unit.is_in_group("ally_pawn"):
+	if _context_unit != null and _context_unit.is_in_group("story_youth_companion"):
+		_text_label.text = "Что поручить юноше?"
+	elif _context_unit != null and _context_unit.is_in_group("ally_pawn"):
 		_text_label.text = "Что поручить рабочему?"
 	else:
 		_text_label.text = "Что прикажете отряду?"
@@ -137,6 +141,8 @@ func _portrait_for_unit(u: Node2D) -> Texture2D:
 		return TEX_ARCHER
 	if u.is_in_group("ally_lancer"):
 		return TEX_LANCER
+	if u.is_in_group("story_youth_companion"):
+		return TEX_PAWN
 	if u.is_in_group("ally_pawn"):
 		return TEX_PAWN
 	return TEX_LANCER
@@ -147,6 +153,8 @@ func _squad_speaker_title(u: Node2D) -> String:
 		return "Лучник"
 	if u.is_in_group("ally_lancer"):
 		return "Копейщик"
+	if u.is_in_group("story_youth_companion"):
+		return "Юноша"
 	if u.is_in_group("ally_pawn"):
 		return "Рабочий"
 	return "Союзник"

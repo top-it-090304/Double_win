@@ -138,6 +138,7 @@ func _input(event: InputEvent) -> void:
 var _archer_scene: PackedScene
 var _lancer_scene: PackedScene
 var _pawn_scene: PackedScene
+var _youth_worker_scene: PackedScene
 
 ## Полноэкранная заглушка на 1 кадр между сменой сцены и спавном героя: иначе виден мир с «камерой по умолчанию» в (0,0), не там где resume/spawn.
 var _scene_transition_blocker_layer: CanvasLayer = null
@@ -174,6 +175,12 @@ func _get_pawn_scene() -> PackedScene:
 	if _pawn_scene == null:
 		_pawn_scene = load("res://ally/pawn/scenes/pawn_base.tscn") as PackedScene
 	return _pawn_scene
+
+
+func _get_youth_worker_companion_scene() -> PackedScene:
+	if _youth_worker_scene == null:
+		_youth_worker_scene = load("res://ally/youth_worker/youth_worker_companion.tscn") as PackedScene
+	return _youth_worker_scene
 
 
 func _find_boat_tilemap_layer(node: Node) -> TileMapLayer:
@@ -668,7 +675,10 @@ func _spawn_saved_archers(root: Node) -> void:
 	## Рудокопы остаются только на базовом острове, в поход не переходят.
 	if Events.current_location != Events.LOCATION.BASE:
 		np = 0
-	var total: int = na + nl + np
+	var ny: int = 0
+	if StoryState.has_flag("worker_youth_recruited") and not StoryState.has_flag("worker_youth_dead"):
+		ny = 1
+	var total: int = na + nl + np + ny
 	if total <= 0:
 		return
 	var base_pos: Vector2 = current_scene_player.global_position
@@ -709,6 +719,16 @@ func _spawn_saved_archers(root: Node) -> void:
 		if idx2 < positions.size():
 			pawn.global_position = positions[idx2]
 		pawn.add_to_group("squad_member")
+	if ny > 0:
+		var yscene := _get_youth_worker_companion_scene()
+		if yscene:
+			var yw := yscene.instantiate() as Node2D
+			if yw:
+				root.add_child(yw)
+				var idx_y: int = na + nl + np
+				if idx_y < positions.size():
+					yw.global_position = positions[idx_y]
+				yw.add_to_group("squad_member")
 
 func _show_scene_transition_blocker() -> void:
 	if _scene_transition_blocker_layer != null and is_instance_valid(_scene_transition_blocker_layer):

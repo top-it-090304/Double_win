@@ -77,6 +77,10 @@ func _ready() -> void:
 	_ore_baseline_collision_layer = collision_layer
 	_ore_baseline_collision_mask = collision_mask
 	if attack_area:
+		## В pawn_base.tscn mask часто 0: без слоя «enemy» overlapping пустой — нет целей и нет боя.
+		if attack_area.collision_mask == 0:
+			attack_area.collision_mask = 1
+		attack_area.monitoring = true
 		_ore_baseline_attack_monitoring = attack_area.monitoring
 
 
@@ -356,12 +360,14 @@ func _run_anim() -> StringName:
 	return &"run_knife"
 
 
+## Совпадает с копейщиком (`lancer_base.gd`): урон в точке «острие», а не по всему AttackArea.
+## Раньше 58/20 давали промахи на краю зоны (радиус зоны 64 < дистанция до цели при overlap).
 func _get_melee_hit_reach() -> float:
-	return 58.0
+	return 108.0
 
 
 func _get_melee_hit_radius() -> float:
-	return 20.0
+	return 22.0
 
 
 func _attack_anim_for_direction(_dir: Vector2) -> StringName:
@@ -1289,6 +1295,9 @@ func _apply_island_gather_rewards() -> void:
 
 
 func _on_sprite_animation_finished() -> void:
+	## Смерть: не перехватывать кадром добычи/косметики — иначе сбивается клип dead.
+	if state == State.DEAD:
+		return
 	if _worker_job == WorkerJob.WOOD and _wood_phase == WoodWorkerPhase.CHOPPING:
 		if _wood_chop_timer > 0.0 and sprite:
 			sprite.play(&"interact_axe")
