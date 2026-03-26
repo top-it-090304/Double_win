@@ -7,6 +7,8 @@ enum MenuKind { CASTLE, BARRACKS }
 
 func _ready() -> void:
 	add_to_group("building_menu_zone")
+	if menu_kind == MenuKind.CASTLE:
+		add_to_group("base_ore_castle_dropoff")
 
 
 func try_open_menu_if_player_inside() -> bool:

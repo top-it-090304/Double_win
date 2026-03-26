@@ -5,13 +5,16 @@ extends "res://Game/game_level_spawn_layer.gd"
 const _WorldMiniHpBarScript := preload("res://ui/hp_bar/world_mini_hp_bar.gd")
 const _BASE_SHEEP_SCENE := preload("res://ally/sheep/base_sheep.tscn")
 
-var _base_sheep_spawn_queued: bool = false
+## Один респавн на подбор мяса; при «pending» без второго call_deferred — не терять запрос.
+var _base_sheep_spawn_pending: bool = false
+var _base_sheep_spawn_deferred_scheduled: bool = false
 
 
 func _ready() -> void:
 	add_to_group("base_sheep_spawner")
 	# Стартовая позиция героя — центр тайла лодки (см. GameManager.get_boat_tile_center_global).
 	super._ready()
+	call_deferred("_setup_base_ore_mine_entry_zone")
 	call_deferred("_setup_base_navigation_from_tile_collisions")
 	var tree := get_tree()
 	tree.node_added.connect(_on_tree_node_added_hide_unit_hp)
@@ -107,6 +110,43 @@ func _setup_base_navigation_from_tile_collisions() -> void:
 	call_deferred("_sync_nav_map_cell_size", np.cell_size)
 
 
+func _setup_base_ore_mine_entry_zone() -> void:
+	if find_child("OreMineEntryZone", true, false) != null:
+		return
+	var island := find_child("island", true, false)
+	var buildings := island.get_node_or_null("builings") if island else null
+	var mine_layer := buildings.get_node_or_null("mine") if buildings else null
+	if mine_layer == null or not (mine_layer is TileMapLayer):
+		push_warning("Game_base_islad: слой mine не найден — зона входа в шахту для рабочего не создана.")
+		return
+	var tm := mine_layer as TileMapLayer
+	var cells := tm.get_used_cells()
+	if cells.is_empty():
+		return
+	var cell: Vector2i = cells[0]
+	var ts := Vector2(64, 64)
+	if tm.tile_set:
+		ts = Vector2(tm.tile_set.tile_size)
+	var local_center: Vector2 = tm.map_to_local(cell) + ts * 0.5
+	var gpos: Vector2 = tm.to_global(local_center)
+	var zone := Area2D.new()
+	zone.name = "OreMineEntryZone"
+	zone.collision_layer = 0
+	## Все слои тел: коллизия рабочего с шахтой должна давать overlaps_body независимо от нумерации слоя.
+	zone.collision_mask = 0xFFFFFFFF
+	zone.monitoring = true
+	zone.monitorable = false
+	var cs := CollisionShape2D.new()
+	var circ := CircleShape2D.new()
+	## Компромисс: достаточно для overlaps_body у коллизии шахты, без огромного круга.
+	circ.radius = 88.0
+	cs.shape = circ
+	zone.add_child(cs)
+	add_child(zone)
+	zone.global_position = gpos
+	zone.add_to_group("base_ore_mine_entry")
+
+
 func _sync_nav_map_cell_size(cell_size: float) -> void:
 	var cs: float = cell_size
 	if cs <= 0.0:
@@ -116,14 +156,18 @@ func _sync_nav_map_cell_size(cell_size: float) -> void:
 
 func spawn_base_sheep_random() -> void:
 	## Нельзя вызывать add_child из колбэков физики (MeatPickupArea.body_entered) — «flushing queries».
-	if _base_sheep_spawn_queued:
+	_base_sheep_spawn_pending = true
+	if _base_sheep_spawn_deferred_scheduled:
 		return
-	_base_sheep_spawn_queued = true
+	_base_sheep_spawn_deferred_scheduled = true
 	call_deferred("_spawn_base_sheep_deferred")
 
 
 func _spawn_base_sheep_deferred() -> void:
-	_base_sheep_spawn_queued = false
+	_base_sheep_spawn_deferred_scheduled = false
+	if not _base_sheep_spawn_pending:
+		return
+	_base_sheep_spawn_pending = false
 	var ch := find_child("charecters", true, false)
 	if ch == null:
 		push_warning("Game_base_islad: нет узла charecters — овца не заспавнена.")
@@ -133,8 +177,48 @@ func _spawn_base_sheep_deferred() -> void:
 	ch.add_child(inst)
 
 
+func _random_point_in_sheep_zone(zone: Area2D) -> Vector2:
+	var cs := zone.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if cs == null or cs.shape == null:
+		return zone.global_position
+	var sh: Shape2D = cs.shape
+	if sh is CircleShape2D:
+		var rad: float = (sh as CircleShape2D).radius
+		var u := randf()
+		var rr: float = rad * sqrt(u)
+		var local := Vector2.RIGHT.rotated(randf() * TAU) * rr
+		return cs.to_global(local)
+	if sh is RectangleShape2D:
+		var half := (sh as RectangleShape2D).size * 0.5
+		var lx := randf_range(-half.x, half.x)
+		var ly := randf_range(-half.y, half.y)
+		return cs.to_global(Vector2(lx, ly))
+	return zone.global_position
+
+
 func _random_point_on_base_navigation() -> Vector2:
 	var map_rid: RID = get_world_2d().get_navigation_map()
+	var zones: Array[Area2D] = []
+	for n in get_tree().get_nodes_in_group("sheep_spawn_zone"):
+		if n is Area2D and is_instance_valid(n):
+			zones.append(n as Area2D)
+	if zones.size() > 0:
+		const _SNAP_OK := 520.0
+		var best_snap: Vector2 = Vector2.ZERO
+		var best_d := INF
+		for _attempt in range(48):
+			var z: Area2D = zones[randi() % zones.size()]
+			var raw := _random_point_in_sheep_zone(z)
+			var snapped: Vector2 = NavigationServer2D.map_get_closest_point(map_rid, raw)
+			var d := snapped.distance_to(raw)
+			if d < best_d:
+				best_d = d
+				best_snap = snapped
+			if d <= _SNAP_OK:
+				return snapped
+		## Все попытки «далеко» от сырой точки — всё равно берём ближайшую к сетке точку (иначе овца не появится).
+		if best_d < INF:
+			return best_snap
 	for _i in range(40):
 		var r := Vector2(randf_range(-2800.0, 1400.0), randf_range(-1000.0, 1100.0))
 		var c: Vector2 = NavigationServer2D.map_get_closest_point(map_rid, r)

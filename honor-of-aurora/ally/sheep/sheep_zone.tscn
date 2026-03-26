@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://cwuvggcawpres"]
+
+[ext_resource type="Script" path="res://ally/sheep/sheep_zone.gd" id="1_sheepzone"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_xa8ui"]
+radius = 93.0484
+
+[node name="sheep_zone" type="Area2D"]
+visible = false
+monitoring = false
+monitorable = false
+script = ExtResource("1_sheepzone")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_xa8ui")

@@ -21,6 +21,10 @@
 [ext_resource type="Texture2D" uid="uid://d2app74wgkl80" path="res://ally/pawn/art/black/Pawn_Run Pickaxe.png" id="tex_Pawn_Run_Pickaxe"]
 [ext_resource type="Texture2D" uid="uid://c2uup6vauhajo" path="res://ally/pawn/art/black/Pawn_Run Wood.png" id="tex_Pawn_Run_Wood"]
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0007"]
+atlas = ExtResource("tex_Pawn_Idle")
+region = Rect2(1344, 0, 192, 192)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_p0000"]
 atlas = ExtResource("tex_Pawn_Idle")
 region = Rect2(0, 0, 192, 192)
@@ -48,10 +52,6 @@ region = Rect2(960, 0, 192, 192)
 [sub_resource type="AtlasTexture" id="AtlasTexture_p0006"]
 atlas = ExtResource("tex_Pawn_Idle")
 region = Rect2(1152, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_p0007"]
-atlas = ExtResource("tex_Pawn_Idle")
-region = Rect2(1344, 0, 192, 192)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_p0014"]
 atlas = ExtResource("tex_Pawn_Idle_Axe")
@@ -549,6 +549,41 @@ region = Rect2(960, 0, 192, 192)
 animations = [{
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_p0007")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p0007")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p0007")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p0007")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p0007")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p0007")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p0007")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p0007")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p0007")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p0007")
+}],
+"loop": false,
+"name": &"dead",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_p0000")
 }, {
 "duration": 1.0,
@@ -1038,40 +1073,5 @@ animations = [{
 }],
 "loop": true,
 "name": &"run_wood",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_p0007")
-}],
-"loop": false,
-"name": &"dead",
 "speed": 10.0
 }]

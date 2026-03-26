@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" uid="uid://dbugmenu001" path="res://ui/debug_menu/debug_menu.tscn" id="9_debug"]
 
 [node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("teleport_menu", "castle_menu", "barracks_menu", "squad_orders_menu", "debug_menu") groups=["hud"]]
+visible = false
 layer = 5
 script = ExtResource("1_smmqc")
 teleport_menu = NodePath("teleport_menu")

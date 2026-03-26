@@ -13,7 +13,11 @@ static func find_nearest_live_meat_node(scene: Node, from_global: Vector2) -> No
 	for n in scene.get_tree().get_nodes_in_group("sheep_resource"):
 		if not n is Node2D:
 			continue
-		if n.has_method("is_alive_for_meat") and not n.is_alive_for_meat():
+		if not (n as Node).is_in_group("base_sheep"):
+			continue
+		if not (n as Node).has_method("is_alive_for_meat"):
+			continue
+		if not n.is_alive_for_meat():
 			continue
 		var n2: Node2D = n as Node2D
 		var d := from_global.distance_squared_to(n2.global_position)
@@ -32,7 +36,11 @@ static func find_nearest_meat_pickup_node(scene: Node, from_global: Vector2) -> 
 	for n in scene.get_tree().get_nodes_in_group("sheep_resource"):
 		if not n is Node2D:
 			continue
-		if n.has_method("is_alive_for_meat") and n.is_alive_for_meat():
+		if not (n as Node).is_in_group("base_sheep"):
+			continue
+		if not (n as Node).has_method("is_alive_for_meat"):
+			continue
+		if n.is_alive_for_meat():
 			continue
 		var n2: Node2D = n as Node2D
 		var d := from_global.distance_squared_to(n2.global_position)

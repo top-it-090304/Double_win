@@ -395,6 +395,8 @@ func _try_squad_orders_instead_of_attack() -> bool:
 		return false
 	for body in attack_area.get_overlapping_bodies():
 		if body.is_in_group("squad_member"):
+			if body.has_method("is_pawn_in_ore_mine") and body.is_pawn_in_ore_mine():
+				continue
 			var hud: Node = GameplayFacade.get_hud(get_tree())
 			if hud and hud.has_method("try_open_squad_orders_menu"):
 				return hud.try_open_squad_orders_menu(body as Node2D)

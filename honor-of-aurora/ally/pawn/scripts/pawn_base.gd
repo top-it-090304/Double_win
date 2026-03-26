@@ -6,7 +6,11 @@ extends "res://characters/companion_unit.gd"
 
 enum WorkerJob { ORE, MEAT, WOOD }
 
-enum BaseWorkerState { IDLE, MOVE, GATHER, COOLDOWN }
+enum BaseWorkerState { IDLE, MOVE, GATHER, COOLDOWN, ORE_UNDERGROUND }
+
+enum OreWorkerPhase { NONE, TO_MINE, TO_CASTLE }
+
+enum MeatWorkerPhase { CHASE, TO_CASTLE }
 
 var _worker_job: WorkerJob = WorkerJob.ORE
 var _pawn_cosmetic_busy: bool = false
@@ -22,6 +26,17 @@ var _srv_path_idx: int = 0
 var _path_repath_timer: float = 0.0
 var _meat_chase_node: Node2D = null
 var _meat_chase_repath_cd: float = 0.0
+var _meat_phase: MeatWorkerPhase = MeatWorkerPhase.CHASE
+var _meat_carry_sheep: Node2D = null
+var _meat_carry_amount: int = 0
+## Цикл руды: шахта → 10 с под землёй → замок с run_gold → снова шахта.
+var _ore_phase: OreWorkerPhase = OreWorkerPhase.TO_MINE
+var _ore_underground_timer: float = 0.0
+var _ore_baseline_collision_layer: int = 8
+var _ore_baseline_collision_mask: int = 47
+var _ore_baseline_attack_monitoring: bool = true
+## Рудокоп у коллизии шахты: накапливается, пока близко к цели, но не может войти по дистанции.
+var _ore_mine_near_timer: float = 0.0
 ## Дальность луча: не меньше этого и ~0.2 с полёта — иначе упирается в углы.
 const _STEER_LOOKAHEAD_MIN: float = 88.0
 const _STEER_LOOKAHEAD_SPEED_MUL: float = 0.22
@@ -52,6 +67,10 @@ func _ready() -> void:
 	call_deferred("_sync_nav_agent_start_position")
 	call_deferred("_sync_nav_layers_with_island_region")
 	Events.base_island_meat_collected.connect(_on_base_island_meat_collected)
+	_ore_baseline_collision_layer = collision_layer
+	_ore_baseline_collision_mask = collision_mask
+	if attack_area:
+		_ore_baseline_attack_monitoring = attack_area.monitoring
 
 
 func _on_base_island_meat_collected() -> void:
@@ -105,7 +124,8 @@ func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
 	if _nav_agent and is_instance_valid(_nav_agent):
 		_nav_agent.velocity = velocity
-	if _base_worker_state == BaseWorkerState.MOVE and velocity.length_squared() > 100.0:
+	## Порог скорости ниже, чем раньше: у стены скорость может проседать, а «застревание» не считалось.
+	if _base_worker_state == BaseWorkerState.MOVE and velocity.length_squared() > 36.0:
 		var moved := global_position.distance_to(pos_before)
 		if moved < 0.45:
 			_move_stuck_frames += 1
@@ -264,6 +284,7 @@ func set_worker_job_from_dialogue(key: String) -> void:
 		return
 	_worker_job = j
 	_meat_chase_node = null
+	_cancel_base_worker()
 
 
 func get_worker_job_name() -> String:
@@ -282,6 +303,10 @@ func is_assigned_to_ore_mining() -> bool:
 	return _worker_job == WorkerJob.ORE
 
 
+func is_pawn_in_ore_mine() -> bool:
+	return _base_worker_state == BaseWorkerState.ORE_UNDERGROUND
+
+
 func get_base_shift_phase_name() -> String:
 	return ""
 
@@ -293,7 +318,11 @@ func get_base_shift_task_name() -> String:
 func _idle_anim() -> StringName:
 	if Events.current_location == Events.LOCATION.BASE:
 		if _worker_job == WorkerJob.MEAT:
+			if _meat_phase == MeatWorkerPhase.TO_CASTLE:
+				return &"idle_meat"
 			return &"idle_knife"
+		if _worker_job == WorkerJob.ORE:
+			return &"idle"
 		match _worker_job:
 			WorkerJob.WOOD:
 				return &"idle_axe"
@@ -305,7 +334,13 @@ func _idle_anim() -> StringName:
 func _run_anim() -> StringName:
 	if Events.current_location == Events.LOCATION.BASE:
 		if _worker_job == WorkerJob.MEAT:
+			if _meat_phase == MeatWorkerPhase.TO_CASTLE:
+				return &"run_meat"
 			return &"run_knife"
+		if _worker_job == WorkerJob.ORE:
+			if _ore_phase == OreWorkerPhase.TO_CASTLE:
+				return &"run_gold"
+			return &"run_pickaxe"
 		match _worker_job:
 			WorkerJob.WOOD:
 				return &"run_axe"
@@ -327,17 +362,249 @@ func _attack_anim_for_direction(_dir: Vector2) -> StringName:
 
 
 func _cancel_base_worker() -> void:
+	_ore_restore_if_submerged()
+	_meat_abort_carry_if_cancelled()
 	_base_worker_state = BaseWorkerState.IDLE
 	_island_gathering = false
 	_move_timeout = 0.0
+	_gather_cd = 0.0
 	_meat_chase_node = null
 	_meat_chase_repath_cd = 0.0
+	_ore_mine_near_timer = 0.0
 	_srv_path.clear()
 	_srv_path_idx = 0
 	_path_repath_timer = 0.0
 	_move_stuck_frames = 0
 	if _nav_agent and is_instance_valid(_nav_agent):
 		_nav_agent.target_position = global_position
+	if _worker_job == WorkerJob.ORE:
+		_ore_phase = OreWorkerPhase.TO_MINE
+	else:
+		_ore_phase = OreWorkerPhase.NONE
+	if _worker_job != WorkerJob.MEAT:
+		_meat_phase = MeatWorkerPhase.CHASE
+
+
+func try_begin_meat_castle_run(sheep: Node2D, amount: int) -> bool:
+	if _worker_job != WorkerJob.MEAT:
+		return false
+	if Events.current_location != Events.LOCATION.BASE:
+		return false
+	if _meat_phase != MeatWorkerPhase.CHASE:
+		return false
+	_meat_carry_sheep = sheep
+	_meat_carry_amount = amount
+	_meat_phase = MeatWorkerPhase.TO_CASTLE
+	_meat_chase_node = null
+	_base_worker_state = BaseWorkerState.MOVE
+	_gather_target = _ore_get_castle_global()
+	if _gather_target == Vector2.ZERO:
+		_gather_target = global_position
+	if _nav_agent and is_instance_valid(_nav_agent):
+		_nav_agent.target_position = _gather_target
+	_move_timeout = 0.0
+	_move_stuck_frames = 0
+	_path_repath_timer = 0.0
+	_srv_path.clear()
+	_srv_path_idx = 0
+	_rebuild_nav_server_path()
+	_face_toward_global(_gather_target)
+	_play_run()
+	return true
+
+
+func _meat_abort_carry_if_cancelled() -> void:
+	if _meat_phase != MeatWorkerPhase.TO_CASTLE:
+		return
+	var sh := _meat_carry_sheep
+	_meat_carry_sheep = null
+	_meat_carry_amount = 0
+	_meat_phase = MeatWorkerPhase.CHASE
+	if is_instance_valid(sh):
+		sh.queue_free()
+	for n in get_tree().get_nodes_in_group("base_sheep_spawner"):
+		if n.has_method("spawn_base_sheep_random"):
+			n.spawn_base_sheep_random()
+			break
+
+
+func _meat_on_castle_delivered() -> void:
+	GameManager.add_meat(_meat_carry_amount)
+	var sh := _meat_carry_sheep
+	_meat_carry_sheep = null
+	_meat_carry_amount = 0
+	_meat_phase = MeatWorkerPhase.CHASE
+	_base_worker_state = BaseWorkerState.IDLE
+	_gather_cd = 0.0
+	_move_timeout = 0.0
+	_srv_path.clear()
+	_srv_path_idx = 0
+	if is_instance_valid(sh) and sh.has_method("on_pawn_delivered_meat_at_castle"):
+		sh.on_pawn_delivered_meat_at_castle()
+
+
+func _process_meat_castle_run(delta: float) -> bool:
+	if _nav_agent == null or not is_instance_valid(_nav_agent):
+		return false
+	match _base_worker_state:
+		BaseWorkerState.MOVE:
+			_move_timeout += delta
+			if _castle_dropoff_overlaps_body():
+				_meat_on_castle_delivered()
+				return true
+			_path_repath_timer -= delta
+			if _move_timeout > 22.0:
+				_move_timeout = 0.0
+				_rebuild_nav_server_path()
+				return true
+			var need_repath := (
+				_path_repath_timer <= 0.0
+				or _move_stuck_frames > 12
+				or (_move_stuck_frames > 8 and is_on_wall())
+			)
+			if not base_worker_use_physics_steering:
+				need_repath = need_repath or _srv_path.is_empty()
+			if need_repath:
+				_rebuild_nav_server_path()
+				_path_repath_timer = 0.22 if not base_worker_use_physics_steering else 0.35
+				if _move_stuck_frames > 12:
+					_move_stuck_frames = 6
+			if base_worker_use_physics_steering:
+				velocity = _steer_toward_goal(_gather_target) * speed
+				_apply_base_move_wall_slide()
+				_face_velocity(velocity)
+				_play_run()
+				return true
+			if base_move_use_navigation_agent_path and _nav_agent:
+				_nav_agent.target_position = _gather_target
+				var next := _nav_agent.get_next_path_position()
+				var to_next := next - global_position
+				if to_next.length_squared() < 4.0:
+					to_next = _gather_target - global_position
+				if to_next.length_squared() < 1.0:
+					velocity = _nav_fallback_velocity()
+				else:
+					velocity = to_next.normalized() * speed
+				_apply_base_move_wall_slide()
+				_face_velocity(velocity)
+				_play_run()
+				return true
+			if _srv_path.size() >= 2:
+				while (
+					_srv_path_idx < _srv_path.size() - 1
+					and global_position.distance_to(_srv_path[_srv_path_idx]) < _BASE_NAV_WP_ADVANCE_DIST
+				):
+					_srv_path_idx += 1
+				var wp: Vector2 = _srv_path[_srv_path_idx]
+				var to_wp := wp - global_position
+				if to_wp.length_squared() < 4.0 and _srv_path_idx < _srv_path.size() - 1:
+					_srv_path_idx += 1
+					wp = _srv_path[_srv_path_idx]
+					to_wp = wp - global_position
+				if to_wp.length_squared() > 0.25:
+					velocity = to_wp.normalized() * speed
+				else:
+					velocity = _nav_fallback_velocity()
+			else:
+				velocity = _nav_fallback_velocity()
+			_apply_base_move_wall_slide()
+			_face_velocity(velocity)
+			_play_run()
+			return true
+		_:
+			return false
+
+
+func _ore_get_mine_global() -> Vector2:
+	for z in get_tree().get_nodes_in_group("base_ore_mine_entry"):
+		if z is Node2D:
+			return (z as Node2D).global_position
+	return Vector2.ZERO
+
+
+func _ore_get_castle_global() -> Vector2:
+	for z in get_tree().get_nodes_in_group("base_ore_castle_dropoff"):
+		if z is Node2D:
+			return (z as Node2D).global_position
+	return Vector2.ZERO
+
+
+func _ore_overlaps_mine_entry() -> bool:
+	for z in get_tree().get_nodes_in_group("base_ore_mine_entry"):
+		if z is Area2D and (z as Area2D).overlaps_body(self):
+			return true
+	return false
+
+
+func _castle_dropoff_overlaps_body() -> bool:
+	for z in get_tree().get_nodes_in_group("base_ore_castle_dropoff"):
+		if z is Area2D and (z as Area2D).overlaps_body(self):
+			return true
+	return false
+
+
+func _ore_restore_if_submerged() -> void:
+	if _base_worker_state != BaseWorkerState.ORE_UNDERGROUND:
+		return
+	collision_layer = _ore_baseline_collision_layer
+	collision_mask = _ore_baseline_collision_mask
+	if attack_area:
+		attack_area.monitoring = _ore_baseline_attack_monitoring
+	if sprite:
+		sprite.visible = true
+	_base_worker_state = BaseWorkerState.IDLE
+
+
+func _ore_enter_underground() -> void:
+	_base_worker_state = BaseWorkerState.ORE_UNDERGROUND
+	_ore_underground_timer = 10.0
+	velocity = Vector2.ZERO
+	collision_layer = 0
+	collision_mask = 0
+	if attack_area:
+		attack_area.monitoring = false
+	if sprite:
+		sprite.visible = false
+	if _nav_agent and is_instance_valid(_nav_agent):
+		_nav_agent.target_position = global_position
+	_srv_path.clear()
+	_srv_path_idx = 0
+	_ore_mine_near_timer = 0.0
+
+
+func _ore_exit_underground_to_castle() -> void:
+	collision_layer = _ore_baseline_collision_layer
+	collision_mask = _ore_baseline_collision_mask
+	if attack_area:
+		attack_area.monitoring = _ore_baseline_attack_monitoring
+	if sprite:
+		sprite.visible = true
+	_ore_phase = OreWorkerPhase.TO_CASTLE
+	_base_worker_state = BaseWorkerState.MOVE
+	_gather_target = _ore_get_castle_global()
+	if _gather_target == Vector2.ZERO:
+		_gather_target = global_position
+	if _nav_agent and is_instance_valid(_nav_agent):
+		_nav_agent.target_position = _gather_target
+	_move_timeout = 0.0
+	_move_stuck_frames = 0
+	_path_repath_timer = 0.0
+	_srv_path.clear()
+	_srv_path_idx = 0
+	_rebuild_nav_server_path()
+	_face_toward_global(_gather_target)
+	_play_run()
+
+
+func _ore_on_castle_delivered() -> void:
+	GameManager.add_ore(1)
+	_ore_phase = OreWorkerPhase.TO_MINE
+	_base_worker_state = BaseWorkerState.IDLE
+	_gather_cd = 0.0
+	_move_timeout = 0.0
+	_srv_path.clear()
+	_srv_path_idx = 0
+	_ore_mine_near_timer = 0.0
 
 
 func _nearest_sheep_in_attack_area() -> Node2D:
@@ -360,6 +627,12 @@ func _process_follow_custom(_delta: float) -> bool:
 	if Events.current_location != Events.LOCATION.BASE:
 		_cancel_base_worker()
 		return false
+	if _worker_job == WorkerJob.ORE and _base_worker_state == BaseWorkerState.ORE_UNDERGROUND:
+		_ore_underground_timer -= _delta
+		velocity = Vector2.ZERO
+		if _ore_underground_timer <= 0.0:
+			_ore_exit_underground_to_castle()
+		return true
 	var enemy := _nearest_enemy_in_attack_area()
 	if enemy and _attack_cd <= 0.0 and attack_area:
 		_cancel_base_worker()
@@ -370,10 +643,134 @@ func _process_follow_custom(_delta: float) -> bool:
 		return false
 	if _worker_job == WorkerJob.MEAT:
 		var scene: Node = get_tree().current_scene
-		if IslandWorkerTargets.find_meat_job_gather_point(scene, global_position) == Vector2.ZERO:
+		if (
+			_meat_phase == MeatWorkerPhase.CHASE
+			and IslandWorkerTargets.find_meat_job_gather_point(scene, global_position) == Vector2.ZERO
+		):
 			_cancel_base_worker()
 			return false
+	if _worker_job == WorkerJob.MEAT and _meat_phase == MeatWorkerPhase.TO_CASTLE:
+		return _process_meat_castle_run(_delta)
+	if _worker_job == WorkerJob.ORE:
+		return _process_ore_worker_gather(_delta)
 	return _process_base_worker_gather(_delta)
+
+
+func _process_ore_worker_gather(delta: float) -> bool:
+	if _nav_agent == null or not is_instance_valid(_nav_agent):
+		return false
+	const _ORE_MINE_ENTER_DIST := 118.0
+	const _ORE_MINE_STUCK_FORCE_DIST := 210.0
+	const _ORE_MINE_NEAR_RING := 228.0
+	match _base_worker_state:
+		BaseWorkerState.IDLE:
+			_gather_cd -= delta
+			if _gather_cd > 0.0:
+				velocity = Vector2.ZERO
+				_play_idle()
+				return true
+			var tgt := _ore_get_mine_global()
+			if tgt == Vector2.ZERO:
+				velocity = Vector2.ZERO
+				_play_idle()
+				return true
+			_gather_target = tgt
+			_nav_agent.target_position = tgt
+			_base_worker_state = BaseWorkerState.MOVE
+			_move_timeout = 0.0
+			_move_stuck_frames = 0
+			_ore_mine_near_timer = 0.0
+			_srv_path.clear()
+			_srv_path_idx = 0
+			_path_repath_timer = 0.0
+			_rebuild_nav_server_path()
+			return true
+		BaseWorkerState.MOVE:
+			_move_timeout += delta
+			if _ore_phase == OreWorkerPhase.TO_MINE:
+				var d_mine := global_position.distance_to(_gather_target)
+				if d_mine <= _ORE_MINE_NEAR_RING:
+					_ore_mine_near_timer += delta
+				else:
+					_ore_mine_near_timer = 0.0
+				if (
+					_ore_overlaps_mine_entry()
+					or d_mine <= _ORE_MINE_ENTER_DIST
+					or (
+						_move_stuck_frames >= 10
+						and d_mine <= _ORE_MINE_STUCK_FORCE_DIST
+					)
+					or _ore_mine_near_timer >= 1.25
+				):
+					_ore_mine_near_timer = 0.0
+					_ore_enter_underground()
+					return true
+			elif _ore_phase == OreWorkerPhase.TO_CASTLE:
+				## +1 руда только при реальном overlap зоны замка (run_gold), не по дистанции до точки.
+				if _castle_dropoff_overlaps_body():
+					_ore_on_castle_delivered()
+					return true
+			_path_repath_timer -= delta
+			if _move_timeout > 22.0:
+				_move_timeout = 0.0
+				_rebuild_nav_server_path()
+				return true
+			var need_repath := (
+				_path_repath_timer <= 0.0
+				or _move_stuck_frames > 12
+				or (_move_stuck_frames > 8 and is_on_wall())
+			)
+			if not base_worker_use_physics_steering:
+				need_repath = need_repath or _srv_path.is_empty()
+			if need_repath:
+				_rebuild_nav_server_path()
+				_path_repath_timer = 0.22 if not base_worker_use_physics_steering else 0.35
+				if _move_stuck_frames > 12:
+					_move_stuck_frames = 6
+			if base_worker_use_physics_steering:
+				velocity = _steer_toward_goal(_gather_target) * speed
+				_apply_base_move_wall_slide()
+				_face_velocity(velocity)
+				_play_run()
+				return true
+			if base_move_use_navigation_agent_path and _nav_agent:
+				_nav_agent.target_position = _gather_target
+				var next := _nav_agent.get_next_path_position()
+				var to_next := next - global_position
+				if to_next.length_squared() < 4.0:
+					to_next = _gather_target - global_position
+				if to_next.length_squared() < 1.0:
+					velocity = _nav_fallback_velocity()
+				else:
+					velocity = to_next.normalized() * speed
+				_apply_base_move_wall_slide()
+				_face_velocity(velocity)
+				_play_run()
+				return true
+			if _srv_path.size() >= 2:
+				while (
+					_srv_path_idx < _srv_path.size() - 1
+					and global_position.distance_to(_srv_path[_srv_path_idx]) < _BASE_NAV_WP_ADVANCE_DIST
+				):
+					_srv_path_idx += 1
+				var wp: Vector2 = _srv_path[_srv_path_idx]
+				var to_wp := wp - global_position
+				if to_wp.length_squared() < 4.0 and _srv_path_idx < _srv_path.size() - 1:
+					_srv_path_idx += 1
+					wp = _srv_path[_srv_path_idx]
+					to_wp = wp - global_position
+				if to_wp.length_squared() > 0.25:
+					velocity = to_wp.normalized() * speed
+				else:
+					velocity = _nav_fallback_velocity()
+			else:
+				velocity = _nav_fallback_velocity()
+			_apply_base_move_wall_slide()
+			_face_velocity(velocity)
+			_play_run()
+			return true
+		_:
+			return false
 
 
 func _process_base_worker_gather(delta: float) -> bool:
@@ -445,17 +842,13 @@ func _process_base_worker_gather(delta: float) -> bool:
 			var dist := global_position.distance_to(_gather_target)
 			if dist <= 44.0:
 				if _worker_job == WorkerJob.MEAT and _meat_chase_node != null and is_instance_valid(_meat_chase_node):
+					## Живая овца: встать в зоне атаки; туша — не останавливаться по дистанции, идти до overlap MeatPickupArea.
 					if _meat_chase_node.has_method("is_alive_for_meat") and _meat_chase_node.is_alive_for_meat():
 						velocity = Vector2.ZERO
 						_face_toward_global(_gather_target)
 						_play_idle()
 						return true
-					if dist <= 24.0:
-						velocity = Vector2.ZERO
-						_face_toward_global(_gather_target)
-						_play_idle()
-						return true
-				elif _worker_job != WorkerJob.MEAT:
+				elif _worker_job == WorkerJob.WOOD:
 					_move_stuck_frames = 0
 					_begin_island_gather()
 					return true
@@ -464,8 +857,12 @@ func _process_base_worker_gather(delta: float) -> bool:
 					_move_timeout = 0.0
 					_rebuild_nav_server_path()
 					return true
-				_move_stuck_frames = 0
-				_begin_island_gather()
+				if get_worker_job_name() == "wood":
+					_move_stuck_frames = 0
+					_begin_island_gather()
+					return true
+				_move_timeout = 0.0
+				_rebuild_nav_server_path()
 				return true
 			var need_repath := (
 				_path_repath_timer <= 0.0
@@ -580,7 +977,7 @@ func _finish_island_gather_reward_only() -> void:
 func _apply_island_gather_rewards() -> void:
 	match get_worker_job_name():
 		"ore":
-			GameManager.add_ore(1)
+			pass
 		"wood":
 			GameManager.add_wood(1)
 		"meat":

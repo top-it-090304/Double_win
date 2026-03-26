@@ -79,6 +79,9 @@ func _begin_death() -> void:
 		return
 	_life = _Life.DYING
 	velocity = Vector2.ZERO
+	var col := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if col:
+		col.set_deferred("disabled", true)
 	sheep_died.emit()
 	_last_anim = &""
 	_force_play(ANIM_MEAT_SHOW)
@@ -138,14 +141,44 @@ func _on_meat_body_entered(body: Node2D) -> void:
 		return
 	if not GameplayFacade.is_player_body(body) and not body.is_in_group("ally_pawn"):
 		return
+	if GameplayFacade.is_player_body(body):
+		if _meat_area:
+			_meat_area.set_deferred("monitoring", false)
+		GameManager.add_meat(meat_amount)
+		# Сначала отложенный спавн новой овцы, затем в следующем deferred — emit и queue_free,
+		# чтобы в момент base_island_meat_collected в сцене уже была живая sheep_resource.
+		for n in get_tree().get_nodes_in_group("base_sheep_spawner"):
+			if n.has_method("spawn_base_sheep_random"):
+				n.spawn_base_sheep_random()
+				break
+		call_deferred("_deferred_emit_meat_collected_and_free")
+		return
+	var pawn := body
+	if not pawn.has_method("try_begin_meat_castle_run"):
+		return
+	if not pawn.try_begin_meat_castle_run(self, meat_amount):
+		return
 	if _meat_area:
 		_meat_area.set_deferred("monitoring", false)
-	GameManager.add_meat(meat_amount)
-	Events.base_island_meat_collected.emit()
-	# Новая овца должна появиться до удаления этой: иначе 1+ кадр без sheep_resource —
-	# рабочий берёт island_meat_marker / ноль, потом прыгает на живую овцу (лаги, дёрганье).
+	_hide_for_pawn_carry_to_castle()
+
+
+func on_pawn_delivered_meat_at_castle() -> void:
 	for n in get_tree().get_nodes_in_group("base_sheep_spawner"):
 		if n.has_method("spawn_base_sheep_random"):
 			n.spawn_base_sheep_random()
 			break
+	call_deferred("_deferred_emit_meat_collected_and_free")
+
+
+func _hide_for_pawn_carry_to_castle() -> void:
+	if _sprite:
+		_sprite.visible = false
+	var col := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if col:
+		col.set_deferred("disabled", true)
+
+
+func _deferred_emit_meat_collected_and_free() -> void:
+	Events.base_island_meat_collected.emit()
 	queue_free()

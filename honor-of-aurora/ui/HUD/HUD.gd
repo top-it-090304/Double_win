@@ -1,4 +1,6 @@
+@tool
 extends "res://ui/HUD/game_hud.gd"
+## В редакторе HUD скрыт (не отвлекает от сцены); в игре включается в _ready.
 
 @export var teleport_menu: Control
 @export var castle_menu: Control
@@ -16,6 +18,7 @@ func _on_button_pressed() -> void:
 
 
 func _ready() -> void:
+	visible = not Engine.is_editor_hint()
 	set_process_input(true)
 	teleport_menu.hide()
 	if debug_menu:
@@ -143,6 +146,8 @@ func try_open_squad_orders_menu(unit: Node2D) -> bool:
 	if SquadCombatState.is_engaged():
 		return false
 	if unit == null or not is_instance_valid(unit):
+		return false
+	if unit.has_method("is_pawn_in_ore_mine") and unit.is_pawn_in_ore_mine():
 		return false
 	if squad_orders_menu == null or not squad_orders_menu.has_method("open_for"):
 		return false
