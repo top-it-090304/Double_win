@@ -61,6 +61,10 @@ pointing/emulate_mouse_from_touch=false
 2d_physics/layer_5="arrow"
 2d_physics/layer_6="zone"
 
+[navigation]
+
+3d/merge_rasterizer_cell_scale=0.001
+
 [physics]
 
 2d/default_gravity=0.0

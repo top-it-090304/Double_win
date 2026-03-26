@@ -138,5 +138,14 @@ func _on_meat_body_entered(body: Node2D) -> void:
 		return
 	if not GameplayFacade.is_player_body(body) and not body.is_in_group("ally_pawn"):
 		return
+	if _meat_area:
+		_meat_area.set_deferred("monitoring", false)
 	GameManager.add_meat(meat_amount)
+	Events.base_island_meat_collected.emit()
+	# Новая овца должна появиться до удаления этой: иначе 1+ кадр без sheep_resource —
+	# рабочий берёт island_meat_marker / ноль, потом прыгает на живую овцу (лаги, дёрганье).
+	for n in get_tree().get_nodes_in_group("base_sheep_spawner"):
+		if n.has_method("spawn_base_sheep_random"):
+			n.spawn_base_sheep_random()
+			break
 	queue_free()

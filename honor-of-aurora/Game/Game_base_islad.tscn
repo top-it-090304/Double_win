@@ -59,8 +59,8 @@
 [ext_resource type="PackedScene" uid="uid://ds31l027ndmtr" path="res://objects/buildings/types/Tower/Tower.tscn" id="56_bq7kj"]
 [ext_resource type="PackedScene" uid="uid://erxes3g6not7" path="res://objects/SquadSpawnZone/squad_spawn_zone.tscn" id="58_squad"]
 [ext_resource type="PackedScene" uid="uid://c7brrck0menu1" path="res://objects/BarracksMenuZone/barracks_menu_zone.tscn" id="59_barrz"]
+[ext_resource type="PackedScene" uid="uid://btfcav2k82jni" path="res://ally/sheep/base_sheep.tscn" id="60_basheep"]
 [ext_resource type="Script" uid="uid://sk5nigvcky3a" path="res://world/islads/base/mine_off_visual.gd" id="mine_off_v"]
-[ext_resource type="PackedScene" path="res://ally/sheep/base_sheep.tscn" id="60_basheep"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t7r2l"]
 texture = ExtResource("1_lc62k")

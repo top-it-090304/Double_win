@@ -4,7 +4,7 @@
 [ext_resource type="SpriteFrames" uid="uid://p4wnblk0fram1" path="res://ally/pawn/resources/black_pawn_frames.tres" id="2_frames"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pawn"]
-radius = 12.0
+radius = 10.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pawn_atk"]
 radius = 64.0

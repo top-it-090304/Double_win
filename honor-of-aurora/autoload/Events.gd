@@ -19,6 +19,8 @@ signal wood_changed(wood: int)
 signal ore_changed(ore: int)
 ## Закрыто окно приказов отряду (после беседы / «Далее»): нужно сбросить «attack», иначе ЛКМ снова откроет меню.
 signal squad_orders_menu_closed()
+## Мясо на базе подобрано (игрок или рабочий) — сброс целей у pawn.
+signal base_island_meat_collected()
 
 
 func is_adventure_location(loc: LOCATION) -> bool:
