@@ -1,8 +1,8 @@
 extends Control
 
-const NAME_FONT_SIZE := 15
+const NAME_FONT_SIZE := 14
 const NAME_FONT_COLOR := Color(1, 1, 1, 1)
-const TEXT_FONT_SIZE := 40
+const TEXT_FONT_SIZE := 22
 const TEXT_FONT_COLOR := Color(1, 1, 1, 1)
 const NAME_FONT_MIN := 8
 const TEXT_FONT_MIN := 8
@@ -10,7 +10,7 @@ const TEXT_MEASURE_HEIGHT_TRIM := 2.0
 ## После открытия диалога тем же кликом, что был «атакой», UI успевает нажать первую кнопку — кратко игнорируем мышь.
 const CHOICE_MOUSE_ARM_DELAY_SEC := 0.12
 ## Минимальная высота строки варианта (компактнее — больше пунктов в видимой области скролла).
-const CHOICE_BUTTON_MIN_HEIGHT := 40
+const CHOICE_BUTTON_MIN_HEIGHT := 32
 
 const TEX_HEALER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/aa_healler.png")
 const TEX_PLAYER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/aa_player.png")
@@ -72,6 +72,9 @@ func _apply_label_theme() -> void:
 	_text_label.add_theme_color_override("font_color", TEXT_FONT_COLOR)
 	_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_text_label.clip_text = true
+	## Колонка текста растягивается по высоте блока с портретом; без центрирования короткие реплики «липнут» к верху.
+	_text_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_text_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 
 
 func _input(event: InputEvent) -> void:
@@ -263,7 +266,7 @@ func _text_max_width() -> float:
 		var vp: Viewport = get_viewport()
 		if vp:
 			w = vp.get_visible_rect().size.x * 0.5
-	return maxf(w, 280.0)
+	return maxf(w, 240.0)
 
 
 func _text_max_height() -> float:
@@ -271,8 +274,8 @@ func _text_max_height() -> float:
 	if h < 32.0:
 		var vp: Viewport = get_viewport()
 		if vp:
-			h = vp.get_visible_rect().size.y * 0.22
-	return maxf(h, float(TEXT_FONT_SIZE) * 2.0)
+			h = vp.get_visible_rect().size.y * 0.11
+	return maxf(h, float(TEXT_FONT_SIZE) * 1.6)
 
 
 func _label_effective_size(label: Label) -> Vector2:

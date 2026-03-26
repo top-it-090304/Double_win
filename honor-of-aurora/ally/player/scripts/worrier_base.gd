@@ -239,6 +239,10 @@ func _physics_process(delta):
 				if MobileVirtualInput.enabled:
 					MobileVirtualInput.consume_attack()
 				return
+			if _try_building_menu_instead_of_attack():
+				if MobileVirtualInput.enabled:
+					MobileVirtualInput.consume_attack()
+				return
 			if MobileVirtualInput.enabled:
 				MobileVirtualInput.consume_attack()
 			change_state(State.ATTACK)
@@ -407,9 +411,19 @@ func _try_healer_interact_instead_of_attack() -> bool:
 	return false
 
 
+func _try_building_menu_instead_of_attack() -> bool:
+	if DialogueManager.is_active():
+		return false
+	for node in get_tree().get_nodes_in_group("building_menu_zone"):
+		if node.has_method("try_open_menu_if_player_inside"):
+			if node.try_open_menu_if_player_inside():
+				return true
+	return false
+
+
 func apply_damage():
 	for body in attack_area.get_overlapping_bodies():
-		if body.is_in_group("enemy"):
+		if body.is_in_group("enemy") or body.is_in_group("base_sheep"):
 			GameplayFacade.try_apply_damage(body, attack_damage)
 
 func show_damage_number(amount: int) -> void:

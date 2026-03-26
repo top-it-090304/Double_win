@@ -1,192 +1,142 @@
 extends CharacterBody2D
-## Овца на базе: бродит / стоит в idle; рабочий в режиме мяса подходит и режет ножом → M_Spawn + дроп мяса.
+## Овца на базе: бродит (idle / move), получает урон, при смерти — `meat_show_up` → `meat_idle`, подбор мяса игроком или рабочим (pawn).
 
 signal sheep_died
 
-const TEX_IDLE := preload("res://Asets/Unit_pack/Terrain/Resources/Meat/Sheep/Sheep_Idle.png")
-const TEX_MOVE := preload("res://Asets/Unit_pack/Terrain/Resources/Meat/Sheep/Sheep_Move.png")
-const TEX_M_SPAWN := preload("res://Asets/Environment/Resources/Resources/M_Spawn.png")
+const ANIM_IDLE := &"idle"
+const ANIM_MOVE := &"move"
+const ANIM_MEAT_SHOW := &"meat_show_up"
+const ANIM_MEAT_IDLE := &"meat_idle"
 
-const _FRAME_COLS := 7
-const _FRAME_W := 128
-const _SPAWN_START_COL := 1
+enum _Phase { IDLE, RUN }
+enum _Life { ALIVE, DYING, MEAT_PICKUP }
 
-@export var wander_speed: float = 52.0
-@export var idle_time_min: float = 1.1
+@export var max_health: int = 40
+@export var wander_speed: float = 64.0
+@export var idle_time_min: float = 1.0
 @export var idle_time_max: float = 3.2
-@export var run_time_min: float = 0.7
-@export var run_time_max: float = 2.0
+@export var run_time_min: float = 0.6
+@export var run_time_max: float = 2.2
+@export var meat_amount: int = 1
 
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var _meat_area: Area2D = $MeatPickupArea
 
-enum _Wander { IDLE, RUN }
-var _wander: _Wander = _Wander.IDLE
+var _life: _Life = _Life.ALIVE
+var _phase: _Phase = _Phase.IDLE
 var _phase_timer: float = 0.0
 var _run_dir: Vector2 = Vector2.RIGHT
-var _dying: bool = false
-var _idle_frames: int = 8
-var _move_frames: int = 8
+var _health: int = 0
+var _last_anim: StringName = &""
 
 
 func _ready() -> void:
 	add_to_group("base_sheep")
-	var sf := _sprite.sprite_frames
-	if sf != null and sf.has_animation(&"idle") and sf.has_animation(&"run"):
-		if _sprite.animation != &"idle":
-			_sprite.play(&"idle")
-	else:
-		_idle_frames = _infer_frame_count(TEX_IDLE)
-		_move_frames = _infer_frame_count(TEX_MOVE)
-		_build_run_idle_frames()
+	add_to_group("sheep_resource")
+	_health = max_health
 	randomize()
 	_phase_timer = randf_range(idle_time_min, idle_time_max)
-	_wander = _Wander.IDLE
+	_phase = _Phase.IDLE
+	if not _validate_sprite_frames():
+		return
+	_force_play(ANIM_IDLE)
+	if _meat_area:
+		_meat_area.monitoring = false
+		_meat_area.body_entered.connect(_on_meat_body_entered)
 
 
-func _infer_frame_count(tex: Texture2D) -> int:
-	var w := tex.get_width()
-	var h := tex.get_height()
-	if h < 8 or w < 32:
-		return 1
-	## Один ряд кадров: чаще всего квадратные ячейки (высота = ширина кадра).
-	if w >= h and w % h == 0:
-		return w / h
-	## Типичные ширины кадра в пиксель-арте (как в Unit_pack).
-	for fw in [128, 96, 80, 64, 48, 32]:
-		if fw > 0 and w % fw == 0:
-			var n: int = w / fw
-			if n >= 1:
-				return n
-	return 1
-
-
-func _build_run_idle_frames() -> void:
-	var sf := SpriteFrames.new()
-	if sf.has_animation(&"default"):
-		sf.remove_animation(&"default")
-	sf.add_animation(&"idle")
-	sf.set_animation_loop(&"idle", true)
-	## Пиксель-арт: 6–8 FPS выглядит естественнее, чем 10–12.
-	_add_strip_frames(sf, &"idle", TEX_IDLE, _idle_frames, 6.0)
-	sf.add_animation(&"run")
-	sf.set_animation_loop(&"run", true)
-	_add_strip_frames(sf, &"run", TEX_MOVE, _move_frames, 7.0)
-	_sprite.sprite_frames = sf
-	_sprite.play(&"idle")
-
-
-func _add_strip_frames(sf: SpriteFrames, anim: StringName, tex: Texture2D, frame_count: int, fps: float) -> void:
-	var w := tex.get_width()
-	var th := tex.get_height()
-	frame_count = maxi(1, frame_count)
-	var fw: int = w / frame_count
-	if fw < 1:
-		fw = 1
-	## Не выходим за ширину листа (если число кадров всё же не кратно ширине).
-	var max_frames: int = w / fw
-	frame_count = mini(frame_count, max_frames)
-	var dur := 1.0 / maxf(0.01, fps)
-	for i in range(frame_count):
-		var at := AtlasTexture.new()
-		at.atlas = tex
-		at.region = Rect2(i * fw, 0, fw, th)
-		sf.add_frame(anim, at, dur)
+func _validate_sprite_frames() -> bool:
+	if _sprite == null or _sprite.sprite_frames == null:
+		push_error("BaseSheep: назначьте SpriteFrames на AnimatedSprite2D (анимации: idle, move, meat_show_up, meat_idle).")
+		return false
+	var sf := _sprite.sprite_frames
+	for a in [ANIM_IDLE, ANIM_MOVE, ANIM_MEAT_SHOW, ANIM_MEAT_IDLE]:
+		if not sf.has_animation(a):
+			push_error("BaseSheep: в SpriteFrames нет анимации '%s'." % String(a))
+			return false
+	sf.set_animation_loop(ANIM_MEAT_SHOW, false)
+	sf.set_animation_loop(ANIM_MEAT_IDLE, true)
+	return true
 
 
 func is_alive_for_meat() -> bool:
-	return not _dying
+	return _life == _Life.ALIVE
 
 
-func is_calm_for_slaughter() -> bool:
-	if _dying:
-		return false
-	return _wander == _Wander.IDLE and _phase_timer > 0.18
+func take_damage(amount: Variant) -> void:
+	if _life != _Life.ALIVE:
+		return
+	var a: int = maxi(0, int(amount))
+	if a <= 0:
+		return
+	_health -= a
+	if _health <= 0:
+		_begin_death()
+
+
+func _begin_death() -> void:
+	if _life != _Life.ALIVE:
+		return
+	_life = _Life.DYING
+	velocity = Vector2.ZERO
+	sheep_died.emit()
+	_last_anim = &""
+	_force_play(ANIM_MEAT_SHOW)
+	if _sprite:
+		_sprite.animation_finished.connect(_on_meat_show_finished, CONNECT_ONE_SHOT)
+
+
+func _on_meat_show_finished() -> void:
+	if _life != _Life.DYING:
+		return
+	_life = _Life.MEAT_PICKUP
+	_last_anim = &""
+	_force_play(ANIM_MEAT_IDLE)
+	if _meat_area:
+		_meat_area.monitoring = true
+
+
+func _force_play(anim: StringName) -> void:
+	_last_anim = anim
+	if _sprite and _sprite.sprite_frames and _sprite.sprite_frames.has_animation(anim):
+		_sprite.play(anim)
 
 
 func _physics_process(delta: float) -> void:
 	if Events.current_location != Events.LOCATION.BASE:
+		velocity = Vector2.ZERO
+		move_and_slide()
 		return
-	if _dying:
-		return
-	_check_slaughter()
-	if _dying:
+	if _life != _Life.ALIVE:
+		velocity = Vector2.ZERO
+		move_and_slide()
 		return
 	_phase_timer -= delta
-	match _wander:
-		_Wander.IDLE:
+	match _phase:
+		_Phase.IDLE:
 			velocity = Vector2.ZERO
-			if _sprite.animation != &"idle":
-				_sprite.play(&"idle")
+			if _last_anim != ANIM_IDLE:
+				_force_play(ANIM_IDLE)
 			if _phase_timer <= 0.0:
-				_wander = _Wander.RUN
+				_phase = _Phase.RUN
 				_run_dir = Vector2.RIGHT.rotated(randf() * TAU)
 				_phase_timer = randf_range(run_time_min, run_time_max)
-		_Wander.RUN:
+		_Phase.RUN:
 			velocity = _run_dir * wander_speed
-			if _sprite.animation != &"run":
-				_sprite.play(&"run")
-			_sprite.flip_h = velocity.x < 0.0
+			if _last_anim != ANIM_MOVE:
+				_force_play(ANIM_MOVE)
+			if _sprite:
+				_sprite.flip_h = velocity.x < 0.0
 			if _phase_timer <= 0.0:
-				_wander = _Wander.IDLE
+				_phase = _Phase.IDLE
 				_phase_timer = randf_range(idle_time_min, idle_time_max)
 	move_and_slide()
 
 
-func _check_slaughter() -> void:
-	if not is_calm_for_slaughter():
+func _on_meat_body_entered(body: Node2D) -> void:
+	if _life != _Life.MEAT_PICKUP:
 		return
-	for pawn in get_tree().get_nodes_in_group("ally_pawn"):
-		if not pawn is Node2D:
-			continue
-		if not pawn.has_method("get_worker_job_name") or pawn.get_worker_job_name() != "meat":
-			continue
-		var n2: Node2D = pawn as Node2D
-		if global_position.distance_to(n2.global_position) > 54.0:
-			continue
-		var spr := n2.get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
-		if spr == null or spr.animation != &"interact_knife":
-			continue
-		_begin_death_sequence()
+	if not GameplayFacade.is_player_body(body) and not body.is_in_group("ally_pawn"):
 		return
-
-
-func _begin_death_sequence() -> void:
-	_dying = true
-	velocity = Vector2.ZERO
-	set_physics_process(false)
-	GameManager.spawn_meat_pickup_at(global_position, 1, self)
-	_build_m_spawn_frames()
-	if _sprite.sprite_frames.has_animation(&"m_spawn"):
-		if not _sprite.animation_finished.is_connected(_on_m_spawn_finished):
-			_sprite.animation_finished.connect(_on_m_spawn_finished)
-		_sprite.play(&"m_spawn")
-	else:
-		_finish_death()
-
-
-func _build_m_spawn_frames() -> void:
-	var tw: int = TEX_M_SPAWN.get_width()
-	var th: int = TEX_M_SPAWN.get_height()
-	var sf := SpriteFrames.new()
-	if sf.has_animation(&"default"):
-		sf.remove_animation(&"default")
-	sf.add_animation(&"m_spawn")
-	sf.set_animation_loop(&"m_spawn", false)
-	var dur := 1.0 / 8.0
-	for i in range(_SPAWN_START_COL, _FRAME_COLS):
-		var at := AtlasTexture.new()
-		at.atlas = TEX_M_SPAWN
-		at.region = Rect2(i * _FRAME_W, 0, _FRAME_W, th)
-		sf.add_frame(&"m_spawn", at, dur)
-	_sprite.sprite_frames = sf
-
-
-func _on_m_spawn_finished() -> void:
-	if _sprite.animation != &"m_spawn":
-		return
-	_finish_death()
-
-
-func _finish_death() -> void:
-	sheep_died.emit()
+	GameManager.add_meat(meat_amount)
 	queue_free()

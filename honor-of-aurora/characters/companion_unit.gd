@@ -263,7 +263,7 @@ func _apply_melee_damage() -> void:
 	var hits := space.intersect_shape(params, 32)
 	for h in hits:
 		var col: Variant = h.get("collider", null)
-		if col is Node and (col as Node).is_in_group("enemy"):
+		if col is Node and ((col as Node).is_in_group("enemy") or (col as Node).is_in_group("base_sheep")):
 			GameplayFacade.try_apply_damage(col as Node, attack_damage)
 
 

@@ -10,13 +10,14 @@ static var NAV_OUTLINE: PackedVector2Array = PackedVector2Array([
 ])
 
 
+const _ISLAND_NAV_SCENE := preload("res://world/islads/island_navigation_region.tscn")
+
+
 static func attach_navigation_region(parent: Node) -> NavigationRegion2D:
-	var nr := NavigationRegion2D.new()
-	nr.navigation_layers = 1
-	var np := NavigationPolygon.new()
-	np.add_outline(NAV_OUTLINE)
-	np.make_polygons_from_outlines()
-	nr.navigation_polygon = np
+	var existing := parent.find_child("IslandNavigationRegion", true, false)
+	if existing is NavigationRegion2D:
+		return existing as NavigationRegion2D
+	var nr := _ISLAND_NAV_SCENE.instantiate() as NavigationRegion2D
 	parent.add_child(nr)
 	return nr
 

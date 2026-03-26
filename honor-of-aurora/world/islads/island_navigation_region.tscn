@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://d25im58ni7keq"]
+
+[ext_resource type="Script" path="res://world/islads/island_navigation_region.gd" id="1_nav"]
+
+[node name="IslandNavigationRegion" type="NavigationRegion2D"]
+navigation_layers = 1
+script = ExtResource("1_nav")

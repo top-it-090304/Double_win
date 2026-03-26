@@ -1,5 +1,6 @@
 extends "res://Game/game_level_spawn_layer.gd"
 ## База: стражи-лучники стоят на месте; мини HP над юнитами скрыты (у героя отдельный HUD).
+## Навигация для рабочего (pawn): `IslandNavigationRegion` — см. `world/islads/BASE_WORKER.md`.
 
 const _WorldMiniHpBarScript := preload("res://ui/hp_bar/world_mini_hp_bar.gd")
 
@@ -7,6 +8,7 @@ const _WorldMiniHpBarScript := preload("res://ui/hp_bar/world_mini_hp_bar.gd")
 func _ready() -> void:
 	# Стартовая позиция героя — центр тайла лодки (см. GameManager.get_boat_tile_center_global).
 	super._ready()
+	IslandEncounterShared.attach_navigation_region(self)
 	var tree := get_tree()
 	tree.node_added.connect(_on_tree_node_added_hide_unit_hp)
 	# После кадров GameManager добавляет героя и отряд — убираем бары со всех юнитов, кроме игрока.

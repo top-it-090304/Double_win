@@ -1,6 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://c7brrckzmenu1"]
+[gd_scene load_steps=3 format=3 uid="uid://c7brrck0menu1"]
 
-[ext_resource type="Script" path="res://objects/BarracksMenuZone/barracks_menu_zone.gd" id="1_zone"]
+[ext_resource type="Script" path="res://objects/building_menu_zone.gd" id="1_zone"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_zone"]
 radius = 96.0
@@ -9,8 +9,7 @@ radius = 96.0
 collision_layer = 32
 collision_mask = 2
 script = ExtResource("1_zone")
+menu_kind = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_zone")
-
-[connection signal="body_entered" from="." to="." method="_on_body_entered"]
