@@ -11,6 +11,12 @@ const TEXT_MEASURE_HEIGHT_TRIM := 2.0
 const CHOICE_MOUSE_ARM_DELAY_SEC := 0.12
 ## Минимальная высота строки варианта (компактнее — больше пунктов в видимой области скролла).
 const CHOICE_BUTTON_MIN_HEIGHT := 32
+## Высота полосы диалога: якорь снизу, offset_top отрицательный — чем меньше, тем выше панель.
+const CHROME_OFFSET_TOP_MIN := -180.0
+const CHROME_OFFSET_TOP_MAX := -320.0
+const CHROME_OFFSET_BOTTOM := -16.0
+## Сколько пикселей к росту панели даёт один вариант ответа, пока не достигнут CHROME_OFFSET_TOP_MAX.
+const CHROME_EXTRA_PX_PER_CHOICE := 28.0
 
 const TEX_HEALER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/aa_healler.png")
 const TEX_PLAYER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/aa_player.png")
@@ -31,13 +37,14 @@ const SPEAKER_FACES := {
 	"young_worker": TEX_WORKER,
 }
 
-@onready var _face: TextureRect = $DialogueChrome/PanelRoot/MarginMain/VBox/Row/LeftCol/FaceFrame/face
-@onready var _name_label: Label = $DialogueChrome/PanelRoot/MarginMain/VBox/Row/LeftCol/Name
-@onready var _text_label: Label = $DialogueChrome/PanelRoot/MarginMain/VBox/Row/text
+@onready var _dialogue_chrome: Control = $DialogueChrome
+@onready var _face: TextureRect = $DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox/Row/LeftCol/FaceFrame/face
+@onready var _name_label: Label = $DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox/Row/LeftCol/Name
+@onready var _text_label: Label = $DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox/Row/text
 @onready var _close_btn: Button = $DialogueChrome/PanelRoot/MarginMain/VBox/ContinueHBox/CloseButton
 @onready var _continue_btn: Button = $DialogueChrome/PanelRoot/MarginMain/VBox/ContinueHBox/ContinueButton
-@onready var _choices_scroll: ScrollContainer = $DialogueChrome/PanelRoot/MarginMain/VBox/ChoicesScroll
-@onready var _choices_vbox: VBoxContainer = $DialogueChrome/PanelRoot/MarginMain/VBox/ChoicesScroll/ScrollPad/ChoicesVBox
+@onready var _choices_scroll: ScrollContainer = $DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox/ChoicesScroll
+@onready var _choices_vbox: VBoxContainer = $DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox/ChoicesScroll/ScrollPad/ChoicesVBox
 
 var _text_pages: PackedStringArray = []
 var _text_page_index: int = 0
@@ -55,11 +62,12 @@ func _ready() -> void:
 	if _close_btn:
 		_close_btn.pressed.connect(_force_close_dialogue)
 	if _face == null or _name_label == null or _text_label == null or _choices_scroll == null or _choices_vbox == null:
-		push_error("DialogueWindow: не найдены узлы face / Name / text / ChoicesScroll / ChoicesVBox под DialogueChrome — проверьте дерево сцены.")
+		push_error("DialogueWindow: не найдены узлы face / Name / text / ChoicesScroll / ChoicesVBox под ContentVBox — проверьте дерево сцены.")
 	if _choices_scroll:
 		_choices_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		_choices_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	_apply_label_theme()
+	_apply_dialogue_chrome_height(0)
 	DialogueManager.dialogue_started.connect(_on_dialogue_started)
 	DialogueManager.line_changed.connect(_on_line_changed)
 	DialogueManager.dialogue_ended.connect(_on_dialogue_ended)
@@ -79,6 +87,17 @@ func _apply_label_theme() -> void:
 	## Колонка текста растягивается по высоте блока с портретом; без центрирования короткие реплики «липнут» к верху.
 	_text_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_text_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
+
+func _apply_dialogue_chrome_height(choice_count: int) -> void:
+	if _dialogue_chrome == null:
+		return
+	var span: float = absf(CHROME_OFFSET_TOP_MAX - CHROME_OFFSET_TOP_MIN)
+	var extra: float = 0.0
+	if choice_count > 0:
+		extra = minf(span, float(choice_count) * CHROME_EXTRA_PX_PER_CHOICE)
+	_dialogue_chrome.offset_top = CHROME_OFFSET_TOP_MIN - extra
+	_dialogue_chrome.offset_bottom = CHROME_OFFSET_BOTTOM
 
 
 func _input(event: InputEvent) -> void:
@@ -190,13 +209,14 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 
 	if line is DialogueChoiceLine:
 		var dcl := line as DialogueChoiceLine
+		_apply_dialogue_chrome_height(dcl.options.size())
 		_choices_scroll.visible = true
 		_choices_scroll.scroll_vertical = 0
+		await get_tree().process_frame
+		await get_tree().process_frame
 		_text_pages = _build_text_pages(line.text)
 		_text_page_index = 0
 		_text_label.text = _text_pages[0] if not _text_pages.is_empty() else ""
-		await get_tree().process_frame
-		await get_tree().process_frame
 		_fit_name_font()
 		_fit_dialogue_text_font()
 		for i in dcl.options.size():
@@ -223,6 +243,7 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 				b.mouse_filter = Control.MOUSE_FILTER_STOP
 		return
 
+	_apply_dialogue_chrome_height(0)
 	await get_tree().process_frame
 	await get_tree().process_frame
 	_fit_name_font()
@@ -245,6 +266,7 @@ func _clear_choice_ui() -> void:
 
 func _on_dialogue_ended(_sequence: DialogueSequence) -> void:
 	_clear_choice_ui()
+	_apply_dialogue_chrome_height(0)
 	visible = false
 	_text_label.text = ""
 	_name_label.text = ""

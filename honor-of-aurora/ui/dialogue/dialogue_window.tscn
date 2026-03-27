@@ -46,7 +46,7 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 40.0
-offset_top = -220.0
+offset_top = -180.0
 offset_right = -40.0
 offset_bottom = -16.0
 grow_horizontal = 2
@@ -74,33 +74,39 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 6
 
-[node name="Row" type="HBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox"]
+[node name="ContentVBox" type="VBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="Row" type="HBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox"]
 layout_mode = 2
 size_flags_vertical = 0
 theme_override_constants/separation = 14
 
-[node name="LeftCol" type="VBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox/Row"]
+[node name="LeftCol" type="VBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox/Row"]
 layout_mode = 2
 size_flags_horizontal = 0
 theme_override_constants/separation = 6
 
-[node name="FaceFrame" type="PanelContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox/Row/LeftCol"]
+[node name="FaceFrame" type="PanelContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox/Row/LeftCol"]
 custom_minimum_size = Vector2(72, 72)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxPortrait")
 
-[node name="face" type="TextureRect" parent="DialogueChrome/PanelRoot/MarginMain/VBox/Row/LeftCol/FaceFrame"]
+[node name="face" type="TextureRect" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox/Row/LeftCol/FaceFrame"]
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Name" type="Label" parent="DialogueChrome/PanelRoot/MarginMain/VBox/Row/LeftCol"]
+[node name="Name" type="Label" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox/Row/LeftCol"]
 custom_minimum_size = Vector2(72, 0)
 layout_mode = 2
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="text" type="Label" parent="DialogueChrome/PanelRoot/MarginMain/VBox/Row"]
+[node name="text" type="Label" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox/Row"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -108,20 +114,20 @@ horizontal_alignment = 0
 vertical_alignment = 1
 autowrap_mode = 3
 
-[node name="ChoicesScroll" type="ScrollContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox"]
+[node name="ChoicesScroll" type="ScrollContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox"]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="ScrollPad" type="MarginContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ChoicesScroll"]
+[node name="ScrollPad" type="MarginContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox/ChoicesScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/margin_left = 2
 theme_override_constants/margin_right = 10
 
-[node name="ChoicesVBox" type="VBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ChoicesScroll/ScrollPad"]
+[node name="ChoicesVBox" type="VBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox/ChoicesScroll/ScrollPad"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
@@ -130,6 +136,7 @@ alignment = 1
 [node name="ContinueHBox" type="HBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 0
 theme_override_constants/separation = 12
 
 [node name="CloseButton" type="Button" parent="DialogueChrome/PanelRoot/MarginMain/VBox/ContinueHBox"]
