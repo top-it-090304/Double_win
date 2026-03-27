@@ -110,7 +110,10 @@ func _enter_tree() -> void:
 
 
 func _refresh_health_bar_ui() -> void:
-	var bar_node = get_tree().get_first_node_in_group("player_health_bar")
+	var tree := get_tree()
+	if tree == null:
+		return
+	var bar_node := tree.get_first_node_in_group("player_health_bar")
 	if bar_node is TextureProgressBar:
 		health_bar = bar_node
 	if health_bar:

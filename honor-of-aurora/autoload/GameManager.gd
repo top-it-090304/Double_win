@@ -449,10 +449,12 @@ func handle_location_changed(new_location: Events.LOCATION):
 	# Старый герой — дочерний узел текущей сцены; change_scene_to_packed освобождает дерево вместе с ним.
 	current_scene_player = null
 	if use_menu_overlay and get_tree().current_scene != null:
+		var overlay: Node = await MenuStartTransition.run_cover()
 		var menu_root: Node = get_tree().current_scene
 		var new_scene: Node = (packed as PackedScene).instantiate()
 		if new_scene == null:
 			push_error("GameManager: instantiate failed for location %s" % new_location)
+			await MenuStartTransition.run_exit(overlay)
 			if hide_world_until_player:
 				_hide_scene_transition_blocker()
 			return
@@ -460,11 +462,14 @@ func handle_location_changed(new_location: Events.LOCATION):
 		root.add_child(new_scene)
 		get_tree().set_current_scene(new_scene)
 		root.move_child(menu_root, -1)
+		if is_instance_valid(overlay):
+			root.move_child(overlay, -1)
 		await get_tree().process_frame
 		if get_tree().current_scene == null:
 			await get_tree().process_frame
 		_finish_player_placement_after_scene_change(new_location)
 		menu_root.queue_free()
+		await MenuStartTransition.run_exit(overlay)
 		if new_location == Events.LOCATION.BASE:
 			call_deferred("_apply_pending_healer_dialogue_token_on_base")
 		return

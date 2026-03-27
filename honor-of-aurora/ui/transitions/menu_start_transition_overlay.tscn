@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/transitions/menu_start_transition_overlay.gd" id="1_script"]
+
+[node name="MenuStartTransitionOverlay" type="CanvasLayer"]
+script = ExtResource("1_script")
