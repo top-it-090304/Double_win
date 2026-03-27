@@ -7,6 +7,8 @@ extends CanvasLayer
 ## Плотность: row_height_px × col_width_factor × extra. Конечные точки — 2D-сетка по всему экрану; сторона заезда — шахматно (col+row) % 2.
 ## Фаза наезда: старт без задержки; момент остановки размазан не более чем на stop_time_spread_sec (последний к cover_total_sec). Кривая: TRANS_EXPO, EASE_OUT.
 
+const TITLE_TEXTURE: Texture2D = preload("res://ui/transitions/title_chest_avrory.png")
+
 const CLOUD_TEXTURES: Array[Texture2D] = [
 	preload("res://Asets/Unit_pack/Terrain/Decorations/Clouds/Clouds_01.png"),
 	preload("res://Asets/Unit_pack/Terrain/Decorations/Clouds/Clouds_02.png"),
@@ -19,6 +21,7 @@ const CLOUD_TEXTURES: Array[Texture2D] = [
 ]
 
 const META_FROM_LEFT := &"cloud_from_left"
+const META_TITLE_OVERLAY := &"menu_title_overlay"
 const _EDGE_INSET: float = 4.0
 
 ## Вертикаль: число рядов из высоты экрана (как в первой версии).
@@ -48,6 +51,10 @@ const _EDGE_INSET: float = 4.0
 @export var spawn_safety_cw_fraction: float = 0.1
 @export var spawn_offscreen_depth_variance_px: float = 140.0
 @export var exit_past_edge_px: float = 24.0
+## Плавное появление заголовка (0 = прозрачность → 1).
+@export var title_fade_in_sec: float = 0.75
+## Плавное исчезновение заголовка при уходе облаков.
+@export var title_fade_out_sec: float = 0.5
 
 var _holder: Control
 
@@ -228,11 +235,33 @@ func _add_cloud(
 	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tr.set_meta(META_FROM_LEFT, from_left)
 	_holder.add_child(tr)
-	var tw := tween.tween_property(tr, "position", Vector2(end_x, y), move_dur)
+	var tw_move := tween.tween_property(tr, "position", Vector2(end_x, y), move_dur)
 	if delay_sec > 0.0:
-		tw.set_delay(delay_sec)
-	tw.set_trans(trans_type)
-	tw.set_ease(ease_type)
+		tw_move.set_delay(delay_sec)
+	tw_move.set_trans(trans_type)
+	tw_move.set_ease(ease_type)
+
+
+func _add_title(vw: float, vh: float) -> TextureRect:
+	var tr := TextureRect.new()
+	tr.texture = TITLE_TEXTURE
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tr.set_meta(META_TITLE_OVERLAY, true)
+	tr.modulate = Color(1, 1, 1, 0)
+	var tex_w: float = float(TITLE_TEXTURE.get_width())
+	var tex_h: float = float(TITLE_TEXTURE.get_height())
+	var max_w: float = vw * 0.72
+	var s: float = clampf(max_w / maxf(1.0, tex_w), 0.35, 1.35)
+	var rw: float = tex_w * s
+	var rh: float = tex_h * s
+	tr.custom_minimum_size = Vector2(rw, rh)
+	tr.size = Vector2(rw, rh)
+	tr.position = Vector2((vw - rw) * 0.5, (vh - rh) * 0.5)
+	tr.z_index = 500
+	_holder.add_child(tr)
+	return tr
 
 
 func play_cover() -> void:
@@ -307,6 +336,11 @@ func play_cover() -> void:
 			Tween.TRANS_EXPO,
 			Tween.EASE_OUT
 		)
+	var title_rect: TextureRect = _add_title(vw, vh)
+	var t_in: float = maxf(0.05, title_fade_in_sec)
+	var step_in := tween.tween_property(title_rect, "modulate", Color(1, 1, 1, 1), t_in)
+	step_in.set_trans(Tween.TRANS_SINE)
+	step_in.set_ease(Tween.EASE_IN_OUT)
 	await tween.finished
 
 
@@ -328,6 +362,12 @@ func play_exit() -> void:
 	for child in children:
 		if child is TextureRect:
 			var tr: TextureRect = child as TextureRect
+			if bool(tr.get_meta(META_TITLE_OVERLAY, false)):
+				var t_out: float = maxf(0.05, title_fade_out_sec)
+				var step_fade := tw.tween_property(tr, "modulate", Color(1, 1, 1, 0), t_out)
+				step_fade.set_trans(Tween.TRANS_SINE)
+				step_fade.set_ease(Tween.EASE_IN)
+				continue
 			var from_left: bool = bool(tr.get_meta(META_FROM_LEFT, true))
 			var end_x: float = (-tr.size.x - pad) if from_left else (vw + pad)
 			var delay: float = float(idx) * exit_stagger_sec / float(max(1, n))
