@@ -388,7 +388,8 @@ func handle_location_changed(new_location: Events.LOCATION):
 		if SaveManager.death_resume_pending:
 			SaveManager.death_resume_pending = false
 		else:
-			# Перед записью resume подтягиваем сохранение с диска: отладка без save_game не попадёт в файл.
+			# Сначала текущее состояние (в т.ч. volatile из F3) на диск — иначе load_game перезапишет память старым файлом.
+			SaveManager.save_game()
 			SaveManager.load_game()
 			Events.sync_story_state_from_save()
 			Events.gold_changed.emit(SaveManager.gold)
@@ -432,6 +433,9 @@ func handle_location_changed(new_location: Events.LOCATION):
 	Events.current_location = new_location
 	if expedition_return_count_incremented and new_location == Events.LOCATION.BASE:
 		Events.expedition_returned.emit(SaveManager.expedition_return_count)
+	## После выхода из главного меню HUD создаётся заново — один раз синхронизируем счётчики (как при входе в меню).
+	if prev_location == Events.LOCATION.MENU and new_location != Events.LOCATION.MENU:
+		call_deferred("_emit_hud_save_resource_signals")
 	var packed: Variant = _get_location_scene(new_location)
 	if packed == null or not (packed is PackedScene):
 		push_error("GameManager: no PackedScene for location %s" % new_location)
@@ -485,6 +489,43 @@ func handle_location_changed(new_location: Events.LOCATION):
 
 func _apply_pending_healer_dialogue_token_on_base() -> void:
 	get_tree().call_group("healer", "apply_pending_healer_dialogue_token")
+
+
+func _emit_hud_save_resource_signals() -> void:
+	Events.gold_changed.emit(SaveManager.gold)
+	Events.meat_changed.emit(SaveManager.meat_count)
+	Events.wood_changed.emit(SaveManager.wood_count)
+	Events.ore_changed.emit(SaveManager.ore_count)
+
+
+## Только для ui/debug_menu (F3). Та же запись SaveManager, что и остальной геймплей.
+func debug_reset_death_count_to_zero() -> void:
+	SaveManager.death_count = 0
+	SaveManager.save_game()
+
+
+func debug_add_hero_speed_bonus(delta: float) -> void:
+	SaveManager.hero_speed_bonus += delta
+	var p := _find_player_node_in_current_scene()
+	if p != null and p.has_method("apply_hero_stat_bonuses_from_save"):
+		p.apply_hero_stat_bonuses_from_save()
+	SaveManager.save_game()
+
+
+func debug_apply_progress_reset_like_new_game() -> void:
+	SaveManager.reset_data()
+	reset_armory_preparation()
+	Events.gold_changed.emit(SaveManager.gold)
+	Events.meat_changed.emit(SaveManager.meat_count)
+	Events.wood_changed.emit(SaveManager.wood_count)
+	Events.ore_changed.emit(SaveManager.ore_count)
+	Events.sync_story_state_from_save()
+	var p := _find_player_node_in_current_scene()
+	if p != null and p.has_method("sync_from_save"):
+		p.sync_from_save()
+	if p != null and p.has_method("apply_armory_attack_bonus_from_manager"):
+		p.apply_armory_attack_bonus_from_manager()
+
 
 func add_gold(amount: int):
 	SaveManager.gold += amount

@@ -1,13 +1,14 @@
 [gd_scene load_steps=3 format=3 uid="uid://c5sanv15hjusy"]
 
 [ext_resource type="Texture2D" uid="uid://5rocvcom335g" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_03.png" id="1_kuvxh"]
-[ext_resource type="Script" uid="uid://co6voll4eott0" path="res://ui/gold/gold.gd" id="1_xps0g"]
+[ext_resource type="Script" path="res://ui/resources_hud/resource_counter.gd" id="1_xps0g"]
 
 [node name="Gold" type="NinePatchRect"]
+script = ExtResource("1_xps0g")
+resource_slot = 0
 custom_minimum_size = Vector2(184, 72)
 offset_right = 184.0
 offset_bottom = 72.0
-script = ExtResource("1_xps0g")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 layout_mode = 0

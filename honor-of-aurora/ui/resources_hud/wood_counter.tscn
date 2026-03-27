@@ -1,13 +1,14 @@
 [gd_scene load_steps=3 format=3 uid="uid://bayvhqk64xlqe"]
 
 [ext_resource type="Texture2D" uid="uid://c2yb0ddmumn38" path="res://Asets/Environment/Resources/Resources/W_Idle.png" id="1_icon"]
-[ext_resource type="Script" uid="uid://b6gnbv20edoi0" path="res://ui/resources_hud/wood_counter.gd" id="2_script"]
+[ext_resource type="Script" path="res://ui/resources_hud/resource_counter.gd" id="2_script"]
 
 [node name="WoodCounter" type="NinePatchRect"]
+script = ExtResource("2_script")
+resource_slot = 2
 custom_minimum_size = Vector2(184, 72)
 offset_right = 184.0
 offset_bottom = 72.0
-script = ExtResource("2_script")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 layout_mode = 0

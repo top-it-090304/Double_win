@@ -1,9 +1,9 @@
 extends Node
 
 ## Старт совпадает с default_data (новая игра / первый запуск без файла сохранения).
-var gold: int = 500
+var gold: int = 10
 ## «Запас мяса» — лимит лучников+копейщиков (и отображение в HUD).
-var meat_count: int = 5
+var meat_count: int = 0
 ## Дерево: улучшение зданий.
 var wood_count: int = 0
 ## Руда с шахты на базе (пока учёт без расхода в геймплее).
@@ -75,8 +75,8 @@ var hero_speed_bonus: float = 0.0
 const GAME_SAVE_FILE := "user://game_save_file.save"
 const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus"]
 const default_data := {
-	"gold" : 500,
-	"meat_count" : 5,
+	"gold" : 10,
+	"meat_count" : 0,
 	"wood_count" : 0,
 	"ore_count" : 0,
 	"boss_kill" : 0,
@@ -179,6 +179,8 @@ func load_game():
 		lancer_count = 0
 	if not game_data.has("pawn_count"):
 		pawn_count = 0
+	if not game_data.has("gold"):
+		gold = int(default_data["gold"])
 	if not game_data.has("meat_count"):
 		meat_count = 0
 	if not game_data.has("wood_count"):
@@ -194,10 +196,6 @@ func load_game():
 	var _warriors := archer_count + lancer_count
 	if meat_count < _warriors:
 		meat_count = _warriors
-	# Старые сохранения: при meat_count=0 лимит лучников+копейщиков был 0, условие найма «0 >= 0» блокировало набор.
-	if meat_count == 0 and _warriors == 0:
-		meat_count = 1
-		Events.meat_changed.emit(meat_count)
 	if not game_data.has("resume_from_death"):
 		resume_from_death = (
 			current_health == 1
@@ -361,11 +359,7 @@ func reset_data():
 	var keep_vs := volume_sfx
 	var keep_vu := volume_ui
 	var keep_vd := volume_dialogue
-	var game_save_file = FileAccess.open(GAME_SAVE_FILE, FileAccess.WRITE)
-	if game_save_file == null:
-		printerr("Save faild with code {0}".format([FileAccess.get_open_error()]))
-		return
-		
+	## Сначала память и сигналы — даже если запись файла не удастся, новая игра не останется со старым золотом/ресурсами.
 	var game_data := {}
 	for variable in SAVE_DATA:
 		var v: Variant = default_data[variable]
@@ -399,11 +393,18 @@ func reset_data():
 		meat_count = _warriors_new_game
 	game_data["meat_count"] = meat_count
 	game_data["wood_count"] = wood_count
+	Events.gold_changed.emit(gold)
 	Events.meat_changed.emit(meat_count)
 	Events.wood_changed.emit(wood_count)
+	Events.ore_changed.emit(ore_count)
 
 	death_resume_pending = false
 	resume_from_death = false
+
+	var game_save_file = FileAccess.open(GAME_SAVE_FILE, FileAccess.WRITE)
+	if game_save_file == null:
+		printerr("Save faild with code {0}".format([FileAccess.get_open_error()]))
+		return
 
 	var json_object := JSON.new()
 	game_save_file.store_line(json_object.stringify(game_data))

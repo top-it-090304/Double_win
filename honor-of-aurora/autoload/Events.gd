@@ -12,11 +12,11 @@ var pending_healer_dialogue_after_expedition: bool = false
 var was_on_adventure_before_menu: bool = false
 
 signal location_changed(location: LOCATION)
-signal gold_changed(gold: int)
-signal meat_changed(meat: int)
-signal wood_changed(wood: int)
+signal gold_changed(value: int)
+signal meat_changed(value: int)
+signal wood_changed(value: int)
 ## Запас руды с базовой шахты (пока только счётчик для будущей механики).
-signal ore_changed(ore: int)
+signal ore_changed(value: int)
 ## Закрыто окно приказов отряду (после беседы / «Далее»): нужно сбросить «attack», иначе ЛКМ снова откроет меню.
 signal squad_orders_menu_closed()
 ## Герой вернулся с острова на базу (счётчик SaveManager.expedition_return_count уже увеличен).

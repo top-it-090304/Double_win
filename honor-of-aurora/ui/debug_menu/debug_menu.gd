@@ -1,5 +1,7 @@
 extends Control
-## Окно отладки (F3): читы для тестирования. Стиль как у меню замка.
+## Окно отладки (F3): только UI. Логика — debug/debug_menu_actions.gd → те же API, что геймплей (GameManager).
+
+const _ActionsScript := preload("res://debug/debug_menu_actions.gd")
 
 const GOLD_ADD := 1000
 const WOOD_ADD := 500
@@ -10,8 +12,11 @@ const DAMAGE_ADD := 10
 const EXP_ADD := 5000
 const SPEED_ADD := 80.0
 
+var _actions: RefCounted
+
 
 func _ready() -> void:
+	_actions = _ActionsScript.new()
 	theme = GameUITheme.create_theme()
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -44,22 +49,22 @@ func _on_back_pressed() -> void:
 
 func _on_gold_pressed() -> void:
 	SoundManager.play_ui_button()
-	GameManager.add_gold_volatile(GOLD_ADD)
+	_actions.grant_gold(GOLD_ADD)
 
 
 func _on_wood_pressed() -> void:
 	SoundManager.play_ui_button()
-	GameManager.add_wood_volatile(WOOD_ADD)
+	_actions.grant_wood(WOOD_ADD)
 
 
 func _on_meat_pressed() -> void:
 	SoundManager.play_ui_button()
-	GameManager.add_meat_volatile(MEAT_ADD)
+	_actions.grant_meat(MEAT_ADD)
 
 
 func _on_ore_pressed() -> void:
 	SoundManager.play_ui_button()
-	GameManager.add_ore_volatile(ORE_ADD)
+	_actions.grant_ore(ORE_ADD)
 
 
 func _on_hp_pressed() -> void:
@@ -93,12 +98,12 @@ func _on_level_pressed() -> void:
 
 func _on_exp_pressed() -> void:
 	SoundManager.play_ui_button()
-	GameManager.add_exp(EXP_ADD)
+	_actions.grant_exp(EXP_ADD)
 
 
 func _on_reset_deaths_pressed() -> void:
 	SoundManager.play_ui_button()
-	SaveManager.death_count = 0
+	_actions.reset_death_count()
 
 
 func _on_clear_enemies_pressed() -> void:
@@ -110,22 +115,9 @@ func _on_clear_enemies_pressed() -> void:
 
 func _on_speed_pressed() -> void:
 	SoundManager.play_ui_button()
-	SaveManager.hero_speed_bonus += SPEED_ADD
-	var p := _get_hero()
-	if p != null and p.has_method("apply_hero_stat_bonuses_from_save"):
-		p.apply_hero_stat_bonuses_from_save()
-	SaveManager.save_game()
+	_actions.add_hero_speed_bonus(SPEED_ADD)
 
 
 func _on_reset_like_new_game_pressed() -> void:
 	SoundManager.play_ui_button()
-	SaveManager.reset_data()
-	GameManager.reset_armory_preparation()
-	Events.gold_changed.emit(SaveManager.gold)
-	Events.ore_changed.emit(SaveManager.ore_count)
-	Events.sync_story_state_from_save()
-	var p := _get_hero()
-	if p != null and p.has_method("sync_from_save"):
-		p.sync_from_save()
-	if p != null and p.has_method("apply_armory_attack_bonus_from_manager"):
-		p.apply_armory_attack_bonus_from_manager()
+	_actions.apply_progress_reset_like_new_game()

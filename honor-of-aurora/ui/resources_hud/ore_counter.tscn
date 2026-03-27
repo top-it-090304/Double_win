@@ -1,17 +1,18 @@
 [gd_scene load_steps=5 format=3 uid="uid://bqhud0re0cntr"]
 
 [ext_resource type="Texture2D" uid="uid://i63dx8gd1h5m" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_07.png" id="1_icon"]
-[ext_resource type="Script" uid="uid://csorehud0cnt1" path="res://ui/resources_hud/ore_counter.gd" id="2_script"]
+[ext_resource type="Script" path="res://ui/resources_hud/resource_counter.gd" id="2_script"]
 [ext_resource type="Shader" uid="uid://dore1c0ng0ldsh" path="res://ui/resources_hud/ore_icon_gold.gdshader" id="3_shader"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ore"]
 shader = ExtResource("3_shader")
 
 [node name="OreCounter" type="NinePatchRect"]
+script = ExtResource("2_script")
+resource_slot = 3
 custom_minimum_size = Vector2(184, 72)
 offset_right = 184.0
 offset_bottom = 72.0
-script = ExtResource("2_script")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 material = SubResource("ShaderMaterial_ore")
