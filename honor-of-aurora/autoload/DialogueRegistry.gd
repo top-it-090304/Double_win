@@ -37,6 +37,17 @@ const DEFINITION_PATHS: PackedStringArray = [
 	"res://dialogue/definitions/monk_story_6_def.tres",
 	"res://dialogue/definitions/heal_banter_def.tres",
 	"res://dialogue/definitions/healer_idle_fallback_def.tres",
+	"res://dialogue/definitions/worker_youth_death_def.tres",
+	"res://dialogue/definitions/worker_youth_alive_truth_def.tres",
+	"res://dialogue/definitions/veteran_archer_intro_def.tres",
+	"res://dialogue/definitions/veteran_archer_hub_def.tres",
+	"res://dialogue/definitions/veteran_archer_banter_def.tres",
+	"res://dialogue/definitions/veteran_story_1_def.tres",
+	"res://dialogue/definitions/veteran_story_2_def.tres",
+	"res://dialogue/definitions/veteran_story_3_def.tres",
+	"res://dialogue/definitions/veteran_story_4_def.tres",
+	"res://dialogue/definitions/veteran_truth_react_def.tres",
+	"res://dialogue/definitions/veteran_youth_death_def.tres",
 ]
 
 var _by_id: Dictionary = {}
@@ -95,6 +106,7 @@ func _on_dialogue_ended(sequence: DialogueSequence) -> void:
 		StoryState.set_flag(flag, true)
 	if sequence.id == "monk_story_6":
 		MonkInteractiveDialogue.grant_ending_flag_after_finale()
-	# Случайный бантер и меню целителя должны собираться заново при следующем открытии.
-	if sequence.id == "heal_banter" or sequence.id == "healer_idle_fallback" or sequence.id == "monk_interact_hub":
+	if sequence.id == "veteran_story_4":
+		VeteranArcherStoryDialogue.grant_ending_flag_after_finale()
+	if sequence.id in ["heal_banter", "healer_idle_fallback", "monk_interact_hub", "veteran_archer_banter", "veteran_archer_hub"]:
 		sequence.lines.clear()

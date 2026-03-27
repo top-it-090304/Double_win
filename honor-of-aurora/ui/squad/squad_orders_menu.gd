@@ -112,7 +112,7 @@ func _show_squad_greeting_stage() -> void:
 	_face.visible = true
 	_name_label.text = _squad_speaker_title(u)
 	if u != null and u.is_in_group("story_youth_companion"):
-		_text_label.text = "Слушаю, милорд. Где нужна кирка — у шахты, у дерева или у стада? Я готов."
+		_text_label.text = "Я тут! Что нужно? Кирка, мешки, караул — я на всё готов!"
 	elif u != null and u.is_in_group("ally_pawn"):
 		_text_label.text = "Слушаю, милорд. Где нужна кирка — у шахты, у дерева или у стада?"
 	else:
@@ -190,6 +190,9 @@ func _clear_choice_buttons() -> void:
 func _build_order_choice_buttons() -> void:
 	_clear_choice_buttons()
 	var u := _context_unit
+	if u != null and u.is_in_group("story_youth_companion"):
+		_build_youth_worker_choice_buttons()
+		return
 	if u != null and u.is_in_group("ally_pawn"):
 		_build_pawn_worker_choice_buttons()
 		return
@@ -215,6 +218,35 @@ func _build_order_choice_buttons() -> void:
 	idx = _add_choice_btn(idx, "Готовиться к бою", _apply_combat)
 	if _should_show_healer_button():
 		idx = _add_choice_btn(idx, "Сходить к целителю", _apply_healer)
+
+
+func _build_youth_worker_choice_buttons() -> void:
+	var idx := 1
+	var at_base := Events.current_location == Events.LOCATION.BASE
+	var patrolling := at_base and SquadOrders.mode == SquadOrders.Mode.PATROL
+	if not patrolling:
+		_stop_banter_cooldown_timer()
+	if patrolling:
+		idx = _add_choice_btn(idx, "Продолжить работу", _apply_continue_patrol_close)
+		var now: float = Time.get_ticks_msec() / 1000.0
+		if now < _patrol_banter_available_at:
+			_start_banter_cooldown_timer()
+		else:
+			_stop_banter_cooldown_timer()
+			var ex: Dictionary = YouthPatrolBanter.pick_exchange()
+			var q_label: String = YouthPatrolBanter.format_question_for_choice_button(str(ex.get("q", "…")), 140)
+			var answer: String = str(ex.get("a", "…"))
+			idx = _add_choice_btn(idx, q_label, func(): _apply_patrol_banter_answer(answer))
+	if at_base and not patrolling:
+		idx = _add_choice_btn(idx, "Патрулировать", _apply_patrol)
+	if at_base:
+		idx = _add_choice_btn(idx, "Добывать руду", _apply_pawn_job_ore)
+		idx = _add_choice_btn(idx, "Добывать мясо", _apply_pawn_job_meat)
+		idx = _add_choice_btn(idx, "Добывать дерево", _apply_pawn_job_wood)
+	idx = _add_choice_btn(idx, "Не добывать ресурсы", _apply_pawn_job_none)
+	if not at_base:
+		idx = _add_choice_btn(idx, "Стоять", _apply_hold)
+		idx = _add_choice_btn(idx, "Готовиться к бою", _apply_combat)
 
 
 func _build_pawn_worker_choice_buttons() -> void:

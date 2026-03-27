@@ -22,6 +22,7 @@ const TEX_HEALER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human
 const TEX_PLAYER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/aa_player.png")
 ## Тот же аватар, что у рабочего в меню отряда (squad_orders_menu TEX_PAWN).
 const TEX_WORKER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_05.png")
+const TEX_VETERAN := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_08.png")
 
 const SPEAKER_LABELS := {
 	"healer": "Целитель",
@@ -29,12 +30,14 @@ const SPEAKER_LABELS := {
 	"young_worker": "Юноша",
 	"narrator": "Повествование",
 	"letter": "Письмо",
+	"veteran": "Бран",
 }
 
 const SPEAKER_FACES := {
 	"healer": TEX_HEALER,
 	"hero": TEX_PLAYER,
 	"young_worker": TEX_WORKER,
+	"veteran": TEX_VETERAN,
 }
 
 @onready var _dialogue_chrome: Control = $DialogueChrome

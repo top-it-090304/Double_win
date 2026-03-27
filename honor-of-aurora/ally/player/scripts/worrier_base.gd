@@ -422,6 +422,10 @@ func _try_healer_interact_instead_of_attack() -> bool:
 		if node.has_method("try_open_interact_dialog"):
 			if node.try_open_interact_dialog():
 				return true
+	for node in get_tree().get_nodes_in_group("veteran_npc"):
+		if node.has_method("try_open_interact_dialog"):
+			if node.try_open_interact_dialog():
+				return true
 	return false
 
 

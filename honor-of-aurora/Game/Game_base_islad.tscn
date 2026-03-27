@@ -1,4 +1,4 @@
-[gd_scene load_steps=116 format=4 uid="uid://bos5r41ll0qqe"]
+[gd_scene load_steps=117 format=4 uid="uid://bos5r41ll0qqe"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_lc62k"]
 [ext_resource type="Script" uid="uid://drx5ypae7garp" path="res://Game/game_base_islad.gd" id="1_xjk1y"]
@@ -66,6 +66,7 @@
 [ext_resource type="PackedScene" uid="uid://btfcav2k82jni" path="res://ally/sheep/base_sheep.tscn" id="60_basheep"]
 [ext_resource type="PackedScene" uid="uid://cwuvggcawpres" path="res://ally/sheep/sheep_zone.tscn" id="62_u52s7"]
 [ext_resource type="PackedScene" path="res://ally/youth_worker/youth_worker_companion.tscn" id="64_mdyw4"]
+[ext_resource type="PackedScene" uid="uid://dci53jt6x6m46" path="res://ally/archer/veteran_archer.tscn" id="68_3li1g"]
 [ext_resource type="Script" uid="uid://sk5nigvcky3a" path="res://world/islads/base/mine_off_visual.gd" id="mine_off_v"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t7r2l"]
@@ -902,7 +903,7 @@ position = Vector2(881, -1023)
 stationary_guard = true
 
 [node name="archer7" parent="charecters" instance=ExtResource("50_yrcvs")]
-position = Vector2(875, 718)
+position = Vector2(871, 732)
 stationary_guard = true
 
 [node name="archer8" parent="charecters" instance=ExtResource("50_yrcvs")]
@@ -997,7 +998,7 @@ position = Vector2(-330, 544)
 position = Vector2(126, -57)
 
 [node name="wood_zone9" parent="wood_zone" instance=ExtResource("41_pe2qa")]
-position = Vector2(144, -320)
+position = Vector2(-508, -70)
 
 [node name="wood_zone10" parent="wood_zone" instance=ExtResource("41_pe2qa")]
 position = Vector2(1116, -682)
@@ -1010,3 +1011,6 @@ position = Vector2(1348, 501)
 
 [node name="YouthWorkerCompanion" parent="." instance=ExtResource("64_mdyw4")]
 position = Vector2(-243, 717)
+
+[node name="veteran_archer" parent="." instance=ExtResource("68_3li1g")]
+position = Vector2(537, 165)

@@ -156,6 +156,32 @@ func _on_location_changed(loc: Events.LOCATION) -> void:
 	if loc == Events.LOCATION.BASE:
 		call_deferred("_refresh_periodic_squad_prompt_flag")
 		call_deferred("_maybe_begin_intro_sequence")
+		call_deferred("_maybe_trigger_death_scene")
+		call_deferred("_maybe_trigger_alive_truth_scene")
+
+
+func _maybe_trigger_death_scene() -> void:
+	if not StoryState.has_flag("worker_youth_dead"):
+		return
+	if StoryState.has_flag("worker_youth_death_scene_done"):
+		return
+	if DialogueManager.is_active():
+		return
+	DialogueRegistry.try_start("worker_youth_death")
+
+
+func _maybe_trigger_alive_truth_scene() -> void:
+	if StoryState.has_flag("worker_youth_dead"):
+		return
+	if StoryState.has_flag("worker_youth_recruited"):
+		return
+	if not StoryState.has_flag("truth_and_choice_done"):
+		return
+	if StoryState.has_flag("worker_youth_alive_truth_done"):
+		return
+	if DialogueManager.is_active():
+		return
+	DialogueRegistry.try_start("worker_youth_alive_truth")
 
 
 func _refresh_periodic_squad_prompt_flag() -> void:
@@ -213,6 +239,13 @@ func _on_story_interact_body_entered(body: Node2D) -> void:
 		DialogueRegistry.try_start("dock_worker_youth_intro")
 	elif StoryState.has_flag("worker_youth_periodic_ask_ready") and DialogueRegistry.can_play("dock_worker_youth_ask_again"):
 		DialogueRegistry.try_start("dock_worker_youth_ask_again")
+
+
+func _handle_death() -> void:
+	StoryState.set_flag("worker_youth_dead", true)
+	StoryState.clear_flag("worker_youth_recruited")
+	set_meta("no_squad_death", true)
+	super._handle_death()
 
 
 ## По удару: первый выбор «в поход / на базе» и меню приказов — как у остальных союзников.

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://dialogue/dialogue_definition.gd" id="1_def"]
+[ext_resource type="Script" path="res://dialogue/dialogue_conditions.gd" id="2_cond"]
+[ext_resource type="Resource" path="res://dialogue/veteran_truth_react.tres" id="3_seq"]
+
+[sub_resource type="Resource" id="cond"]
+script = ExtResource("2_cond")
+required_flags = Array[String](["truth_and_choice_done", "veteran_archer_intro_done"])
+blocked_flags = Array[String](["veteran_truth_react_done"])
+
+[resource]
+script = ExtResource("1_def")
+id = "veteran_truth_react"
+sequence = ExtResource("3_seq")
+conditions = SubResource("cond")
+grant_flags_on_complete = Array[String](["veteran_truth_react_done"])
