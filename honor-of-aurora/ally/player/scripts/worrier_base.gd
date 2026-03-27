@@ -170,6 +170,16 @@ func _physics_process(delta):
 	if state == State.DEATH:
 		move_and_slide()
 		return
+
+	## Диалог: мир не на паузе, но герой стоит в idle без движения и ударов.
+	if DialogueManager.is_active():
+		velocity = Vector2.ZERO
+		state = State.IDLE
+		if anim:
+			anim.speed_scale = move_anim_speed_scale
+			anim.play("idle")
+		move_and_slide()
+		return
 	
 	if _squad_ui_attack_suppress_sec > 0.0:
 		_squad_ui_attack_suppress_sec = maxf(0.0, _squad_ui_attack_suppress_sec - delta)
@@ -187,7 +197,6 @@ func _physics_process(delta):
 		return
 	
 	if state not in [State.ATTACK, State.SHIELD]:
-		## Как у меню замка: во время диалога нельзя управлять движением, но мир не на паузе (монах и др. продолжают логику).
 		if not DialogueManager.is_active():
 			if MobileVirtualInput.enabled:
 				dir = MobileVirtualInput.move_vector
@@ -233,6 +242,11 @@ func _physics_process(delta):
 		attack_just = false
 
 	if attack_just and state not in [State.ATTACK, State.SHIELD]:
+		## Сюжетный рабочий: набор в отряд / меню приказов по удару (интро и периодика — только из зоны).
+		if _try_story_priority_instead_of_attack():
+			if MobileVirtualInput.enabled:
+				MobileVirtualInput.consume_attack()
+			return
 		## Как у монаха: взаимодействие с отрядом — без анимации удара, только окно приказов.
 		if not _try_squad_orders_instead_of_attack():
 			if _try_healer_interact_instead_of_attack():
@@ -388,6 +402,18 @@ func _on_squad_orders_menu_closed() -> void:
 	_squad_ui_attack_suppress_sec = maxf(_squad_ui_attack_suppress_sec, 0.35)
 
 
+func _try_story_priority_instead_of_attack() -> bool:
+	if DialogueManager.is_active():
+		return false
+	if SquadCombatState.is_engaged():
+		return false
+	for body in attack_area.get_overlapping_bodies():
+		if body.has_method("try_open_priority_story_dialog"):
+			if body.try_open_priority_story_dialog():
+				return true
+	return false
+
+
 func _try_squad_orders_instead_of_attack() -> bool:
 	if DialogueManager.is_active():
 		return false
@@ -395,6 +421,9 @@ func _try_squad_orders_instead_of_attack() -> bool:
 		return false
 	for body in attack_area.get_overlapping_bodies():
 		if body.is_in_group("squad_member"):
+			## Сюжетный рабочий: меню отряда только через `try_open_priority_story_dialog` (после интро).
+			if body.is_in_group("story_youth_companion"):
+				continue
 			if body.has_method("is_pawn_in_ore_mine") and body.is_pawn_in_ore_mine():
 				continue
 			var hud: Node = GameplayFacade.get_hud(get_tree())
@@ -410,7 +439,7 @@ func _try_healer_interact_instead_of_attack() -> bool:
 		if node.has_method("try_open_interact_dialog"):
 			if node.try_open_interact_dialog():
 				return true
-	## Юноша у причала: диалог по «атаке» в зоне (как у целителя).
+	## Юноша-рабочий: то же, что выше по приоритету; дублирующий проход на случай порядка групп.
 	for node in get_tree().get_nodes_in_group("dock_youth_interact"):
 		if node.has_method("try_open_interact_dialog"):
 			if node.try_open_interact_dialog():

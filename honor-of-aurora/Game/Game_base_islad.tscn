@@ -62,7 +62,7 @@
 [ext_resource type="PackedScene" uid="uid://c7brrck0menu1" path="res://objects/BarracksMenuZone/barracks_menu_zone.tscn" id="59_barrz"]
 [ext_resource type="PackedScene" uid="uid://btfcav2k82jni" path="res://ally/sheep/base_sheep.tscn" id="60_basheep"]
 [ext_resource type="PackedScene" uid="uid://cwuvggcawpres" path="res://ally/sheep/sheep_zone.tscn" id="62_u52s7"]
-[ext_resource type="PackedScene" path="res://ally/youth_worker/dock_youth_worker.tscn" id="64_mdyw4"]
+[ext_resource type="PackedScene" path="res://ally/youth_worker/youth_worker_companion.tscn" id="64_mdyw4"]
 [ext_resource type="Script" uid="uid://sk5nigvcky3a" path="res://world/islads/base/mine_off_visual.gd" id="mine_off_v"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t7r2l"]
@@ -994,5 +994,5 @@ position = Vector2(2315, -232)
 [node name="wood_zone12" parent="wood_zone" instance=ExtResource("41_pe2qa")]
 position = Vector2(1348, 501)
 
-[node name="DockYouthWorker" parent="." instance=ExtResource("64_mdyw4")]
+[node name="YouthWorkerCompanion" parent="." instance=ExtResource("64_mdyw4")]
 position = Vector2(-243, 717)

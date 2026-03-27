@@ -13,6 +13,7 @@ const DEFINITION_PATHS: PackedStringArray = [
 	"res://dialogue/definitions/intro_base_island_def.tres",
 	"res://dialogue/definitions/dock_worker_youth_intro_def.tres",
 	"res://dialogue/definitions/dock_worker_youth_recruit_def.tres",
+	"res://dialogue/definitions/dock_worker_youth_ask_again_def.tres",
 	"res://dialogue/definitions/monk_worker_youth_warning_def.tres",
 	"res://dialogue/definitions/monk_worker_youth_lament_def.tres",
 	"res://dialogue/definitions/monk_interact_hub_def.tres",

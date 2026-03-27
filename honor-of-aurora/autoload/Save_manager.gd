@@ -170,6 +170,8 @@ func load_game():
 
 	_migrate_story_island_flags_from_legacy_boss_kill()
 	_migrate_truth_choice_flags()
+	_migrate_worker_youth_refused_to_base_worker()
+	_migrate_worker_youth_prompt_anchor()
 	if not game_data.has("difficulty_id"):
 		difficulty_id = 1
 	difficulty_id = clampi(int(difficulty_id), 0, 2)
@@ -245,6 +247,25 @@ func _migrate_truth_choice_flags() -> void:
 		story_flags["truth_and_choice_done"] = true
 		story_flags["hero_chose_finish_chain"] = true
 		save_game()
+
+
+## Старый отказ «не место в походе» блокировал всё; теперь юноша — рабочий на базе.
+func _migrate_worker_youth_refused_to_base_worker() -> void:
+	if not bool(story_flags.get("worker_youth_refused", false)):
+		return
+	story_flags.erase("worker_youth_refused")
+	story_flags["worker_youth_works_on_base"] = true
+	save_game()
+
+
+## Интро уже пройдено, но якоря для периодических просьб не было — выставляем текущий счётчик походов.
+func _migrate_worker_youth_prompt_anchor() -> void:
+	if not bool(story_flags.get("worker_youth_intro_done", false)):
+		return
+	if story_flags.has("worker_youth_last_prompt_expedition_return"):
+		return
+	story_flags["worker_youth_last_prompt_expedition_return"] = expedition_return_count
+	save_game()
 
 
 func _migrate_story_island_flags_from_legacy_boss_kill() -> void:

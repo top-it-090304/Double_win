@@ -18,6 +18,8 @@ func is_active() -> bool:
 	return _sequence != null
 
 
+## По умолчанию дерево сцен не ставится на паузу — герой и сюжетный рабочий блокируются в idle в своих скриптах.
+## `pause_game = true` — полная пауза (редкие случаи / отладка).
 func start_dialogue(sequence: DialogueSequence, pause_game: bool = false) -> bool:
 	if sequence == null:
 		return false
@@ -28,11 +30,14 @@ func start_dialogue(sequence: DialogueSequence, pause_game: bool = false) -> boo
 		return false
 	_sequence = sequence
 	_index = 0
+	_pause_locked = false
 	if pause_game:
 		_paused_snapshot = get_tree().paused
 		get_tree().paused = true
 		_pause_locked = true
-	process_mode = Node.PROCESS_MODE_ALWAYS
+		process_mode = Node.PROCESS_MODE_ALWAYS
+	else:
+		process_mode = Node.PROCESS_MODE_INHERIT
 	dialogue_started.emit(_sequence)
 	_emit_current_line()
 	return true

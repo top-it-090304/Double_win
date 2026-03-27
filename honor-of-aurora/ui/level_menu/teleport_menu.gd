@@ -31,7 +31,7 @@ func _on_button_4_pressed() -> void:
 
 func _on_button_5_pressed() -> void:
 	if not _can_access_last_island():
-		DialogueRegistry.try_start("gate_lv5_blocked", true)
+		DialogueRegistry.try_start("gate_lv5_blocked")
 		return
 	_teleport(Events.LOCATION.LVL5)
 

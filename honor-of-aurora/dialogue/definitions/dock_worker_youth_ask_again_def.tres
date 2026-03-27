@@ -2,15 +2,15 @@
 
 [ext_resource type="Script" path="res://dialogue/dialogue_definition.gd" id="1_def"]
 [ext_resource type="Script" path="res://dialogue/dialogue_conditions.gd" id="2_cond"]
-[ext_resource type="Resource" path="res://dialogue/dock_worker_youth_recruit.tres" id="3_seq"]
+[ext_resource type="Resource" path="res://dialogue/dock_worker_youth_ask_again.tres" id="3_seq"]
 
 [sub_resource type="Resource" id="cond"]
 script = ExtResource("2_cond")
-required_flags = Array[String](["worker_youth_intro_done"])
-blocked_flags = Array[String](["worker_youth_recruited", "worker_youth_works_on_base"])
+required_flags = Array[String](["worker_youth_intro_done", "worker_youth_periodic_ask_ready"])
+blocked_flags = Array[String](["worker_youth_recruited", "worker_youth_dead"])
 
 [resource]
 script = ExtResource("1_def")
-id = "dock_worker_youth_recruit"
+id = "dock_worker_youth_ask_again"
 sequence = ExtResource("3_seq")
 conditions = SubResource("cond")

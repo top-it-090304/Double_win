@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://ally/youth_worker/youth_worker_companion.gd" id="1_youth"]
 [ext_resource type="SpriteFrames" uid="uid://oa5xdvy5xrly" path="res://ally/pawn/resources/black_pawn_frames.tres" id="2_frames"]
@@ -7,6 +7,9 @@
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pawn_atk"]
 radius = 88.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_story"]
+radius = 100.0
 
 [node name="YouthWorkerCompanion" type="CharacterBody2D"]
 collision_layer = 8
@@ -22,6 +25,14 @@ path_max_distance = 2000.0
 position = Vector2(0, 12)
 shape = SubResource("CircleShape2D_pawn")
 
+[node name="StoryInteractArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 63
+monitoring = true
+
+[node name="StoryInteractShape" type="CollisionShape2D" parent="StoryInteractArea"]
+shape = SubResource("CircleShape2D_story")
+
 [node name="AttackArea" type="Area2D" parent="."]
 collision_layer = 0
 collision_mask = 1
@@ -33,5 +44,4 @@ shape = SubResource("CircleShape2D_pawn_atk")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -16)
 sprite_frames = ExtResource("2_frames")
-animation = &"run_pickaxe"
-frame_progress = 0.225186
+animation = &"idle_knife"

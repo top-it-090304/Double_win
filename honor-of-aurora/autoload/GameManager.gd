@@ -380,6 +380,7 @@ func _get_location_scene(loc: Events.LOCATION) -> Variant:
 
 func handle_location_changed(new_location: Events.LOCATION):
 	var prev_location := Events.current_location
+	var expedition_return_count_incremented := false
 
 	# Выход в меню (HUD): сохраняем сцену и позицию героя; герой в меню не создаётся — только UI.
 	# После смерти resume уже задан (база, зона телепорта, 1 HP) — не перезаписывать.
@@ -411,6 +412,7 @@ func handle_location_changed(new_location: Events.LOCATION):
 	if new_location == Events.LOCATION.BASE and Events.is_adventure_location(prev_location):
 		reset_armory_preparation()
 		SaveManager.expedition_return_count += 1
+		expedition_return_count_incremented = true
 		Events.pending_healer_dialogue_after_expedition = true
 		Events.was_on_adventure_before_menu = false
 		SaveManager.was_on_adventure_before_menu = false
@@ -421,12 +423,15 @@ func handle_location_changed(new_location: Events.LOCATION):
 		if SaveManager.was_on_adventure_before_menu:
 			reset_armory_preparation()
 			SaveManager.expedition_return_count += 1
+			expedition_return_count_incremented = true
 			Events.pending_healer_dialogue_after_expedition = true
 			Events.was_on_adventure_before_menu = false
 			SaveManager.was_on_adventure_before_menu = false
 			SaveManager.save_game()
 
 	Events.current_location = new_location
+	if expedition_return_count_incremented and new_location == Events.LOCATION.BASE:
+		Events.expedition_returned.emit(SaveManager.expedition_return_count)
 	var packed: Variant = _get_location_scene(new_location)
 	if packed == null or not (packed is PackedScene):
 		push_error("GameManager: no PackedScene for location %s" % new_location)
@@ -676,9 +681,17 @@ func _spawn_saved_archers(root: Node) -> void:
 	if Events.current_location != Events.LOCATION.BASE:
 		np = 0
 	var ny: int = 0
-	if StoryState.has_flag("worker_youth_recruited") and not StoryState.has_flag("worker_youth_dead"):
-		ny = 1
-	var total: int = na + nl + np + ny
+	if not StoryState.has_flag("worker_youth_dead"):
+		if Events.current_location == Events.LOCATION.BASE:
+			if StoryState.has_flag("worker_youth_recruited") or StoryState.has_flag("worker_youth_works_on_base"):
+				ny = 1
+		else:
+			## В поход — только если взят в отряд; «только работник базы» на островах не появляется.
+			if StoryState.has_flag("worker_youth_recruited"):
+				ny = 1
+	var skip_youth_spawn := ny > 0 and _has_story_youth_under_scene(root)
+	var effective_youth := 0 if skip_youth_spawn else ny
+	var total: int = na + nl + np + effective_youth
 	if total <= 0:
 		return
 	var base_pos: Vector2 = current_scene_player.global_position
@@ -719,7 +732,7 @@ func _spawn_saved_archers(root: Node) -> void:
 		if idx2 < positions.size():
 			pawn.global_position = positions[idx2]
 		pawn.add_to_group("squad_member")
-	if ny > 0:
+	if ny > 0 and not skip_youth_spawn:
 		var yscene := _get_youth_worker_companion_scene()
 		if yscene:
 			var yw := yscene.instantiate() as Node2D
@@ -729,6 +742,51 @@ func _spawn_saved_archers(root: Node) -> void:
 				if idx_y < positions.size():
 					yw.global_position = positions[idx_y]
 				yw.add_to_group("squad_member")
+
+
+func _has_story_youth_under_scene(root: Node) -> bool:
+	for n in get_tree().get_nodes_in_group("story_youth_companion"):
+		if is_instance_valid(n) and (n as Node).is_inside_tree() and root.is_ancestor_of(n as Node):
+			return true
+	return false
+
+
+## После диалога без смены сцены: создать юношу на базе, если флаг уже есть, а юнита в дереве нет.
+func ensure_youth_companion_on_base_scene() -> void:
+	if Events.current_location != Events.LOCATION.BASE:
+		return
+	if StoryState.has_flag("worker_youth_dead"):
+		return
+	if not StoryState.has_flag("worker_youth_recruited") and not StoryState.has_flag("worker_youth_works_on_base"):
+		return
+	var root: Node = get_tree().current_scene
+	if root == null:
+		return
+	if _has_story_youth_under_scene(root):
+		return
+	var player := current_scene_player
+	if player == null or not is_instance_valid(player):
+		player = _find_player_node_in_current_scene()
+	if player == null:
+		return
+	var yscene := _get_youth_worker_companion_scene()
+	if yscene == null:
+		return
+	var yw := yscene.instantiate() as Node2D
+	if yw == null:
+		return
+	var avoid: Array[Vector2] = [player.global_position]
+	for node in get_tree().get_nodes_in_group("ally"):
+		if node is Node2D:
+			avoid.append((node as Node2D).global_position)
+	var positions := pick_archer_spawn_positions(root, 1, avoid, ARCHER_MIN_SPAWN_SEPARATION)
+	root.add_child(yw)
+	yw.add_to_group("squad_member")
+	if positions.size() > 0:
+		yw.global_position = positions[0]
+	else:
+		yw.global_position = player.global_position + Vector2(88.0, 0.0)
+
 
 func _show_scene_transition_blocker() -> void:
 	if _scene_transition_blocker_layer != null and is_instance_valid(_scene_transition_blocker_layer):

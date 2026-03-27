@@ -4,7 +4,7 @@ extends "res://characters/companion_unit.gd"
 ## По умолчанию путь по `NavigationServer2D.map_get_path` (сетка с базы, выпечка из коллизий).
 ## Запасной режим: `base_worker_use_physics_steering` — только лучи, без глобального пути.
 
-enum WorkerJob { ORE, MEAT, WOOD }
+enum WorkerJob { ORE, MEAT, WOOD, NONE }
 
 enum BaseWorkerState { IDLE, MOVE, GATHER, COOLDOWN, ORE_UNDERGROUND }
 
@@ -285,6 +285,8 @@ func _rebuild_nav_server_path() -> void:
 func set_worker_job_from_dialogue(key: String) -> void:
 	var j := WorkerJob.ORE
 	match key:
+		"none", "clear", "idle":
+			j = WorkerJob.NONE
 		"meat":
 			j = WorkerJob.MEAT
 		"wood":
@@ -304,6 +306,8 @@ func get_worker_job_name() -> String:
 			return "meat"
 		WorkerJob.WOOD:
 			return "wood"
+		WorkerJob.NONE:
+			return "none"
 		_:
 			return "ore"
 
@@ -328,6 +332,8 @@ func get_base_shift_task_name() -> String:
 
 func _idle_anim() -> StringName:
 	if Events.current_location == Events.LOCATION.BASE:
+		if _worker_job == WorkerJob.NONE:
+			return &"idle_knife"
 		if _worker_job == WorkerJob.MEAT:
 			if _meat_phase == MeatWorkerPhase.TO_CASTLE:
 				return &"idle_meat"
@@ -344,6 +350,8 @@ func _idle_anim() -> StringName:
 
 func _run_anim() -> StringName:
 	if Events.current_location == Events.LOCATION.BASE:
+		if _worker_job == WorkerJob.NONE:
+			return &"run_knife"
 		if _worker_job == WorkerJob.MEAT:
 			if _meat_phase == MeatWorkerPhase.TO_CASTLE:
 				return &"run_meat"
@@ -888,6 +896,10 @@ func _nearest_sheep_in_attack_area() -> Node2D:
 
 func _process_follow_custom(_delta: float) -> bool:
 	if Events.current_location != Events.LOCATION.BASE:
+		_cancel_base_worker()
+		return false
+	## Без задания добычи: как обычный спутник (патруль/бой), без шахты/овец/леса.
+	if _worker_job == WorkerJob.NONE:
 		_cancel_base_worker()
 		return false
 	if _worker_job == WorkerJob.ORE and _base_worker_state == BaseWorkerState.ORE_UNDERGROUND:

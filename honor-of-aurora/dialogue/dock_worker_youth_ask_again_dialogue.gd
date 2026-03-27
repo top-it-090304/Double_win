@@ -3,30 +3,30 @@ extends DialogueSequence
 func ensure_lines_ready() -> void:
 	if not lines.is_empty():
 		return
-	id = "dock_worker_youth_recruit"
-	lines.append(_plain("young_worker", "Вы вернулись. Я всё ещё здесь — и всё ещё прошу: возьмите меня с собой. Я готов."))
-	lines.append(_choice("young_worker", "Ваше решение?", [
+	id = "dock_worker_youth_ask_again"
+	lines.append(_plain("young_worker", "Милорд… снова прошу: возьмите меня в поход. Я не боюсь. Приказы буду выполнять."))
+	lines.append(_choice("young_worker", "Ваш ответ?", [
 		{
 			"label": "Хорошо. Идёшь со мной в поход.",
 			"grant_flags": PackedStringArray(["worker_youth_recruited"]),
 			"continuation": [
-				["hero", "Будешь в отряде. Держись рядом и слушай приказ."],
-				["young_worker", "Да, сэр! Я не подведу — ни вас, ни тех, кто остаётся на базе."],
+				["hero", "Решено. В отряде держись рядом."],
+				["young_worker", "Есть! Не подведу."],
 			],
 		},
 		{
 			"label": "Пока нет. Останься на базе.",
 			"grant_flags": PackedStringArray([]),
 			"continuation": [
-				["young_worker", "…Понял. Тогда я буду ждать и работать. Если передумаете — я всё равно здесь."],
+				["young_worker", "Понял. Продолжу работу здесь — и снова буду ждать шанса."],
 			],
 		},
 		{
 			"label": "В поход не возьму. Работай на базе — как остальные.",
 			"grant_flags": PackedStringArray(["worker_youth_works_on_base"]),
 			"continuation": [
-				["hero", "В походе тебе не место. Зато на базе дел полон дом: руда, стада, лес. Слушай приказы, как все рабочие."],
-				["young_worker", "Да, милорд. Приступаю — и не буду больше мешать про поход."],
+				["hero", "По-прежнему без походов. Дел на базе достаточно — слушай приказы, как прочие рабочие."],
+				["young_worker", "Слушаюсь, милорд. За работу."],
 			],
 		},
 	]))

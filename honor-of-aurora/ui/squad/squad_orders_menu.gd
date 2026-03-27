@@ -230,6 +230,17 @@ func _build_pawn_worker_choice_buttons() -> void:
 		idx = _add_choice_btn(idx, "Добывать руду", _apply_pawn_job_ore)
 		idx = _add_choice_btn(idx, "Добывать мясо", _apply_pawn_job_meat)
 		idx = _add_choice_btn(idx, "Добывать дерево", _apply_pawn_job_wood)
+	idx = _add_choice_btn(idx, "Не добывать ресурсы", _apply_pawn_job_none)
+	if not at_base:
+		idx = _add_choice_btn(idx, "Стоять", _apply_hold)
+		idx = _add_choice_btn(idx, "Готовиться к бою", _apply_combat)
+
+
+func _apply_pawn_job_none() -> void:
+	var u := _context_unit
+	if u != null and is_instance_valid(u) and u.has_method("set_worker_job_from_dialogue"):
+		u.set_worker_job_from_dialogue("none")
+	close()
 
 
 func _apply_pawn_job_ore() -> void:

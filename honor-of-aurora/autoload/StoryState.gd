@@ -10,6 +10,13 @@ func has_flag(key: String) -> bool:
 func set_flag(key: String, value: Variant = true) -> void:
 	SaveManager.story_flags[key] = value
 	SaveManager.save_game()
+	## Сразу после выбора в диалоге: юноша должен появиться на базе без перезагрузки сцены.
+	if bool(value) and (key == "worker_youth_works_on_base" or key == "worker_youth_recruited"):
+		var tree := Engine.get_main_loop() as SceneTree
+		if tree and tree.root:
+			var gm := tree.root.get_node_or_null("/root/GameManager")
+			if gm and gm.has_method("ensure_youth_companion_on_base_scene"):
+				gm.call_deferred("ensure_youth_companion_on_base_scene")
 
 
 func clear_flag(key: String) -> void:
