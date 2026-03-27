@@ -43,7 +43,8 @@ static func _make(
 
 
 static func tier_index_for_level(level: int) -> int:
-	return clampi(level - 1, 0, _MAX_TIER_INDEX)
+	var idx := int(floor(float(maxi(level, 1) - 1) / 4.0))
+	return clampi(idx, 0, _MAX_TIER_INDEX)
 
 
 static func get_tier_for_level(level: int) -> HeroTierData:
@@ -57,11 +58,11 @@ static func get_tier_for_level(level: int) -> HeroTierData:
 	t.attack_damage = src.attack_damage
 	t.attack_anim_speed_scale = src.attack_anim_speed_scale
 	t.move_anim_speed_scale = src.move_anim_speed_scale
-	if level > 5:
-		var extra := level - 5
-		var m_hp := 1.0 + 0.052 * float(extra)
-		var m_dmg := 1.0 + 0.048 * float(extra)
+	if level > 1:
+		var extra := level - 1
+		var m_hp := 1.0 + 0.095 * float(extra)
+		var m_dmg := 1.0 + 0.075 * float(extra)
 		t.max_health = int(round(float(t.max_health) * m_hp))
 		t.attack_damage = int(round(float(t.attack_damage) * m_dmg))
-		t.speed = t.speed * (1.0 + 0.011 * float(extra))
+		t.speed = t.speed * (1.0 + 0.004 * float(extra))
 	return t

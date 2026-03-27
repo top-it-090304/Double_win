@@ -45,6 +45,10 @@ const ARCHERY_VOLLEY_PER_TIER_RATIO: float = 0.03
 const ARCHERY_GUARD_BASE_RATIO: float = 0.10
 const ARCHERY_GUARD_PER_TIER_RATIO: float = 0.03
 
+const ALLY_HP_PER_TIER_RATIO: float = 0.18
+const ALLY_DAMAGE_PER_TIER_RATIO: float = 0.14
+const ALLY_SPEED_PER_TIER_RATIO: float = 0.04
+
 ## Снимок отряда на старте похода — нужен для расчёта «павших» к ритуалу воскрешения.
 var _expedition_snapshot_active: bool = false
 var _expedition_start_archer_count: int = 0
@@ -157,7 +161,7 @@ func get_armory_shield_factor_after_buff_preview() -> float:
 func try_prepare_armory_sword() -> bool:
 	if armory_sword_prepared:
 		return false
-	if not GameplayFacade.try_spend_gold(BalanceConfig.get_armory_sword_buff_cost()):
+	if not GameplayFacade.try_spend_gold_or_ore(BalanceConfig.get_armory_sword_buff_cost()):
 		return false
 	armory_sword_prepared = true
 	var mul := get_armory_prep_strength_multiplier()
@@ -171,7 +175,7 @@ func try_prepare_armory_sword() -> bool:
 func try_prepare_armory_shield() -> bool:
 	if armory_shield_prepared:
 		return false
-	if not GameplayFacade.try_spend_gold(BalanceConfig.get_armory_shield_buff_cost()):
+	if not GameplayFacade.try_spend_gold_or_ore(BalanceConfig.get_armory_shield_buff_cost()):
 		return false
 	armory_shield_prepared = true
 	var mul := get_armory_prep_strength_multiplier()
@@ -183,10 +187,10 @@ func try_prepare_armory_shield() -> bool:
 func try_prepare_monastery_vitality() -> bool:
 	if monastery_vitality_prepared:
 		return false
-	if not GameplayFacade.try_spend_gold(BalanceConfig.get_monastery_vitality_gold_cost()):
-		return false
-	if not GameplayFacade.try_spend_ore(BalanceConfig.get_monastery_vitality_ore_cost()):
-		GameManager.add_gold(BalanceConfig.get_monastery_vitality_gold_cost())
+	if not GameplayFacade.try_spend_gold_plus_ore(
+		BalanceConfig.get_monastery_vitality_gold_cost(),
+		BalanceConfig.get_monastery_vitality_ore_cost()
+	):
 		return false
 	monastery_vitality_prepared = true
 	monastery_hp_bonus_ratio = get_monastery_vitality_ratio_preview()
@@ -201,10 +205,10 @@ func try_monastery_revive_after_return() -> bool:
 		return false
 	if not has_pending_revival_losses():
 		return false
-	if not GameplayFacade.try_spend_gold(BalanceConfig.get_monastery_revive_gold_cost()):
-		return false
-	if not GameplayFacade.try_spend_ore(BalanceConfig.get_monastery_revive_ore_cost()):
-		GameManager.add_gold(BalanceConfig.get_monastery_revive_gold_cost())
+	if not GameplayFacade.try_spend_gold_plus_ore(
+		BalanceConfig.get_monastery_revive_gold_cost(),
+		BalanceConfig.get_monastery_revive_ore_cost()
+	):
 		return false
 	monastery_revive_used_for_return = true
 	var chance := get_monastery_revive_chance_preview()
@@ -221,10 +225,10 @@ func try_monastery_revive_after_return() -> bool:
 func try_prepare_archery_volley() -> bool:
 	if archery_volley_prepared:
 		return false
-	if not GameplayFacade.try_spend_gold(BalanceConfig.get_archery_volley_gold_cost()):
-		return false
-	if not GameplayFacade.try_spend_ore(BalanceConfig.get_archery_volley_ore_cost()):
-		GameManager.add_gold(BalanceConfig.get_archery_volley_gold_cost())
+	if not GameplayFacade.try_spend_gold_plus_ore(
+		BalanceConfig.get_archery_volley_gold_cost(),
+		BalanceConfig.get_archery_volley_ore_cost()
+	):
 		return false
 	archery_volley_prepared = true
 	_apply_archery_modifiers_to_active_archers()
@@ -234,10 +238,10 @@ func try_prepare_archery_volley() -> bool:
 func try_prepare_archery_guard() -> bool:
 	if archery_guard_prepared:
 		return false
-	if not GameplayFacade.try_spend_gold(BalanceConfig.get_archery_guard_gold_cost()):
-		return false
-	if not GameplayFacade.try_spend_ore(BalanceConfig.get_archery_guard_ore_cost()):
-		GameManager.add_gold(BalanceConfig.get_archery_guard_gold_cost())
+	if not GameplayFacade.try_spend_gold_plus_ore(
+		BalanceConfig.get_archery_guard_gold_cost(),
+		BalanceConfig.get_archery_guard_ore_cost()
+	):
 		return false
 	archery_guard_prepared = true
 	_apply_archery_modifiers_to_active_archers()
@@ -271,6 +275,61 @@ func _apply_archery_modifiers_to_active_archers() -> void:
 
 func refresh_archery_modifiers_for_active_units() -> void:
 	_apply_archery_modifiers_to_active_archers()
+
+
+func get_ally_building_tier(unit_kind: String) -> int:
+	match unit_kind:
+		"archer":
+			return SaveManager.get_building_tier("Archery")
+		"pawn":
+			return SaveManager.get_building_tier("Castle")
+		"lancer", _:
+			return SaveManager.get_building_tier("Barracks")
+
+
+func get_ally_tier_stat_multiplier(unit_kind: String) -> Dictionary:
+	var tier := get_ally_building_tier(unit_kind)
+	return {
+		"hp": 1.0 + ALLY_HP_PER_TIER_RATIO * float(tier),
+		"damage": 1.0 + ALLY_DAMAGE_PER_TIER_RATIO * float(tier),
+		"speed": 1.0 + ALLY_SPEED_PER_TIER_RATIO * float(tier),
+	}
+
+
+func get_tier_visual_modulate(tier: int) -> Color:
+	match clampi(tier, 0, 4):
+		1:
+			return Color(0.76, 0.88, 1.0, 1.0) # blue
+		2:
+			return Color(1.0, 0.78, 0.78, 1.0) # red
+		3:
+			return Color(0.9, 0.8, 1.0, 1.0) # purple
+		4:
+			return Color(1.0, 0.95, 0.72, 1.0) # yellow
+		_:
+			return Color(1.0, 1.0, 1.0, 1.0) # black/base
+
+
+func refresh_all_companion_progression() -> void:
+	for group_name in ["ally_archer", "ally_lancer", "ally_pawn"]:
+		for n in get_tree().get_nodes_in_group(group_name):
+			if n and is_instance_valid(n) and n.has_method("apply_building_progression_from_manager"):
+				n.apply_building_progression_from_manager()
+
+
+func purchase_premium_ore_pack(pack_id: String) -> bool:
+	var pack := BalanceConfig.get_premium_ore_pack(pack_id)
+	if pack.is_empty():
+		return false
+	var ore_amount := maxi(0, int(pack.get("ore", 0))) + maxi(0, int(pack.get("bonus_ore", 0)))
+	if ore_amount <= 0:
+		return false
+	add_ore(ore_amount)
+	SaveManager.premium_ore_purchased_total += ore_amount
+	SaveManager.premium_ore_purchase_count += 1
+	SaveManager.save_game()
+	Events.premium_ore_pack_purchased.emit(pack_id, ore_amount)
+	return true
 
 
 func _capture_expedition_start_snapshot() -> void:
@@ -353,6 +412,8 @@ func _spawn_revived_unit_on_base(kind: String) -> void:
 	var positions := pick_archer_spawn_positions(root, 1, avoid, ARCHER_MIN_SPAWN_SEPARATION)
 	root.add_child(unit)
 	unit.add_to_group("squad_member")
+	if unit.has_method("apply_building_progression_from_manager"):
+		unit.apply_building_progression_from_manager()
 	if positions.size() > 0:
 		unit.global_position = positions[0]
 	else:
@@ -1036,6 +1097,8 @@ func _spawn_saved_archers(root: Node) -> void:
 		if not archer:
 			continue
 		root.add_child(archer)
+		if archer.has_method("apply_building_progression_from_manager"):
+			archer.apply_building_progression_from_manager()
 		if archer.has_method("apply_archery_modifiers_from_manager"):
 			archer.apply_archery_modifiers_from_manager()
 		if i < positions.size():
@@ -1048,6 +1111,8 @@ func _spawn_saved_archers(root: Node) -> void:
 		if not lancer:
 			continue
 		root.add_child(lancer)
+		if lancer.has_method("apply_building_progression_from_manager"):
+			lancer.apply_building_progression_from_manager()
 		var idx: int = na + j
 		if idx < positions.size():
 			lancer.global_position = positions[idx]
@@ -1059,6 +1124,8 @@ func _spawn_saved_archers(root: Node) -> void:
 		if not pawn:
 			continue
 		root.add_child(pawn)
+		if pawn.has_method("apply_building_progression_from_manager"):
+			pawn.apply_building_progression_from_manager()
 		var idx2: int = na + nl + k
 		if idx2 < positions.size():
 			pawn.global_position = positions[idx2]

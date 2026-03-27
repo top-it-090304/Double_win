@@ -4,6 +4,7 @@ extends "res://characters/companion_unit.gd"
 
 func _ready() -> void:
 	speed = 150.0
+	progression_building_type = "Barracks"
 	super._ready()
 	add_to_group("ally_lancer")
 

@@ -8,6 +8,7 @@ extends "res://characters/ally_unit.gd"
 @export var speed: float = 160.0
 @export var follow_distance: float = 140.0
 @export var follow_stop_distance: float = 110.0
+@export var projectile_damage: int = 10
 
 @export var max_health: int = 60
 
@@ -45,12 +46,17 @@ var _patrol_stuck_frames: int = 0
 var _order_to_healer: bool = false
 var _base_attack_cooldown: float = 3.0
 var _base_max_health: int = 60
+var _base_speed: float = 160.0
+var _base_projectile_damage: int = 10
 
 func _ready() -> void:
 	super._ready()
 	add_to_group("ally_archer")
 	_base_attack_cooldown = attack_cooldown
 	_base_max_health = max_health
+	_base_speed = speed
+	_base_projectile_damage = projectile_damage
+	apply_building_progression_from_manager()
 	apply_archery_modifiers_from_manager()
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	sprite.play("idle")
@@ -92,6 +98,20 @@ func apply_archery_modifiers_from_manager() -> void:
 			health_component.set_current_health(max_health)
 	if attack_timer:
 		attack_timer.wait_time = attack_cooldown
+
+
+func apply_building_progression_from_manager() -> void:
+	var mul := GameManager.get_ally_tier_stat_multiplier("archer")
+	speed = _base_speed * float(mul.get("speed", 1.0))
+	max_health = maxi(1, int(round(float(_base_max_health) * float(mul.get("hp", 1.0)))))
+	projectile_damage = maxi(1, int(round(float(_base_projectile_damage) * float(mul.get("damage", 1.0)))))
+	if health_component:
+		var old_max: int = maxi(1, int(health_component.max_health))
+		var old_current: int = int(health_component.current_health)
+		health_component.set_max_health(max_health)
+		health_component.set_current_health(clampi(int(round(float(max_health) * float(old_current) / float(old_max))), 1, max_health))
+	if sprite:
+		sprite.modulate = GameManager.get_tier_visual_modulate(SaveManager.get_building_tier("Archery"))
 
 
 func _on_squad_health_changed(_current: int, _maximum: int) -> void:
@@ -170,6 +190,7 @@ func attack():
 		var arrow = arrow_scene.instantiate()
 		arrow.global_position = global_position + dir * 30
 		arrow.direction = dir
+		arrow.damage = projectile_damage
 		get_tree().current_scene.add_child(arrow)
 
 func _on_animation_finished():

@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://deuap0fvy32c2"]
+
+[ext_resource type="Script" uid="uid://cbirrc0wnjeco" path="res://objects/building_menu_zone.gd" id="1_menu_zone"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_in3o3"]
+radius = 72.0
+
+[node name="Area2D" type="Area2D"]
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("1_menu_zone")
+menu_kind = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_in3o3")

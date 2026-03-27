@@ -62,6 +62,7 @@ var _base_nav_region: NavigationRegion2D = null
 
 func _ready() -> void:
 	speed = 120.0
+	progression_building_type = "Castle"
 	super._ready()
 	## Углы и выступы: больше попыток скольжения за кадр, чем у дефолта (4).
 	max_slides = 6

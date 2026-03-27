@@ -57,8 +57,8 @@ func _refresh_buttons() -> void:
 	if shield:
 		shield.text = str(shield_cost)
 
-	var can_sword := SaveManager.gold >= sword_cost and not GameManager.armory_sword_prepared
-	var can_shield := SaveManager.gold >= shield_cost and not GameManager.armory_shield_prepared
+	var can_sword := (SaveManager.gold >= sword_cost or GameplayFacade.can_afford_gold_plus_ore(sword_cost, 0)) and not GameManager.armory_sword_prepared
+	var can_shield := (SaveManager.gold >= shield_cost or GameplayFacade.can_afford_gold_plus_ore(shield_cost, 0)) and not GameManager.armory_shield_prepared
 	if sword:
 		sword.disabled = not can_sword
 	if shield:

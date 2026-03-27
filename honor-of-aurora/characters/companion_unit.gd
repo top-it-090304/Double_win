@@ -36,6 +36,11 @@ var _attack_hit_dir: Vector2 = Vector2.RIGHT
 @onready var sprite: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
 @onready var attack_area: Area2D = get_node_or_null("AttackArea") as Area2D
 
+var _base_speed: float = 0.0
+var _base_max_health: int = 0
+var _base_attack_damage: int = 0
+var progression_building_type: String = "Barracks"
+
 
 func _get_initial_max_health() -> int:
 	return max_health
@@ -55,6 +60,10 @@ func _get_melee_hit_radius() -> float:
 
 func _ready() -> void:
 	super._ready()
+	_base_speed = speed
+	_base_max_health = max_health
+	_base_attack_damage = attack_damage
+	apply_building_progression_from_manager()
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	if sprite:
 		sprite.animation_finished.connect(_on_sprite_animation_finished)
@@ -66,6 +75,23 @@ func _ready() -> void:
 func _capture_base_patrol_spawn_after_placed() -> void:
 	_base_patrol_spawn = global_position
 	_patrol_has_goal = false
+
+
+func apply_building_progression_from_manager() -> void:
+	var unit_kind := "lancer"
+	if progression_building_type == "Castle":
+		unit_kind = "pawn"
+	var mul := GameManager.get_ally_tier_stat_multiplier(unit_kind)
+	speed = _base_speed * float(mul.get("speed", 1.0))
+	max_health = maxi(1, int(round(float(_base_max_health) * float(mul.get("hp", 1.0)))))
+	attack_damage = maxi(1, int(round(float(_base_attack_damage) * float(mul.get("damage", 1.0)))))
+	if health_component:
+		var old_max := maxi(1, int(health_component.max_health))
+		var old_current := int(health_component.current_health)
+		health_component.set_max_health(max_health)
+		health_component.set_current_health(clampi(int(round(float(max_health) * float(old_current) / float(old_max))), 1, max_health))
+	if sprite:
+		sprite.modulate = GameManager.get_tier_visual_modulate(SaveManager.get_building_tier(progression_building_type))
 
 
 func apply_paralysis(duration_sec: float) -> void:

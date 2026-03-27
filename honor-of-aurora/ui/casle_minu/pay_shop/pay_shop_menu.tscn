@@ -1,0 +1,119 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://ui/casle_minu/pay_shop/pay_shop_menu.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://cj4nta75kb3fi" path="res://ui/font/AlumniSansCollegiateOne-Italic.ttf" id="2_font"]
+[ext_resource type="Texture2D" uid="uid://cjha34kojfsit" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_08.png" id="3_back"]
+[ext_resource type="Texture2D" uid="uid://i63dx8gd1h5m" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_07.png" id="4_ore"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal"]
+bg_color = Color(0.11, 0.13, 0.19, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.38, 0.48, 0.62, 0.75)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_left = 14
+corner_radius_bottom_right = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_inner"]
+bg_color = Color(0.14, 0.17, 0.24, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.35, 0.46, 0.8)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_left = 10
+corner_radius_bottom_right = 10
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+
+[node name="PayShopMenu" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="PayShopPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -420.0
+offset_top = -280.0
+offset_right = 420.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
+
+[node name="BackBtn" type="Button" parent="PayShopPanel"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = 90.0
+offset_bottom = 90.0
+theme_override_constants/icon_max_width = 56
+theme_override_fonts/font = ExtResource("2_font")
+icon = ExtResource("3_back")
+flat = true
+
+[node name="PayShopTitle" type="Label" parent="PayShopPanel"]
+layout_mode = 0
+offset_left = 110.0
+offset_top = 24.0
+offset_right = 740.0
+offset_bottom = 86.0
+theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 44
+horizontal_alignment = 1
+text = "Торговая лавка"
+
+[node name="PayShopSubtitle" type="Label" parent="PayShopPanel"]
+layout_mode = 0
+offset_left = 38.0
+offset_top = 98.0
+offset_right = 802.0
+offset_bottom = 160.0
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 0.92)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+autowrap_mode = 3
+text = ""
+
+[node name="OreIcon" type="TextureRect" parent="PayShopPanel"]
+layout_mode = 0
+offset_left = 390.0
+offset_top = 162.0
+offset_right = 450.0
+offset_bottom = 222.0
+texture = ExtResource("4_ore")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Scroll" type="ScrollContainer" parent="PayShopPanel"]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 228.0
+offset_right = 812.0
+offset_bottom = 538.0
+
+[node name="Rows" type="VBoxContainer" parent="PayShopPanel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[connection signal="pressed" from="PayShopPanel/BackBtn" to="." method="_on_back_pressed"]

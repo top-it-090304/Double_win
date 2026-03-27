@@ -1,7 +1,7 @@
 extends Area2D
 
 ## Меню здания открывается по нажатию «атаки» в зоне (как у монаха), не при входе в область.
-enum MenuKind { CASTLE, BARRACKS, MONASTERY, ARCHERY }
+enum MenuKind { CASTLE, BARRACKS, MONASTERY, ARCHERY, PAYSHOP }
 @export var menu_kind: MenuKind = MenuKind.CASTLE
 
 
@@ -20,8 +20,15 @@ func try_open_menu_if_player_inside() -> bool:
 		return false
 	if not GameplayFacade.is_player_body(player):
 		return false
-	if not overlaps_body(player):
-		return false
+	var inside := overlaps_body(player)
+	if not inside:
+		if menu_kind == MenuKind.PAYSHOP:
+			# Фолбэк для pay_zone: если у конкретной сцены сбиты маски Area2D, оставляем активацию по близости.
+			var self_2d := self as Node2D
+			if self_2d == null or self_2d.global_position.distance_to(player.global_position) > 92.0:
+				return false
+		else:
+			return false
 	var hud := GameplayFacade.get_hud(tree)
 	if hud == null:
 		return false
@@ -53,5 +60,12 @@ func try_open_menu_if_player_inside() -> bool:
 			if hud.archery_menu != null and hud.archery_menu.visible:
 				return false
 			hud.show_archery_menu()
+			return true
+		MenuKind.PAYSHOP:
+			if not hud.has_method("show_payshop_menu"):
+				return false
+			if hud.payshop_menu != null and hud.payshop_menu.visible:
+				return false
+			hud.show_payshop_menu()
 			return true
 	return false

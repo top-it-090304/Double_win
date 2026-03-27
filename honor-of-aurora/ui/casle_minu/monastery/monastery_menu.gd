@@ -46,8 +46,8 @@ func _refresh_ui() -> void:
 	_set_cost_button("MonasteryPanel/MainActions/SlotsRow/slot_vitality/ColumnVitality/BtnBlessVitality", cost_v_gold, cost_v_ore)
 	_set_cost_button("MonasteryPanel/MainActions/SlotsRow/slot_revive/ColumnRevive/BtnReviveFallen", cost_r_gold, cost_r_ore)
 
-	var can_vitality := (not GameManager.monastery_vitality_prepared) and SaveManager.gold >= cost_v_gold and SaveManager.ore_count >= cost_v_ore
-	var can_revive := (not GameManager.monastery_revive_used_for_return) and GameManager.has_pending_revival_losses() and SaveManager.gold >= cost_r_gold and SaveManager.ore_count >= cost_r_ore
+	var can_vitality := (not GameManager.monastery_vitality_prepared) and GameplayFacade.can_afford_gold_plus_ore(cost_v_gold, cost_v_ore)
+	var can_revive := (not GameManager.monastery_revive_used_for_return) and GameManager.has_pending_revival_losses() and GameplayFacade.can_afford_gold_plus_ore(cost_r_gold, cost_r_ore)
 	var btn_v := get_node_or_null("MonasteryPanel/MainActions/SlotsRow/slot_vitality/ColumnVitality/BtnBlessVitality") as Button
 	var btn_r := get_node_or_null("MonasteryPanel/MainActions/SlotsRow/slot_revive/ColumnRevive/BtnReviveFallen") as Button
 	if btn_v:

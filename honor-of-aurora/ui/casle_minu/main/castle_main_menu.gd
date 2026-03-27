@@ -42,9 +42,10 @@ func reset_castle_menu_state() -> void:
 
 
 func _refresh_hire_buy_ui() -> void:
+	var ore_cost := BalanceConfig.get_unit_hire_ore_cost()
 	var price_lbl := get_node_or_null("HireSelectPanel/HirePanel/HirePriceLabel") as Label
 	if price_lbl:
-		price_lbl.text = "Все типы — %d зол." % unit_hire_cost
+		price_lbl.text = "Все типы — %d зол. + %d руды" % [unit_hire_cost, ore_cost]
 	for path in [
 		"HireSelectPanel/HirePanel/slot_archer/ColumnArcher/BuyArcher",
 		"HireSelectPanel/HirePanel/slot_lancer/ColumnLancer/BuyLancer",
@@ -52,7 +53,7 @@ func _refresh_hire_buy_ui() -> void:
 	]:
 		var b := get_node_or_null(path) as Button
 		if b:
-			b.text = str(unit_hire_cost)
+			b.text = "%d + %d" % [unit_hire_cost, ore_cost]
 
 
 func try_close_hire_submenu() -> bool:
@@ -132,6 +133,7 @@ func _refresh_upgrade_building_buttons() -> void:
 		var cost_row := get_node_or_null("%s/%s/CostRow" % [base, entry.btn]) as HBoxContainer
 		var gold_lbl := get_node_or_null("%s/%s/CostRow/GoldCostRow/GoldCostLabel" % [base, entry.btn]) as Label
 		var wood_lbl := get_node_or_null("%s/%s/CostRow/WoodCostRow/WoodCostLabel" % [base, entry.btn]) as Label
+		var ore_lbl := get_node_or_null("%s/%s/CostRow/OreCostRow/OreCostLabel" % [base, entry.btn]) as Label
 		var tier_lbl := get_node_or_null("%s/LabelTier" % base) as Label
 		var preview := get_node_or_null("%s/BuildingPreview" % base) as TextureRect
 		if preview:
@@ -156,10 +158,13 @@ func _refresh_upgrade_building_buttons() -> void:
 			cost_row.visible = true
 		var gold_cost: int = BalanceConfig.get_building_upgrade_step() * (b_tier + 1)
 		var wood_cost: int = BalanceConfig.get_building_upgrade_wood_cost(b_tier)
+		var ore_cost: int = BalanceConfig.get_building_upgrade_ore_cost(b_tier)
 		if gold_lbl:
 			gold_lbl.text = "%d" % gold_cost
 		if wood_lbl:
 			wood_lbl.text = "%d" % wood_cost
+		if ore_lbl:
+			ore_lbl.text = "%d" % ore_cost
 
 
 func _building_preview_texture(building_type: String) -> Texture2D:
@@ -193,6 +198,7 @@ func _try_upgrade_building(building_type: String) -> void:
 		return
 	if building_type == "Archery":
 		GameManager.refresh_archery_modifiers_for_active_units()
+	GameManager.refresh_all_companion_progression()
 	_refresh_upgrade_building_buttons()
 
 
@@ -592,8 +598,9 @@ func _hire_unit(kind: HireKind) -> void:
 		if SaveManager.archer_count + SaveManager.lancer_count >= GameManager.get_max_warriors_allowed():
 			_show_hire_fail("Нужен запас мяса: добывайте на базе (овцы), чтобы увеличить лимит лучников и копейщиков.")
 			return
-	if not GameplayFacade.try_spend_gold(unit_hire_cost):
-		_show_hire_fail("Недостаточно золота.")
+	var hire_ore_cost := BalanceConfig.get_unit_hire_ore_cost()
+	if not GameplayFacade.try_spend_gold_plus_ore(unit_hire_cost, hire_ore_cost):
+		_show_hire_fail("Недостаточно золота/руды.")
 		return
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if not player:
@@ -615,10 +622,14 @@ func _hire_unit(kind: HireKind) -> void:
 			avoid.append((node as Node2D).global_position)
 	var positions := GameManager.pick_archer_spawn_positions(get_tree().current_scene, 1, avoid)
 	get_tree().current_scene.add_child(unit)
+	if unit.has_method("apply_building_progression_from_manager"):
+		unit.apply_building_progression_from_manager()
 	unit.global_position = positions[0]
 	unit.add_to_group("squad_member")
 	SaveManager.save_game()
 	_close_hire_select()
+
+
 
 
 func _on_info_back_pressed() -> void:

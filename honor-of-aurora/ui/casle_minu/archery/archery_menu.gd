@@ -50,8 +50,8 @@ func _refresh_ui() -> void:
 
 	var btn_v := get_node_or_null("ArcheryPanel/MainActions/SlotsRow/slot_volley/ColumnVolley/BtnVolleyOrder") as Button
 	var btn_g := get_node_or_null("ArcheryPanel/MainActions/SlotsRow/slot_guard/ColumnGuard/BtnGuardOrder") as Button
-	var can_v := not GameManager.archery_volley_prepared and SaveManager.gold >= cost_v_gold and SaveManager.ore_count >= cost_v_ore
-	var can_g := not GameManager.archery_guard_prepared and SaveManager.gold >= cost_g_gold and SaveManager.ore_count >= cost_g_ore
+	var can_v := not GameManager.archery_volley_prepared and GameplayFacade.can_afford_gold_plus_ore(cost_v_gold, cost_v_ore)
+	var can_g := not GameManager.archery_guard_prepared and GameplayFacade.can_afford_gold_plus_ore(cost_g_gold, cost_g_ore)
 	if btn_v:
 		btn_v.disabled = not can_v
 	if btn_g:

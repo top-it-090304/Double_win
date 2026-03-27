@@ -17,6 +17,7 @@ signal meat_changed(value: int)
 signal wood_changed(value: int)
 ## Запас руды с базовой шахты (пока только счётчик для будущей механики).
 signal ore_changed(value: int)
+signal premium_ore_pack_purchased(pack_id: String, ore_added: int)
 ## Закрыто окно приказов отряду (после беседы / «Далее»): нужно сбросить «attack», иначе ЛКМ снова откроет меню.
 signal squad_orders_menu_closed()
 ## Герой вернулся с острова на базу (счётчик SaveManager.expedition_return_count уже увеличен).

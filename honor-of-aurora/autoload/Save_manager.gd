@@ -70,10 +70,13 @@ var haptic_enabled: bool = true
 var hero_max_health_bonus: int = 0
 ## Бонус к скорости героя поверх значения тира (сохраняется).
 var hero_speed_bonus: float = 0.0
+## Premium-экономика: купленная руда за реальные деньги/SDK.
+var premium_ore_purchased_total: int = 0
+var premium_ore_purchase_count: int = 0
 
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
-const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus"]
+const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus", "premium_ore_purchased_total", "premium_ore_purchase_count"]
 const default_data := {
 	"gold" : 10,
 	"meat_count" : 0,
@@ -114,6 +117,8 @@ const default_data := {
 	"haptic_enabled" : true,
 	"hero_max_health_bonus" : 0,
 	"hero_speed_bonus" : 0.0,
+	"premium_ore_purchased_total" : 0,
+	"premium_ore_purchase_count" : 0,
 }
 
 
@@ -191,8 +196,14 @@ func load_game():
 		hero_max_health_bonus = 0
 	if not game_data.has("hero_speed_bonus"):
 		hero_speed_bonus = 0.0
+	if not game_data.has("premium_ore_purchased_total"):
+		premium_ore_purchased_total = 0
+	if not game_data.has("premium_ore_purchase_count"):
+		premium_ore_purchase_count = 0
 	hero_max_health_bonus = maxi(0, int(hero_max_health_bonus))
 	hero_speed_bonus = float(hero_speed_bonus)
+	premium_ore_purchased_total = maxi(0, int(premium_ore_purchased_total))
+	premium_ore_purchase_count = maxi(0, int(premium_ore_purchase_count))
 	var _warriors := archer_count + lancer_count
 	if meat_count < _warriors:
 		meat_count = _warriors

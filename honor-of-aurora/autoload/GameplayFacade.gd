@@ -69,6 +69,62 @@ func try_spend_ore(amount: int) -> bool:
 	return true
 
 
+func try_spend_gold_or_ore(gold_amount: int) -> bool:
+	if gold_amount <= 0:
+		return true
+	if SaveManager.gold >= gold_amount:
+		return try_spend_gold(gold_amount)
+	var shortage := gold_amount - SaveManager.gold
+	var ore_needed := BalanceConfig.get_ore_needed_for_gold(shortage)
+	if SaveManager.ore_count < ore_needed:
+		return false
+	var spend_gold := SaveManager.gold
+	if spend_gold > 0:
+		GameManager.add_gold(-spend_gold)
+	return try_spend_ore(ore_needed)
+
+
+func try_spend_wood_or_ore(wood_amount: int) -> bool:
+	if wood_amount <= 0:
+		return true
+	if SaveManager.wood_count >= wood_amount:
+		return try_spend_wood(wood_amount)
+	var shortage := wood_amount - SaveManager.wood_count
+	var ore_needed := BalanceConfig.get_ore_needed_for_wood(shortage)
+	if SaveManager.ore_count < ore_needed:
+		return false
+	var spend_wood := SaveManager.wood_count
+	if spend_wood > 0:
+		GameManager.add_wood(-spend_wood)
+	return try_spend_ore(ore_needed)
+
+
+func can_afford_gold_plus_ore(gold_amount: int, ore_amount: int) -> bool:
+	var gold_shortage := maxi(0, gold_amount - SaveManager.gold)
+	var ore_for_gold := BalanceConfig.get_ore_needed_for_gold(gold_shortage)
+	return SaveManager.ore_count >= ore_amount + ore_for_gold
+
+
+func try_spend_gold_plus_ore(gold_amount: int, ore_amount: int) -> bool:
+	gold_amount = maxi(0, gold_amount)
+	ore_amount = maxi(0, ore_amount)
+	var gold_shortage := maxi(0, gold_amount - SaveManager.gold)
+	var ore_for_gold := BalanceConfig.get_ore_needed_for_gold(gold_shortage)
+	var total_ore := ore_amount + ore_for_gold
+	if SaveManager.ore_count < total_ore:
+		return false
+	var spend_gold := mini(SaveManager.gold, gold_amount)
+	if spend_gold > 0:
+		GameManager.add_gold(-spend_gold)
+	if total_ore > 0:
+		GameManager.add_ore(-total_ore)
+	return true
+
+
+func purchase_premium_ore_pack(pack_id: String) -> bool:
+	return GameManager.purchase_premium_ore_pack(pack_id)
+
+
 func get_hud(tree: SceneTree) -> Node:
 	if tree == null:
 		return null

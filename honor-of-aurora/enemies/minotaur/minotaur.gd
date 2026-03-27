@@ -5,8 +5,8 @@ func _ready():
 	
    
 	speed = 150.0  
-	health = 1000   
-	attack_damage = 80 
-	enemy_level = 5 
+	health = 760
+	attack_damage = 46
+	enemy_level = 2
 	detection_radius = 700.0  
 	attack_radius = 500.0
