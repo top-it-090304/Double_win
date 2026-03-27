@@ -25,6 +25,22 @@ func hide_barracks_menu() -> void:
 	pass
 
 
+func show_monastery_menu() -> void:
+	pass
+
+
+func hide_monastery_menu() -> void:
+	pass
+
+
+func show_archery_menu() -> void:
+	pass
+
+
+func hide_archery_menu() -> void:
+	pass
+
+
 func try_open_squad_orders_menu(_unit: Node2D) -> bool:
 	return false
 

@@ -191,6 +191,8 @@ func _try_upgrade_building(building_type: String) -> void:
 		return
 	if not b.call("upgrade_building"):
 		return
+	if building_type == "Archery":
+		GameManager.refresh_archery_modifiers_for_active_units()
 	_refresh_upgrade_building_buttons()
 
 

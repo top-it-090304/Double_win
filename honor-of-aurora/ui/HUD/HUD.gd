@@ -5,6 +5,8 @@ extends "res://ui/HUD/game_hud.gd"
 @export var teleport_menu: Control
 @export var castle_menu: Control
 @export var barracks_menu: Control
+@export var monastery_menu: Control
+@export var archery_menu: Control
 @export var squad_orders_menu: Control
 @export var debug_menu: Control
 
@@ -47,6 +49,14 @@ func _input(event: InputEvent) -> void:
 		hide_barracks_menu()
 		get_viewport().set_input_as_handled()
 		return
+	if monastery_menu != null and monastery_menu.visible and event.is_action_pressed("ui_cancel"):
+		hide_monastery_menu()
+		get_viewport().set_input_as_handled()
+		return
+	if archery_menu != null and archery_menu.visible and event.is_action_pressed("ui_cancel"):
+		hide_archery_menu()
+		get_viewport().set_input_as_handled()
+		return
 	if squad_orders_menu != null and squad_orders_menu.visible and event.is_action_pressed("ui_cancel"):
 		if squad_orders_menu.has_method("close"):
 			squad_orders_menu.close()
@@ -68,6 +78,10 @@ func show_teleport_menu():
 		squad_orders_menu.close()
 	if barracks_menu:
 		barracks_menu.hide()
+	if monastery_menu:
+		monastery_menu.hide()
+	if archery_menu:
+		archery_menu.hide()
 	if castle_menu:
 		castle_menu.hide()
 	SoundManager.play_menu_open()
@@ -98,6 +112,10 @@ func show_castle_menu():
 		squad_orders_menu.close()
 	if barracks_menu:
 		barracks_menu.hide()
+	if monastery_menu:
+		monastery_menu.hide()
+	if archery_menu:
+		archery_menu.hide()
 	if castle_menu == null:
 		return
 	if castle_menu.has_method("reset_castle_menu_state"):
@@ -124,6 +142,10 @@ func show_barracks_menu():
 		squad_orders_menu.close()
 	if castle_menu:
 		castle_menu.hide()
+	if monastery_menu:
+		monastery_menu.hide()
+	if archery_menu:
+		archery_menu.hide()
 	if barracks_menu == null:
 		return
 	if barracks_menu.has_method("reset_barracks_menu_state"):
@@ -137,6 +159,66 @@ func hide_barracks_menu():
 	if barracks_menu == null:
 		return
 	barracks_menu.hide()
+	get_tree().paused = false
+
+
+func show_monastery_menu():
+	if teleport_menu and teleport_menu.visible:
+		hide_teleport_menu()
+	SoundManager.play_menu_open()
+	if debug_menu and debug_menu.visible:
+		hide_debug_menu()
+	if squad_orders_menu and squad_orders_menu.visible and squad_orders_menu.has_method("close"):
+		squad_orders_menu.close()
+	if castle_menu:
+		castle_menu.hide()
+	if barracks_menu:
+		barracks_menu.hide()
+	if archery_menu:
+		archery_menu.hide()
+	if monastery_menu == null:
+		return
+	if monastery_menu.has_method("reset_monastery_menu_state"):
+		monastery_menu.reset_monastery_menu_state()
+	monastery_menu.show()
+	get_tree().paused = true
+
+
+func hide_monastery_menu():
+	SoundManager.play_menu_close()
+	if monastery_menu == null:
+		return
+	monastery_menu.hide()
+	get_tree().paused = false
+
+
+func show_archery_menu():
+	if teleport_menu and teleport_menu.visible:
+		hide_teleport_menu()
+	SoundManager.play_menu_open()
+	if debug_menu and debug_menu.visible:
+		hide_debug_menu()
+	if squad_orders_menu and squad_orders_menu.visible and squad_orders_menu.has_method("close"):
+		squad_orders_menu.close()
+	if castle_menu:
+		castle_menu.hide()
+	if barracks_menu:
+		barracks_menu.hide()
+	if monastery_menu:
+		monastery_menu.hide()
+	if archery_menu == null:
+		return
+	if archery_menu.has_method("reset_archery_menu_state"):
+		archery_menu.reset_archery_menu_state()
+	archery_menu.show()
+	get_tree().paused = true
+
+
+func hide_archery_menu():
+	SoundManager.play_menu_close()
+	if archery_menu == null:
+		return
+	archery_menu.hide()
 	get_tree().paused = false
 
 
@@ -156,6 +238,10 @@ func try_open_squad_orders_menu(unit: Node2D) -> bool:
 	if teleport_menu and teleport_menu.visible:
 		return false
 	if barracks_menu and barracks_menu.visible:
+		return false
+	if monastery_menu and monastery_menu.visible:
+		return false
+	if archery_menu and archery_menu.visible:
 		return false
 	if castle_menu and castle_menu.visible:
 		return false

@@ -43,10 +43,15 @@ var _patrol_segment_time: float = 0.0
 var _patrol_stuck_frames: int = 0
 ## Приказ идти к монаху (только лучник, база).
 var _order_to_healer: bool = false
+var _base_attack_cooldown: float = 3.0
+var _base_max_health: int = 60
 
 func _ready() -> void:
 	super._ready()
 	add_to_group("ally_archer")
+	_base_attack_cooldown = attack_cooldown
+	_base_max_health = max_health
+	apply_archery_modifiers_from_manager()
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	sprite.play("idle")
 	
@@ -69,6 +74,24 @@ func _ready() -> void:
 	call_deferred("_capture_base_patrol_spawn_after_placed")
 	if health_component:
 		health_component.health_changed.connect(_on_squad_health_changed)
+
+
+func apply_archery_modifiers_from_manager() -> void:
+	var as_mul := maxf(0.25, GameManager.get_archery_attack_speed_multiplier())
+	var hp_mul := maxf(1.0, GameManager.get_archery_hp_multiplier())
+	attack_cooldown = maxf(0.35, _base_attack_cooldown / as_mul)
+	max_health = maxi(1, int(round(float(_base_max_health) * hp_mul)))
+	if health_component:
+		var old_max: int = int(health_component.max_health)
+		var old_current: int = int(health_component.current_health)
+		health_component.set_max_health(max_health)
+		if old_max > 0:
+			var ratio := float(old_current) / float(old_max)
+			health_component.set_current_health(clampi(int(round(float(max_health) * ratio)), 1, max_health))
+		else:
+			health_component.set_current_health(max_health)
+	if attack_timer:
+		attack_timer.wait_time = attack_cooldown
 
 
 func _on_squad_health_changed(_current: int, _maximum: int) -> void:

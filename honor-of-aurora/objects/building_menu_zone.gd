@@ -1,7 +1,7 @@
 extends Area2D
 
 ## Меню здания открывается по нажатию «атаки» в зоне (как у монаха), не при входе в область.
-enum MenuKind { CASTLE, BARRACKS }
+enum MenuKind { CASTLE, BARRACKS, MONASTERY, ARCHERY }
 @export var menu_kind: MenuKind = MenuKind.CASTLE
 
 
@@ -39,5 +39,19 @@ func try_open_menu_if_player_inside() -> bool:
 			if hud.barracks_menu != null and hud.barracks_menu.visible:
 				return false
 			hud.show_barracks_menu()
+			return true
+		MenuKind.MONASTERY:
+			if not hud.has_method("show_monastery_menu"):
+				return false
+			if hud.monastery_menu != null and hud.monastery_menu.visible:
+				return false
+			hud.show_monastery_menu()
+			return true
+		MenuKind.ARCHERY:
+			if not hud.has_method("show_archery_menu"):
+				return false
+			if hud.archery_menu != null and hud.archery_menu.visible:
+				return false
+			hud.show_archery_menu()
 			return true
 	return false

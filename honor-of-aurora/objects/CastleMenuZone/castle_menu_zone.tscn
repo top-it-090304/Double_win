@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://objects/building_menu_zone.gd" id="1_r7jq6"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_6qewk"]
-radius = 106.118
+radius = 68.0
 
 [node name="CastleMenuZone" type="Area2D"]
 collision_layer = 32

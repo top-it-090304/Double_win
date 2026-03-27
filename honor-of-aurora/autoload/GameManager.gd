@@ -20,6 +20,37 @@ const ARMORY_SHIELD_BASE_DAMAGE_FACTOR: float = 0.2
 ## На каждый уровень здания Barracks (0→4): +12.5% к силе временного бафа (заточка / щит).
 const ARMORY_TIER_BUFF_PER_LEVEL: float = 0.125
 
+## Монастырь: ритуал выносливости на поход и «воскрешение павшего» после возвращения.
+var monastery_vitality_prepared: bool = false
+var monastery_hp_bonus_ratio: float = 0.0
+var monastery_revive_used_for_return: bool = false
+var pending_revive_archer_losses: int = 0
+var pending_revive_lancer_losses: int = 0
+var pending_revive_pawn_losses: int = 0
+
+const MONASTERY_VITALITY_BASE_RATIO: float = 0.08
+const MONASTERY_VITALITY_PER_TIER_RATIO: float = 0.03
+const MONASTERY_REVIVE_BASE_CHANCE: float = 0.35
+const MONASTERY_REVIVE_PER_TIER_CHANCE: float = 0.10
+const MONASTERY_REVIVE_CHANCE_CAP: float = 0.75
+
+## Стрельбище: пассивы от уровня + временные приказы на поход.
+var archery_volley_prepared: bool = false
+var archery_guard_prepared: bool = false
+
+const ARCHERY_PASSIVE_HP_PER_TIER: float = 0.08
+const ARCHERY_PASSIVE_AS_PER_TIER: float = 0.05
+const ARCHERY_VOLLEY_BASE_RATIO: float = 0.08
+const ARCHERY_VOLLEY_PER_TIER_RATIO: float = 0.03
+const ARCHERY_GUARD_BASE_RATIO: float = 0.10
+const ARCHERY_GUARD_PER_TIER_RATIO: float = 0.03
+
+## Снимок отряда на старте похода — нужен для расчёта «павших» к ритуалу воскрешения.
+var _expedition_snapshot_active: bool = false
+var _expedition_start_archer_count: int = 0
+var _expedition_start_lancer_count: int = 0
+var _expedition_start_pawn_count: int = 0
+
 
 ## Уровень оружейной на базе (0 = чёрная текстура … 4 = жёлтая). Влияет только на величину временных бафов.
 func get_armory_building_tier() -> int:
@@ -29,6 +60,75 @@ func get_armory_building_tier() -> int:
 ## Множитель силы бафа «перед походом» от прокачки здания Barracks.
 func get_armory_prep_strength_multiplier() -> float:
 	return 1.0 + ARMORY_TIER_BUFF_PER_LEVEL * float(get_armory_building_tier())
+
+
+func get_monastery_building_tier() -> int:
+	return SaveManager.get_building_tier("Monastery")
+
+
+func get_archery_building_tier() -> int:
+	return SaveManager.get_building_tier("Archery")
+
+
+func get_monastery_vitality_ratio_preview() -> float:
+	var t := get_monastery_building_tier()
+	return MONASTERY_VITALITY_BASE_RATIO + MONASTERY_VITALITY_PER_TIER_RATIO * float(t)
+
+
+func get_monastery_revive_chance_preview() -> float:
+	var t := get_monastery_building_tier()
+	return clampf(MONASTERY_REVIVE_BASE_CHANCE + MONASTERY_REVIVE_PER_TIER_CHANCE * float(t), 0.0, MONASTERY_REVIVE_CHANCE_CAP)
+
+
+func get_archery_passive_hp_ratio() -> float:
+	return ARCHERY_PASSIVE_HP_PER_TIER * float(get_archery_building_tier())
+
+
+func get_archery_passive_attack_speed_ratio() -> float:
+	return ARCHERY_PASSIVE_AS_PER_TIER * float(get_archery_building_tier())
+
+
+func get_archery_volley_ratio_preview() -> float:
+	var t := get_archery_building_tier()
+	return ARCHERY_VOLLEY_BASE_RATIO + ARCHERY_VOLLEY_PER_TIER_RATIO * float(t)
+
+
+func get_archery_guard_ratio_preview() -> float:
+	var t := get_archery_building_tier()
+	return ARCHERY_GUARD_BASE_RATIO + ARCHERY_GUARD_PER_TIER_RATIO * float(t)
+
+
+func get_archery_attack_speed_multiplier() -> float:
+	var passive_mul := 1.0 + get_archery_passive_attack_speed_ratio()
+	var active_mul := 1.0 + (get_archery_volley_ratio_preview() if archery_volley_prepared else 0.0)
+	return passive_mul * active_mul
+
+
+func get_archery_hp_multiplier() -> float:
+	var passive_mul := 1.0 + get_archery_passive_hp_ratio()
+	var active_mul := 1.0 + (get_archery_guard_ratio_preview() if archery_guard_prepared else 0.0)
+	return passive_mul * active_mul
+
+
+func get_monastery_hp_multiplier() -> float:
+	return 1.0 + monastery_hp_bonus_ratio
+
+
+func has_pending_revival_losses() -> bool:
+	return pending_revive_archer_losses > 0 or pending_revive_lancer_losses > 0 or pending_revive_pawn_losses > 0
+
+
+func get_pending_revival_text() -> String:
+	var parts: Array[String] = []
+	if pending_revive_archer_losses > 0:
+		parts.append("лучники %d" % pending_revive_archer_losses)
+	if pending_revive_lancer_losses > 0:
+		parts.append("копейщики %d" % pending_revive_lancer_losses)
+	if pending_revive_pawn_losses > 0:
+		parts.append("пешки %d" % pending_revive_pawn_losses)
+	if parts.is_empty():
+		return "Павших нет"
+	return "Павшие: %s" % " · ".join(parts)
 
 
 func get_armory_sword_buff_cost() -> int:
@@ -80,11 +180,183 @@ func try_prepare_armory_shield() -> bool:
 	return true
 
 
+func try_prepare_monastery_vitality() -> bool:
+	if monastery_vitality_prepared:
+		return false
+	if not GameplayFacade.try_spend_gold(BalanceConfig.get_monastery_vitality_gold_cost()):
+		return false
+	if not GameplayFacade.try_spend_ore(BalanceConfig.get_monastery_vitality_ore_cost()):
+		GameManager.add_gold(BalanceConfig.get_monastery_vitality_gold_cost())
+		return false
+	monastery_vitality_prepared = true
+	monastery_hp_bonus_ratio = get_monastery_vitality_ratio_preview()
+	var player := _find_player_node_in_current_scene()
+	if player and player.has_method("apply_hero_stat_bonuses_from_save"):
+		player.apply_hero_stat_bonuses_from_save()
+	return true
+
+
+func try_monastery_revive_after_return() -> bool:
+	if monastery_revive_used_for_return:
+		return false
+	if not has_pending_revival_losses():
+		return false
+	if not GameplayFacade.try_spend_gold(BalanceConfig.get_monastery_revive_gold_cost()):
+		return false
+	if not GameplayFacade.try_spend_ore(BalanceConfig.get_monastery_revive_ore_cost()):
+		GameManager.add_gold(BalanceConfig.get_monastery_revive_gold_cost())
+		return false
+	monastery_revive_used_for_return = true
+	var chance := get_monastery_revive_chance_preview()
+	if randf() > chance:
+		return true
+	var revived_kind := _pick_revive_kind()
+	if revived_kind.is_empty():
+		return true
+	_apply_revive_kind(revived_kind)
+	_spawn_revived_unit_on_base(revived_kind)
+	return true
+
+
+func try_prepare_archery_volley() -> bool:
+	if archery_volley_prepared:
+		return false
+	if not GameplayFacade.try_spend_gold(BalanceConfig.get_archery_volley_gold_cost()):
+		return false
+	if not GameplayFacade.try_spend_ore(BalanceConfig.get_archery_volley_ore_cost()):
+		GameManager.add_gold(BalanceConfig.get_archery_volley_gold_cost())
+		return false
+	archery_volley_prepared = true
+	_apply_archery_modifiers_to_active_archers()
+	return true
+
+
+func try_prepare_archery_guard() -> bool:
+	if archery_guard_prepared:
+		return false
+	if not GameplayFacade.try_spend_gold(BalanceConfig.get_archery_guard_gold_cost()):
+		return false
+	if not GameplayFacade.try_spend_ore(BalanceConfig.get_archery_guard_ore_cost()):
+		GameManager.add_gold(BalanceConfig.get_archery_guard_gold_cost())
+		return false
+	archery_guard_prepared = true
+	_apply_archery_modifiers_to_active_archers()
+	return true
+
+
 func reset_armory_preparation() -> void:
 	armory_attack_bonus = 0
 	armory_shield_damage_factor = ARMORY_SHIELD_BASE_DAMAGE_FACTOR
 	armory_sword_prepared = false
 	armory_shield_prepared = false
+
+
+func reset_monastery_preparation() -> void:
+	monastery_vitality_prepared = false
+	monastery_hp_bonus_ratio = 0.0
+	monastery_revive_used_for_return = false
+
+
+func reset_archery_preparation() -> void:
+	archery_volley_prepared = false
+	archery_guard_prepared = false
+	_apply_archery_modifiers_to_active_archers()
+
+
+func _apply_archery_modifiers_to_active_archers() -> void:
+	for n in get_tree().get_nodes_in_group("ally_archer"):
+		if n and is_instance_valid(n) and n.has_method("apply_archery_modifiers_from_manager"):
+			n.apply_archery_modifiers_from_manager()
+
+
+func refresh_archery_modifiers_for_active_units() -> void:
+	_apply_archery_modifiers_to_active_archers()
+
+
+func _capture_expedition_start_snapshot() -> void:
+	_expedition_snapshot_active = true
+	_expedition_start_archer_count = SaveManager.archer_count
+	_expedition_start_lancer_count = SaveManager.lancer_count
+	_expedition_start_pawn_count = SaveManager.pawn_count
+	pending_revive_archer_losses = 0
+	pending_revive_lancer_losses = 0
+	pending_revive_pawn_losses = 0
+	monastery_revive_used_for_return = false
+
+
+func _finalize_expedition_losses_snapshot() -> void:
+	if not _expedition_snapshot_active:
+		return
+	pending_revive_archer_losses = maxi(0, _expedition_start_archer_count - SaveManager.archer_count)
+	pending_revive_lancer_losses = maxi(0, _expedition_start_lancer_count - SaveManager.lancer_count)
+	pending_revive_pawn_losses = maxi(0, _expedition_start_pawn_count - SaveManager.pawn_count)
+	_expedition_snapshot_active = false
+
+
+func _pick_revive_kind() -> String:
+	var pool: Array[String] = []
+	for _i in range(pending_revive_archer_losses):
+		pool.append("archer")
+	for _j in range(pending_revive_lancer_losses):
+		pool.append("lancer")
+	for _k in range(pending_revive_pawn_losses):
+		pool.append("pawn")
+	if pool.is_empty():
+		return ""
+	return pool[randi() % pool.size()]
+
+
+func _apply_revive_kind(kind: String) -> void:
+	match kind:
+		"archer":
+			if pending_revive_archer_losses <= 0:
+				return
+			SaveManager.archer_count += 1
+			pending_revive_archer_losses -= 1
+		"lancer":
+			if pending_revive_lancer_losses <= 0:
+				return
+			SaveManager.lancer_count += 1
+			pending_revive_lancer_losses -= 1
+		"pawn":
+			if pending_revive_pawn_losses <= 0:
+				return
+			SaveManager.pawn_count += 1
+			pending_revive_pawn_losses -= 1
+	SaveManager.save_game()
+
+
+func _spawn_revived_unit_on_base(kind: String) -> void:
+	if Events.current_location != Events.LOCATION.BASE:
+		return
+	var root := get_tree().current_scene
+	var player := _find_player_node_in_current_scene()
+	if root == null or player == null:
+		return
+	var scene: PackedScene = null
+	match kind:
+		"archer":
+			scene = _get_archer_scene()
+		"lancer":
+			scene = _get_lancer_scene()
+		"pawn":
+			scene = _get_pawn_scene()
+	if scene == null:
+		return
+	var unit := scene.instantiate() as Node2D
+	if unit == null:
+		return
+	var avoid: Array[Vector2] = [player.global_position]
+	for node in get_tree().get_nodes_in_group("ally"):
+		if node is Node2D:
+			avoid.append((node as Node2D).global_position)
+	var positions := pick_archer_spawn_positions(root, 1, avoid, ARCHER_MIN_SPAWN_SEPARATION)
+	root.add_child(unit)
+	unit.add_to_group("squad_member")
+	if positions.size() > 0:
+		unit.global_position = positions[0]
+	else:
+		unit.global_position = player.global_position + Vector2(84.0, 0.0)
 
 
 func _ready() -> void:
@@ -412,6 +684,9 @@ func handle_location_changed(new_location: Events.LOCATION):
 	# Прямой телепорт: база ← остров.
 	if new_location == Events.LOCATION.BASE and Events.is_adventure_location(prev_location):
 		reset_armory_preparation()
+		reset_monastery_preparation()
+		reset_archery_preparation()
+		_finalize_expedition_losses_snapshot()
 		SaveManager.expedition_return_count += 1
 		expedition_return_count_incremented = true
 		Events.pending_healer_dialogue_after_expedition = true
@@ -423,12 +698,18 @@ func handle_location_changed(new_location: Events.LOCATION):
 	if new_location == Events.LOCATION.BASE and prev_location == Events.LOCATION.MENU:
 		if SaveManager.was_on_adventure_before_menu:
 			reset_armory_preparation()
+			reset_monastery_preparation()
+			reset_archery_preparation()
+			_finalize_expedition_losses_snapshot()
 			SaveManager.expedition_return_count += 1
 			expedition_return_count_incremented = true
 			Events.pending_healer_dialogue_after_expedition = true
 			Events.was_on_adventure_before_menu = false
 			SaveManager.was_on_adventure_before_menu = false
 			SaveManager.save_game()
+
+	if prev_location == Events.LOCATION.BASE and Events.is_adventure_location(new_location):
+		_capture_expedition_start_snapshot()
 
 	Events.current_location = new_location
 	if expedition_return_count_incremented and new_location == Events.LOCATION.BASE:
@@ -520,6 +801,8 @@ func debug_add_hero_speed_bonus(delta: float) -> void:
 func debug_apply_progress_reset_like_new_game() -> void:
 	SaveManager.reset_data()
 	reset_armory_preparation()
+	reset_monastery_preparation()
+	reset_archery_preparation()
 	Events.gold_changed.emit(SaveManager.gold)
 	Events.meat_changed.emit(SaveManager.meat_count)
 	Events.wood_changed.emit(SaveManager.wood_count)
@@ -753,6 +1036,8 @@ func _spawn_saved_archers(root: Node) -> void:
 		if not archer:
 			continue
 		root.add_child(archer)
+		if archer.has_method("apply_archery_modifiers_from_manager"):
+			archer.apply_archery_modifiers_from_manager()
 		if i < positions.size():
 			archer.global_position = positions[i]
 		archer.add_to_group("squad_member")

@@ -12,6 +12,15 @@ const BUILDING_UPGRADE_STEP := 300
 ## Оружейная: разовые бафы перед походом.
 const ARMORY_SWORD_BUFF_COST := 155
 const ARMORY_SHIELD_BUFF_COST := 155
+## Монастырь/стрельбище: «хардкор» сервисы требуют руду.
+const MONASTERY_REVIVE_GOLD_COST := 190
+const MONASTERY_REVIVE_ORE_COST := 9
+const MONASTERY_VITALITY_GOLD_COST := 125
+const MONASTERY_VITALITY_ORE_COST := 6
+const ARCHERY_VOLLEY_GOLD_COST := 145
+const ARCHERY_VOLLEY_ORE_COST := 7
+const ARCHERY_GUARD_GOLD_COST := 145
+const ARCHERY_GUARD_ORE_COST := 7
 ## Дерево за шаг улучшения здания (умножается на (tier + 1) как золото).
 const BUILDING_UPGRADE_WOOD_STEP := 22
 
@@ -71,6 +80,38 @@ func get_armory_sword_buff_cost() -> int:
 
 func get_armory_shield_buff_cost() -> int:
 	return maxi(1, int(round(float(ARMORY_SHIELD_BUFF_COST) * _economy_mult())))
+
+
+func get_monastery_revive_gold_cost() -> int:
+	return maxi(1, int(round(float(MONASTERY_REVIVE_GOLD_COST) * _economy_mult())))
+
+
+func get_monastery_revive_ore_cost() -> int:
+	return maxi(1, int(round(float(MONASTERY_REVIVE_ORE_COST) * _economy_mult())))
+
+
+func get_monastery_vitality_gold_cost() -> int:
+	return maxi(1, int(round(float(MONASTERY_VITALITY_GOLD_COST) * _economy_mult())))
+
+
+func get_monastery_vitality_ore_cost() -> int:
+	return maxi(1, int(round(float(MONASTERY_VITALITY_ORE_COST) * _economy_mult())))
+
+
+func get_archery_volley_gold_cost() -> int:
+	return maxi(1, int(round(float(ARCHERY_VOLLEY_GOLD_COST) * _economy_mult())))
+
+
+func get_archery_volley_ore_cost() -> int:
+	return maxi(1, int(round(float(ARCHERY_VOLLEY_ORE_COST) * _economy_mult())))
+
+
+func get_archery_guard_gold_cost() -> int:
+	return maxi(1, int(round(float(ARCHERY_GUARD_GOLD_COST) * _economy_mult())))
+
+
+func get_archery_guard_ore_cost() -> int:
+	return maxi(1, int(round(float(ARCHERY_GUARD_ORE_COST) * _economy_mult())))
 
 
 func get_exp_to_next_level(hero_level: int) -> int:

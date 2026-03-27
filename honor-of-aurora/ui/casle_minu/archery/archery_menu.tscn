@@ -1,0 +1,280 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://ui/casle_minu/archery/archery_menu.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://cj4nta75kb3fi" path="res://ui/font/AlumniSansCollegiateOne-Italic.ttf" id="2_font"]
+[ext_resource type="Texture2D" uid="uid://cjha34kojfsit" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_08.png" id="3_back"]
+[ext_resource type="Texture2D" uid="uid://5rocvcom335g" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_03.png" id="4_coin"]
+[ext_resource type="Texture2D" uid="uid://i63dx8gd1h5m" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_07.png" id="5_ore"]
+[ext_resource type="Shader" uid="uid://dore1c0ng0ldsh" path="res://ui/resources_hud/ore_icon_gold.gdshader" id="6_ore_shader"]
+[ext_resource type="Texture2D" uid="uid://cf5kysi7be050" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_05.png" id="7_arrow"]
+[ext_resource type="Texture2D" uid="uid://dgwuk12s7shin" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_06.png" id="8_guard"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_root"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal"]
+bg_color = Color(0.11, 0.13, 0.19, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.38, 0.48, 0.62, 0.75)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_left = 14
+corner_radius_bottom_right = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
+bg_color = Color(0.14, 0.17, 0.24, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.35, 0.46, 0.8)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_left = 10
+corner_radius_bottom_right = 10
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
+bg_color = Color(0.78, 0.62, 0.22, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.55, 0.42, 0.12, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_left = 8
+corner_radius_bottom_right = 8
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ore"]
+shader = ExtResource("6_ore_shader")
+
+[node name="ArcheryMenu" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="ArcheryPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -390.0
+offset_top = -270.0
+offset_right = 390.0
+offset_bottom = 270.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_root")
+
+[node name="Backdrop" type="Panel" parent="ArcheryPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
+
+[node name="BackBtn" type="Button" parent="ArcheryPanel"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = 90.0
+offset_bottom = 90.0
+theme_override_constants/icon_max_width = 56
+theme_override_fonts/font = ExtResource("2_font")
+icon = ExtResource("3_back")
+flat = true
+
+[node name="ArcheryTitle" type="Label" parent="ArcheryPanel"]
+layout_mode = 0
+offset_left = 108.0
+offset_top = 24.0
+offset_right = 684.0
+offset_bottom = 86.0
+theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 44
+horizontal_alignment = 1
+text = "Стрельбище"
+
+[node name="ArcherySubtitle" type="Label" parent="ArcheryPanel"]
+layout_mode = 0
+offset_left = 52.0
+offset_top = 96.0
+offset_right = 728.0
+offset_bottom = 168.0
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 0.92)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+autowrap_mode = 3
+text = ""
+
+[node name="MainActions" type="VBoxContainer" parent="ArcheryPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 190.0
+offset_right = -24.0
+offset_bottom = -42.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SlotsRow" type="HBoxContainer" parent="ArcheryPanel/MainActions"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="slot_volley" type="PanelContainer" parent="ArcheryPanel/MainActions/SlotsRow"]
+custom_minimum_size = Vector2(320, 280)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="ColumnVolley" type="VBoxContainer" parent="ArcheryPanel/MainActions/SlotsRow/slot_volley"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="IconVolley" type="TextureRect" parent="ArcheryPanel/MainActions/SlotsRow/slot_volley/ColumnVolley"]
+custom_minimum_size = Vector2(84, 84)
+layout_mode = 2
+size_flags_horizontal = 4
+texture = ExtResource("7_arrow")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="VolleyTitle" type="Label" parent="ArcheryPanel/MainActions/SlotsRow/slot_volley/ColumnVolley"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 29
+horizontal_alignment = 1
+text = "Быстрый залп"
+
+[node name="VolleyDesc" type="Label" parent="ArcheryPanel/MainActions/SlotsRow/slot_volley/ColumnVolley"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+autowrap_mode = 3
+text = ""
+
+[node name="BtnVolleyOrder" type="Button" parent="ArcheryPanel/MainActions/SlotsRow/slot_volley/ColumnVolley"]
+custom_minimum_size = Vector2(220, 54)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 8
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+text = "0 + 0"
+icon = ExtResource("4_coin")
+flat = true
+alignment = 1
+
+[node name="OreHintV" type="HBoxContainer" parent="ArcheryPanel/MainActions/SlotsRow/slot_volley/ColumnVolley"]
+layout_mode = 2
+alignment = 1
+
+[node name="OreIconV" type="TextureRect" parent="ArcheryPanel/MainActions/SlotsRow/slot_volley/ColumnVolley/OreHintV"]
+material = SubResource("ShaderMaterial_ore")
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("5_ore")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="OreTextV" type="Label" parent="ArcheryPanel/MainActions/SlotsRow/slot_volley/ColumnVolley/OreHintV"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "требует руду"
+
+[node name="slot_guard" type="PanelContainer" parent="ArcheryPanel/MainActions/SlotsRow"]
+custom_minimum_size = Vector2(320, 280)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="ColumnGuard" type="VBoxContainer" parent="ArcheryPanel/MainActions/SlotsRow/slot_guard"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="IconGuard" type="TextureRect" parent="ArcheryPanel/MainActions/SlotsRow/slot_guard/ColumnGuard"]
+custom_minimum_size = Vector2(84, 84)
+layout_mode = 2
+size_flags_horizontal = 4
+texture = ExtResource("8_guard")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GuardTitle" type="Label" parent="ArcheryPanel/MainActions/SlotsRow/slot_guard/ColumnGuard"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 29
+horizontal_alignment = 1
+text = "Плотный строй"
+
+[node name="GuardDesc" type="Label" parent="ArcheryPanel/MainActions/SlotsRow/slot_guard/ColumnGuard"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+autowrap_mode = 3
+text = ""
+
+[node name="BtnGuardOrder" type="Button" parent="ArcheryPanel/MainActions/SlotsRow/slot_guard/ColumnGuard"]
+custom_minimum_size = Vector2(220, 54)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 8
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+text = "0 + 0"
+icon = ExtResource("4_coin")
+flat = true
+alignment = 1
+
+[node name="OreHintG" type="HBoxContainer" parent="ArcheryPanel/MainActions/SlotsRow/slot_guard/ColumnGuard"]
+layout_mode = 2
+alignment = 1
+
+[node name="OreIconG" type="TextureRect" parent="ArcheryPanel/MainActions/SlotsRow/slot_guard/ColumnGuard/OreHintG"]
+material = SubResource("ShaderMaterial_ore")
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("5_ore")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="OreTextG" type="Label" parent="ArcheryPanel/MainActions/SlotsRow/slot_guard/ColumnGuard/OreHintG"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "требует руду"
+
+[connection signal="pressed" from="ArcheryPanel/BackBtn" to="." method="_on_back_pressed"]
+[connection signal="pressed" from="ArcheryPanel/MainActions/SlotsRow/slot_volley/ColumnVolley/BtnVolleyOrder" to="." method="_on_volley_order_pressed"]
+[connection signal="pressed" from="ArcheryPanel/MainActions/SlotsRow/slot_guard/ColumnGuard/BtnGuardOrder" to="." method="_on_guard_order_pressed"]

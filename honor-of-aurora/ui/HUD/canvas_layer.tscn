@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://blv7sgugmhgu4"]
+[gd_scene load_steps=17 format=3 uid="uid://blv7sgugmhgu4"]
 
 [ext_resource type="PackedScene" uid="uid://cnpf1px7wa4c4" path="res://ui/hp_bar/hp_bar.tscn" id="1_2ux7j"]
 [ext_resource type="Script" uid="uid://cxjk4ntx4c07e" path="res://ui/HUD/HUD.gd" id="1_smmqc"]
@@ -10,18 +10,22 @@
 [ext_resource type="PackedScene" uid="uid://cmfxxbaugd182" path="res://ui/level_menu/teleport_menu.tscn" id="5_ap7xm"]
 [ext_resource type="PackedScene" uid="uid://b8krmenu1brrx" path="res://ui/casle_minu/barracks/barracks_menu.tscn" id="6a_barracks"]
 [ext_resource type="PackedScene" uid="uid://bdhapr120iqry" path="res://ui/casle_minu/main/castle_main_menu.tscn" id="6_swbn3"]
+[ext_resource type="PackedScene" path="res://ui/casle_minu/monastery/monastery_menu.tscn" id="6b_mona"]
+[ext_resource type="PackedScene" path="res://ui/casle_minu/archery/archery_menu.tscn" id="6c_arch"]
 [ext_resource type="PackedScene" uid="uid://duvvelmi0nd4g" path="res://ui/squad/squad_orders_menu.tscn" id="7a_squad"]
 [ext_resource type="PackedScene" uid="uid://cxrosschd3sn8" path="res://ui/dialogue/dialogue_window.tscn" id="7_dialogue"]
 [ext_resource type="PackedScene" uid="uid://br3bcwtq1i8ae" path="res://ui/mobile_touch_controls/mobile_touch_controls.tscn" id="8_mobile"]
 [ext_resource type="PackedScene" uid="uid://dbugmenu001" path="res://ui/debug_menu/debug_menu.tscn" id="9_debug"]
 
-[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("teleport_menu", "castle_menu", "barracks_menu", "squad_orders_menu", "debug_menu") groups=["hud"]]
+[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("teleport_menu", "castle_menu", "barracks_menu", "monastery_menu", "archery_menu", "squad_orders_menu", "debug_menu") groups=["hud"]]
 visible = false
 layer = 5
 script = ExtResource("1_smmqc")
 teleport_menu = NodePath("teleport_menu")
 castle_menu = NodePath("CastleMainMenu")
 barracks_menu = NodePath("BarracksMenu")
+monastery_menu = NodePath("MonasteryMenu")
+archery_menu = NodePath("ArcheryMenu")
 squad_orders_menu = NodePath("SquadOrdersMenu")
 debug_menu = NodePath("DebugMenu")
 
@@ -81,6 +85,12 @@ offset_top = 20.0
 offset_bottom = 20.0
 
 [node name="BarracksMenu" parent="." instance=ExtResource("6a_barracks")]
+visible = false
+
+[node name="MonasteryMenu" parent="." instance=ExtResource("6b_mona")]
+visible = false
+
+[node name="ArcheryMenu" parent="." instance=ExtResource("6c_arch")]
 visible = false
 
 [node name="MobileTouchControls" parent="." instance=ExtResource("8_mobile")]

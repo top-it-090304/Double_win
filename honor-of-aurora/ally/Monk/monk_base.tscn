@@ -336,7 +336,7 @@ radius = 15.0
 radius = 730.537
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1bdej"]
-radius = 195.208
+radius = 108.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_talkclk"]
 radius = 56.0

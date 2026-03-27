@@ -564,6 +564,7 @@ func _apply_hero_tier_for_level(hero_level: int) -> void:
 	anim.sprite_frames = tier.sprite_frames
 	speed = tier.speed + SaveManager.hero_speed_bonus
 	max_health = tier.max_health + SaveManager.hero_max_health_bonus
+	max_health = int(round(float(max_health) * GameManager.get_monastery_hp_multiplier()))
 	attack_damage = tier.attack_damage + GameManager.armory_attack_bonus
 	attack_anim_speed_scale = tier.attack_anim_speed_scale
 	move_anim_speed_scale = tier.move_anim_speed_scale

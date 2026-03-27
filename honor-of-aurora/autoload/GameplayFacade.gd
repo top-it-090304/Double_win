@@ -60,6 +60,15 @@ func try_spend_wood(amount: int) -> bool:
 	return true
 
 
+func try_spend_ore(amount: int) -> bool:
+	if amount <= 0:
+		return true
+	if SaveManager.ore_count < amount:
+		return false
+	GameManager.add_ore(-amount)
+	return true
+
+
 func get_hud(tree: SceneTree) -> Node:
 	if tree == null:
 		return null
