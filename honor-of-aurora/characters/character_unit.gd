@@ -8,12 +8,17 @@ const _WorldMiniHpBar := preload("res://ui/hp_bar/world_mini_hp_bar.gd")
 ## Мини HP-бар над головой (игрок, враги, союзники).
 @export var show_mini_hp_bar: bool = true
 @export var mini_hp_bar_offset: Vector2 = Vector2(0, -92)
+## Мягкое отталкивание юнитов друг от друга (без роста коллайдера).
+@export var unit_soft_separation_enabled: bool = true
+@export_range(8.0, 120.0, 1.0) var unit_soft_separation_distance: float = 28.0
+@export_range(0.0, 2.0, 0.01) var unit_soft_separation_strength: float = 0.42
 
 var health_component: Node
 
 
 func _ready() -> void:
 	add_to_group("character_unit")
+	add_to_group("y_sortable")
 	_ensure_health_component()
 	if show_mini_hp_bar:
 		_setup_mini_hp_bar()
@@ -92,3 +97,51 @@ func is_health_full() -> bool:
 	if health_component == null:
 		return true
 	return health_component.current_health >= health_component.max_health
+
+
+func get_y_sort_bottom_y() -> float:
+	var cs := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if cs == null or cs.shape == null:
+		return global_position.y
+	if cs.shape is CircleShape2D:
+		return cs.global_position.y + (cs.shape as CircleShape2D).radius
+	if cs.shape is CapsuleShape2D:
+		var sh := cs.shape as CapsuleShape2D
+		return cs.global_position.y + sh.radius + sh.height * 0.5
+	if cs.shape is RectangleShape2D:
+		return cs.global_position.y + (cs.shape as RectangleShape2D).size.y * 0.5
+	return cs.global_position.y
+
+
+func _apply_soft_separation_to_velocity(delta: float) -> void:
+	if not unit_soft_separation_enabled:
+		return
+	if unit_soft_separation_distance <= 0.0 or unit_soft_separation_strength <= 0.0:
+		return
+	var tree := get_tree()
+	if tree == null:
+		return
+	var min_dist := unit_soft_separation_distance
+	var min_dist_sq := min_dist * min_dist
+	var push := Vector2.ZERO
+	for other in tree.get_nodes_in_group("character_unit"):
+		if other == self:
+			continue
+		if not (other is Node2D):
+			continue
+		var on := other as Node
+		if on.has_method("is_alive") and not bool(on.call("is_alive")):
+			continue
+		var other_pos := (other as Node2D).global_position
+		var delta_pos := global_position - other_pos
+		var dist_sq := delta_pos.length_squared()
+		if dist_sq >= min_dist_sq:
+			continue
+		var dist := sqrt(maxf(dist_sq, 0.0001))
+		var dir := delta_pos / dist
+		var weight := 1.0 - (dist / min_dist)
+		push += dir * weight
+	if push.length_squared() < 1e-6:
+		return
+	var speed_ref := maxf(80.0, velocity.length())
+	velocity += push.normalized() * speed_ref * unit_soft_separation_strength * delta

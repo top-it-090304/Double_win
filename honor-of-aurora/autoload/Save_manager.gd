@@ -39,6 +39,10 @@ const BASE_TELEPORT_RESUME_Y := 865.0
 var story_flags: Dictionary = {}
 ## Зачищенные зоны островов: ключ IslandProgress.zone_save_key(island, zone_id) → true.
 var island_zone_state: Dictionary = {}
+## Открытые сундуки: уникальный chest_save_id → true (однократный лут).
+var opened_chest_ids: Dictionary = {}
+## Зафиксированный при первом появлении ярус лута (chest_save_id → int 0..5), чтобы рогалик-ролл не менялся до открытия.
+var chest_rolled_tiers: Dictionary = {}
 ## Уровни зданий на базе: ключ building_type → 0..4 (BuildingColor: 0 = первая текстура / «уровень 1» … 4 = макс.).
 const DEFAULT_BUILDING_LEVELS := {
 	"Monastery": 0,
@@ -76,7 +80,7 @@ var premium_ore_purchase_count: int = 0
 
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
-const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus", "premium_ore_purchased_total", "premium_ore_purchase_count"]
+const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "opened_chest_ids", "chest_rolled_tiers", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus", "premium_ore_purchased_total", "premium_ore_purchase_count"]
 const default_data := {
 	"gold" : 10,
 	"meat_count" : 0,
@@ -98,6 +102,8 @@ const default_data := {
 	"resume_from_death" : false,
 	"story_flags" : {},
 	"island_zone_state" : {},
+	"opened_chest_ids" : {},
+	"chest_rolled_tiers" : {},
 	"building_levels" : {
 		"Monastery": 0,
 		"Castle": 0,
@@ -148,6 +154,10 @@ func load_game():
 				story_flags = (v as Dictionary).duplicate()
 			elif variable == "island_zone_state" and v is Dictionary:
 				island_zone_state = (v as Dictionary).duplicate()
+			elif variable == "opened_chest_ids" and v is Dictionary:
+				opened_chest_ids = (v as Dictionary).duplicate()
+			elif variable == "chest_rolled_tiers" and v is Dictionary:
+				chest_rolled_tiers = (v as Dictionary).duplicate()
 			elif variable == "building_levels" and v is Dictionary:
 				building_levels = (v as Dictionary).duplicate()
 			elif variable.begins_with("volume_") and typeof(v) in [TYPE_FLOAT, TYPE_INT]:
@@ -168,6 +178,10 @@ func load_game():
 				set(variable, v)
 		elif variable == "island_zone_state":
 			island_zone_state = {}
+		elif variable == "opened_chest_ids":
+			opened_chest_ids = {}
+		elif variable == "chest_rolled_tiers":
+			chest_rolled_tiers = {}
 		elif variable == "building_levels":
 			building_levels = DEFAULT_BUILDING_LEVELS.duplicate()
 
@@ -200,6 +214,10 @@ func load_game():
 		premium_ore_purchased_total = 0
 	if not game_data.has("premium_ore_purchase_count"):
 		premium_ore_purchase_count = 0
+	if not game_data.has("opened_chest_ids"):
+		opened_chest_ids = {}
+	if not game_data.has("chest_rolled_tiers"):
+		chest_rolled_tiers = {}
 	hero_max_health_bonus = maxi(0, int(hero_max_health_bonus))
 	hero_speed_bonus = float(hero_speed_bonus)
 	premium_ore_purchased_total = maxi(0, int(premium_ore_purchased_total))
@@ -316,6 +334,9 @@ func notify_squad_member_died(unit: Node) -> void:
 	save_game()
 
 
+var _save_game_deferred_pending: bool = false
+
+
 func save_game():
 	var game_save_file = FileAccess.open(GAME_SAVE_FILE, FileAccess.WRITE)
 	if game_save_file == null:
@@ -329,6 +350,19 @@ func save_game():
 	game_save_file.store_line(json_object.stringify(game_data))
 
 
+## Одна запись на диск в конце кадра (несколько сундуков с роллом яруса не вызывают save_game подряд).
+func request_save_game_deferred() -> void:
+	if _save_game_deferred_pending:
+		return
+	_save_game_deferred_pending = true
+	call_deferred("_flush_deferred_save_game")
+
+
+func _flush_deferred_save_game() -> void:
+	_save_game_deferred_pending = false
+	save_game()
+
+
 func _normalize_building_levels(src: Dictionary) -> Dictionary:
 	var out := DEFAULT_BUILDING_LEVELS.duplicate()
 	if src.is_empty():
@@ -337,6 +371,67 @@ func _normalize_building_levels(src: Dictionary) -> Dictionary:
 		if src.has(k):
 			out[k] = clampi(int(src[k]), 0, 4)
 	return out
+
+
+func is_chest_opened(chest_id: String) -> bool:
+	if chest_id.is_empty():
+		return false
+	return bool(opened_chest_ids.get(chest_id, false))
+
+
+func mark_chest_opened(chest_id: String) -> void:
+	if chest_id.is_empty():
+		return
+	opened_chest_ids[chest_id] = true
+
+
+## Сундуки островов (id вида isl1_..., isl2_...) — сброс при возврате на базу с похода.
+func reset_island_chest_progress_after_expedition() -> void:
+	var re := RegEx.new()
+	if re.compile("^isl\\d+_") != OK:
+		return
+	var rm_o: Array[String] = []
+	for k in opened_chest_ids.keys():
+		var ks := str(k)
+		if re.search(ks):
+			rm_o.append(ks)
+	for ks in rm_o:
+		opened_chest_ids.erase(ks)
+	var rm_t: Array[String] = []
+	for k in chest_rolled_tiers.keys():
+		var ks := str(k)
+		if re.search(ks):
+			rm_t.append(ks)
+	for ks in rm_t:
+		chest_rolled_tiers.erase(ks)
+	## Старые сохранения: один id на все инстансы на острове 1.
+	for legacy in ["demo_base_chest_1"]:
+		opened_chest_ids.erase(legacy)
+		chest_rolled_tiers.erase(legacy)
+
+
+func get_saved_chest_loot_tier(chest_id: String) -> int:
+	if chest_id.is_empty() or not chest_rolled_tiers.has(chest_id):
+		return -1
+	return clampi(int(chest_rolled_tiers[chest_id]), 0, 5)
+
+
+func save_chest_loot_tier_roll(chest_id: String, tier: int) -> void:
+	if chest_id.is_empty():
+		return
+	chest_rolled_tiers[chest_id] = clampi(tier, 0, 5)
+
+
+func has_lore_note(note_id: String) -> bool:
+	if note_id.is_empty():
+		return false
+	return bool(story_flags.get("lore_note_%s" % note_id, false))
+
+
+func mark_lore_note_found(note_id: String) -> void:
+	if note_id.is_empty():
+		return
+	story_flags["lore_note_%s" % note_id] = true
 
 
 func get_building_tier(building_type: String) -> int:
@@ -374,7 +469,7 @@ func reset_data():
 	var game_data := {}
 	for variable in SAVE_DATA:
 		var v: Variant = default_data[variable]
-		if variable == "story_flags" or variable == "island_zone_state":
+		if variable == "story_flags" or variable == "island_zone_state" or variable == "opened_chest_ids" or variable == "chest_rolled_tiers":
 			v = (v as Dictionary).duplicate()
 		elif variable == "building_levels":
 			v = DEFAULT_BUILDING_LEVELS.duplicate()

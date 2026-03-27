@@ -30,6 +30,7 @@ SoundManager="*res://autoload/SoundManager.gd"
 DialogueManager="*res://autoload/DialogueManager.gd"
 DialogueRegistry="*res://autoload/DialogueRegistry.gd"
 MobileVirtualInput="*res://autoload/MobileVirtualInput.gd"
+YSortManager="*res://autoload/YSortManager.gd"
 
 [display]
 

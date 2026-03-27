@@ -46,10 +46,10 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 80.0
-offset_top = -360.0
-offset_right = -80.0
-offset_bottom = -136.0
+offset_left = 40.0
+offset_top = -180.0
+offset_right = -40.0
+offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 0
@@ -65,32 +65,30 @@ theme_override_styles/panel = SubResource("StyleBoxDialog")
 
 [node name="MarginMain" type="MarginContainer" parent="DialogueChrome/PanelRoot"]
 layout_mode = 2
-theme_override_constants/margin_left = 22
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 22
-theme_override_constants/margin_bottom = 18
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
 
 [node name="VBox" type="VBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 
 [node name="Row" type="HBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox"]
-custom_minimum_size = Vector2(0, 140)
-custom_maximum_size = Vector2(0, 140)
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 22
+theme_override_constants/separation = 14
 
 [node name="LeftCol" type="VBoxContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox/Row"]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 
 [node name="FaceFrame" type="PanelContainer" parent="DialogueChrome/PanelRoot/MarginMain/VBox/Row/LeftCol"]
-custom_minimum_size = Vector2(108, 108)
+custom_minimum_size = Vector2(72, 72)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxPortrait")
 
@@ -100,7 +98,7 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="Name" type="Label" parent="DialogueChrome/PanelRoot/MarginMain/VBox/Row/LeftCol"]
-custom_minimum_size = Vector2(108, 0)
+custom_minimum_size = Vector2(72, 0)
 layout_mode = 2
 size_flags_vertical = 0
 horizontal_alignment = 1
@@ -136,9 +134,7 @@ text = "Далее"
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 0
-custom_minimum_size = Vector2(0, 200)
-custom_maximum_size = Vector2(0, 200)
+size_flags_vertical = 3
 clip_contents = true
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 1

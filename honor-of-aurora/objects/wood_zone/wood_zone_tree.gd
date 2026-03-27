@@ -12,6 +12,7 @@ var _state: _State = _State.READY
 
 func _ready() -> void:
 	add_to_group("wood_job_tree")
+	add_to_group("y_sortable")
 	if _sprite == null:
 		push_error("WoodZoneTree: нет AnimatedSprite2D.")
 		return
@@ -82,3 +83,17 @@ func _create_wood_log_pickup() -> Area2D:
 
 func _on_dead_finished() -> void:
 	queue_free()
+
+
+func get_y_sort_bottom_y() -> float:
+	if _sprite == null or _sprite.sprite_frames == null:
+		return global_position.y
+	var anim := _sprite.animation
+	if not _sprite.sprite_frames.has_animation(anim):
+		return global_position.y
+	var frame_idx := maxi(0, _sprite.frame)
+	var tex := _sprite.sprite_frames.get_frame_texture(anim, frame_idx)
+	if tex == null:
+		return global_position.y
+	var h := float(tex.get_height()) * absf(_sprite.global_scale.y)
+	return _sprite.global_position.y + h * 0.5

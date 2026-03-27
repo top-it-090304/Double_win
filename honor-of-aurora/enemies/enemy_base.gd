@@ -208,6 +208,7 @@ func _physics_process(delta):
 		State.ATTACK, State.HIT, State.DEATH:
 			velocity = Vector2.ZERO
 
+	_apply_soft_separation_to_velocity(delta)
 	move_and_slide()
 
 	if use_navigation and _nav_agent and is_instance_valid(_nav_agent):

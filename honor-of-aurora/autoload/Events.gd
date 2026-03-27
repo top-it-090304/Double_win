@@ -24,6 +24,8 @@ signal squad_orders_menu_closed()
 signal expedition_returned(new_count: int)
 ## Мясо на базе подобрано (игрок или рабочий) — сброс целей у pawn.
 signal base_island_meat_collected()
+## Сундук открыт: id, словарь лута (gold, wood, meat, ore, lore_note_id).
+signal chest_opened(chest_id: String, loot: Dictionary)
 
 
 func is_adventure_location(loc: LOCATION) -> bool:

@@ -12,7 +12,6 @@ var exp: int = 0
 @export var speed: float = 250.0
 @export var max_health: int = 120
 @export var attack_damage: int = 90
-@export var enemy_separation_factor: float = 0.55
 
 var attack_anim_speed_scale: float = 1.0
 var move_anim_speed_scale: float = 1.0
@@ -20,7 +19,6 @@ var move_anim_speed_scale: float = 1.0
 @onready var attack_area = $AttackArea
 @onready var anim = $AnimatedSprite2D
 @onready var effect_sprite = $EffectSprite
-@onready var collision_shape = $CollisionShape2D
 
 signal health_changed(current_health)
 
@@ -213,10 +211,9 @@ func _physics_process(delta):
 		velocity = dir * speed
 	else:
 		velocity = Vector2.ZERO
+	_apply_soft_separation_to_velocity(delta)
 	var saved_velocity := velocity
 	move_and_slide()
-	_separate_from_overlapping_enemies()
-	velocity = saved_velocity
 	
 	if state not in [State.ATTACK, State.SHIELD]:
 		state = State.RUN if velocity.length() > 0 else State.IDLE
@@ -231,6 +228,8 @@ func _physics_process(delta):
 	
 	var attack_just := false
 	if DialogueManager.is_active():
+		attack_just = false
+	elif ChestLootUi.is_chest_popup_open():
 		attack_just = false
 	elif MobileVirtualInput.enabled:
 		attack_just = MobileVirtualInput.has_attack_pending()
@@ -256,6 +255,10 @@ func _physics_process(delta):
 				if MobileVirtualInput.enabled:
 					MobileVirtualInput.consume_attack()
 				return
+			if _try_world_chest_instead_of_attack():
+				if MobileVirtualInput.enabled:
+					MobileVirtualInput.consume_attack()
+				return
 			if _try_building_menu_instead_of_attack():
 				if MobileVirtualInput.enabled:
 					MobileVirtualInput.consume_attack()
@@ -274,34 +277,6 @@ func _physics_process(delta):
 			back_to_movement()
 	
 	update_anim()
-
-func _separate_from_overlapping_enemies() -> void:
-	if not collision_shape or not collision_shape.shape:
-		return
-	var space := get_world_2d().direct_space_state
-	var query := PhysicsShapeQueryParameters2D.new()
-	query.shape = collision_shape.shape
-	query.transform = collision_shape.global_transform
-	query.collision_mask = 1
-	query.collide_with_bodies = true
-	query.collide_with_areas = false
-	query.exclude = [get_rid()]
-	var hits := space.intersect_shape(query, 16)
-	if hits.is_empty():
-		return
-	var push := Vector2.ZERO
-	for hit in hits:
-		var other: Node2D = hit.get("collider")
-		if other == null or not other.is_in_group("enemy"):
-			continue
-		var away := global_position - other.global_position
-		if away.length_squared() < 1e-6:
-			away = Vector2(-last_dir.y, last_dir.x) if last_dir.length_squared() > 1e-6 else Vector2.RIGHT
-		push += away.normalized()
-	if push.length_squared() < 1e-8:
-		return
-	velocity = push.normalized() * speed * enemy_separation_factor
-	move_and_slide()
 
 func change_state(new_state: State):
 	if state == new_state: return
@@ -448,6 +423,36 @@ func _try_healer_interact_instead_of_attack() -> bool:
 			if node.try_open_interact_dialog():
 				return true
 	return false
+
+
+func _try_world_chest_instead_of_attack() -> bool:
+	if DialogueManager.is_active():
+		return false
+	if SquadCombatState.is_engaged():
+		return false
+	var tree := get_tree()
+	var player := tree.get_first_node_in_group("player") as Node2D
+	if player == null or not is_instance_valid(player):
+		return false
+	var best: Node = null
+	var best_d2: float = INF
+	for node in tree.get_nodes_in_group("world_chest_zone"):
+		if not node.has_method("is_player_in_open_range"):
+			continue
+		if not bool(node.call("is_player_in_open_range", player)):
+			continue
+		if node.has_method("is_unopened_chest") and not bool(node.call("is_unopened_chest")):
+			continue
+		var n2 := node as Node2D
+		if n2 == null:
+			continue
+		var d2: float = player.global_position.distance_squared_to(n2.global_position)
+		if d2 < best_d2:
+			best_d2 = d2
+			best = node
+	if best == null:
+		return false
+	return bool(best.call("try_open_chest_if_player_inside"))
 
 
 func _try_building_menu_instead_of_attack() -> bool:

@@ -5,6 +5,7 @@
 
 [node name="BuildingTemplate" instance=ExtResource("1_06ytt")]
 building_type = "Monastery"
+y_sort_ground_ratio = 0.88
 
 [node name="Sprite" parent="." index="0"]
 texture = ExtResource("2_uxf73")

@@ -748,6 +748,7 @@ func handle_location_changed(new_location: Events.LOCATION):
 		reset_monastery_preparation()
 		reset_archery_preparation()
 		_finalize_expedition_losses_snapshot()
+		SaveManager.reset_island_chest_progress_after_expedition()
 		SaveManager.expedition_return_count += 1
 		expedition_return_count_incremented = true
 		Events.pending_healer_dialogue_after_expedition = true
@@ -762,6 +763,7 @@ func handle_location_changed(new_location: Events.LOCATION):
 			reset_monastery_preparation()
 			reset_archery_preparation()
 			_finalize_expedition_losses_snapshot()
+			SaveManager.reset_island_chest_progress_after_expedition()
 			SaveManager.expedition_return_count += 1
 			expedition_return_count_incremented = true
 			Events.pending_healer_dialogue_after_expedition = true

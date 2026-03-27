@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://15g6vopnj6oa"]
+
+[ext_resource type="Texture2D" uid="uid://bu1lil58xexu5" path="res://Asets/chest/Foozle_2DS0003_Elegant_Set_of_Chests_Vector/CHESTS/png/CLOSED/NO_BACKLIGHT/chests-01.png" id="1_placeholder"]
+[ext_resource type="Script" uid="uid://dsetg3e4uki7a" path="res://objects/world/chest/chest_visual.gd" id="2_script"]
+
+[node name="ChestVisual" type="Node2D"]
+script = ExtResource("2_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(0, -48)
+texture = ExtResource("1_placeholder")

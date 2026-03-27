@@ -1,19 +1,24 @@
 extends Control
 ## Два шага: реплика бойца → «Далее» → реплика героя и нумерованный выбор (как диалог с монахом).
 
-const NAME_FONT_SIZE := 15
+const NAME_FONT_SIZE := 14
 const NAME_FONT_COLOR := Color(1, 1, 1, 1)
-const TEXT_FONT_SIZE := 40
+const TEXT_FONT_SIZE := 22
 const TEXT_FONT_COLOR := Color(1, 1, 1, 1)
 const NAME_FONT_MIN := 8
 const TEXT_FONT_MIN := 8
 const TEXT_MEASURE_HEIGHT_TRIM := 2.0
+const CHROME_OFFSET_TOP_MIN := -180.0
+const CHROME_OFFSET_TOP_MAX := -320.0
+const CHROME_OFFSET_BOTTOM := -16.0
+const CHROME_EXTRA_PX_PER_CHOICE := 28.0
 
 const TEX_ARCHER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_03.png")
 const TEX_LANCER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_02.png")
 const TEX_PAWN := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_05.png")
 const TEX_HERO := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/aa_player.png")
 
+@onready var _dialogue_chrome: Control = $DialogueChrome
 @onready var _face: TextureRect = $DialogueChrome/PanelRoot/MarginMain/VBox/Row/LeftCol/FaceFrame/face
 @onready var _name_label: Label = $DialogueChrome/PanelRoot/MarginMain/VBox/Row/LeftCol/Name
 @onready var _text_label: Label = $DialogueChrome/PanelRoot/MarginMain/VBox/Row/text
@@ -41,6 +46,7 @@ func _ready() -> void:
 	_continue_btn.pressed.connect(_on_continue_pressed)
 	_setup_banter_cooldown_timer()
 	_apply_choices_scroll_style()
+	_apply_dialogue_chrome_height(0)
 
 
 func _apply_label_theme() -> void:
@@ -88,6 +94,7 @@ func close() -> void:
 	visible = false
 	_context_unit = null
 	_stage = 0
+	_apply_dialogue_chrome_height(0)
 	# Кнопки «Далее»/закрытие часто на ЛКМ = действие attack; без сброса на следующем кадре снова сработает удар/меню.
 	Input.action_release("attack")
 	MobileVirtualInput.clear_input()
@@ -99,6 +106,7 @@ func _show_squad_greeting_stage() -> void:
 	var u := _context_unit
 	_clear_choice_buttons()
 	_choices_scroll.visible = false
+	_apply_dialogue_chrome_height(0)
 	_continue_btn.visible = true
 	_face.texture = _portrait_for_unit(u)
 	_face.visible = true
@@ -126,6 +134,7 @@ func _show_hero_orders_stage() -> void:
 	_continue_btn.visible = false
 	_choices_scroll.visible = true
 	_build_order_choice_buttons()
+	_apply_dialogue_chrome_height(_choices_vbox.get_child_count())
 	call_deferred("_deferred_fit_labels")
 
 
@@ -175,6 +184,7 @@ func _on_continue_pressed() -> void:
 func _clear_choice_buttons() -> void:
 	for c in _choices_vbox.get_children():
 		c.queue_free()
+	_apply_dialogue_chrome_height(0)
 
 
 func _build_order_choice_buttons() -> void:
@@ -362,6 +372,7 @@ func _apply_patrol_banter_answer(answer: String) -> void:
 	_clear_choice_buttons()
 	_continue_btn.visible = true
 	_choices_scroll.visible = false
+	_apply_dialogue_chrome_height(0)
 	var u := _context_unit
 	if u and is_instance_valid(u):
 		_face.texture = _portrait_for_unit(u)
@@ -372,6 +383,17 @@ func _apply_patrol_banter_answer(answer: String) -> void:
 	_face.visible = true
 	_text_label.text = answer
 	call_deferred("_deferred_fit_labels")
+
+
+func _apply_dialogue_chrome_height(choice_count: int) -> void:
+	if _dialogue_chrome == null:
+		return
+	var span: float = absf(CHROME_OFFSET_TOP_MAX - CHROME_OFFSET_TOP_MIN)
+	var extra: float = 0.0
+	if choice_count > 0:
+		extra = minf(span, float(choice_count) * CHROME_EXTRA_PX_PER_CHOICE)
+	_dialogue_chrome.offset_top = CHROME_OFFSET_TOP_MIN - extra
+	_dialogue_chrome.offset_bottom = CHROME_OFFSET_BOTTOM
 
 
 func _apply_hold() -> void:

@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://dgvv3qgd71jvc"]
+
+[ext_resource type="Script" path="res://objects/world/chest/world_chest.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://chestvisualbase001" path="res://objects/world/chest/chest_visual.tscn" id="2_visual"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_chest"]
+radius = 30.0
+
+[node name="WorldChest" type="Area2D"]
+collision_layer = 32
+collision_mask = 10
+script = ExtResource("1_script")
+chest_save_id = "base_demo_chest_1"
+loot_tier = 2
+lore_note_candidates = PackedStringArray()
+
+[node name="ChestVisual" parent="." instance=ExtResource("2_visual")]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_chest")

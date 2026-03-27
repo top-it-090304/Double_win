@@ -20,10 +20,14 @@ const COLOR_FOLDERS := {
 @export var building_type: String = "Archery"
 @export var current_color: BuildingColor = BuildingColor.BLACK
 @export var upgrade_cost_step: int = 300
+## Линия «ног» для Y-сортировки по вертикали спрайта: 1 = низ картинки, <1 — выше (ворота/калитки на арте).
+@export_range(0.0, 1.0, 0.01) var y_sort_ground_ratio: float = 1.0
+@export var y_sort_bottom_pixel_offset: float = 0.0
 
-@onready var sprite = $Sprite
+@onready var sprite: Sprite2D = $Sprite
 
 func _ready() -> void:
+	add_to_group("y_sortable")
 	var saved_tier: int = SaveManager.get_building_tier(building_type)
 	current_color = clampi(saved_tier, 0, int(BuildingColor.YELLOW)) as BuildingColor
 	update_texture()
@@ -55,3 +59,14 @@ func upgrade_building() -> bool:
 	var ok := update_texture()
 	GameManager.refresh_all_companion_progression()
 	return ok
+
+
+func get_y_sort_bottom_y() -> float:
+	if sprite == null or sprite.texture == null:
+		return global_position.y + y_sort_bottom_pixel_offset
+	var tex_h := float(sprite.texture.get_height())
+	var sy := absf(sprite.global_scale.y)
+	var h := tex_h * sy
+	var cy := sprite.global_position.y
+	var ratio := clampf(y_sort_ground_ratio, 0.0, 1.0)
+	return cy + h * (ratio - 0.5) + y_sort_bottom_pixel_offset

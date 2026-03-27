@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://c5cvh41fda3ey" path="res://Asets/Unit_pack/Buildings/Black Buildings/Archery.png" id="2_aihau"]
 
 [node name="BuildingTemplate" instance=ExtResource("1_f0ysu")]
+y_sort_ground_ratio = 0.88
 
 [node name="Sprite" parent="." index="0"]
 texture = ExtResource("2_aihau")

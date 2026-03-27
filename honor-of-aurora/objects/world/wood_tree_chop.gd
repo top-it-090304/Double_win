@@ -15,6 +15,7 @@ var _hit_cd: float = 0.0
 
 func _ready() -> void:
 	add_to_group("wood_tree_resource")
+	add_to_group("y_sortable")
 	if _fx:
 		_fx.visible = false
 
@@ -89,3 +90,17 @@ func _on_fx_anim_finished() -> void:
 
 func _finish_tree_free() -> void:
 	queue_free()
+
+
+func get_y_sort_bottom_y() -> float:
+	var h := 0.0
+	if _tree and _tree.texture:
+		h = float(_tree.texture.get_height()) * absf(_tree.global_scale.y)
+		return _tree.global_position.y + h * 0.5
+	if _fx and _fx.sprite_frames and _fx.sprite_frames.has_animation(_fx.animation):
+		var frame_idx := maxi(0, _fx.frame)
+		var tex := _fx.sprite_frames.get_frame_texture(_fx.animation, frame_idx)
+		if tex:
+			h = float(tex.get_height()) * absf(_fx.global_scale.y)
+			return _fx.global_position.y + h * 0.5
+	return global_position.y
