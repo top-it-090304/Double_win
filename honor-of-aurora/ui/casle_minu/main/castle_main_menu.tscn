@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=4 uid="uid://bdhapr120iqry"]
+[gd_scene load_steps=29 format=4 uid="uid://bdhapr120iqry"]
 
 [ext_resource type="Script" uid="uid://dtfup2chrte7q" path="res://ui/casle_minu/main/castle_main_menu.gd" id="1_7l04m"]
 [ext_resource type="Texture2D" uid="uid://bdxdoi12667fp" path="res://Asets/Unit_pack/UI Elements/UI Banners from the store page/Ribbons/Ribbon_Black.png" id="1_x7hsw"]
@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://cc031q0vafl73" path="res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_02.png" id="9_avatar02"]
 [ext_resource type="Texture2D" uid="uid://0emguf32khfj" path="res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_03.png" id="10_avatar03"]
 [ext_resource type="Texture2D" uid="uid://c4vkykcv7un4y" path="res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_05.png" id="11_avatar05"]
+[ext_resource type="Texture2D" path="res://Asets/Unit_pack/Terrain/Resources/Wood/Wood Resource/Wood Resource.png" id="12_woodicon"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_io6xc"]
 texture = ExtResource("1_x7hsw")
@@ -3022,6 +3023,64 @@ alignment = 1
 icon_alignment = 0
 expand_icon = false
 
+[node name="CostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_monastery/ColumnMonastery/BtnMonastery"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 6.0
+offset_right = -12.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="GoldCostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_monastery/ColumnMonastery/BtnMonastery/CostRow"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+
+[node name="GoldIcon" type="TextureRect" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_monastery/ColumnMonastery/BtnMonastery/CostRow/GoldCostRow"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+texture = ExtResource("6_2llpa")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GoldCostLabel" type="Label" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_monastery/ColumnMonastery/BtnMonastery/CostRow/GoldCostRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 20
+text = "300"
+vertical_alignment = 1
+
+[node name="CostSpacer" type="Control" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_monastery/ColumnMonastery/BtnMonastery/CostRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="WoodCostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_monastery/ColumnMonastery/BtnMonastery/CostRow"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+
+[node name="WoodIcon" type="TextureRect" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_monastery/ColumnMonastery/BtnMonastery/CostRow/WoodCostRow"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+texture = ExtResource("12_woodicon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WoodCostLabel" type="Label" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_monastery/ColumnMonastery/BtnMonastery/CostRow/WoodCostRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 20
+text = "22"
+vertical_alignment = 1
+
 [node name="slot_castle" type="PanelContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid"]
 custom_minimum_size = Vector2(0, 248)
 layout_mode = 2
@@ -3079,6 +3138,64 @@ flat = true
 alignment = 1
 icon_alignment = 0
 expand_icon = false
+
+[node name="CostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 6.0
+offset_right = -12.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="GoldCostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle/CostRow"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+
+[node name="GoldIcon" type="TextureRect" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle/CostRow/GoldCostRow"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+texture = ExtResource("6_2llpa")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GoldCostLabel" type="Label" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle/CostRow/GoldCostRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 20
+text = "300"
+vertical_alignment = 1
+
+[node name="CostSpacer" type="Control" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle/CostRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="WoodCostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle/CostRow"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+
+[node name="WoodIcon" type="TextureRect" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle/CostRow/WoodCostRow"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+texture = ExtResource("12_woodicon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WoodCostLabel" type="Label" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle/CostRow/WoodCostRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 20
+text = "22"
+vertical_alignment = 1
 
 [node name="slot_barracks" type="PanelContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid"]
 custom_minimum_size = Vector2(0, 248)
@@ -3138,6 +3255,64 @@ alignment = 1
 icon_alignment = 0
 expand_icon = false
 
+[node name="CostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 6.0
+offset_right = -12.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="GoldCostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks/CostRow"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+
+[node name="GoldIcon" type="TextureRect" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks/CostRow/GoldCostRow"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+texture = ExtResource("6_2llpa")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GoldCostLabel" type="Label" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks/CostRow/GoldCostRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 20
+text = "300"
+vertical_alignment = 1
+
+[node name="CostSpacer" type="Control" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks/CostRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="WoodCostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks/CostRow"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+
+[node name="WoodIcon" type="TextureRect" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks/CostRow/WoodCostRow"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+texture = ExtResource("12_woodicon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WoodCostLabel" type="Label" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks/CostRow/WoodCostRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 20
+text = "22"
+vertical_alignment = 1
+
 [node name="slot_archery" type="PanelContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid"]
 custom_minimum_size = Vector2(0, 248)
 layout_mode = 2
@@ -3195,6 +3370,64 @@ flat = true
 alignment = 1
 icon_alignment = 0
 expand_icon = false
+
+[node name="CostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 6.0
+offset_right = -12.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="GoldCostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery/CostRow"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+
+[node name="GoldIcon" type="TextureRect" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery/CostRow/GoldCostRow"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+texture = ExtResource("6_2llpa")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GoldCostLabel" type="Label" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery/CostRow/GoldCostRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 20
+text = "300"
+vertical_alignment = 1
+
+[node name="CostSpacer" type="Control" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery/CostRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="WoodCostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery/CostRow"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+
+[node name="WoodIcon" type="TextureRect" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery/CostRow/WoodCostRow"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+texture = ExtResource("12_woodicon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WoodCostLabel" type="Label" parent="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery/CostRow/WoodCostRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 20
+text = "22"
+vertical_alignment = 1
 
 [connection signal="pressed" from="CastleMenuPanel/castle_back_btn" to="." method="_on_back_pressed"]
 [connection signal="pressed" from="CastleMenuPanel/MainActions/SlotsRow/slot_hire/ColumnHire/hire" to="." method="_on_hire_pressed"]

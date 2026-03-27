@@ -129,6 +129,9 @@ func _refresh_upgrade_building_buttons() -> void:
 		var b_tier: int = SaveManager.get_building_tier(type_key)
 		var base := "UpgradeSelectPanel/UpgradePanel/UpgradeGrid/%s/%s" % [entry.slot, entry.column]
 		var btn := get_node_or_null("%s/%s" % [base, entry.btn]) as Button
+		var cost_row := get_node_or_null("%s/%s/CostRow" % [base, entry.btn]) as HBoxContainer
+		var gold_lbl := get_node_or_null("%s/%s/CostRow/GoldCostRow/GoldCostLabel" % [base, entry.btn]) as Label
+		var wood_lbl := get_node_or_null("%s/%s/CostRow/WoodCostRow/WoodCostLabel" % [base, entry.btn]) as Label
 		var tier_lbl := get_node_or_null("%s/LabelTier" % base) as Label
 		var preview := get_node_or_null("%s/BuildingPreview" % base) as TextureRect
 		if preview:
@@ -141,11 +144,22 @@ func _refresh_upgrade_building_buttons() -> void:
 			continue
 		if b_tier >= 4:
 			btn.disabled = true
+			btn.icon = null
 			btn.text = "Максимум"
+			if cost_row:
+				cost_row.visible = false
 			continue
 		btn.disabled = false
-		var cost: int = BalanceConfig.get_building_upgrade_step() * (b_tier + 1)
-		btn.text = "%d зол." % cost
+		btn.icon = null
+		btn.text = ""
+		if cost_row:
+			cost_row.visible = true
+		var gold_cost: int = BalanceConfig.get_building_upgrade_step() * (b_tier + 1)
+		var wood_cost: int = BalanceConfig.get_building_upgrade_wood_cost(b_tier)
+		if gold_lbl:
+			gold_lbl.text = "%d" % gold_cost
+		if wood_lbl:
+			wood_lbl.text = "%d" % wood_cost
 
 
 func _building_preview_texture(building_type: String) -> Texture2D:
