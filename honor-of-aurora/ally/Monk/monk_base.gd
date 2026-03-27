@@ -20,6 +20,7 @@ var health: int:
 ## Сюжет при входе в heal_area (авто) и после закрытия диалога — не снова по body_entered, пока герой не выйдет из зоны.
 ## Лор/бантер — по «attack» рядом с монахом (в зоне хила при атаке сначала сюжет, если ещё доступен).
 const STORY_DIALOGUE_IDS: PackedStringArray = [
+	"intro_base_island",
 	"boss_post_1",
 	"boss_post_2",
 	"boss_post_3",
@@ -27,7 +28,6 @@ const STORY_DIALOGUE_IDS: PackedStringArray = [
 	"truth_and_choice",
 	"monk_finale_refused",
 	"boss_post_5",
-	"intro_base_island",
 	"monk_worker_youth_warning",
 	"monk_worker_youth_lament",
 	"monk_story_1",
@@ -64,7 +64,8 @@ const NON_STORY_DIALOGUE_IDS: PackedStringArray = [
 @onready var cooldown = $HealCooldown
 ## После возврата с острова: сколько раз по клику можно взять шутку (heal_banter), 3–4 за поход.
 var _expedition_click_jokes_remaining: int = 0
-## После любого закрытия диалога не автозапускать сюжет по входу в зону, пока игрок не выйдет из heal_area.
+## После закрытия диалога у костра не автозапускать следующий сюжет по тому же входу — пока игрок не выйдет из heal_area.
+## Чужие диалоги (причал и т.д.) не должны блокировать первый визит к целителю.
 var _block_zone_story_autostart_until_leave_heal_area: bool = false
 
 
@@ -87,7 +88,9 @@ func _is_story_dialogue_id(d_id: String) -> bool:
 
 
 func _on_dialogue_ended_zone_flags(sequence: DialogueSequence) -> void:
-	_block_zone_story_autostart_until_leave_heal_area = true
+	var player := get_tree().get_first_node_in_group("player") as Node2D
+	if player != null and is_instance_valid(player) and heal_area.overlaps_body(player):
+		_block_zone_story_autostart_until_leave_heal_area = true
 	_handle_monk_hub_deferred(sequence)
 
 

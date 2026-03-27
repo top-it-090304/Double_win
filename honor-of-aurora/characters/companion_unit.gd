@@ -130,6 +130,11 @@ func _process_follow(_delta: float) -> void:
 	if enemy and _attack_cd <= 0.0 and attack_area:
 		_start_attack(enemy)
 		return
+	## Овцы базы — не группа `enemy`; без этого сюжетный рабочий (NONE) и обычный follow не наносят урон.
+	var sheep := _nearest_base_sheep_in_attack_area()
+	if sheep != null and _attack_cd <= 0.0 and attack_area:
+		_start_attack(sheep)
+		return
 
 	if SquadOrders.mode == SquadOrders.Mode.HOLD:
 		velocity = Vector2.ZERO
@@ -224,6 +229,22 @@ func _nearest_enemy_in_attack_area() -> Node2D:
 			if d < best_d:
 				best_d = d
 				best = body
+	return best
+
+
+func _nearest_base_sheep_in_attack_area() -> Node2D:
+	if attack_area == null:
+		return null
+	var best: Node2D = null
+	var best_d := INF
+	for body in attack_area.get_overlapping_bodies():
+		if body is Node2D and (body as Node).is_in_group("base_sheep"):
+			if (body as Node).has_method("is_alive_for_meat") and not (body as Node).is_alive_for_meat():
+				continue
+			var d := global_position.distance_to((body as Node2D).global_position)
+			if d < best_d:
+				best_d = d
+				best = body as Node2D
 	return best
 
 

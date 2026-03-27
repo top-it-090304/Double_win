@@ -1,10 +1,14 @@
 extends "res://ally/pawn/scripts/pawn_base.gd"
 ## Сюжетный рабочий: один узел = `pawn_base` (добыча, бой, приказы) + сюжет (диалоги, периодические просьбы в отряд).
 ## Не в pawn_count; смерть → worker_youth_dead. Узел помещается на базе в сцену (причал); дублирующий спавн GameManager не создаёт второй экземпляр.
-## Интро и периодические просьбы в отряд — только из зоны (авто). Набор в отряд и меню приказов — по удару, как у остальных.
+## Интро (без выбора): доброволец, хлопоты, связник на холме; после — добыча мяса на базе.
+## Периодические просьбы в отряд — только из зоны (авто). Набор в отряд и меню приказов — по удару, как у остальных.
 
 const MAX_STORY_INTERACT_DISTANCE := 152.0
-## Сколько завершённых возвратов с острова должно пройти, чтобы снова можно было слышать просьбу «взять в поход».
+## Повторная авто-просьба в отряд (`dock_worker_youth_ask_again`): не чаще, чем раз на
+## RETURNS_BETWEEN_SQUAD_ASKS успешных возвратов с экспедиции (`SaveManager.expedition_return_count`),
+## считая от последнего завершения интро / recruit / ask_again (якорь `worker_youth_last_prompt_expedition_return`).
+## Не срабатывает, если юноша уже в отряде, мёртв или закреплён за работой на базе.
 const RETURNS_BETWEEN_SQUAD_ASKS := 2
 ## Дистанция, на которой при первом заходе на базу начинается интро (после бега к герою или при уже близком герое).
 const INTRO_RUN_STOP_DIST := 140.0
@@ -116,12 +120,16 @@ func _maybe_begin_intro_sequence() -> void:
 	_intro_chase_active = true
 
 
-## Руда/добыча на базе только после явного «работай на базе» в диалоге набора.
+## Руда — только после явного «шахта» в диалоге набора. После интро — мясо, пока не взяли в отряд.
 func _sync_youth_base_worker_job() -> void:
 	if StoryState.has_flag("worker_youth_dead"):
 		return
 	if StoryState.has_flag("worker_youth_works_on_base"):
 		set_worker_job_from_dialogue("ore")
+	elif StoryState.has_flag("worker_youth_recruited"):
+		set_worker_job_from_dialogue("none")
+	elif StoryState.has_flag("worker_youth_intro_done"):
+		set_worker_job_from_dialogue("meat")
 	else:
 		set_worker_job_from_dialogue("none")
 
@@ -160,6 +168,9 @@ func _refresh_periodic_squad_prompt_flag() -> void:
 	if not StoryState.has_flag("worker_youth_intro_done"):
 		return
 	if StoryState.has_flag("worker_youth_recruited"):
+		StoryState.set_flag("worker_youth_periodic_ask_ready", false)
+		return
+	if StoryState.has_flag("worker_youth_works_on_base"):
 		StoryState.set_flag("worker_youth_periodic_ask_ready", false)
 		return
 	var last := int(SaveManager.story_flags.get("worker_youth_last_prompt_expedition_return", -1))

@@ -5,17 +5,17 @@ func ensure_lines_ready() -> void:
 		return
 	id = "dock_worker_youth_ask_again"
 	lines.append(_plain("young_worker", "Милорд… снова прошу: возьмите меня в поход. Я не боюсь. Приказы буду выполнять."))
-	lines.append(_choice("young_worker", "Ваш ответ?", [
+	lines.append(_choice("young_worker", "Снова ваш выбор: отряд и поход, подождать или только работа на базе?", [
 		{
-			"label": "Хорошо. Идёшь со мной в поход.",
+			"label": "Беру в отряд — идёшь со мной.",
 			"grant_flags": PackedStringArray(["worker_youth_recruited"]),
 			"continuation": [
-				["hero", "Решено. В отряде держись рядом."],
+				["hero", "Решение рыцаря: ты под моим знаменем в отряде. Держись рядом."],
 				["young_worker", "Есть! Не подведу."],
 			],
 		},
 		{
-			"label": "Пока нет. Останься на базе.",
+			"label": "Пока нет. Останься и жди.",
 			"grant_flags": PackedStringArray([]),
 			"continuation": [
 				["young_worker", "Понял. Продолжу работу здесь — и снова буду ждать шанса."],
