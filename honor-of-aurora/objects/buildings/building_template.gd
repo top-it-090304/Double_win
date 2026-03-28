@@ -62,6 +62,9 @@ func upgrade_building() -> bool:
 
 
 func get_y_sort_bottom_y() -> float:
+	var from_sprites := YSortSpriteBounds.max_global_y_from_descendants(self)
+	if not is_nan(from_sprites):
+		return from_sprites + y_sort_bottom_pixel_offset
 	if sprite == null or sprite.texture == null:
 		return global_position.y + y_sort_bottom_pixel_offset
 	var tex_h := float(sprite.texture.get_height())

@@ -1,7 +1,7 @@
 extends Node
-## Глобальная сортировка 2D-объектов по Y.
-## В Godot ось Y направлена вниз: больший global_y = ниже на экране = «ближе к камере».
-## z_index растёт вместе с sort_y, чтобы нижние объекты рисовались поверх верхних.
+## Глобальная сортировка 2D-объектов по Y (группа `y_sortable`).
+## Ключ сортировки задаёт `get_y_sort_bottom_y()`; общая геометрия спрайтов — `YSortSpriteBounds`.
+## В Godot Y вниз: больший sort_y = ниже на экране → больший z_index → рисуем поверх.
 
 const SORT_GROUP := "y_sortable"
 const META_ANCHOR_OFFSET := "y_sort_anchor_offset"

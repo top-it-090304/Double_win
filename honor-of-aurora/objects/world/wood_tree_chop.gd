@@ -93,6 +93,9 @@ func _finish_tree_free() -> void:
 
 
 func get_y_sort_bottom_y() -> float:
+	var y := YSortSpriteBounds.max_global_y_from_descendants(self)
+	if not is_nan(y):
+		return y
 	var h := 0.0
 	if _tree and _tree.texture:
 		h = float(_tree.texture.get_height()) * absf(_tree.global_scale.y)

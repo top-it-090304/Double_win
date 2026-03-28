@@ -100,6 +100,10 @@ func is_health_full() -> bool:
 
 
 func get_y_sort_bottom_y() -> float:
+	## Нижний край по видимым спрайтам — см. YSortSpriteBounds; иначе коллайдер.
+	var from_sprite_y := YSortSpriteBounds.max_global_y_from_descendants(self)
+	if not is_nan(from_sprite_y):
+		return from_sprite_y
 	var cs := get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if cs == null or cs.shape == null:
 		return global_position.y

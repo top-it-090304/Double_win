@@ -1,4 +1,5 @@
-[gd_scene load_steps=94 format=4 uid="uid://dnw80ovs2vvbn"]
+[gd_scene load_steps=95 format=4 uid="uid://dnw80ovs2vvbn"]
+[ext_resource type="Script" path="res://world/decor/tile_layer_trees_y_sort_migrate.gd" id="ysort_decor_migrate"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_6wo2e"]
 [ext_resource type="Script" uid="uid://b2w1ontyogkqw" path="res://ui/menu/menu_scene.gd" id="1_oulhf"]
@@ -634,20 +635,28 @@ tile_set = ExtResource("14_3shmi")
 [node name="booshes" type="TileMapLayer" parent="TileMapLayer"]
 
 [node name="boosh_1" type="TileMapLayer" parent="TileMapLayer/booshes"]
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AAA/ABEAAAAAAAAAAAAKAAoAAAAAAAAAAABGAA0AAAAAAAAAAABDAA4AAAAAAAAAAAACABQAAAAAAAAAAABGAAQAAAAAAAAAAABDAAQAAAAAAAAAAABAAAQAAAAAAAAAAAAMAAQAAAAAAAAAAAAJAAQAAAAAAAAAAAAFAAQAAAAAAAAAAAA=")
 tile_set = ExtResource("15_vwm47")
+script = ExtResource("ysort_decor_migrate")
 
 [node name="boosh_2" type="TileMapLayer" parent="TileMapLayer/booshes"]
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAMABQAAAAAAAAAAABBAAoAAAAAAAAAAABGABUAAAAAAAAAAABJABkAAAAAAAAAAAA3AB4AAAAAAAAAAAARAB0AAAAAAAAAAAA=")
 tile_set = ExtResource("16_77gih")
+script = ExtResource("ysort_decor_migrate")
 
 [node name="boosh_3" type="TileMapLayer" parent="TileMapLayer/booshes"]
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AABFAB8AAAAAAAAAAAA7ABsAAAAAAAAAAAAAAA8AAAAAAAAAAABKABAAAAAAAAAAAAA=")
 tile_set = ExtResource("17_ejau3")
+script = ExtResource("ysort_decor_migrate")
 
 [node name="boosh_4" type="TileMapLayer" parent="TileMapLayer/booshes"]
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AABLABMAAAAAAAAAAAATABYAAAAAAAAAAAAFAB8AAAAAAAAAAAAGAB8AAAAAAAAAAAAJAB8AAAAAAAAAAAAMAB8AAAAAAAAAAAAaAAIAAAAAAAAAAABBAAQAAAAAAAAAAABEAAUAAAAAAAAAAAA2AB4AAAAAAAAAAAA=")
 tile_set = ExtResource("18_bf8j0")
+script = ExtResource("ysort_decor_migrate")
 
 [node name="rock_island" type="TileMapLayer" parent="TileMapLayer"]
 
@@ -675,23 +684,33 @@ tile_set = SubResource("TileSet_0im5w")
 [node name="trees" type="TileMapLayer" parent="TileMapLayer"]
 
 [node name="tree_1" type="TileMapLayer" parent="TileMapLayer/trees"]
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AAA0ABMAAAAAAAAAAABEAAgAAAAAAAAAAAA=")
 tile_set = ExtResource("23_ichql")
+script = ExtResource("ysort_decor_migrate")
 
 [node name="tree_2" type="TileMapLayer" parent="TileMapLayer/trees"]
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AAA3AAsAAQAAAAAAAAA=")
 tile_set = ExtResource("24_dx85r")
+script = ExtResource("ysort_decor_migrate")
 
 [node name="tree_3" type="TileMapLayer" parent="TileMapLayer/trees"]
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AAADACEAAAAAAAAAAAAHAAQAAAAAAAAAAAA=")
 tile_set = SubResource("TileSet_5rkwa")
+script = ExtResource("ysort_decor_migrate")
 
 [node name="tree_4" type="TileMapLayer" parent="TileMapLayer/trees"]
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAOAB8AAAAAAAAAAAACABoAAAAAAAAAAAAHACQAAAAAAAAAAAA=")
 tile_set = ExtResource("26_7aesq")
+script = ExtResource("ysort_decor_migrate")
 
 [node name="tree_5" type="TileMapLayer" parent="TileMapLayer/trees"]
+y_sort_enabled = true
 tile_set = SubResource("TileSet_hec07")
+script = ExtResource("ysort_decor_migrate")
 
 [node name="builings" type="TileMapLayer" parent="TileMapLayer"]
 
@@ -737,26 +756,32 @@ tile_set = ExtResource("37_tgi7y")
 [node name="TileMapLayer" type="TileMapLayer" parent="TileMapLayer/decor"]
 tile_map_data = PackedByteArray("AABFABAAAAAAAAAAAABGAA4AAAAAAAAAAAAJAAcAAAAAAAAAAAAxABUAAAAAAAAAAABGACEAAAAAAAAAAAA=")
 tile_set = SubResource("TileSet_oo6kv")
+script = ExtResource("ysort_decor_migrate")
 
 [node name="TileMapLayer2" type="TileMapLayer" parent="TileMapLayer/decor"]
 tile_map_data = PackedByteArray("AAA3ABMAAAAAAAAAAAA=")
 tile_set = SubResource("TileSet_ry14p")
+script = ExtResource("ysort_decor_migrate")
 
 [node name="TileMapLayer4" type="TileMapLayer" parent="TileMapLayer/decor"]
 scale = Vector2(-1, 1)
 tile_map_data = PackedByteArray("AADN/yAAAAAAAAAAAAA=")
 tile_set = SubResource("TileSet_ki7w7")
+script = ExtResource("ysort_decor_migrate")
 
 [node name="TileMapLayer5" type="TileMapLayer" parent="TileMapLayer/decor"]
 tile_map_data = PackedByteArray("AAAMACUAAAAAAAAAAAA=")
 tile_set = SubResource("TileSet_qr1wv")
+script = ExtResource("ysort_decor_migrate")
 
 [node name="TileMapLayer6" type="TileMapLayer" parent="TileMapLayer/decor"]
 tile_map_data = PackedByteArray("AAAHABcAAAAAAAAAAAALABUAAAAAAAAAAAA5ABwAAAAAAAAAAAA=")
 tile_set = SubResource("TileSet_n2vmi")
+script = ExtResource("ysort_decor_migrate")
 
 [node name="TileMapLayer7" type="TileMapLayer" parent="TileMapLayer/decor"]
 tile_set = SubResource("TileSet_bmc6v")
+script = ExtResource("ysort_decor_migrate")
 
 [node name="boat" type="TileMapLayer" parent="TileMapLayer"]
 tile_map_data = PackedByteArray("AAAtACgAAAAAAAAAAAA=")

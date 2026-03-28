@@ -1,4 +1,4 @@
-[gd_scene load_steps=118 format=4 uid="uid://bos5r41ll0qqe"]
+[gd_scene load_steps=119 format=4 uid="uid://bos5r41ll0qqe"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_lc62k"]
 [ext_resource type="Script" uid="uid://drx5ypae7garp" path="res://Game/game_base_islad.gd" id="1_xjk1y"]
@@ -68,6 +68,7 @@
 [ext_resource type="PackedScene" path="res://ally/youth_worker/youth_worker_companion.tscn" id="64_mdyw4"]
 [ext_resource type="PackedScene" uid="uid://dci53jt6x6m46" path="res://ally/archer/veteran_archer.tscn" id="68_3li1g"]
 [ext_resource type="PackedScene" uid="uid://baibbsrg17rfe" path="res://objects/barak_zone/barak_zone.tscn" id="69_wejfy"]
+[ext_resource type="Script" uid="uid://dmom720sjgw12" path="res://world/decor/tile_layer_trees_y_sort_migrate.gd" id="118_tykmg"]
 [ext_resource type="Script" uid="uid://sk5nigvcky3a" path="res://world/islads/base/mine_off_visual.gd" id="mine_off_v"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t7r2l"]
@@ -663,20 +664,28 @@ tile_set = ExtResource("14_ugqn2")
 [node name="booshes" type="TileMapLayer" parent="island"]
 
 [node name="boosh_1" type="TileMapLayer" parent="island/booshes"]
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAXAAYAAAAAAAAAAACKAOH/AAAAAAAAAABNAMX/AAAAAAAAAAAyAMX/AAAAAAAAAAD2//b/AAAAAAAAAAD+/xkAAAAAAAAAAAC2/xoAAAAAAAAAAAC6/xcAAAAAAAAAAAD+/woAAAAAAAAAAABBAOn/AAAAAAAAAAA6ANX/AAAAAAAAAACOABkAAAAAAAAAAACKAB0AAAAAAAAAAAAUACMAAAAAAAAAAAAKACMAAAAAAAAAAAA/AB8AAAAAAAAAAABTABcAAAAAAAAAAABaABcAAAAAAAAAAABpACwAAAAAAAAAAAB0ABkAAAAAAAAAAABAAA4AAAAAAAAAAAAKAPv/AAAAAAAAAADA/xkAAAAAAAAAAADO/xMAAAAAAAAAAAAeABEAAAAAAAAAAAA=")
 tile_set = ExtResource("15_ygb74")
+script = ExtResource("118_tykmg")
 
 [node name="boosh_2" type="TileMapLayer" parent="island/booshes"]
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAaAAUAAAAAAAAAAACJAOL/AAAAAAAAAACMAOH/AAAAAAAAAABOAMb/AAAAAAAAAABLAMX/AAAAAAAAAAAxAMb/AAAAAAAAAADN/+n/AAAAAAAAAAD1//f/AAAAAAAAAAD6//X/AAAAAAAAAAAAABoAAAAAAAAAAAC6/xQAAAAAAAAAAACe/w4AAAAAAAAAAACz/yoAAAAAAAAAAACz/ykAAAAAAAAAAAAbACMAAAAAAAAAAAAeACMAAAAAAAAAAAAgACMAAAAAAAAAAAAhACMAAAAAAAAAAAAdACMAAAAAAAAAAAAaACMAAAAAAAAAAAAxAB8AAAAAAAAAAAAzAB8AAAAAAAAAAABKABsAAAAAAAAAAABNABcAAAAAAAAAAABhAAcAAAAAAAAAAAA5AAcAAAAAAAAAAAA4AAcAAAAAAAAAAADu/+v/AAAAAAAAAADN/xkAAAAAAAAAAAC9/xgAAAAAAAAAAAC3/xcAAAAAAAAAAACNABoAAAAAAAAAAACRABkAAAAAAAAAAAD2/xUAAAAAAAAAAAAPACMAAAAAAAAAAABGAB8AAAAAAAAAAAA6AB8AAAAAAAAAAABWABcAAAAAAAAAAABCAB8AAAAAAAAAAABFAB8AAAAAAAAAAAA4AB8AAAAAAAAAAAA4AB4AAAAAAAAAAAA6AB4AAAAAAAAAAABYACwAAAAAAAAAAABkACgAAAAAAAAAAAB1ACwAAAAAAAAAAAACAAIAAAAAAAAAAAABAAEAAAAAAAAAAAADAAEAAAAAAAAAAAAEAAEAAAAAAAAAAAAUAP3/AAAAAAAAAAAWAP7/AAAAAAAAAAAWAPz/AAAAAAAAAAAXAPz/AAAAAAAAAAARABUAAAAAAAAAAADx/xwAAAAAAAAAAAD6/x4AAAAAAAAAAADt/y0AAAAAAAAAAADq/y0AAAAAAAAAAADs/ywAAAAAAAAAAADz/yoAAAAAAAAAAACz/wEAAAAAAAAAAACp//7/AAAAAAAAAACp////AAAAAAAAAADb//f/AAAAAAAAAADi//P/AAAAAAAAAADa/+7/AAAAAAAAAAAhAOz/AAAAAAAAAAA1APv/AAAAAAAAAAAsAPn/AAAAAAAAAAAgACkAAAAAAAAAAAACACkAAAAAAAAAAAA=")
 tile_set = ExtResource("16_7spr2")
+script = ExtResource("118_tykmg")
 
 [node name="boosh_3" type="TileMapLayer" parent="island/booshes"]
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAQAAEAAAAAAAAAAABBAAEAAAAAAAAAAABkAAcAAAAAAAAAAABoAAcAAAAAAAAAAACZAAQAAAAAAAAAAAA0AOn/AAAAAAAAAAAuANX/AAAAAAAAAAALANH/AAAAAAAAAAD1////AAAAAAAAAADX/xsAAAAAAAAAAADL/yQAAAAAAAAAAACx/xwAAAAAAAAAAACl/wkAAAAAAAAAAADu/+r/AAAAAAAAAAD+/xcAAAAAAAAAAAA2AB8AAAAAAAAAAABPABcAAAAAAAAAAABzAPz/AAAAAAAAAACjAOX/AAAAAAAAAACkAOr/AAAAAAAAAAClAOb/AAAAAAAAAACmAOj/AAAAAAAAAACs//n/AAAAAAAAAADL/xgAAAAAAAAAAACRACEAAAAAAAAAAAAoAPj/AAAAAAAAAAAmAPT/AAAAAAAAAAAZAPX/AAAAAAAAAAAEACMAAAAAAAAAAADt/xUAAAAAAAAAAAAMACMAAAAAAAAAAABxABAAAAAAAAAAAABdAAQAAAAAAAAAAACu/w4AAAAAAAAAAADI/xcAAAAAAAAAAAC3/wUAAAAAAAAAAAB2AC4AAAAAAAAAAAByAC4AAAAAAAAAAAA=")
 tile_set = ExtResource("17_6efqw")
+script = ExtResource("118_tykmg")
 
 [node name="boosh_4" type="TileMapLayer" parent="island/booshes"]
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AABEAAMAAAAAAAAAAAB8AA0AAAAAAAAAAAAxANn/AAAAAAAAAAAxANr/AAAAAAAAAAA1AMT/AAAAAAAAAAA3AMT/AAAAAAAAAAA5AMT/AAAAAAAAAAAwAMf/AAAAAAAAAAAzAMb/AAAAAAAAAABAAM3/AAAAAAAAAABLANL/AAAAAAAAAAA9AOn/AAAAAAAAAAA5APH/AAAAAAAAAAA5APX/AAAAAAAAAAA5APP/AAAAAAAAAAAmAOn/AAAAAAAAAAATAOb/AAAAAAAAAADl/+D/AAAAAAAAAADe/+b/AAAAAAAAAADK//j/AAAAAAAAAAC2//7/AAAAAAAAAACp//j/AAAAAAAAAACMABsAAAAAAAAAAADv/wMAAAAAAAAAAAD3/wIAAAAAAAAAAAD3/wAAAAAAAAAAAAD6/xsAAAAAAAAAAAD+/x8AAAAAAAAAAAD//x8AAAAAAAAAAAABACIAAAAAAAAAAAARACMAAAAAAAAAAAAXACMAAAAAAAAAAAAYACMAAAAAAAAAAAAHACMAAAAAAAAAAABDAB8AAAAAAAAAAAA8AB8AAAAAAAAAAABdABcAAAAAAAAAAABXABcAAAAAAAAAAAC7/xgAAAAAAAAAAAC+/xcAAAAAAAAAAAC8/xYAAAAAAAAAAAC5/xYAAAAAAAAAAAC6/xUAAAAAAAAAAAC3/xQAAAAAAAAAAADE/xgAAAAAAAAAAACp/wAAAAAAAAAAAAA3APn/AAAAAAAAAAAvAPn/AAAAAAAAAAAxAPn/AAAAAAAAAAArAPj/AAAAAAAAAAAuAPj/AAAAAAAAAAAnAPL/AAAAAAAAAAAnAPH/AAAAAAAAAAAnAO//AAAAAAAAAAAmAO3/AAAAAAAAAAAnAOz/AAAAAAAAAAAiAOj/AAAAAAAAAAAdAOj/AAAAAAAAAAAbAOj/AAAAAAAAAAAaAOj/AAAAAAAAAAAZAOj/AAAAAAAAAAAXAOj/AAAAAAAAAAAUAOf/AAAAAAAAAAAVAOj/AAAAAAAAAABvAAoAAAAAAAAAAABwAAwAAAAAAAAAAAByAAwAAAAAAAAAAAB0AAwAAAAAAAAAAAB6AC8AAAAAAAAAAAB9ADAAAAAAAAAAAAA=")
 tile_set = ExtResource("18_3vasq")
+script = ExtResource("118_tykmg")
 
 [node name="rock_island" type="TileMapLayer" parent="island"]
 
@@ -699,24 +708,34 @@ tile_set = SubResource("TileSet_sbvqx")
 [node name="trees" type="TileMapLayer" parent="island"]
 
 [node name="tree_1" type="TileMapLayer" parent="island/trees"]
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AACv/wQAAAAAAAAAAAC0/wsAAAAAAAAAAACs/woAAAAAAAAAAAAKAPX/AAAAAAAAAAA=")
 tile_set = ExtResource("23_a6ubq")
+script = ExtResource("118_tykmg")
 
 [node name="tree_2" type="TileMapLayer" parent="island/trees"]
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AADA/xEAAQAAAAAAAAD0/yQAAQAAAAAAAAA5AAoAAQAAAAAAAAAfAOb/AQAAAAAAAABHAMP/AQAAAAAAAACjAPH/AQAAAAAAAAASAAYAAQAAAAAAAADS/wMAAQAAAAAAAAA=")
 tile_set = ExtResource("24_vrr6f")
+script = ExtResource("118_tykmg")
 
 [node name="tree_3" type="TileMapLayer" parent="island/trees"]
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AADx/xgAAAAAAAAAAAARABEAAAAAAAAAAAB1ACgAAAAAAAAAAABJABoAAAAAAAAAAAA/AMP/AAAAAAAAAAAVAPn/AAAAAAAAAADh/+//AAAAAAAAAACMAB0AAAAAAAAAAAACAP7/AAAAAAAAAABAAAoAAAAAAAAAAABsAB8AAAAAAAAAAABYACgAAAAAAAAAAABkACQAAAAAAAAAAAA0APf/AAAAAAAAAAA=")
 tile_set = SubResource("TileSet_68c1h")
+script = ExtResource("118_tykmg")
 
 [node name="tree_4" type="TileMapLayer" parent="island/trees"]
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AADc//P/AAAAAAAAAADa/+v/AAAAAAAAAADm/+L/AAAAAAAAAADr/9//AAAAAAAAAADl/+n/AAAAAAAAAADn/xsAAAAAAAAAAADq/ykAAAAAAAAAAAABAEIAAAAAAAAAAAAqADEAAAAAAAAAAAAkAC8AAAAAAAAAAAAeADEAAAAAAAAAAAD5/9//AAAAAAAAAAA=")
 tile_set = ExtResource("26_ecunj")
+script = ExtResource("118_tykmg")
 
 [node name="tree_5" type="TileMapLayer" parent="island/trees"]
-tile_map_data = PackedByteArray("AADc//P/AAAAAAAAAADa/+v/AAAAAAAAAADm/+L/AAAAAAAAAADr/9//AAAAAAAAAADl/+n/AAAAAAAAAADn/xsAAAAAAAAAAADq/ykAAAAAAAAAAAABAEIAAAAAAAAAAAAqADEAAAAAAAAAAAAkAC8AAAAAAAAAAAAeADEAAAAAAAAAAACx/wwAAAABAAMAAACs/wYAAAABAAMAAACv/xEAAAABAAMAAADH/xkAAAABAAMAAAD5/x0AAAABAAMAAADq/+X/AAABAAMAAAAaAOn/AAABAAMAAABCAMj/AAABAAMAAACiAOz/AAABAAMAAABuACkAAAABAAMAAABnACwAAAABAAMAAABvACwAAAABAAMAAAAlADUAAAABAAMAAADu/yIAAAABAAMAAACz//r/AAABAAMAAAA=")
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AACx/wwAAAABAAMAAACs/wYAAAABAAMAAACv/xEAAAABAAMAAADH/xkAAAABAAMAAAD5/x0AAAABAAMAAADq/+X/AAABAAMAAAAaAOn/AAABAAMAAABCAMj/AAABAAMAAACiAOz/AAABAAMAAABuACkAAAABAAMAAABnACwAAAABAAMAAABvACwAAAABAAMAAAAlADUAAAABAAMAAADu/yIAAAABAAMAAACz//r/AAABAAMAAAA=")
 tile_set = SubResource("TileSet_32dgv")
+script = ExtResource("118_tykmg")
 
 [node name="builings" type="TileMapLayer" parent="island"]
 
@@ -780,31 +799,38 @@ script = ExtResource("mine_off_v")
 [node name="TileMapLayer" type="TileMapLayer" parent="island/decor"]
 tile_map_data = PackedByteArray("AAAiAO3/AAAAAAAAAACQAOr/AAAAAAAAAACmAOv/AAAAAAAAAACqAPv/AAAAAAAAAACPABoAAAAAAAAAAAB6AB0AAAAAAAAAAABIAB8AAAAAAAAAAAD3/xcAAAAAAAAAAAC+/xkAAAAAAAAAAADN/yUAAAAAAAAAAADx/ywAAAAAAAAAAAA7AC4AAAAAAAAAAAB4ACMAAAAAAAAAAABOANP/AAAAAAAAAAAPANH/AAAAAAAAAAA=")
 tile_set = SubResource("TileSet_6kks2")
+script = ExtResource("118_tykmg")
 
 [node name="TileMapLayer2" type="TileMapLayer" parent="island/decor"]
 tile_map_data = PackedByteArray("AAA2ABIAAAAAAAAAAABNABgAAAAAAAAAAABsAAkAAAAAAAAAAAChAPf/AAAAAAAAAACkAOH/AAAAAAAAAADI//v/AAAAAAAAAADF/xYAAAAAAAAAAAA=")
 tile_set = SubResource("TileSet_3r1nf")
+script = ExtResource("118_tykmg")
 
 [node name="TileMapLayer3" type="TileMapLayer" parent="island/decor"]
 tile_map_data = PackedByteArray("AADl/zEAAAAAAAAAAAAuADMAAAAAAAAAAAAOAOT/AAAAAAAAAADu/+T/AAAAAAAAAADc/+//AAAAAAAAAADp////AAAAAAAAAAA=")
 tile_set = SubResource("TileSet_ctvu1")
+script = ExtResource("118_tykmg")
 
 [node name="TileMapLayer4" type="TileMapLayer" parent="island/decor"]
 tile_map_data = PackedByteArray("AADW/zQAAAAAAAAAAAA=")
 tile_set = SubResource("TileSet_ahvej")
+script = ExtResource("118_tykmg")
 
 [node name="TileMapLayer5" type="TileMapLayer" parent="island/decor"]
 tile_map_data = PackedByteArray("AADu/zgAAAAAAAAAAADl//j/AAAAAAAAAAA=")
 tile_set = SubResource("TileSet_t7r2l")
+script = ExtResource("118_tykmg")
 
 [node name="TileMapLayer6" type="TileMapLayer" parent="island/decor"]
 tile_map_data = PackedByteArray("AAAVAA0AAAAAAAAAAACRAOj/AAAAAAAAAAC6////AAAAAAAAAABEAMz/AAAAAAAAAAA=")
 tile_set = SubResource("TileSet_dorx0")
+script = ExtResource("118_tykmg")
 
 [node name="TileMapLayer7" type="TileMapLayer" parent="island/decor"]
 position = Vector2(183, -143)
 tile_map_data = PackedByteArray("AABFAOj/AAAAAAAAAAA=")
 tile_set = SubResource("TileSet_cvmx0")
+script = ExtResource("118_tykmg")
 
 [node name="boat" type="TileMapLayer" parent="island"]
 tile_map_data = PackedByteArray("AADa/y8AAAAAAAAAAAA=")

@@ -34,6 +34,7 @@ var _block_auto_until_leave: bool = false
 
 func _ready() -> void:
 	add_to_group("veteran_npc")
+	add_to_group("y_sortable")
 	if sprite:
 		sprite.play("idle")
 	DialogueManager.dialogue_ended.connect(_on_dialogue_ended)
@@ -126,3 +127,10 @@ func _get_player() -> Node2D:
 	if p != null and is_instance_valid(p):
 		return p
 	return null
+
+
+func get_y_sort_bottom_y() -> float:
+	var y := YSortSpriteBounds.max_global_y_from_descendants(self)
+	if not is_nan(y):
+		return y
+	return global_position.y

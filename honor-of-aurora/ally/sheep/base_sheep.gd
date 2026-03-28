@@ -33,6 +33,7 @@ var _last_anim: StringName = &""
 func _ready() -> void:
 	add_to_group("base_sheep")
 	add_to_group("sheep_resource")
+	add_to_group("y_sortable")
 	_health = max_health
 	randomize()
 	_phase_timer = randf_range(idle_time_min, idle_time_max)
@@ -61,6 +62,13 @@ func _validate_sprite_frames() -> bool:
 
 func is_alive_for_meat() -> bool:
 	return _life == _Life.ALIVE
+
+
+func get_y_sort_bottom_y() -> float:
+	var y := YSortSpriteBounds.max_global_y_from_descendants(self)
+	if not is_nan(y):
+		return y
+	return global_position.y
 
 
 func take_damage(amount: Variant) -> void:

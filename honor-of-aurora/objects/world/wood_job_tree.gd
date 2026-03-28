@@ -118,6 +118,9 @@ func _copy_dead_animation(sf: SpriteFrames) -> void:
 
 
 func get_y_sort_bottom_y() -> float:
+	var y := YSortSpriteBounds.max_global_y_from_descendants(self)
+	if not is_nan(y):
+		return y
 	if _sprite == null or _sprite.sprite_frames == null:
 		return global_position.y
 	var anim := _sprite.animation

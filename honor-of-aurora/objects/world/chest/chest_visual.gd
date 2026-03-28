@@ -136,6 +136,9 @@ func _apply_display_scale(spr: Sprite2D) -> void:
 
 
 func get_y_sort_bottom_y() -> float:
+	var from_sprites := YSortSpriteBounds.max_global_y_from_descendants(self)
+	if not is_nan(from_sprites):
+		return from_sprites + y_sort_bottom_pixel_offset
 	var spr: Sprite2D = _sprite if _sprite != null else get_node_or_null("Sprite2D") as Sprite2D
 	if spr == null or spr.texture == null:
 		return global_position.y + y_sort_bottom_pixel_offset
