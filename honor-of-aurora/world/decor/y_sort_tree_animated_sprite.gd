@@ -1,22 +1,19 @@
 extends AnimatedSprite2D
-## Дерево с анимацией тайла: рисуется полным циклом; для YSortManager sort_y
-## берётся с первого кадра (нижний край не «прыгает» между кадрами).
-
-
-var _y_sort_bottom_y_cached: float = NAN
+## Дерево/куст с тайловой анимацией: YSortManager спрашивает нижний край в мировых координатах.
+## Нельзя кешировать абсолютный Y в _ready — после загрузки сцены global_transform родителя
+## может стать финальным позже, и тогда z_index считается от устаревшего ключа (кажется сдвигом на высоту спрайта).
+## Для стабильности между кадрами анимации сортировка всегда по кадру 0 текущего клипа.
 
 
 func _ready() -> void:
 	add_to_group("y_sortable")
-	var saved := frame
-	frame = 0
-	var y := YSortSpriteBounds.max_global_y_from_descendants(self)
-	frame = saved
-	if not is_nan(y):
-		_y_sort_bottom_y_cached = y
-	else:
-		_y_sort_bottom_y_cached = global_position.y
 
 
 func get_y_sort_bottom_y() -> float:
-	return _y_sort_bottom_y_cached
+	var saved_frame := frame
+	frame = 0
+	var y := YSortSpriteBounds.max_global_y_from_descendants(self)
+	frame = saved_frame
+	if not is_nan(y):
+		return y
+	return global_position.y

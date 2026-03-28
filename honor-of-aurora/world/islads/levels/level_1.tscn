@@ -892,8 +892,6 @@ tile_set = ExtResource("42_pipj0")
 [node name="player_blue" parent="." instance=ExtResource("48_8s1g3")]
 position = Vector2(604, 740)
 
-[node name="Camera2D" type="Camera2D" parent="player_blue"]
-
 [node name="HUD" parent="." instance=ExtResource("49_nr6al")]
 
 [node name="Minotaur" parent="." instance=ExtResource("43_itlt0")]

@@ -19,6 +19,10 @@ func _migrate_deferred() -> void:
 		cells.append(c)
 	for cell in cells:
 		_migrate_cell(cell, ts)
+	## У слоя в сцене часто y_sort_enabled = true (для тайлов). После миграции дочерние Sprite2D
+	## сортируются движком по Y **origin** (верх спрайта при centered=false), а YSortManager — по
+	## **низу** через get_y_sort_bottom_y(). Два правила дают сдвиг ~на высоту спрайта при отрисовке.
+	y_sort_enabled = false
 
 
 func _migrate_cell(cell: Vector2i, ts: TileSet) -> void:
@@ -32,9 +36,17 @@ func _migrate_cell(cell: Vector2i, ts: TileSet) -> void:
 	var td := get_cell_tile_data(cell)
 	if td == null:
 		return
+	## Совпадает с TileMapLayer::draw_tile (Godot 4.4): верхний левый угол нарисованного тайла =
+	## map_to_local(cell) - region_size/2 - texture_origin (не map_to_local + texture_origin).
+	var region0 := Rect2i(src.get_tile_texture_region(atlas_coords, 0))
+	var region_size := Vector2(region0.size)
 	var base_local: Vector2 = map_to_local(cell)
 	var tex_origin := Vector2(td.texture_origin)
-	var pos_local: Vector2 = base_local + tex_origin
+	var pos_local: Vector2
+	if td.transpose:
+		pos_local = base_local - Vector2(region_size.y, region_size.x) * 0.5 - tex_origin
+	else:
+		pos_local = base_local - region_size * 0.5 - tex_origin
 	var frame_count: int = int(src.get_tile_animation_frames_count(atlas_coords))
 	if frame_count > 1:
 		_spawn_animated_sprite(src, atlas_coords, td, pos_local, frame_count)

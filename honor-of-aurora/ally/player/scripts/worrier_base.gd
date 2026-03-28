@@ -45,6 +45,15 @@ func _player_input_frozen() -> bool:
 	return DialogueManager.is_active() or PostFinaleWorld.player_movement_locked
 
 
+## Не вызывать play() каждый physics-кадр: в части конфигураций движка это сбрасывает кадр и даёт мерцание / «залипание» на первых фреймах.
+func _play_move_loop(anim_name: StringName) -> void:
+	if anim == null:
+		return
+	anim.speed_scale = move_anim_speed_scale
+	if anim.animation != anim_name:
+		anim.play(anim_name)
+
+
 func _ready() -> void:
 	if effect_sprite:
 		effect_sprite.visible = false
@@ -180,9 +189,7 @@ func _physics_process(delta):
 	if _player_input_frozen():
 		velocity = Vector2.ZERO
 		state = State.IDLE
-		if anim:
-			anim.speed_scale = move_anim_speed_scale
-			anim.play("idle")
+		_play_move_loop(&"idle")
 		move_and_slide()
 		return
 	
@@ -195,9 +202,7 @@ func _physics_process(delta):
 			back_to_movement()
 		state = State.IDLE
 		velocity = Vector2.ZERO
-		if anim:
-			anim.speed_scale = move_anim_speed_scale
-			anim.play("idle")
+		_play_move_loop(&"idle")
 		move_and_slide()
 		return
 	
@@ -320,16 +325,15 @@ func back_to_movement():
 func update_anim():
 	match state:
 		State.IDLE:
-			anim.speed_scale = move_anim_speed_scale
-			anim.play("idle")
+			_play_move_loop(&"idle")
 		State.RUN:
-			anim.speed_scale = move_anim_speed_scale
-			anim.play("run")
+			_play_move_loop(&"run")
 			if velocity.x != 0:
 				anim.flip_h = velocity.x < 0
 		State.DEATH:
 			anim.speed_scale = move_anim_speed_scale
-			anim.play("dead")
+			if anim.animation != &"dead":
+				anim.play(&"dead")
 
 func take_damage(amount: Variant) -> void:
 	var a: int = int(amount)

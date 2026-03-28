@@ -176,7 +176,7 @@ shape = SubResource("CircleShape2D_j1p54")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("2_oqrjc")
-animation = &"heal_effect"
+animation = &"idle"
 
 [node name="EffectSprite" type="AnimatedSprite2D" parent="."]
 z_index = 1

@@ -48,12 +48,14 @@ var _nav_agent: NavigationAgent2D
 var _stuck_frames: int = 0
 var _recover_time: float = 0.0
 var _recover_dir: Vector2 = Vector2.RIGHT
+var _select_target_cd: float = 0.0
 
 const _SEP_EPS := 1e-3
 const _STUCK_THRESHOLD_FRAMES := 14
 const _RECOVER_DURATION := 0.38
 const _FAN_STEP := PI / 10.0
 const _FAN_COUNT := 9
+const _SELECT_TARGET_INTERVAL := 0.25
 
 
 func _refresh_targets_after_leash() -> void:
@@ -149,7 +151,7 @@ func _setup_nav_agent() -> void:
 	_nav_agent.target_desired_distance = 28.0
 	_nav_agent.radius = 40.0
 	_nav_agent.navigation_layers = 1
-	_nav_agent.avoidance_enabled = true
+	_nav_agent.avoidance_enabled = false
 	_nav_agent.neighbor_distance = 120.0
 	_nav_agent.max_neighbors = 6
 	add_child(_nav_agent)
@@ -158,8 +160,17 @@ func _setup_nav_agent() -> void:
 		_nav_agent.target_position = global_position
 
 
+func _sync_avoidance_to_state() -> void:
+	if _nav_agent == null or not is_instance_valid(_nav_agent):
+		return
+	var need := state == State.CHASE or state == State.ATTACK
+	if _nav_agent.avoidance_enabled != need:
+		_nav_agent.avoidance_enabled = need
+
+
 func _physics_process(delta):
 	var previous_position := global_position
+	_select_target_cd -= delta
 
 	match state:
 		State.PATROL:
@@ -172,7 +183,9 @@ func _physics_process(delta):
 				patrol_dir = patrol_dir.rotated(randf_range(PI / 4, PI / 2))
 
 		State.CHASE:
-			_select_target()
+			if _select_target_cd <= 0.0:
+				_select_target()
+				_select_target_cd = _SELECT_TARGET_INTERVAL
 			if target and is_instance_valid(target):
 				if global_position.distance_to(home_position) > leash_radius:
 					target = null
@@ -246,6 +259,7 @@ func _physics_process(delta):
 				velocity = push_dir * speed * 0.35
 				move_and_slide()
 
+	_sync_avoidance_to_state()
 	update_animation()
 
 
@@ -287,8 +301,10 @@ func _steer_with_wall_probes(desired_dir: Vector2, goal_global: Vector2) -> Vect
 	desired_dir = desired_dir.normalized()
 	var to_goal := goal_global - global_position
 	var goal_hint := to_goal.normalized() if to_goal.length() > _SEP_EPS else desired_dir
+	var space := get_world_2d().direct_space_state
+	var my_rid := get_rid()
 
-	if not _wall_ray_blocked(desired_dir):
+	if not _wall_ray_blocked_fast(desired_dir, space, my_rid):
 		return desired_dir
 
 	var best_dir := desired_dir
@@ -296,7 +312,7 @@ func _steer_with_wall_probes(desired_dir: Vector2, goal_global: Vector2) -> Vect
 	for i in range(1, _FAN_COUNT + 1):
 		for sgn in [-1.0, 1.0]:
 			var d := desired_dir.rotated(sgn * _FAN_STEP * float(i))
-			if not _wall_ray_blocked(d):
+			if not _wall_ray_blocked_fast(d, space, my_rid):
 				var dot: float = d.dot(goal_hint)
 				if dot > best_dot:
 					best_dot = dot
@@ -308,22 +324,25 @@ func _steer_with_wall_probes(desired_dir: Vector2, goal_global: Vector2) -> Vect
 	for i in range(1, _FAN_COUNT + 1):
 		for sgn in [-1.0, 1.0]:
 			var d2 := desired_dir.rotated(sgn * _FAN_STEP * float(i))
-			if not _wall_ray_blocked(d2):
+			if not _wall_ray_blocked_fast(d2, space, my_rid):
 				return d2.normalized()
 
 	return desired_dir
 
 
 func _wall_ray_blocked(dir: Vector2) -> bool:
-	if dir.length() < _SEP_EPS:
+	return _wall_ray_blocked_fast(dir, get_world_2d().direct_space_state, get_rid())
+
+
+func _wall_ray_blocked_fast(dir: Vector2, space: PhysicsDirectSpaceState2D, my_rid: RID) -> bool:
+	if dir.length_squared() < _SEP_EPS:
 		return true
-	var space := get_world_2d().direct_space_state
 	var d := dir.normalized()
 	var from := global_position + d * 6.0
 	var to := from + d * wall_probe_distance
 	var q := PhysicsRayQueryParameters2D.create(from, to)
 	q.collision_mask = wall_probe_collision_mask
-	q.exclude = [get_rid()]
+	q.exclude = [my_rid]
 	var hit := space.intersect_ray(q)
 	return hit.size() > 0
 

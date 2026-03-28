@@ -1,0 +1,14 @@
+# https://editorconfig.org — Cursor/VS Code подхватят end_of_line для новых сохранений.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{tscn,tres,gdshader,godot,cfg}]
+end_of_line = lf
+
+[*.md]
+trim_trailing_whitespace = false

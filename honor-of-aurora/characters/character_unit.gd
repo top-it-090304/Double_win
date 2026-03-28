@@ -22,6 +22,7 @@ func _ready() -> void:
 	_ensure_health_component()
 	if show_mini_hp_bar:
 		_setup_mini_hp_bar()
+	call_deferred("_cache_y_sort_offset")
 
 
 func _setup_mini_hp_bar() -> void:
@@ -99,22 +100,34 @@ func is_health_full() -> bool:
 	return health_component.current_health >= health_component.max_health
 
 
-func get_y_sort_bottom_y() -> float:
-	## Нижний край по видимым спрайтам — см. YSortSpriteBounds; иначе коллайдер.
+var _cached_y_sort_offset: float = NAN
+
+
+func _cache_y_sort_offset() -> void:
 	var from_sprite_y := YSortSpriteBounds.max_global_y_from_descendants(self)
 	if not is_nan(from_sprite_y):
-		return from_sprite_y
+		_cached_y_sort_offset = from_sprite_y - global_position.y
+		return
 	var cs := get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if cs == null or cs.shape == null:
-		return global_position.y
+		_cached_y_sort_offset = 0.0
+		return
+	var cs_local_y := cs.position.y
 	if cs.shape is CircleShape2D:
-		return cs.global_position.y + (cs.shape as CircleShape2D).radius
-	if cs.shape is CapsuleShape2D:
+		_cached_y_sort_offset = cs_local_y + (cs.shape as CircleShape2D).radius
+	elif cs.shape is CapsuleShape2D:
 		var sh := cs.shape as CapsuleShape2D
-		return cs.global_position.y + sh.radius + sh.height * 0.5
-	if cs.shape is RectangleShape2D:
-		return cs.global_position.y + (cs.shape as RectangleShape2D).size.y * 0.5
-	return cs.global_position.y
+		_cached_y_sort_offset = cs_local_y + sh.radius + sh.height * 0.5
+	elif cs.shape is RectangleShape2D:
+		_cached_y_sort_offset = cs_local_y + (cs.shape as RectangleShape2D).size.y * 0.5
+	else:
+		_cached_y_sort_offset = cs_local_y
+
+
+func get_y_sort_bottom_y() -> float:
+	if is_nan(_cached_y_sort_offset):
+		_cache_y_sort_offset()
+	return global_position.y + _cached_y_sort_offset
 
 
 func _apply_soft_separation_to_velocity(delta: float) -> void:
@@ -127,24 +140,19 @@ func _apply_soft_separation_to_velocity(delta: float) -> void:
 		return
 	var min_dist := unit_soft_separation_distance
 	var min_dist_sq := min_dist * min_dist
+	var inv_min_dist := 1.0 / min_dist
 	var push := Vector2.ZERO
+	var my_pos := global_position
 	for other in tree.get_nodes_in_group("character_unit"):
-		if other == self:
+		if other == self or not (other is Node2D):
 			continue
-		if not (other is Node2D):
-			continue
-		var on := other as Node
-		if on.has_method("is_alive") and not bool(on.call("is_alive")):
-			continue
-		var other_pos := (other as Node2D).global_position
-		var delta_pos := global_position - other_pos
+		var delta_pos := my_pos - (other as Node2D).global_position
 		var dist_sq := delta_pos.length_squared()
-		if dist_sq >= min_dist_sq:
+		if dist_sq >= min_dist_sq or dist_sq < 1e-6:
 			continue
-		var dist := sqrt(maxf(dist_sq, 0.0001))
-		var dir := delta_pos / dist
-		var weight := 1.0 - (dist / min_dist)
-		push += dir * weight
+		var inv_dist := 1.0 / sqrt(dist_sq)
+		var weight := 1.0 - (1.0 / (inv_dist * min_dist))
+		push += delta_pos * (inv_dist * weight)
 	if push.length_squared() < 1e-6:
 		return
 	var speed_ref := maxf(80.0, velocity.length())

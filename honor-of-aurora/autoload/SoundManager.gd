@@ -367,9 +367,8 @@ func _play_sfx(stream: AudioStream, pitch_scale: float, volume_db: float, bus_na
 
 
 func _play_sfx_from(stream: AudioStream, pitch_scale: float, volume_db: float, from_sec: float, bus_name: StringName) -> void:
-	var s: AudioStream = stream.duplicate()
 	var p := _pick_sfx_player()
-	p.stream = s
+	p.stream = stream
 	p.pitch_scale = pitch_scale
 	p.volume_db = volume_db
 	p.bus = bus_name

@@ -1,2 +1,9 @@
-# Normalize EOL for all files that Git considers text files.
+# Репозиторий в LF. На Windows без CRLF в рабочей копии — не будет предупреждений при git add.
 * text=auto eol=lf
+
+*.tscn text eol=lf
+*.gd text eol=lf
+*.godot text eol=lf
+*.cfg text eol=lf
+*.import text eol=lf
+*.md text eol=lf

@@ -14,7 +14,8 @@ const META_MANUAL := "y_sort_manual"
 ## Не даём юнитам уходить "под землю", если y уходит в отрицательные координаты карты.
 @export var min_z_index: int = 1
 @export var max_z_index: int = 4096
-@export_range(1, 8, 1) var refresh_every_frames: int = 1
+## 1 = точнее слои при движении, выше нагрузка. 2–3 — компромисс для слабых устройств.
+@export_range(1, 8, 1) var refresh_every_frames: int = 3
 
 
 func _process(_delta: float) -> void:
