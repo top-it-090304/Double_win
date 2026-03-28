@@ -73,6 +73,10 @@ func get_current_line() -> DialogueLine:
 	return _sequence.lines[_index]
 
 
+func get_current_sequence() -> DialogueSequence:
+	return _sequence
+
+
 func is_current_line_choice() -> bool:
 	var line := get_current_line()
 	return line is DialogueChoiceLine and (line as DialogueChoiceLine).options.size() > 0
@@ -101,5 +105,3 @@ func pick_dialogue_choice(option_index: int) -> void:
 func _emit_current_line() -> void:
 	var line: DialogueLine = _sequence.lines[_index]
 	line_changed.emit(line, _index, _sequence.lines.size())
-	# Сразу из менеджера: при паузе игры await в окне диалога может не давать дойти до конца обработчика.
-	SoundManager.play_dialogue_mumble(line.speaker_id)

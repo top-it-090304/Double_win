@@ -525,9 +525,7 @@ func die():
 	if encounter_zone and is_instance_valid(encounter_zone):
 		encounter_zone.notify_enemy_removed(self)
 
-	if is_in_group("BOSS"):
-		SoundManager.play_boss_defeat()
-	else:
+	if not is_in_group("BOSS"):
 		SoundManager.play_death()
 	var hero_lv: int = SaveManager.current_level
 	var is_boss := is_in_group("BOSS")
@@ -539,9 +537,10 @@ func die():
 	anim.play("dead")
 
 	if is_in_group("BOSS"):
-		GameManager.boss_kill()
+		## Сначала сюжетные флаги и финал (ветер), затем счётчик — иначе музыка тира 5 успевает начаться до глушения.
 		if story_island > 0:
 			GameManager.on_story_island_boss_defeated(story_island)
+		GameManager.boss_kill()
 
 	$CollisionShape2D.set_deferred("disabled", true)
 	var gold_amt := int(round(float(BalanceConfig.get_gold_reward(enemy_level, is_boss)) * reward_mult))

@@ -75,6 +75,13 @@ func _ready() -> void:
 	DialogueManager.dialogue_ended.connect(_on_dialogue_ended)
 
 
+func _exit_tree() -> void:
+	_line_change_epoch += 1
+	## Сцена с HUD уничтожена, а DialogueManager — autoload: без сброса await в _on_line_changed падает с data.tree null и остаётся is_active().
+	if DialogueManager.is_active():
+		DialogueManager.end_dialogue()
+
+
 func _apply_label_theme() -> void:
 	if _name_label == null or _text_label == null:
 		return

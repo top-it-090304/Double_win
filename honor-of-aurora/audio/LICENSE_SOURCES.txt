@@ -1,19 +1,34 @@
-Background music playlist (MP3, CC0 — attribution not required):
+Фоновая музыка: папки res://audio/music/playlists/island_01 … island_05.
+Логика тира (SoundManager._desired_playlist_tier): база и главное меню — всегда island_01. На острове LVL*N до победы над боссом этого острова (нет флага story_island_N_cleared) — island_0N. После зачистки острова, пока игрок на этом же LVL*N, — снова island_01 до ухода. После story_island_5_cleared — везде island_05.
+Треки в папке играют в случайном порядке; пустая папка тира → fallback на island_01.
 
-1) fantasy_grasslands_cc0.mp3 — «Fantasy — Grasslands» (remastered), Doge
-   https://opengameart.org/content/fantasy-grasslands
+— island_01 (спокойно), CC0:
+  fantasy_grasslands_cc0.mp3 — «Fantasy — Grasslands» (remastered), Doge — https://opengameart.org/content/fantasy-grasslands
+  bg_02_field_of_dreams_cc0.mp3 — «The Field Of Dreams», pauliuw — https://opengameart.org/content/the-field-of-dreams
+  bg_03_grassland_cc0.mp3 — «Fantasy — Grasslands» (alternate mix), Doge — https://opengameart.org/content/fantasy-grasslands
+  bg_04_town_theme_cc0.mp3 — «Town Theme RPG», cynicmusic — https://opengameart.org/content/town-theme-rpg
 
-2) bg_02_field_of_dreams_cc0.mp3 — «The Field Of Dreams», pauliuw
-   https://opengameart.org/content/the-field-of-dreams
+— island_02 (энергичнее), CC0:
+  Battle_cc0_Wolfgang_.mp3 — «Battle Theme», Wolfgang_ — https://opengameart.org/content/battle-theme-0
+  treasure_hunter_cc0_TAD.mp3 — «Treasure Hunter», TAD — https://opengameart.org/content/treasure-hunter
+  game_battleground_cc0_Doge.mp3 — «Fantasy — Battlegrounds» (не remastered), Doge — https://opengameart.org/content/fantasy-battlegrounds
 
-3) bg_03_grassland_cc0.mp3 — «Fantasy — Grasslands» (alternate mix), Doge
-   https://opengameart.org/content/fantasy-grasslands
+— island_03 (драматичнее / тёмнее), CC0:
+  battleground_remastered_cc0_Doge.mp3 — «Fantasy — Battlegrounds» (remastered), Doge — https://opengameart.org/content/fantasy-battlegrounds
+  battleThemeA_cc0_cynicmusic.mp3 — «Battle Theme A», cynicmusic — https://opengameart.org/content/battle-theme-a
+  cave_theme_b4_cc0_Brandon75689.ogg — «Cave Theme» (на странице OGA указаны CC0 и OGA-BY 3.0; в проекте используется как CC0-вариант) — https://opengameart.org/content/cave-theme
+  breves_dies_hominis_cc0_MagdalenKadel.ogg — «Breves dies hominis» (вокал, латынь), Magdalen Kadel — https://opengameart.org/content/breves-dies-hominis
 
-4) bg_04_town_theme_cc0.mp3 — «Town Theme RPG», cynicmusic
-   https://opengameart.org/content/town-theme-rpg
+— island_04 (напряжённо), CC0:
+  Col_Legno_cc0_Vehicle.wav — «Col Legno», Vehicle — https://opengameart.org/content/col-legno
+  determined_pursuit_loop_cc0_Emma_MA.wav — «Determined Pursuit», Emma_MA — https://opengameart.org/content/determined-pursuit-epic-orchestra-loop
+
+— island_05 (максимум напряжения), CC0:
+  Epic_Boss_Battle_loop_cc0_SubspaceAudio.wav — «Epic Boss Battle» (loop), SubspaceAudio / Juhani Junkala — https://opengameart.org/content/boss-battle-music
+  bosstheme_WO_low_cc0_Lisboa.mp3 — «Boss Fight», Lisboa — https://opengameart.org/content/boss-fight-0
 
 Микс: шины AudioServer Music / SFX / UI / Dialogue (SoundManager), лёгкий компрессор на SFX; громкости в user://save и в меню «Настройки». Приглушение музыки при диалоге и в главном меню.
-Доп. игровые отклики без новых файлов (pitch тех же CC0-сэмплов): золото (button_soft), уровень (menu_open), босс (hit_armor), лечение (page_turn), телепорт (menu_close).
+Доп. игровые отклики без новых файлов (pitch тех же CC0-сэмплов): золото (button_soft), уровень (menu_open), лечение (page_turn), телепорт (menu_close).
 
 SFX combat / steps: Kenney (CC0) — RPG Audio, Impact Sounds — https://kenney.nl
 Щит (Kenney RPG Audio + Impact): поднятие — metalLatch (raise_00), с обрезкой начала в SoundManager; блок — metalClick (block_00).
@@ -27,6 +42,5 @@ Menu open/close: pluck_001 + tick_001 (мягкие, вместо open/close).
 
 Dialogue page turn: Kenney RPG Audio — bookFlip1.ogg (перелистывание).
 
-Dialog mumble (инди-стиль речи): «Dialog vocal samples», MirceaKitsune, CC0
-https://opengameart.org/content/dialog-vocal-samples
-В проекте: male_standard → hero, female_standard → healer, whisper → narrator.
+«Dialog vocal samples», MirceaKitsune, CC0 — https://opengameart.org/content/dialog-vocal-samples
+(файлы mumble_*.ogg в res://audio/sfx/dialogue/ в репозитории остаются; под реплики больше не проигрываются.)

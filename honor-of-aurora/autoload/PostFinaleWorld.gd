@@ -1,6 +1,6 @@
 extends Node
-## После победы над последним стражом: затемнение, красноватая вода и пена волн (слой vawe), тишина врагов, ветер.
-## После финального диалога монаха (monk_story_6) — отъезд камеры, титул, меню.
+## После победы над последним стражом: затемнение, красноватая вода и пена волн (слой vawe), тишина врагов.
+## Титры и выход в меню в двух случаях: (1) после monk_story_6 — путь с пятым островом; (2) после monk_finale_refused — на последней реплике нарратора (или по таймеру чтения).
 
 const VIGNETTE_MAX_ALPHA := 0.38
 const VIGNETTE_TWEEN_SEC := 5.0
@@ -12,22 +12,25 @@ const _META_WATER_BASE := &"post_finale_water_base_modulate"
 const ENDING_ZOOM := Vector2(0.32, 0.32)
 const ENDING_ZOOM_SEC := 4.5
 const THANK_YOU_SEC := 5.0
-
-const _AMBIENT_WIND := preload("res://audio/music/ambient.ogg")
+## Ветка отказа: после появления последней реплики нарратора в monk_finale_refused — пауза на чтение, затем конец диалога и титры (если игрок не нажал «Далее» раньше).
+const REFUSAL_NARRATOR_READ_SEC := 2.5
 
 var player_movement_locked: bool = false
 
 var _vignette_layer: CanvasLayer
 var _vignette_rect: ColorRect
-var _wind_player: AudioStreamPlayer
 var _ending_started: bool = false
 var _water_tween: Tween
+var _refusal_narrator_timer_epoch: int = 0
+var _refusal_skip_narrator_timer: bool = false
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_ensure_vignette()
-	_ensure_wind_player()
+	DialogueManager.dialogue_started.connect(_on_dialogue_started_credits)
+	DialogueManager.line_changed.connect(_on_dialogue_line_changed_credits)
+	DialogueManager.dialogue_ended.connect(_on_dialogue_ended_credits)
 
 
 ## Пока идёт финальная сценка (зум, титры) — не открывать новые диалоги у монаха/ветерана.
@@ -42,10 +45,20 @@ func discard_thank_you_overlay() -> void:
 	_thank_you_label = null
 
 
+func discard_vignette() -> void:
+	if _vignette_layer and is_instance_valid(_vignette_layer):
+		_vignette_layer.queue_free()
+	_vignette_layer = null
+	_vignette_rect = null
+
+
 func reset_state_for_main_menu() -> void:
 	discard_thank_you_overlay()
+	discard_vignette()
 	_ending_started = false
 	player_movement_locked = false
+	_refusal_narrator_timer_epoch += 1
+	_refusal_skip_narrator_timer = false
 
 
 func is_finale_world() -> bool:
@@ -59,7 +72,7 @@ func blocks_new_enemy_spawns() -> bool:
 func on_story_island_5_boss_won() -> void:
 	if not is_finale_world():
 		return
-	_start_wind_if_needed()
+	_refresh_finale_bgm_if_needed()
 	call_deferred("_apply_after_first_frame_after_boss_kill")
 	call_deferred("_clear_all_enemies_soon")
 
@@ -69,7 +82,7 @@ func apply_after_scene_loaded() -> void:
 		return
 	_ensure_vignette()
 	_vignette_rect.color.a = VIGNETTE_MAX_ALPHA
-	_start_wind_if_needed()
+	_refresh_finale_bgm_if_needed()
 	call_deferred("_apply_after_first_frame")
 
 
@@ -115,6 +128,51 @@ func dialogue_maybe_trigger_ending(dialogue_id: String) -> void:
 	_start_ending_sequence()
 
 
+func _on_dialogue_started_credits(sequence: DialogueSequence) -> void:
+	if sequence != null and sequence.id == "monk_finale_refused":
+		_refusal_skip_narrator_timer = false
+
+
+func _on_dialogue_line_changed_credits(line: DialogueLine, index: int, line_count: int) -> void:
+	if _ending_started:
+		return
+	if not DialogueManager.is_active():
+		return
+	var seq := DialogueManager.get_current_sequence()
+	if seq == null or seq.id != "monk_finale_refused":
+		return
+	if line.speaker_id != "narrator" or index != line_count - 1:
+		return
+	_refusal_narrator_timer_epoch += 1
+	var epoch := _refusal_narrator_timer_epoch
+	call_deferred("_refusal_narrator_read_then_end", epoch)
+
+
+func _refusal_narrator_read_then_end(epoch: int) -> void:
+	await get_tree().create_timer(REFUSAL_NARRATOR_READ_SEC).timeout
+	if epoch != _refusal_narrator_timer_epoch:
+		return
+	if _refusal_skip_narrator_timer:
+		return
+	if _ending_started:
+		return
+	if not DialogueManager.is_active():
+		return
+	var seq := DialogueManager.get_current_sequence()
+	if seq == null or seq.id != "monk_finale_refused":
+		return
+	DialogueManager.end_dialogue()
+
+
+func _on_dialogue_ended_credits(sequence: DialogueSequence) -> void:
+	if sequence == null or sequence.id != "monk_finale_refused":
+		return
+	_refusal_skip_narrator_timer = true
+	if _ending_started:
+		return
+	call_deferred("_start_ending_sequence")
+
+
 func _start_ending_sequence() -> void:
 	_ending_started = true
 	player_movement_locked = true
@@ -125,7 +183,6 @@ func _start_ending_sequence() -> void:
 	if cam == null:
 		_show_thank_you_then_menu()
 		return
-	var z0 := cam.zoom
 	var tw := create_tween()
 	tw.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	tw.tween_property(cam, "zoom", ENDING_ZOOM, ENDING_ZOOM_SEC)
@@ -211,32 +268,14 @@ func _show_vignette_target() -> void:
 	tw.tween_property(_vignette_rect, "color:a", VIGNETTE_MAX_ALPHA, VIGNETTE_TWEEN_SEC)
 
 
-func _ensure_wind_player() -> void:
-	if _wind_player:
-		return
-	_wind_player = AudioStreamPlayer.new()
-	_wind_player.bus = "SFX"
-	_wind_player.volume_db = -18.0
-	var st := _AMBIENT_WIND
-	if st:
-		_wind_player.stream = st
-		if _wind_player.stream is AudioStreamOggVorbis:
-			(_wind_player.stream as AudioStreamOggVorbis).loop = true
-		elif _wind_player.stream is AudioStreamMP3:
-			(_wind_player.stream as AudioStreamMP3).loop = true
-	add_child(_wind_player)
-
-
-func _start_wind_if_needed() -> void:
-	_ensure_wind_player()
-	if _wind_player.stream and not _wind_player.playing:
-		_wind_player.play()
+func _refresh_finale_bgm_if_needed() -> void:
+	SoundManager.refresh_adventure_bgm_state()
 
 
 func _apply_water_tint_instant_to_scene(root: Node) -> void:
 	if root == null or not is_finale_world():
 		return
-	_start_wind_if_needed()
+	_refresh_finale_bgm_if_needed()
 	if _water_tween and is_instance_valid(_water_tween):
 		_water_tween.kill()
 		_water_tween = null
@@ -255,7 +294,7 @@ func _apply_water_tint_instant_to_scene(root: Node) -> void:
 func _apply_water_tint_dramatic_to_scene(root: Node, duration_sec: float) -> void:
 	if root == null or not is_finale_world():
 		return
-	_start_wind_if_needed()
+	_refresh_finale_bgm_if_needed()
 	if _water_tween and is_instance_valid(_water_tween):
 		_water_tween.kill()
 	var layers: Array[TileMapLayer] = []

@@ -1,7 +1,14 @@
 extends Node
 
-## SFX и плейлист: см. audio/LICENSE_SOURCES.txt
+## SFX и плейлисты: см. audio/LICENSE_SOURCES.txt
+## Фон: папки res://audio/music/playlists/island_01 .. island_05 (случайный порядок внутри папки).
+## База и меню — всегда island_01. На LVL*N до победы над боссом острова — island_0N; после флага story_island_N_cleared на этом острове — снова island_01.
+## После story_island_5_cleared — везде island_05 (напряжённо), в т.ч. на базе.
 ## Шины: Music / SFX / UI / Dialogue (создаются в _ensure_audio_buses), громкость — SaveManager + компрессор на SFX.
+
+const PLAYLIST_ROOT := "res://audio/music/playlists"
+const _PLAYLIST_TIER_BASE := 1
+const _PLAYLIST_TIER_FINALE := 5
 
 const BUS_MUSIC := &"Music"
 const BUS_SFX := &"SFX"
@@ -19,23 +26,14 @@ const VOL_UI := -36.0
 const VOL_UI_MENU := -40.0
 const VOL_DIALOGUE := -36.0
 const VOL_DIALOGUE_PAGE := -38.0
-const VOL_DIALOGUE_MUMBLE := -24.0
 const VOL_FOOTSTEP := -34.0
 const VOL_REWARD := -24.0
 const VOL_LEVEL_UP := -18.0
-const VOL_BOSS := -14.0
 const VOL_HEAL := -26.0
 const VOL_TELEPORT := -38.0
 
 const DUCK_DB_DIALOGUE := -5.0
 const DUCK_DB_MENU := -4.0
-
-const PLAYLIST = [
-	preload("res://audio/music/fantasy_grasslands_cc0.mp3"),
-	preload("res://audio/music/bg_02_field_of_dreams_cc0.mp3"),
-	preload("res://audio/music/bg_03_grassland_cc0.mp3"),
-	preload("res://audio/music/bg_04_town_theme_cc0.mp3"),
-]
 
 ## CC0: Male Adventurer RPG — короткие возгласы при взмахе (под короткую анимацию).
 const ATTACK_SHOUTS = [
@@ -59,25 +57,6 @@ const STREAM_DEATH := preload("res://audio/sfx/death.ogg")
 
 const STREAM_DIALOGUE_PAGE_TURN := preload("res://audio/sfx/dialogue/page_turn.ogg")
 
-const MUMBLE_MALE = [
-	preload("res://audio/sfx/dialogue/mumble_male_1.ogg"),
-	preload("res://audio/sfx/dialogue/mumble_male_2.ogg"),
-	preload("res://audio/sfx/dialogue/mumble_male_3.ogg"),
-	preload("res://audio/sfx/dialogue/mumble_male_4.ogg"),
-]
-const MUMBLE_FEMALE = [
-	preload("res://audio/sfx/dialogue/mumble_female_1.ogg"),
-	preload("res://audio/sfx/dialogue/mumble_female_2.ogg"),
-	preload("res://audio/sfx/dialogue/mumble_female_3.ogg"),
-	preload("res://audio/sfx/dialogue/mumble_female_4.ogg"),
-]
-const MUMBLE_WHISPER = [
-	preload("res://audio/sfx/dialogue/mumble_whisper_1.ogg"),
-	preload("res://audio/sfx/dialogue/mumble_whisper_2.ogg"),
-	preload("res://audio/sfx/dialogue/mumble_whisper_3.ogg"),
-	preload("res://audio/sfx/dialogue/mumble_whisper_4.ogg"),
-]
-
 const STREAM_UI_DIALOGUE := preload("res://audio/sfx/ui/dialogue_advance.ogg")
 const STREAM_UI_MENU_OPEN := preload("res://audio/sfx/ui/menu_open.ogg")
 const STREAM_UI_MENU_CLOSE := preload("res://audio/sfx/ui/menu_close.ogg")
@@ -96,6 +75,9 @@ var _sfx_pool: Array[AudioStreamPlayer] = []
 
 var _playlist_order: Array[int] = []
 var _playlist_cursor: int = 0
+var _playlist_tier_when_shuffled: int = -1
+## Кэш загруженных AudioStream по тиру (после правок папок в редакторе перезапустите игру или вызовите invalidate).
+var _playlist_stream_cache: Dictionary = {}
 var _prev_location: Events.LOCATION = Events.LOCATION.MENU
 var _music_duck_db: float = 0.0
 
@@ -176,7 +158,7 @@ func _set_bus_linear(bus_name: StringName, linear: float) -> void:
 
 
 func _sync_music_with_current_scene() -> void:
-	_play_background_music()
+	refresh_adventure_bgm_state()
 
 
 func _on_location_changed(loc: Events.LOCATION) -> void:
@@ -185,7 +167,7 @@ func _on_location_changed(loc: Events.LOCATION) -> void:
 	elif loc != Events.LOCATION.MENU and _prev_location == Events.LOCATION.MENU:
 		play_menu_close()
 	_prev_location = loc
-	_play_background_music()
+	refresh_adventure_bgm_state()
 	_refresh_music_duck()
 
 
@@ -204,32 +186,153 @@ func _refresh_music_duck() -> void:
 		_music.volume_db = VOL_MUSIC + _music_duck_db
 
 
+## После убийства босса (флаг острова уже выставлен): переключить плейлист при необходимости.
+func notify_adventure_music_progress() -> void:
+	var tier := _desired_playlist_tier()
+	if tier != _playlist_tier_when_shuffled:
+		_playlist_stream_cache.clear()
+		_playlist_order.clear()
+		_playlist_cursor = 0
+		_playlist_tier_when_shuffled = -1
+		if _music.playing:
+			_music.stop()
+	refresh_adventure_bgm_state()
+
+
+## Вызывать из PostFinaleWorld при событиях финала / смене сцены (перезапуск трека при смене тира и т.п.).
+func refresh_adventure_bgm_state() -> void:
+	_play_background_music()
+
+
+func _location_to_story_island_index(loc: Events.LOCATION) -> int:
+	match loc:
+		Events.LOCATION.LVL1:
+			return 1
+		Events.LOCATION.LVL2:
+			return 2
+		Events.LOCATION.LVL3:
+			return 3
+		Events.LOCATION.LVL4:
+			return 4
+		Events.LOCATION.LVL5:
+			return 5
+		_:
+			return 0
+
+
+## Номер папки island_XX (1..5). 1 — «базовый» спокойный набор; 5 — напряжённый (остров 5 до босса и весь мир после финала).
+func _desired_playlist_tier() -> int:
+	if StoryState.has_flag("story_island_5_cleared"):
+		return _PLAYLIST_TIER_FINALE
+	var loc := Events.current_location
+	if loc == Events.LOCATION.BASE or loc == Events.LOCATION.MENU:
+		return _PLAYLIST_TIER_BASE
+	var island_idx := _location_to_story_island_index(loc)
+	if island_idx <= 0:
+		return _PLAYLIST_TIER_BASE
+	if StoryState.has_flag("story_island_%d_cleared" % island_idx):
+		return _PLAYLIST_TIER_BASE
+	return island_idx
+
+
+func _load_audio_streams_from_folder(folder_path: String) -> Array[AudioStream]:
+	var out: Array[AudioStream] = []
+	var dir := DirAccess.open(folder_path)
+	if dir == null:
+		return out
+	var err := dir.list_dir_begin()
+	if err != OK:
+		return out
+	var fn := dir.get_next()
+	while fn != "":
+		if dir.current_is_dir() or fn.begins_with("."):
+			fn = dir.get_next()
+			continue
+		var low := fn.to_lower()
+		if not (low.ends_with(".ogg") or low.ends_with(".mp3") or low.ends_with(".wav")):
+			fn = dir.get_next()
+			continue
+		var full_path := folder_path.path_join(fn)
+		if not ResourceLoader.exists(full_path):
+			fn = dir.get_next()
+			continue
+		var res := load(full_path)
+		if res is AudioStream:
+			out.append(res as AudioStream)
+		fn = dir.get_next()
+	dir.list_dir_end()
+	return out
+
+
+func _get_streams_for_tier(tier: int) -> Array[AudioStream]:
+	if _playlist_stream_cache.has(tier):
+		return _playlist_stream_cache[tier] as Array[AudioStream]
+	var path := "%s/island_%02d" % [PLAYLIST_ROOT, tier]
+	var loaded := _load_audio_streams_from_folder(path)
+	if loaded.is_empty() and tier != 1:
+		loaded = _get_streams_for_tier(1)
+	_playlist_stream_cache[tier] = loaded
+	return loaded
+
+
 func _play_background_music() -> void:
-	if _music.playing:
+	var tier := _desired_playlist_tier()
+	if _music.playing and _playlist_tier_when_shuffled == tier:
 		return
-	if _playlist_order.is_empty():
+	if _playlist_tier_when_shuffled != tier:
+		_playlist_order.clear()
+		_playlist_cursor = 0
+		_playlist_tier_when_shuffled = -1
+	if _music.playing:
+		_music.stop()
+	if _playlist_order.is_empty() or _playlist_tier_when_shuffled != tier:
 		_shuffle_playlist_order()
 	_play_track_at_cursor()
 
 
 func _shuffle_playlist_order() -> void:
+	var tier := _desired_playlist_tier()
+	var streams := _get_streams_for_tier(tier)
 	_playlist_order.clear()
-	for i in range(PLAYLIST.size()):
+	if streams.is_empty():
+		push_warning("SoundManager: нет треков в плейлисте тира %d (%s/island_%02d)" % [tier, PLAYLIST_ROOT, tier])
+		_playlist_tier_when_shuffled = -1
+		return
+	for i in range(streams.size()):
 		_playlist_order.append(i)
 	_playlist_order.shuffle()
 	_playlist_cursor = 0
+	_playlist_tier_when_shuffled = tier
 
 
-func _play_track_at_cursor() -> void:
-	if _playlist_order.is_empty():
-		_shuffle_playlist_order()
-	var track_idx: int = _playlist_order[_playlist_cursor]
-	var base: AudioStream = PLAYLIST[track_idx]
+func _duplicate_stream_no_loop(base: AudioStream) -> AudioStream:
 	var s: AudioStream = base.duplicate()
 	if s is AudioStreamMP3:
 		(s as AudioStreamMP3).loop = false
 	elif s is AudioStreamOggVorbis:
 		(s as AudioStreamOggVorbis).loop = false
+	elif s is AudioStreamWAV:
+		(s as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_DISABLED
+	return s
+
+
+func _play_track_at_cursor() -> void:
+	var tier := _desired_playlist_tier()
+	if _playlist_order.is_empty() or _playlist_tier_when_shuffled != tier:
+		_shuffle_playlist_order()
+	var streams := _get_streams_for_tier(tier)
+	if streams.is_empty() or _playlist_order.is_empty():
+		return
+	_playlist_cursor = clampi(_playlist_cursor, 0, _playlist_order.size() - 1)
+	var stream_index: int = _playlist_order[_playlist_cursor]
+	if stream_index < 0 or stream_index >= streams.size():
+		_shuffle_playlist_order()
+		if _playlist_order.is_empty():
+			return
+		_playlist_cursor = clampi(_playlist_cursor, 0, _playlist_order.size() - 1)
+		stream_index = _playlist_order[_playlist_cursor]
+	var base: AudioStream = streams[stream_index]
+	var s: AudioStream = _duplicate_stream_no_loop(base)
 	_music.stop()
 	_music.stream = s
 	_music.volume_db = VOL_MUSIC + _music_duck_db
@@ -237,6 +340,14 @@ func _play_track_at_cursor() -> void:
 
 
 func _on_music_track_finished() -> void:
+	var tier := _desired_playlist_tier()
+	var streams := _get_streams_for_tier(tier)
+	if streams.is_empty():
+		return
+	if _playlist_tier_when_shuffled != tier or _playlist_order.size() != streams.size():
+		_shuffle_playlist_order()
+		if _playlist_order.is_empty():
+			return
 	_playlist_cursor += 1
 	if _playlist_cursor >= _playlist_order.size():
 		_playlist_cursor = 0
@@ -318,21 +429,6 @@ func play_dialogue_page_turn() -> void:
 	_play_sfx(STREAM_DIALOGUE_PAGE_TURN, randf_range(0.96, 1.04), VOL_DIALOGUE_PAGE, BUS_DIALOGUE)
 
 
-## Короткий «бубнёж» под спикера (инди-стиль), CC0 vocal samples.
-func play_dialogue_mumble(speaker_id: String) -> void:
-	var sid := speaker_id.strip_edges().to_lower()
-	var pool = MUMBLE_MALE
-	match sid:
-		"healer":
-			pool = MUMBLE_FEMALE
-		"narrator":
-			pool = MUMBLE_WHISPER
-		"hero":
-			pool = MUMBLE_MALE
-	var stream: AudioStream = pool[randi() % pool.size()]
-	_play_sfx(stream, randf_range(0.94, 1.06), VOL_DIALOGUE_MUMBLE, BUS_DIALOGUE)
-
-
 func play_menu_open() -> void:
 	_play_sfx(STREAM_UI_MENU_OPEN, randf_range(0.98, 1.02), VOL_UI_MENU, BUS_UI)
 
@@ -358,11 +454,6 @@ func play_pickup_gold() -> void:
 ## Уровень: короткий позитивный тон (menu_open + чуть выше тон).
 func play_level_up() -> void:
 	_play_sfx(STREAM_UI_MENU_OPEN, randf_range(1.08, 1.18), VOL_LEVEL_UP, BUS_SFX)
-
-
-## Победа над боссом: тяжёлый удар + низкий тон.
-func play_boss_defeat() -> void:
-	_play_sfx(STREAM_HIT_ARMOR, randf_range(0.88, 0.96), VOL_BOSS, BUS_SFX)
 
 
 ## Лечение: мягкий щелчок (page_turn).

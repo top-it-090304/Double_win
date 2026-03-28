@@ -631,6 +631,10 @@ func _get_location_scene(loc: Events.LOCATION) -> Variant:
 	return scene
 
 func handle_location_changed(new_location: Events.LOCATION):
+	## DialogueWindow живёт в HUD текущей сцены; при change_scene корутины await ломаются (data.tree null),
+	## а DialogueManager остаётся с активным диалогом — _player_input_frozen() блокирует движение навсегда.
+	if DialogueManager.is_active():
+		DialogueManager.end_dialogue()
 	if new_location == Events.LOCATION.MENU:
 		PostFinaleWorld.reset_state_for_main_menu()
 	var prev_location := Events.current_location
@@ -701,6 +705,8 @@ func handle_location_changed(new_location: Events.LOCATION):
 		_capture_expedition_start_snapshot()
 
 	Events.current_location = new_location
+	if new_location == Events.LOCATION.BASE:
+		PostFinaleWorld.player_movement_locked = false
 	if expedition_return_count_incremented and new_location == Events.LOCATION.BASE:
 		Events.expedition_returned.emit(SaveManager.expedition_return_count)
 	## После выхода из главного меню HUD создаётся заново — один раз синхронизируем счётчики (как при входе в меню).
@@ -1198,6 +1204,7 @@ func add_camera_to_player(player: Node) -> void:
 func boss_kill():
 	SaveManager.boss_kill += 1
 	SaveManager.save_game()
+	SoundManager.notify_adventure_music_progress()
 
 
 ## Сюжетный «остров зачищен» (один раз на остров), не зависит от числа мини-боссов с группой BOSS.
