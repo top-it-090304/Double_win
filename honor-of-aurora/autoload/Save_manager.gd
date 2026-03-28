@@ -49,6 +49,7 @@ const DEFAULT_BUILDING_LEVELS := {
 	"Castle": 0,
 	"Barracks": 0,
 	"Archery": 0,
+	"Mine": 0,
 }
 var building_levels: Dictionary = DEFAULT_BUILDING_LEVELS.duplicate()
 ## Громкости шин (0.0–1.0), см. SoundManager.apply_user_volume_settings().
@@ -78,9 +79,37 @@ var hero_speed_bonus: float = 0.0
 var premium_ore_purchased_total: int = 0
 var premium_ore_purchase_count: int = 0
 
+## ─── Система Короны: караваны, приказы, титулы, немилость ───
+## Руда, отправленная Короне за всю игру.
+var ore_sent_to_crown_total: int = 0
+## Индекс текущего приказа (0 = нет активного, 1–5 = по сюжету).
+var crown_order_index: int = 0
+## Руда, уже отправленная по текущему приказу.
+var crown_order_ore_sent: int = 0
+## Экспедиций осталось до дедлайна текущего приказа (0 = просрочен / нет приказа).
+var crown_order_deadline_remaining: int = 0
+## Количество просроченных приказов подряд (для расчёта немилости).
+var crown_orders_failed: int = 0
+## Уровень немилости Короны (0–3).
+var crown_displeasure: int = 0
+## Индекс текущего титула (0–5).
+var crown_title_index: int = 0
+## Экспедиций до следующего каравана.
+var expeditions_until_caravan: int = 3
+## Караван ожидает на базе (игрок ещё не загрузил).
+var caravan_pending: bool = false
+## Сколько раз отправлял караван.
+var caravan_sent_count: int = 0
+## Привалы, использованные в текущем походе.
+var rest_used_this_expedition: int = 0
+## Ресурсы, собранные в текущем походе (для cap-а).
+var expedition_ore_collected: int = 0
+var expedition_wood_collected: int = 0
+var expedition_meat_collected: int = 0
+
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
-const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "opened_chest_ids", "chest_rolled_tiers", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus", "premium_ore_purchased_total", "premium_ore_purchase_count"]
+const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "opened_chest_ids", "chest_rolled_tiers", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus", "premium_ore_purchased_total", "premium_ore_purchase_count", "ore_sent_to_crown_total", "crown_order_index", "crown_order_ore_sent", "crown_order_deadline_remaining", "crown_orders_failed", "crown_displeasure", "crown_title_index", "expeditions_until_caravan", "caravan_pending", "caravan_sent_count"]
 const default_data := {
 	"gold" : 10,
 	"meat_count" : 0,
@@ -125,6 +154,16 @@ const default_data := {
 	"hero_speed_bonus" : 0.0,
 	"premium_ore_purchased_total" : 0,
 	"premium_ore_purchase_count" : 0,
+	"ore_sent_to_crown_total" : 0,
+	"crown_order_index" : 0,
+	"crown_order_ore_sent" : 0,
+	"crown_order_deadline_remaining" : 0,
+	"crown_orders_failed" : 0,
+	"crown_displeasure" : 0,
+	"crown_title_index" : 0,
+	"expeditions_until_caravan" : 3,
+	"caravan_pending" : false,
+	"caravan_sent_count" : 0,
 }
 
 
@@ -214,6 +253,26 @@ func load_game():
 		premium_ore_purchased_total = 0
 	if not game_data.has("premium_ore_purchase_count"):
 		premium_ore_purchase_count = 0
+	if not game_data.has("ore_sent_to_crown_total"):
+		ore_sent_to_crown_total = 0
+	if not game_data.has("crown_order_index"):
+		crown_order_index = 0
+	if not game_data.has("crown_order_ore_sent"):
+		crown_order_ore_sent = 0
+	if not game_data.has("crown_order_deadline_remaining"):
+		crown_order_deadline_remaining = 0
+	if not game_data.has("crown_orders_failed"):
+		crown_orders_failed = 0
+	if not game_data.has("crown_displeasure"):
+		crown_displeasure = 0
+	if not game_data.has("crown_title_index"):
+		crown_title_index = 0
+	if not game_data.has("expeditions_until_caravan"):
+		expeditions_until_caravan = BalanceConfig.CARAVAN_EXPEDITION_INTERVAL
+	if not game_data.has("caravan_pending"):
+		caravan_pending = false
+	if not game_data.has("caravan_sent_count"):
+		caravan_sent_count = 0
 	if not game_data.has("opened_chest_ids"):
 		opened_chest_ids = {}
 	if not game_data.has("chest_rolled_tiers"):
@@ -222,6 +281,15 @@ func load_game():
 	hero_speed_bonus = float(hero_speed_bonus)
 	premium_ore_purchased_total = maxi(0, int(premium_ore_purchased_total))
 	premium_ore_purchase_count = maxi(0, int(premium_ore_purchase_count))
+	ore_sent_to_crown_total = maxi(0, int(ore_sent_to_crown_total))
+	crown_order_index = clampi(int(crown_order_index), 0, 5)
+	crown_order_ore_sent = maxi(0, int(crown_order_ore_sent))
+	crown_order_deadline_remaining = maxi(0, int(crown_order_deadline_remaining))
+	crown_orders_failed = maxi(0, int(crown_orders_failed))
+	crown_displeasure = clampi(int(crown_displeasure), 0, BalanceConfig.DISPLEASURE_MAX_LEVEL)
+	crown_title_index = clampi(int(crown_title_index), 0, BalanceConfig.CROWN_TITLES.size() - 1)
+	expeditions_until_caravan = maxi(0, int(expeditions_until_caravan))
+	caravan_sent_count = maxi(0, int(caravan_sent_count))
 	var _warriors := archer_count + lancer_count
 	if meat_count < _warriors:
 		meat_count = _warriors

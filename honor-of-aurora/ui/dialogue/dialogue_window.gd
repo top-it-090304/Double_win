@@ -27,6 +27,7 @@ const SPEAKER_LABELS := {
 	"narrator": "Повествование",
 	"letter": "Письмо",
 	"veteran": "Бран",
+	"caravan": "Караванщик",
 }
 
 const SPEAKER_FACES := {
@@ -50,6 +51,8 @@ var _text_page_index: int = 0
 var _choice_buttons: Array[Button] = []
 ## Касание, начатое в области списка вариантов (при emulate_mouse_from_touch=false дочерние Button не отдают drag в ScrollContainer).
 var _choice_scroll_touch_index: int = -1
+## Сбрасывается при новой строке и при dialogue_ended — чтобы await в _on_line_changed не продолжался без дерева / устаревшим.
+var _line_change_epoch: int = 0
 
 
 func _ready() -> void:
@@ -195,6 +198,8 @@ func _on_dialogue_started(_sequence: DialogueSequence) -> void:
 
 
 func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void:
+	_line_change_epoch += 1
+	var epoch := _line_change_epoch
 	_clear_choice_ui()
 	var sid: String = line.speaker_id
 	_name_label.text = SPEAKER_LABELS.get(sid, sid.capitalize() if not sid.is_empty() else "?")
@@ -211,8 +216,15 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 		_apply_dialogue_chrome_height(dcl.options.size())
 		_choices_scroll.visible = true
 		_choices_scroll.scroll_vertical = 0
-		await get_tree().process_frame
-		await get_tree().process_frame
+		var tree := get_tree()
+		if tree == null:
+			return
+		await tree.process_frame
+		if epoch != _line_change_epoch or not is_inside_tree():
+			return
+		await tree.process_frame
+		if epoch != _line_change_epoch or not is_inside_tree():
+			return
 		_text_pages = _build_text_pages(line.text)
 		_text_page_index = 0
 		_text_label.text = _text_pages[0] if not _text_pages.is_empty() else ""
@@ -236,15 +248,27 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 			_choice_buttons.append(btn)
 		_refresh_continue_button()
 		## process_always: таймер срабатывает даже при паузе дерева (диалог с pause_game).
-		await get_tree().create_timer(CHOICE_MOUSE_ARM_DELAY_SEC, true, false, true).timeout
+		tree = get_tree()
+		if tree == null:
+			return
+		await tree.create_timer(CHOICE_MOUSE_ARM_DELAY_SEC, true, false, true).timeout
+		if epoch != _line_change_epoch or not is_inside_tree():
+			return
 		for b in _choice_buttons:
 			if is_instance_valid(b):
 				b.mouse_filter = Control.MOUSE_FILTER_STOP
 		return
 
 	_apply_dialogue_chrome_height(0)
-	await get_tree().process_frame
-	await get_tree().process_frame
+	var tree_nc := get_tree()
+	if tree_nc == null:
+		return
+	await tree_nc.process_frame
+	if epoch != _line_change_epoch or not is_inside_tree():
+		return
+	await tree_nc.process_frame
+	if epoch != _line_change_epoch or not is_inside_tree():
+		return
 	_fit_name_font()
 	_text_pages = _build_text_pages(line.text)
 	_text_page_index = 0
@@ -264,6 +288,7 @@ func _clear_choice_ui() -> void:
 
 
 func _on_dialogue_ended(_sequence: DialogueSequence) -> void:
+	_line_change_epoch += 1
 	_clear_choice_ui()
 	_apply_dialogue_chrome_height(0)
 	visible = false

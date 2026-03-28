@@ -63,6 +63,8 @@ static func spawn_roaming_pack(
 	area_radius: float,
 	leash: float
 ) -> void:
+	if PostFinaleWorld.blocks_new_enemy_spawns():
+		return
 	if enemy_scene == null or count <= 0:
 		return
 	var rng := RandomNumberGenerator.new()
@@ -102,3 +104,79 @@ static func _is_spawn_position_free(p: Vector2, parent: Node) -> bool:
 	q.collision_mask = 1
 	var hits: Array = space.intersect_shape(q, 6)
 	return hits.is_empty()
+
+
+## ═══════════════════════════════════════════════════════
+##  РЕСУРСНЫЕ ПИКАПЫ ПРИ ОЧИСТКЕ ЗОНЫ
+## ═══════════════════════════════════════════════════════
+
+const _ORE_PICKUP_SCENE := preload("res://objects/resource_pickups/ore_pickup.tscn")
+const _WOOD_PICKUP_SCENE := preload("res://objects/resource_pickups/wood_pickup.tscn")
+const _MEAT_PICKUP_SCENE := preload("res://objects/resource_pickups/meat_pickup.tscn")
+
+const _RESOURCE_DROP_SPREAD := 64.0
+const _ORE_GUARDIAN_HP_MULT := 2.5
+const _ORE_GUARDIAN_DMG_MULT := 1.8
+
+static var _ore_zone_chance_by_tier: Array[float] = [0.15, 0.20, 0.25, 0.30, 0.40]
+
+
+static func connect_resource_drops(director: EncounterDirector, parent: Node, island_tier: int, guardian_scene: PackedScene = null) -> void:
+	director.zone_cleared.connect(func(zone: EncounterZone) -> void:
+		_on_zone_cleared_spawn_resources(zone, parent, island_tier, guardian_scene)
+	)
+
+
+static func _on_zone_cleared_spawn_resources(zone: EncounterZone, parent: Node, island_tier: int, guardian_scene: PackedScene) -> void:
+	var center := zone.zone_center
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+
+	var wood_count := rng.randi_range(1, 2 + island_tier / 2)
+	var meat_count := rng.randi_range(0, 1 + island_tier / 3)
+
+	for _i in wood_count:
+		_spawn_pickup_near(parent, _WOOD_PICKUP_SCENE, center, rng)
+
+	if _MEAT_PICKUP_SCENE != null:
+		for _j in meat_count:
+			_spawn_pickup_near(parent, _MEAT_PICKUP_SCENE, center, rng)
+
+	var ore_chance: float = _ore_zone_chance_by_tier[clampi(island_tier - 1, 0, _ore_zone_chance_by_tier.size() - 1)]
+	if rng.randf() < ore_chance:
+		var ore_pos := _random_offset(center, _RESOURCE_DROP_SPREAD * 1.5, rng)
+		_spawn_pickup_at(parent, _ORE_PICKUP_SCENE, ore_pos)
+		if guardian_scene != null:
+			_spawn_ore_guardian(parent, guardian_scene, ore_pos, island_tier, zone)
+
+
+static func _spawn_pickup_near(parent: Node, scene: PackedScene, center: Vector2, rng: RandomNumberGenerator) -> void:
+	var pos := _random_offset(center, _RESOURCE_DROP_SPREAD, rng)
+	_spawn_pickup_at(parent, scene, pos)
+
+
+static func _spawn_pickup_at(parent: Node, scene: PackedScene, pos: Vector2) -> void:
+	if scene == null:
+		return
+	var inst := scene.instantiate() as Node2D
+	if inst == null:
+		return
+	inst.global_position = pos
+	parent.call_deferred("add_child", inst)
+
+
+static func _spawn_ore_guardian(parent: Node, scene: PackedScene, ore_pos: Vector2, island_tier: int, zone: EncounterZone) -> void:
+	var inst := scene.instantiate() as Node2D
+	if inst == null:
+		return
+	inst.global_position = ore_pos + Vector2(40, -20)
+	parent.call_deferred("add_child", inst)
+	if inst.has_method("configure_for_island_tier"):
+		inst.call_deferred("configure_for_island_tier", island_tier)
+	inst.set_meta("ore_guardian", true)
+	inst.set_meta("_hp_mult", _ORE_GUARDIAN_HP_MULT)
+	inst.set_meta("_dmg_mult", _ORE_GUARDIAN_DMG_MULT)
+
+
+static func _random_offset(center: Vector2, spread: float, rng: RandomNumberGenerator) -> Vector2:
+	return center + Vector2(rng.randf_range(-spread, spread), rng.randf_range(-spread, spread))

@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://c553p5s31feqq"]
+
+[ext_resource type="Script" path="res://objects/resource_pickups/ore_pickup.gd" id="1_script"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
+radius = 22.0
+
+[node name="OrePickup" type="Area2D"]
+collision_layer = 0
+collision_mask = 2
+monitoring = false
+script = ExtResource("1_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_pickup")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -8)

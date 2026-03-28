@@ -18,6 +18,7 @@ func _ready() -> void:
 	director.island_key = ISLAND_KEY
 	add_child(director)
 	IslandEncounterShared.register_zones(director, self, ISLAND_KEY, ISLAND_TIER, _zones_cfg())
+	IslandEncounterShared.connect_resource_drops(director, self, ISLAND_TIER, _BEAR)
 	_spawn_roamers()
 
 

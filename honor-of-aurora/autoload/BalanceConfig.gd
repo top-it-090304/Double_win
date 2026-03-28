@@ -71,6 +71,63 @@ const PREMIUM_ORE_PACKS := [
 	{"id": "warlord", "title": "Полководец", "ore": 700, "bonus_ore": 180, "price_label": "1 199 ₽"},
 ]
 
+## ─── Шахта: пассивная добыча руды при возврате с похода ───
+const MINE_BASE_ORE_PER_RETURN := 2
+const MINE_ORE_PER_TIER := 1
+const MINE_ORE_PER_PAWN_ON_BASE := 1
+const MINE_MAX_PAWN_BONUS := 3
+
+## ─── Провизия: стоимость похода мясом ───
+const EXPEDITION_BASE_MEAT_COST := 2
+const EXPEDITION_MEAT_PER_WARRIOR := 1
+
+## ─── Привал: хил героя за мясо на острове ───
+const REST_HEAL_RATIO := 0.30
+const REST_MAX_PER_EXPEDITION := 2
+const REST_MEAT_COST := 1
+
+## ─── Караван Короны ───
+const CARAVAN_EXPEDITION_INTERVAL := 3
+const CARAVAN_SUPPLY_GOLD_BASE := 40
+const CARAVAN_SUPPLY_MEAT_BASE := 2
+
+## ─── Приказы Короны (масштабируются по сюжету) ───
+const CROWN_ORDERS := [
+	{"index": 1, "ore_required": 15, "deadline_expeditions": 4, "letter": "Первая партия. Маяк на Северном мысе гаснет. Казна ждёт."},
+	{"index": 2, "ore_required": 25, "deadline_expeditions": 4, "letter": "Совет требует ускорить. Торговцы жалуются на тёмные проливы."},
+	{"index": 3, "ore_required": 40, "deadline_expeditions": 5, "letter": "Казначей прислал инспектора. Покажи ему шахту — и результаты."},
+	{"index": 4, "ore_required": 60, "deadline_expeditions": 5, "letter": "Король лично ждёт отчёт. Не разочаруй Корону."},
+	{"index": 5, "ore_required": 80, "deadline_expeditions": 6, "letter": "Последний маяк. Если он погаснет — виноват будешь ты."},
+]
+
+## ─── Титулы Короны (по суммарной руде, отправленной Короне) ───
+const CROWN_TITLES := [
+	{"id": "recruit",    "name": "Рекрут Авроры",         "ore_threshold": 0,   "gold_bonus_ratio": 0.0,  "mine_ore_bonus": 0, "service_discount": 0.0},
+	{"id": "scout",      "name": "Разведчик Архипелага",   "ore_threshold": 15,  "gold_bonus_ratio": 0.05, "mine_ore_bonus": 0, "service_discount": 0.0},
+	{"id": "guardian",   "name": "Страж Маяков",           "ore_threshold": 50,  "gold_bonus_ratio": 0.05, "mine_ore_bonus": 1, "service_discount": 0.0},
+	{"id": "knight",     "name": "Рыцарь Сердцевины",     "ore_threshold": 120, "gold_bonus_ratio": 0.05, "mine_ore_bonus": 1, "service_discount": 0.10},
+	{"id": "keeper",     "name": "Хранитель Авроры",       "ore_threshold": 250, "gold_bonus_ratio": 0.08, "mine_ore_bonus": 2, "service_discount": 0.10},
+	{"id": "hero",       "name": "Герой Короны",           "ore_threshold": 500, "gold_bonus_ratio": 0.10, "mine_ore_bonus": 2, "service_discount": 0.15},
+]
+
+## ─── Немилость Короны (дебафы за невыполнение приказов) ───
+const DISPLEASURE_GOLD_PENALTY := 0.15
+const DISPLEASURE_BUILDING_COST_PENALTY := 0.20
+const DISPLEASURE_MAX_LEVEL := 3
+
+## ─── Ресурсный cap за один поход (анти-фарм) ───
+const MAX_ORE_PER_EXPEDITION := 6
+const MAX_WOOD_PER_EXPEDITION := 18
+const MAX_MEAT_PER_EXPEDITION := 5
+
+## ─── Неигровые бонусы за донат (пороги суммарной купленной руды) ───
+const PATRON_TIERS := [
+	{"id": "supporter",   "ore_threshold": 50,   "reward": "thank_letter",  "label": "Письмо благодарности в кодексе"},
+	{"id": "patron",      "ore_threshold": 200,  "reward": "title_frame",   "label": "Рамка титула в HUD"},
+	{"id": "chronicler",  "ore_threshold": 500,  "reward": "chronicle_name","label": "Имя в Хронике благодарности"},
+	{"id": "legend",      "ore_threshold": 1000, "reward": "chest_note",    "label": "Персональная записка из сундука"},
+]
+
 
 func _economy_mult() -> float:
 	return DifficultyConfig.get_economy_cost_mult()
@@ -222,3 +279,100 @@ func get_premium_ore_pack(pack_id: String) -> Dictionary:
 		if p is Dictionary and String(p.get("id", "")) == pack_id:
 			return (p as Dictionary).duplicate()
 	return {}
+
+
+## ─── Шахта ───
+
+func get_mine_ore_per_return(mine_tier: int, pawns_on_base: int, title_mine_bonus: int) -> int:
+	var from_tier := MINE_BASE_ORE_PER_RETURN + MINE_ORE_PER_TIER * clampi(mine_tier, 0, 4)
+	var from_pawns := MINE_ORE_PER_PAWN_ON_BASE * clampi(pawns_on_base, 0, MINE_MAX_PAWN_BONUS)
+	return maxi(1, from_tier + from_pawns + maxi(0, title_mine_bonus))
+
+
+## ─── Провизия ───
+
+func get_expedition_meat_cost(warrior_count: int) -> int:
+	return maxi(1, int(round(float(EXPEDITION_BASE_MEAT_COST + EXPEDITION_MEAT_PER_WARRIOR * maxi(0, warrior_count)) * _economy_mult())))
+
+
+func get_rest_heal_amount(max_health: int) -> int:
+	return maxi(1, int(round(float(max_health) * REST_HEAL_RATIO)))
+
+
+## ─── Караван ───
+
+func get_caravan_supply_gold() -> int:
+	return maxi(1, int(round(float(CARAVAN_SUPPLY_GOLD_BASE) * _economy_mult())))
+
+
+func get_caravan_supply_meat() -> int:
+	return CARAVAN_SUPPLY_MEAT_BASE
+
+
+func get_crown_order(order_index: int) -> Dictionary:
+	for o in CROWN_ORDERS:
+		if o is Dictionary and int(o.get("index", -1)) == order_index:
+			return (o as Dictionary).duplicate()
+	return {}
+
+
+## ─── Титулы ───
+
+func get_crown_title_for_ore_sent(ore_sent_total: int) -> Dictionary:
+	var best: Dictionary = CROWN_TITLES[0]
+	for t in CROWN_TITLES:
+		if t is Dictionary and ore_sent_total >= int(t.get("ore_threshold", 0)):
+			best = t
+	return best.duplicate()
+
+
+func get_crown_title_index_for_ore_sent(ore_sent_total: int) -> int:
+	var idx := 0
+	for i in range(CROWN_TITLES.size()):
+		if ore_sent_total >= int(CROWN_TITLES[i].get("ore_threshold", 0)):
+			idx = i
+	return idx
+
+
+func get_crown_gold_bonus_ratio(ore_sent_total: int) -> float:
+	return float(get_crown_title_for_ore_sent(ore_sent_total).get("gold_bonus_ratio", 0.0))
+
+
+func get_crown_service_discount(ore_sent_total: int) -> float:
+	return float(get_crown_title_for_ore_sent(ore_sent_total).get("service_discount", 0.0))
+
+
+func get_crown_mine_ore_bonus(ore_sent_total: int) -> int:
+	return int(get_crown_title_for_ore_sent(ore_sent_total).get("mine_ore_bonus", 0))
+
+
+## ─── Немилость ───
+
+func get_displeasure_gold_mult(displeasure_level: int) -> float:
+	if displeasure_level <= 0:
+		return 1.0
+	return maxf(0.5, 1.0 - DISPLEASURE_GOLD_PENALTY * float(clampi(displeasure_level, 0, DISPLEASURE_MAX_LEVEL)))
+
+
+func get_displeasure_building_cost_mult(displeasure_level: int) -> float:
+	if displeasure_level <= 0:
+		return 1.0
+	return 1.0 + DISPLEASURE_BUILDING_COST_PENALTY * float(clampi(displeasure_level, 0, DISPLEASURE_MAX_LEVEL))
+
+
+## ─── Patron (донат) ───
+
+func get_patron_tier_for_purchased(ore_purchased_total: int) -> Dictionary:
+	var best: Dictionary = {}
+	for t in PATRON_TIERS:
+		if t is Dictionary and ore_purchased_total >= int(t.get("ore_threshold", 0)):
+			best = t
+	return best.duplicate() if not best.is_empty() else {}
+
+
+func get_patron_tier_index(ore_purchased_total: int) -> int:
+	var idx := -1
+	for i in range(PATRON_TIERS.size()):
+		if ore_purchased_total >= int(PATRON_TIERS[i].get("ore_threshold", 0)):
+			idx = i
+	return idx

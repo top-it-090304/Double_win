@@ -2,6 +2,8 @@ extends Node
 
 const GOLD_PICKUP_SCENE := preload("res://objects/resource_pickups/gold_pickup.tscn")
 const MEAT_PICKUP_SCENE := preload("res://objects/resource_pickups/meat_pickup.tscn")
+const WOOD_PICKUP_SCENE := preload("res://objects/resource_pickups/wood_pickup.tscn")
+const ORE_PICKUP_SCENE := preload("res://objects/resource_pickups/ore_pickup.tscn")
 
 var current_scene_player: Node = null
 
@@ -20,19 +22,16 @@ const ARMORY_SHIELD_BASE_DAMAGE_FACTOR: float = 0.2
 ## На каждый уровень здания Barracks (0→4): +12.5% к силе временного бафа (заточка / щит).
 const ARMORY_TIER_BUFF_PER_LEVEL: float = 0.125
 
-## Монастырь: ритуал выносливости на поход и «воскрешение павшего» после возвращения.
+## Монастырь: ритуал выносливости + благословение стойкости на поход.
 var monastery_vitality_prepared: bool = false
 var monastery_hp_bonus_ratio: float = 0.0
-var monastery_revive_used_for_return: bool = false
-var pending_revive_archer_losses: int = 0
-var pending_revive_lancer_losses: int = 0
-var pending_revive_pawn_losses: int = 0
+var monastery_fortitude_prepared: bool = false
+var monastery_fortitude_damage_reduction: float = 0.0
 
 const MONASTERY_VITALITY_BASE_RATIO: float = 0.08
 const MONASTERY_VITALITY_PER_TIER_RATIO: float = 0.03
-const MONASTERY_REVIVE_BASE_CHANCE: float = 0.35
-const MONASTERY_REVIVE_PER_TIER_CHANCE: float = 0.10
-const MONASTERY_REVIVE_CHANCE_CAP: float = 0.75
+const MONASTERY_FORTITUDE_BASE_RATIO: float = 0.10
+const MONASTERY_FORTITUDE_PER_TIER_RATIO: float = 0.04
 
 ## Стрельбище: пассивы от уровня + временные приказы на поход.
 var archery_volley_prepared: bool = false
@@ -79,9 +78,9 @@ func get_monastery_vitality_ratio_preview() -> float:
 	return MONASTERY_VITALITY_BASE_RATIO + MONASTERY_VITALITY_PER_TIER_RATIO * float(t)
 
 
-func get_monastery_revive_chance_preview() -> float:
+func get_monastery_fortitude_ratio_preview() -> float:
 	var t := get_monastery_building_tier()
-	return clampf(MONASTERY_REVIVE_BASE_CHANCE + MONASTERY_REVIVE_PER_TIER_CHANCE * float(t), 0.0, MONASTERY_REVIVE_CHANCE_CAP)
+	return MONASTERY_FORTITUDE_BASE_RATIO + MONASTERY_FORTITUDE_PER_TIER_RATIO * float(t)
 
 
 func get_archery_passive_hp_ratio() -> float:
@@ -118,21 +117,8 @@ func get_monastery_hp_multiplier() -> float:
 	return 1.0 + monastery_hp_bonus_ratio
 
 
-func has_pending_revival_losses() -> bool:
-	return pending_revive_archer_losses > 0 or pending_revive_lancer_losses > 0 or pending_revive_pawn_losses > 0
-
-
-func get_pending_revival_text() -> String:
-	var parts: Array[String] = []
-	if pending_revive_archer_losses > 0:
-		parts.append("лучники %d" % pending_revive_archer_losses)
-	if pending_revive_lancer_losses > 0:
-		parts.append("копейщики %d" % pending_revive_lancer_losses)
-	if pending_revive_pawn_losses > 0:
-		parts.append("пешки %d" % pending_revive_pawn_losses)
-	if parts.is_empty():
-		return "Павших нет"
-	return "Павшие: %s" % " · ".join(parts)
+func get_monastery_damage_reduction_multiplier() -> float:
+	return 1.0 - monastery_fortitude_damage_reduction
 
 
 func get_armory_sword_buff_cost() -> int:
@@ -200,25 +186,16 @@ func try_prepare_monastery_vitality() -> bool:
 	return true
 
 
-func try_monastery_revive_after_return() -> bool:
-	if monastery_revive_used_for_return:
-		return false
-	if not has_pending_revival_losses():
+func try_prepare_monastery_fortitude() -> bool:
+	if monastery_fortitude_prepared:
 		return false
 	if not GameplayFacade.try_spend_gold_plus_ore(
 		BalanceConfig.get_monastery_revive_gold_cost(),
 		BalanceConfig.get_monastery_revive_ore_cost()
 	):
 		return false
-	monastery_revive_used_for_return = true
-	var chance := get_monastery_revive_chance_preview()
-	if randf() > chance:
-		return true
-	var revived_kind := _pick_revive_kind()
-	if revived_kind.is_empty():
-		return true
-	_apply_revive_kind(revived_kind)
-	_spawn_revived_unit_on_base(revived_kind)
+	monastery_fortitude_prepared = true
+	monastery_fortitude_damage_reduction = get_monastery_fortitude_ratio_preview()
 	return true
 
 
@@ -258,7 +235,8 @@ func reset_armory_preparation() -> void:
 func reset_monastery_preparation() -> void:
 	monastery_vitality_prepared = false
 	monastery_hp_bonus_ratio = 0.0
-	monastery_revive_used_for_return = false
+	monastery_fortitude_prepared = false
+	monastery_fortitude_damage_reduction = 0.0
 
 
 func reset_archery_preparation() -> void:
@@ -327,9 +305,25 @@ func purchase_premium_ore_pack(pack_id: String) -> bool:
 	add_ore(ore_amount)
 	SaveManager.premium_ore_purchased_total += ore_amount
 	SaveManager.premium_ore_purchase_count += 1
+	_check_patron_tier_unlock()
 	SaveManager.save_game()
 	Events.premium_ore_pack_purchased.emit(pack_id, ore_amount)
 	return true
+
+
+func _check_patron_tier_unlock() -> void:
+	var tier := BalanceConfig.get_patron_tier_for_purchased(SaveManager.premium_ore_purchased_total)
+	if tier.is_empty():
+		return
+	var reward_id := str(tier.get("reward", ""))
+	if reward_id == "thank_letter" and not StoryState.has_flag("patron_thank_letter"):
+		StoryState.set_flag("patron_thank_letter", true)
+	elif reward_id == "title_frame" and not StoryState.has_flag("patron_title_frame"):
+		StoryState.set_flag("patron_title_frame", true)
+	elif reward_id == "chronicle_name" and not StoryState.has_flag("patron_chronicle_name"):
+		StoryState.set_flag("patron_chronicle_name", true)
+	elif reward_id == "chest_note" and not StoryState.has_flag("patron_chest_note"):
+		StoryState.set_flag("patron_chest_note", true)
 
 
 func _capture_expedition_start_snapshot() -> void:
@@ -337,87 +331,12 @@ func _capture_expedition_start_snapshot() -> void:
 	_expedition_start_archer_count = SaveManager.archer_count
 	_expedition_start_lancer_count = SaveManager.lancer_count
 	_expedition_start_pawn_count = SaveManager.pawn_count
-	pending_revive_archer_losses = 0
-	pending_revive_lancer_losses = 0
-	pending_revive_pawn_losses = 0
-	monastery_revive_used_for_return = false
 
 
 func _finalize_expedition_losses_snapshot() -> void:
 	if not _expedition_snapshot_active:
 		return
-	pending_revive_archer_losses = maxi(0, _expedition_start_archer_count - SaveManager.archer_count)
-	pending_revive_lancer_losses = maxi(0, _expedition_start_lancer_count - SaveManager.lancer_count)
-	pending_revive_pawn_losses = maxi(0, _expedition_start_pawn_count - SaveManager.pawn_count)
 	_expedition_snapshot_active = false
-
-
-func _pick_revive_kind() -> String:
-	var pool: Array[String] = []
-	for _i in range(pending_revive_archer_losses):
-		pool.append("archer")
-	for _j in range(pending_revive_lancer_losses):
-		pool.append("lancer")
-	for _k in range(pending_revive_pawn_losses):
-		pool.append("pawn")
-	if pool.is_empty():
-		return ""
-	return pool[randi() % pool.size()]
-
-
-func _apply_revive_kind(kind: String) -> void:
-	match kind:
-		"archer":
-			if pending_revive_archer_losses <= 0:
-				return
-			SaveManager.archer_count += 1
-			pending_revive_archer_losses -= 1
-		"lancer":
-			if pending_revive_lancer_losses <= 0:
-				return
-			SaveManager.lancer_count += 1
-			pending_revive_lancer_losses -= 1
-		"pawn":
-			if pending_revive_pawn_losses <= 0:
-				return
-			SaveManager.pawn_count += 1
-			pending_revive_pawn_losses -= 1
-	SaveManager.save_game()
-
-
-func _spawn_revived_unit_on_base(kind: String) -> void:
-	if Events.current_location != Events.LOCATION.BASE:
-		return
-	var root := get_tree().current_scene
-	var player := _find_player_node_in_current_scene()
-	if root == null or player == null:
-		return
-	var scene: PackedScene = null
-	match kind:
-		"archer":
-			scene = _get_archer_scene()
-		"lancer":
-			scene = _get_lancer_scene()
-		"pawn":
-			scene = _get_pawn_scene()
-	if scene == null:
-		return
-	var unit := scene.instantiate() as Node2D
-	if unit == null:
-		return
-	var avoid: Array[Vector2] = [player.global_position]
-	for node in get_tree().get_nodes_in_group("ally"):
-		if node is Node2D:
-			avoid.append((node as Node2D).global_position)
-	var positions := pick_archer_spawn_positions(root, 1, avoid, ARCHER_MIN_SPAWN_SEPARATION)
-	root.add_child(unit)
-	unit.add_to_group("squad_member")
-	if unit.has_method("apply_building_progression_from_manager"):
-		unit.apply_building_progression_from_manager()
-	if positions.size() > 0:
-		unit.global_position = positions[0]
-	else:
-		unit.global_position = player.global_position + Vector2(84.0, 0.0)
 
 
 func _ready() -> void:
@@ -712,6 +631,8 @@ func _get_location_scene(loc: Events.LOCATION) -> Variant:
 	return scene
 
 func handle_location_changed(new_location: Events.LOCATION):
+	if new_location == Events.LOCATION.MENU:
+		PostFinaleWorld.reset_state_for_main_menu()
 	var prev_location := Events.current_location
 	var expedition_return_count_incremented := false
 
@@ -754,6 +675,8 @@ func handle_location_changed(new_location: Events.LOCATION):
 		Events.pending_healer_dialogue_after_expedition = true
 		Events.was_on_adventure_before_menu = false
 		SaveManager.was_on_adventure_before_menu = false
+		CrownSystem.harvest_mine_on_expedition_return()
+		CrownSystem.tick_caravan_on_expedition_return()
 		SaveManager.save_game()
 
 	# Главное меню → база («Продолжить»): если до меню были на острове, считаем это возвратом с похода.
@@ -769,9 +692,12 @@ func handle_location_changed(new_location: Events.LOCATION):
 			Events.pending_healer_dialogue_after_expedition = true
 			Events.was_on_adventure_before_menu = false
 			SaveManager.was_on_adventure_before_menu = false
+			CrownSystem.harvest_mine_on_expedition_return()
+			CrownSystem.tick_caravan_on_expedition_return()
 			SaveManager.save_game()
 
 	if prev_location == Events.LOCATION.BASE and Events.is_adventure_location(new_location):
+		CrownSystem.spend_expedition_provisions()
 		_capture_expedition_start_snapshot()
 
 	Events.current_location = new_location
@@ -944,6 +870,54 @@ func _spawn_meat_pickup_at_impl(world_pos: Vector2, amount: int, draw_under_node
 		(p as Node2D).global_position = world_pos + Vector2(0, -14)
 
 
+func spawn_wood_pickup_at(world_pos: Vector2, amount: int, draw_under_node: Node2D = null) -> void:
+	call_deferred("_spawn_wood_pickup_at_impl", world_pos, amount, draw_under_node)
+
+
+func _spawn_wood_pickup_at_impl(world_pos: Vector2, amount: int, draw_under_node: Node2D) -> void:
+	var scene_root: Node = get_tree().current_scene
+	if scene_root == null:
+		return
+	var p: Node = WOOD_PICKUP_SCENE.instantiate()
+	if p == null:
+		return
+	p.set("wood_amount", maxi(0, amount))
+	var parent: Node = scene_root
+	var insert_index: int = -1
+	if draw_under_node != null and is_instance_valid(draw_under_node) and draw_under_node.get_parent() != null:
+		parent = draw_under_node.get_parent()
+		insert_index = draw_under_node.get_index()
+	parent.add_child(p)
+	if insert_index >= 0:
+		parent.move_child(p, insert_index)
+	if p is Node2D:
+		(p as Node2D).global_position = world_pos + Vector2(0, -14)
+
+
+func spawn_ore_pickup_at(world_pos: Vector2, amount: int, draw_under_node: Node2D = null) -> void:
+	call_deferred("_spawn_ore_pickup_at_impl", world_pos, amount, draw_under_node)
+
+
+func _spawn_ore_pickup_at_impl(world_pos: Vector2, amount: int, draw_under_node: Node2D) -> void:
+	var scene_root: Node = get_tree().current_scene
+	if scene_root == null:
+		return
+	var p: Node = ORE_PICKUP_SCENE.instantiate()
+	if p == null:
+		return
+	p.set("ore_amount", maxi(0, amount))
+	var parent: Node = scene_root
+	var insert_index: int = -1
+	if draw_under_node != null and is_instance_valid(draw_under_node) and draw_under_node.get_parent() != null:
+		parent = draw_under_node.get_parent()
+		insert_index = draw_under_node.get_index()
+	parent.add_child(p)
+	if insert_index >= 0:
+		parent.move_child(p, insert_index)
+	if p is Node2D:
+		(p as Node2D).global_position = world_pos + Vector2(0, -14)
+
+
 ## Максимум лучников + копейщиков по запасу мяса.
 func get_max_warriors_allowed() -> int:
 	return maxi(0, SaveManager.meat_count)
@@ -1062,6 +1036,7 @@ func _finish_player_placement_after_scene_change(location: Events.LOCATION) -> v
 	SaveManager.resume_player_position_x = current_scene_player.global_position.x
 	SaveManager.resume_player_position_y = current_scene_player.global_position.y
 	SaveManager.save_game()
+	PostFinaleWorld.apply_after_scene_loaded()
 
 func _spawn_saved_archers(root: Node) -> void:
 	if not current_scene_player or not is_instance_valid(current_scene_player):
@@ -1233,3 +1208,5 @@ func on_story_island_boss_defeated(island_index: int) -> void:
 	if StoryState.has_flag(key):
 		return
 	StoryState.set_flag(key, true)
+	if island_index == 5:
+		PostFinaleWorld.on_story_island_5_boss_won()

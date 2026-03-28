@@ -15,9 +15,20 @@ signal location_changed(location: LOCATION)
 signal gold_changed(value: int)
 signal meat_changed(value: int)
 signal wood_changed(value: int)
-## Запас руды с базовой шахты (пока только счётчик для будущей механики).
 signal ore_changed(value: int)
 signal premium_ore_pack_purchased(pack_id: String, ore_added: int)
+## Караван Короны прибыл на базу и ожидает загрузки.
+signal caravan_arrived(order_index: int)
+## Караван отправлен с рудой.
+signal caravan_dispatched(ore_sent: int, caravan_count: int)
+## Титул Короны повышен.
+signal crown_title_changed(new_title_index: int, title_name: String)
+## Немилость Короны изменилась.
+signal crown_displeasure_changed(level: int)
+## Шахта выдала руду при возврате с похода.
+signal mine_harvested(ore_amount: int)
+## Привал на острове: герой исцелён мясом.
+signal rest_used(heal_amount: int, rests_remaining: int)
 ## Закрыто окно приказов отряду (после беседы / «Далее»): нужно сбросить «attack», иначе ЛКМ снова откроет меню.
 signal squad_orders_menu_closed()
 ## Герой вернулся с острова на базу (счётчик SaveManager.expedition_return_count уже увеличен).

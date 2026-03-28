@@ -58,6 +58,7 @@ const DEFINITION_PATHS: PackedStringArray = [
 	"res://dialogue/definitions/youth_postmortem_letter_1_def.tres",
 	"res://dialogue/definitions/youth_postmortem_letter_2_def.tres",
 	"res://dialogue/definitions/youth_letter_sent_def.tres",
+	"res://dialogue/definitions/caravan_arrival_def.tres",
 ]
 
 var _by_id: Dictionary = {}
@@ -136,6 +137,7 @@ func _on_dialogue_ended(sequence: DialogueSequence) -> void:
 		MonkInteractiveDialogue.grant_ending_flag_after_finale()
 	if sequence.id == "veteran_story_4":
 		VeteranArcherStoryDialogue.grant_ending_flag_after_finale()
+	PostFinaleWorld.dialogue_maybe_trigger_ending(sequence.id)
 	if sequence.id in ["heal_banter", "healer_idle_fallback", "monk_interact_hub", "veteran_archer_banter", "veteran_archer_hub"]:
 		sequence.lines.clear()
 	call_deferred("_flush_pending_dialogue_queue")

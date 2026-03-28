@@ -1,14 +1,16 @@
 extends Area2D
-## Подбор мяса после M_Spawn → M_Idle; начисление при касании игрока (как золото).
+## Подбор руды (сердцевины) на островах. Визуально — gold-спрайт с голубой модуляцией
+## (заменить на собственные O_Spawn / O_Idle когда будут готовы ассеты).
 
-const TEX_SPAWN := preload("res://Asets/Environment/Resources/Resources/M_Spawn.png")
-const TEX_IDLE := preload("res://Asets/Environment/Resources/Resources/M_Idle.png")
+const TEX_SPAWN := preload("res://Asets/Environment/Resources/Resources/G_Spawn.png")
+const TEX_IDLE := preload("res://Asets/Environment/Resources/Resources/G_Idle.png")
 
 const _STRIP_COLS := 7
 const _FRAME_W := 128
 const _SPAWN_START_COL := 1
+const _ORE_MODULATE := Color(0.6, 0.85, 1.0, 1.0)
 
-@export var meat_amount: int = 1
+@export var ore_amount: int = 1
 
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var _shape: CollisionShape2D = $CollisionShape2D
@@ -28,16 +30,18 @@ func _setup_after_physics() -> void:
 		_shape.disabled = true
 	body_entered.connect(_on_body_entered)
 	_build_frames()
-	if _sprite and _sprite.sprite_frames:
-		_sprite.animation_finished.connect(_on_anim_finished)
-		_sprite.play(&"spawn")
+	if _sprite:
+		_sprite.modulate = _ORE_MODULATE
+		if _sprite.sprite_frames:
+			_sprite.animation_finished.connect(_on_anim_finished)
+			_sprite.play(&"spawn")
 
 
 func _build_frames() -> void:
 	var tw: int = TEX_SPAWN.get_width()
 	var th: int = TEX_SPAWN.get_height()
 	if tw != _FRAME_W * _STRIP_COLS:
-		push_warning("meat_pickup: M_Spawn.png expected width %d, got %d" % [_FRAME_W * _STRIP_COLS, tw])
+		push_warning("ore_pickup: expected width %d, got %d" % [_FRAME_W * _STRIP_COLS, tw])
 	var sf := SpriteFrames.new()
 	if sf.has_animation(&"default"):
 		sf.remove_animation(&"default")
@@ -72,9 +76,9 @@ func _on_body_entered(body: Node2D) -> void:
 	if not GameplayFacade.is_player_body(body):
 		return
 	if Events.is_adventure_location(Events.current_location):
-		if not CrownSystem.can_collect_expedition_meat():
+		if not CrownSystem.can_collect_expedition_ore():
 			queue_free()
 			return
-		CrownSystem.track_expedition_meat(meat_amount)
-	GameManager.add_meat(meat_amount)
+		CrownSystem.track_expedition_ore(ore_amount)
+	GameManager.add_ore(ore_amount)
 	queue_free()

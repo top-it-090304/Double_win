@@ -22,6 +22,7 @@ func _ready() -> void:
 func reset_castle_menu_state() -> void:
 	_close_upgrade_select()
 	_close_hire_select()
+	_close_caravan_select()
 	var main_panel := get_node_or_null("CastleMenuPanel") as CanvasItem
 	if main_panel:
 		main_panel.visible = true
@@ -43,6 +44,10 @@ func _refresh_hire_buy_ui() -> void:
 
 
 func try_close_hire_submenu() -> bool:
+	var caravan := get_node_or_null("CaravanSelectPanel") as Control
+	if caravan != null and caravan.visible:
+		_close_caravan_select()
+		return true
 	var upgrade := get_node_or_null("UpgradeSelectPanel") as Control
 	if upgrade != null and upgrade.visible:
 		_close_upgrade_select()
@@ -84,9 +89,12 @@ func _open_upgrade_select() -> void:
 	_refresh_upgrade_building_buttons()
 	var hire := get_node_or_null("HireSelectPanel") as Control
 	var upgrade := get_node_or_null("UpgradeSelectPanel") as Control
+	var caravan := get_node_or_null("CaravanSelectPanel") as Control
 	var main_panel := get_node_or_null("CastleMenuPanel") as CanvasItem
 	if hire:
 		hire.visible = false
+	if caravan:
+		caravan.visible = false
 	if upgrade:
 		upgrade.visible = true
 	if main_panel:
@@ -207,8 +215,11 @@ func _on_upgrade_archery_pressed() -> void:
 
 func _open_hire_select() -> void:
 	var upgrade := get_node_or_null("UpgradeSelectPanel") as Control
+	var caravan := get_node_or_null("CaravanSelectPanel") as Control
 	if upgrade:
 		upgrade.visible = false
+	if caravan:
+		caravan.visible = false
 	_refresh_hire_buy_ui()
 	var quote_lbl := get_node_or_null("HireSelectPanel/HirePanel/SubtitleHire") as Label
 	if quote_lbl:
@@ -333,3 +344,125 @@ func _hire_unit(kind: HireKind) -> void:
 	unit.add_to_group("squad_member")
 	SaveManager.save_game()
 	_close_hire_select()
+
+
+## ═══════════════════════════════════════════════════════
+##  КАРАВАН КОРОНЫ — подменю в замке
+## ═══════════════════════════════════════════════════════
+
+var _caravan_ore_to_send: int = 0
+
+
+func _open_caravan_select() -> void:
+	var hire := get_node_or_null("HireSelectPanel") as Control
+	var upgrade := get_node_or_null("UpgradeSelectPanel") as Control
+	var caravan := get_node_or_null("CaravanSelectPanel") as Control
+	var main_panel := get_node_or_null("CastleMenuPanel") as CanvasItem
+	if hire:
+		hire.visible = false
+	if upgrade:
+		upgrade.visible = false
+	if caravan:
+		caravan.visible = true
+	if main_panel:
+		main_panel.visible = false
+	_set_main_castle_chrome_visible(false)
+	_refresh_caravan_ui()
+
+
+func _close_caravan_select() -> void:
+	var caravan := get_node_or_null("CaravanSelectPanel") as Control
+	var main_panel := get_node_or_null("CastleMenuPanel") as CanvasItem
+	if caravan:
+		caravan.visible = false
+	if main_panel:
+		main_panel.visible = true
+	_set_main_castle_chrome_visible(true)
+
+
+func _refresh_caravan_ui() -> void:
+	var pending := SaveManager.caravan_pending
+	var ore_available := SaveManager.ore_count
+	var order := CrownSystem.get_current_order_info()
+
+	var status_lbl := get_node_or_null("CaravanSelectPanel/CaravanPanel/CaravanStatus") as Label
+	var order_lbl := get_node_or_null("CaravanSelectPanel/CaravanPanel/OrderInfo") as Label
+	var title_lbl := get_node_or_null("CaravanSelectPanel/CaravanPanel/TitleInfo") as Label
+	var ore_lbl := get_node_or_null("CaravanSelectPanel/CaravanPanel/OreAvailable") as Label
+	var send_all_btn := get_node_or_null("CaravanSelectPanel/CaravanPanel/BtnSendAll") as Button
+	var send_half_btn := get_node_or_null("CaravanSelectPanel/CaravanPanel/BtnSendHalf") as Button
+	var dismiss_btn := get_node_or_null("CaravanSelectPanel/CaravanPanel/BtnDismiss") as Button
+
+	if title_lbl:
+		var t_name := CrownSystem.get_current_title_name()
+		var displeasure := SaveManager.crown_displeasure
+		var d_text := ""
+		if displeasure > 0:
+			d_text = "  (немилость: %d)" % displeasure
+		title_lbl.text = "Титул: %s%s" % [t_name, d_text]
+
+	if status_lbl:
+		if pending:
+			status_lbl.text = "Караван ждёт у причала. Загрузите руду."
+		else:
+			var exp_left := SaveManager.expeditions_until_caravan
+			status_lbl.text = "Следующий караван через %d поход(ов)" % exp_left
+
+	if order_lbl:
+		if order.is_empty():
+			order_lbl.text = "Приказов Короны пока нет."
+		else:
+			var req := int(order.get("ore_required", 0))
+			var sent := int(order.get("ore_sent", 0))
+			var deadline := int(order.get("deadline_remaining", 0))
+			order_lbl.text = "Приказ: %d / %d руды. Осталось походов: %d" % [sent, req, deadline]
+
+	if ore_lbl:
+		ore_lbl.text = "Руда на складе: %d" % ore_available
+
+	if send_all_btn:
+		send_all_btn.disabled = not pending or ore_available <= 0
+		send_all_btn.text = "Отправить всё (%d)" % ore_available
+
+	if send_half_btn:
+		var half := maxi(1, ore_available / 2)
+		send_half_btn.disabled = not pending or ore_available <= 0
+		send_half_btn.text = "Отправить %d" % half
+
+	if dismiss_btn:
+		dismiss_btn.disabled = not pending
+		dismiss_btn.text = "Отпустить порожним"
+
+
+func _on_caravan_pressed() -> void:
+	SoundManager.play_ui_button()
+	_open_caravan_select()
+
+
+func _on_caravan_back_pressed() -> void:
+	SoundManager.play_ui_button()
+	_close_caravan_select()
+
+
+func _on_send_all_pressed() -> void:
+	SoundManager.play_ui_button()
+	var amount := SaveManager.ore_count
+	if amount <= 0:
+		return
+	CrownSystem.send_ore_with_caravan(amount)
+	_refresh_caravan_ui()
+
+
+func _on_send_half_pressed() -> void:
+	SoundManager.play_ui_button()
+	var amount := maxi(1, SaveManager.ore_count / 2)
+	if amount <= 0:
+		return
+	CrownSystem.send_ore_with_caravan(amount)
+	_refresh_caravan_ui()
+
+
+func _on_dismiss_caravan_pressed() -> void:
+	SoundManager.play_ui_button()
+	CrownSystem.dismiss_caravan_empty()
+	_refresh_caravan_ui()

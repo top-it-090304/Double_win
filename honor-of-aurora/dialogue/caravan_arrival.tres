@@ -1,0 +1,7 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://dialogue/caravan_arrival_dialogue.gd" id="1_seq"]
+
+[resource]
+script = ExtResource("1_seq")
+id = "caravan_arrival"

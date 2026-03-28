@@ -104,6 +104,8 @@ func _on_heal_zone_player_exited(body: Node2D) -> void:
 func _deferred_chain_monk_zone_story_after_dialogue() -> void:
 	if not is_inside_tree():
 		return
+	if PostFinaleWorld.is_ending_cinematic_active():
+		return
 	if Events.current_location != Events.LOCATION.BASE:
 		return
 	if DialogueManager.is_active():
@@ -221,6 +223,8 @@ func _pick_non_story_dialogue_id() -> String:
 
 
 func _attempt_start_zone_story_dialogue(ignore_zone_block: bool = false) -> bool:
+	if PostFinaleWorld.is_ending_cinematic_active():
+		return false
 	if Events.current_location != Events.LOCATION.BASE:
 		return false
 	if DialogueManager.is_active():
@@ -234,6 +238,8 @@ func _attempt_start_zone_story_dialogue(ignore_zone_block: bool = false) -> bool
 
 
 func _attempt_start_attack_dialogue() -> bool:
+	if PostFinaleWorld.is_ending_cinematic_active():
+		return false
 	if DialogueManager.is_active():
 		return false
 	var d_id := _pick_non_story_dialogue_id()
@@ -287,6 +293,8 @@ func _deferred_run_banter_after_hub() -> void:
 
 
 func _try_healer_interact_from_player_close() -> bool:
+	if PostFinaleWorld.is_ending_cinematic_active():
+		return false
 	if DialogueManager.is_active():
 		return false
 	var player := get_tree().get_first_node_in_group("player") as Node2D

@@ -27,6 +27,7 @@ var _shape: CollisionShape2D
 
 
 func _ready() -> void:
+	add_to_group("encounter_zone")
 	_rng.randomize()
 	collision_layer = 0
 	collision_mask = 2
@@ -100,6 +101,9 @@ func _save_key() -> String:
 func _on_body_entered(body: Node) -> void:
 	if not GameplayFacade.is_player_body(body):
 		return
+	if PostFinaleWorld.blocks_new_enemy_spawns():
+		_started = true
+		return
 	if _cleared or _started:
 		return
 	_started = true
@@ -108,6 +112,8 @@ func _on_body_entered(body: Node) -> void:
 
 
 func _start_next_wave() -> void:
+	if PostFinaleWorld.blocks_new_enemy_spawns():
+		return
 	_current_wave_index += 1
 	while _current_wave_index < waves.size():
 		var w: Array = waves[_current_wave_index]
@@ -197,6 +203,15 @@ func _mark_cleared() -> void:
 	SaveManager.save_game()
 	if _director and _director.has_method("on_zone_cleared"):
 		_director.on_zone_cleared(self)
+
+
+## После глобального удаления врагов финалом — чтобы волны не зависали в «ждём следующую».
+func apply_finale_spawn_shutdown() -> void:
+	if not PostFinaleWorld.blocks_new_enemy_spawns():
+		return
+	_started = true
+	_current_wave_index = waves.size()
+	_alive_from_wave = 0
 
 
 func force_reset_for_debug() -> void:

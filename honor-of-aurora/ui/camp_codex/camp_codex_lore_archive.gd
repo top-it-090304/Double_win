@@ -10,9 +10,10 @@ const CAT_CAMP := "Быт лагеря"
 const CAT_HEALER := "Записи целителя"
 const CAT_LETTERS := "✉ Письма Лиан"
 const CAT_YOUTH_MAIL := "✉ Переписка Мирона"
+const CAT_GRATITUDE := "★ Благодарность авторов"
 
 const CATEGORY_ORDER: PackedStringArray = [
-	CAT_CROWN, CAT_ORDER, CAT_EXPEDITION, CAT_HEALER, CAT_LETTERS, CAT_YOUTH_MAIL, CAT_CAMP,
+	CAT_CROWN, CAT_ORDER, CAT_EXPEDITION, CAT_HEALER, CAT_LETTERS, CAT_YOUTH_MAIL, CAT_CAMP, CAT_GRATITUDE,
 ]
 
 const _CATEGORY_HINTS: Dictionary = {
@@ -23,6 +24,7 @@ const _CATEGORY_HINTS: Dictionary = {
 	CAT_CROWN: "Указы, контракты и политика короны",
 	CAT_ORDER: "Тайны Ордена Тихой Зари",
 	CAT_CAMP: "Записки и находки из лагеря",
+	CAT_GRATITUDE: "Слова тех, кто поддержал экспедицию",
 }
 
 const _SPEAKER_NAMES: Dictionary = {

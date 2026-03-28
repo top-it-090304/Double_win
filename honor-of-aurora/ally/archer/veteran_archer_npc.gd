@@ -59,6 +59,8 @@ func _on_player_entered_zone() -> void:
 
 
 func _attempt_auto_story_dialogue(ignore_block: bool = false) -> bool:
+	if PostFinaleWorld.is_ending_cinematic_active():
+		return false
 	if DialogueManager.is_active():
 		return false
 	if not ignore_block and _block_auto_until_leave:
@@ -70,6 +72,8 @@ func _attempt_auto_story_dialogue(ignore_block: bool = false) -> bool:
 
 
 func try_open_interact_dialog() -> bool:
+	if PostFinaleWorld.is_ending_cinematic_active():
+		return false
 	if DialogueManager.is_active():
 		return false
 	var player := _get_player()

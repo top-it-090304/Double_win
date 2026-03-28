@@ -41,6 +41,10 @@ var _suppress_health_save: bool = false
 var _paralysis_time: float = 0.0
 
 
+func _player_input_frozen() -> bool:
+	return DialogueManager.is_active() or PostFinaleWorld.player_movement_locked
+
+
 func _ready() -> void:
 	if effect_sprite:
 		effect_sprite.visible = false
@@ -173,7 +177,7 @@ func _physics_process(delta):
 		return
 
 	## Диалог: мир не на паузе, но герой стоит в idle без движения и ударов.
-	if DialogueManager.is_active():
+	if _player_input_frozen():
 		velocity = Vector2.ZERO
 		state = State.IDLE
 		if anim:
@@ -198,7 +202,7 @@ func _physics_process(delta):
 		return
 	
 	if state not in [State.ATTACK, State.SHIELD]:
-		if not DialogueManager.is_active():
+		if not _player_input_frozen():
 			if MobileVirtualInput.enabled:
 				dir = MobileVirtualInput.move_vector
 			## Дополнительно к сенсору: WASD / стрелки (действия move_* задаёт GameManager при старте).
@@ -227,7 +231,7 @@ func _physics_process(delta):
 		_footstep_cooldown = 0.0
 	
 	var attack_just := false
-	if DialogueManager.is_active():
+	if _player_input_frozen():
 		attack_just = false
 	elif ChestLootUi.is_chest_popup_open():
 		attack_just = false
@@ -268,7 +272,7 @@ func _physics_process(delta):
 			change_state(State.ATTACK)
 
 	if state == State.SHIELD:
-		if DialogueManager.is_active():
+		if _player_input_frozen():
 			back_to_movement()
 		elif MobileVirtualInput.enabled:
 			if not MobileVirtualInput.shield_held:
@@ -381,7 +385,7 @@ func _on_squad_orders_menu_closed() -> void:
 
 
 func _try_story_priority_instead_of_attack() -> bool:
-	if DialogueManager.is_active():
+	if _player_input_frozen():
 		return false
 	if SquadCombatState.is_engaged():
 		return false
@@ -393,7 +397,7 @@ func _try_story_priority_instead_of_attack() -> bool:
 
 
 func _try_squad_orders_instead_of_attack() -> bool:
-	if DialogueManager.is_active():
+	if _player_input_frozen():
 		return false
 	if SquadCombatState.is_engaged():
 		return false
@@ -411,7 +415,7 @@ func _try_squad_orders_instead_of_attack() -> bool:
 
 
 func _try_healer_interact_instead_of_attack() -> bool:
-	if DialogueManager.is_active():
+	if _player_input_frozen():
 		return false
 	for node in get_tree().get_nodes_in_group("healer"):
 		if node.has_method("try_open_interact_dialog"):
@@ -430,7 +434,7 @@ func _try_healer_interact_instead_of_attack() -> bool:
 
 
 func _try_world_chest_instead_of_attack() -> bool:
-	if DialogueManager.is_active():
+	if _player_input_frozen():
 		return false
 	if SquadCombatState.is_engaged():
 		return false
@@ -460,7 +464,7 @@ func _try_world_chest_instead_of_attack() -> bool:
 
 
 func _try_building_menu_instead_of_attack() -> bool:
-	if DialogueManager.is_active():
+	if _player_input_frozen():
 		return false
 	for node in get_tree().get_nodes_in_group("building_menu_zone"):
 		if node.has_method("try_open_menu_if_player_inside"):

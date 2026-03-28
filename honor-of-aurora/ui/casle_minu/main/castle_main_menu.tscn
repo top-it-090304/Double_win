@@ -2736,9 +2736,254 @@ theme_override_font_sizes/font_size = 20
 text = "22"
 vertical_alignment = 1
 
+[node name="slot_caravan" type="PanelContainer" parent="CastleMenuPanel/MainActions/SlotsRow"]
+custom_minimum_size = Vector2(198, 288)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hire_slot")
+
+[node name="ColumnCaravan" type="VBoxContainer" parent="CastleMenuPanel/MainActions/SlotsRow/slot_caravan"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 0
+
+[node name="PortraitFrameCaravan" type="Panel" parent="CastleMenuPanel/MainActions/SlotsRow/slot_caravan/ColumnCaravan"]
+custom_minimum_size = Vector2(108, 108)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_portrait_frame")
+
+[node name="IconCaravan" type="TextureRect" parent="CastleMenuPanel/MainActions/SlotsRow/slot_caravan/ColumnCaravan/PortraitFrameCaravan"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+texture = ExtResource("8_2llpa")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelCaravanTitle" type="Label" parent="CastleMenuPanel/MainActions/SlotsRow/slot_caravan/ColumnCaravan"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.88, 0.84, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+text = "Караван"
+
+[node name="LabelCaravanDesc" type="Label" parent="CastleMenuPanel/MainActions/SlotsRow/slot_caravan/ColumnCaravan"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 0.95)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+text = "Руда для Короны"
+
+[node name="caravan" type="Button" parent="CastleMenuPanel/MainActions/SlotsRow/slot_caravan/ColumnCaravan"]
+process_mode = 3
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 10
+theme_override_constants/icon_max_width = 36
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
+theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
+theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
+text = "Отправить руду"
+icon = ExtResource("8_2llpa")
+flat = true
+alignment = 1
+icon_alignment = 0
+expand_icon = false
+
+[node name="CaravanSelectPanel" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="CaravanPanel" type="Panel" parent="CaravanSelectPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -360.0
+offset_top = -260.0
+offset_right = 360.0
+offset_bottom = 260.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hire_modal")
+
+[node name="caravan_back_btn" type="Button" parent="CaravanSelectPanel/CaravanPanel"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 84.0
+offset_bottom = 84.0
+theme_override_constants/icon_max_width = 44
+theme_override_colors/font_color = Color(0.88, 0.86, 0.82, 1)
+theme_override_colors/font_hover_pressed_color = Color(1, 0.96, 0.8, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+icon = ExtResource("4_ltan3")
+flat = true
+expand_icon = false
+
+[node name="CaravanTitle" type="Label" parent="CaravanSelectPanel/CaravanPanel"]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 28.0
+offset_right = 648.0
+offset_bottom = 88.0
+theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 40
+horizontal_alignment = 1
+text = "Караван Короны"
+
+[node name="CaravanDivider" type="ColorRect" parent="CaravanSelectPanel/CaravanPanel"]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 96.0
+offset_right = 680.0
+offset_bottom = 98.0
+mouse_filter = 2
+color = Color(0.28, 0.35, 0.46, 0.55)
+
+[node name="TitleInfo" type="Label" parent="CaravanSelectPanel/CaravanPanel"]
+layout_mode = 0
+offset_left = 48.0
+offset_top = 110.0
+offset_right = 672.0
+offset_bottom = 140.0
+theme_override_colors/font_color = Color(0.88, 0.82, 0.58, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+text = "Титул: Рекрут Авроры"
+
+[node name="CaravanStatus" type="Label" parent="CaravanSelectPanel/CaravanPanel"]
+layout_mode = 0
+offset_left = 48.0
+offset_top = 150.0
+offset_right = 672.0
+offset_bottom = 180.0
+theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 0.95)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+autowrap_mode = 3
+text = "Караван ждёт у причала."
+
+[node name="OrderInfo" type="Label" parent="CaravanSelectPanel/CaravanPanel"]
+layout_mode = 0
+offset_left = 48.0
+offset_top = 190.0
+offset_right = 672.0
+offset_bottom = 230.0
+theme_override_colors/font_color = Color(0.9, 0.88, 0.84, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+autowrap_mode = 3
+text = "Приказ: 0 / 10 руды. Осталось походов: 4"
+
+[node name="OreAvailable" type="Label" parent="CaravanSelectPanel/CaravanPanel"]
+layout_mode = 0
+offset_left = 48.0
+offset_top = 240.0
+offset_right = 672.0
+offset_bottom = 270.0
+theme_override_colors/font_color = Color(0.6, 0.85, 1.0, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+text = "Руда на складе: 0"
+
+[node name="ButtonRow" type="HBoxContainer" parent="CaravanSelectPanel/CaravanPanel"]
+layout_mode = 0
+offset_left = 48.0
+offset_top = 300.0
+offset_right = 672.0
+offset_bottom = 360.0
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="BtnSendAll" type="Button" parent="CaravanSelectPanel/CaravanPanel"]
+layout_mode = 0
+offset_left = 48.0
+offset_top = 310.0
+offset_right = 352.0
+offset_bottom = 370.0
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
+theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
+text = "Отправить всё (0)"
+flat = true
+
+[node name="BtnSendHalf" type="Button" parent="CaravanSelectPanel/CaravanPanel"]
+layout_mode = 0
+offset_left = 368.0
+offset_top = 310.0
+offset_right = 672.0
+offset_bottom = 370.0
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+text = "Отправить половину"
+flat = true
+
+[node name="BtnDismiss" type="Button" parent="CaravanSelectPanel/CaravanPanel"]
+layout_mode = 0
+offset_left = 200.0
+offset_top = 390.0
+offset_right = 520.0
+offset_bottom = 440.0
+theme_override_colors/font_color = Color(0.72, 0.68, 0.62, 1)
+theme_override_fonts/font = ExtResource("5_sbu3m")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
+text = "Отпустить порожним"
+flat = true
+
 [connection signal="pressed" from="CastleMenuPanel/castle_back_btn" to="." method="_on_back_pressed"]
 [connection signal="pressed" from="CastleMenuPanel/MainActions/SlotsRow/slot_hire/ColumnHire/hire" to="." method="_on_hire_pressed"]
 [connection signal="pressed" from="CastleMenuPanel/MainActions/SlotsRow/slot_upgrade/ColumnUpgrade/upgreat" to="." method="_on_upgreat_pressed"]
+[connection signal="pressed" from="CastleMenuPanel/MainActions/SlotsRow/slot_caravan/ColumnCaravan/caravan" to="." method="_on_caravan_pressed"]
 [connection signal="pressed" from="HireSelectPanel/HirePanel/hire_back_btn" to="." method="_on_hire_pick_back_pressed"]
 [connection signal="pressed" from="HireSelectPanel/HirePanel/slot_archer/ColumnArcher/BuyArcher" to="." method="_on_hire_archer_pressed"]
 [connection signal="pressed" from="HireSelectPanel/HirePanel/slot_lancer/ColumnLancer/BuyLancer" to="." method="_on_hire_lancer_pressed"]
@@ -2748,3 +2993,7 @@ vertical_alignment = 1
 [connection signal="pressed" from="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle" to="." method="_on_upgrade_castle_pressed"]
 [connection signal="pressed" from="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks" to="." method="_on_upgrade_barracks_pressed"]
 [connection signal="pressed" from="UpgradeSelectPanel/UpgradePanel/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery" to="." method="_on_upgrade_archery_pressed"]
+[connection signal="pressed" from="CaravanSelectPanel/CaravanPanel/caravan_back_btn" to="." method="_on_caravan_back_pressed"]
+[connection signal="pressed" from="CaravanSelectPanel/CaravanPanel/BtnSendAll" to="." method="_on_send_all_pressed"]
+[connection signal="pressed" from="CaravanSelectPanel/CaravanPanel/BtnSendHalf" to="." method="_on_send_half_pressed"]
+[connection signal="pressed" from="CaravanSelectPanel/CaravanPanel/BtnDismiss" to="." method="_on_dismiss_caravan_pressed"]

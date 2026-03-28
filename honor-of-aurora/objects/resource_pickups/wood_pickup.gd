@@ -1,14 +1,14 @@
 extends Area2D
-## Подбор мяса после M_Spawn → M_Idle; начисление при касании игрока (как золото).
+## Подбор дерева после W_Spawn → W_Idle; начисление при касании игрока.
 
-const TEX_SPAWN := preload("res://Asets/Environment/Resources/Resources/M_Spawn.png")
-const TEX_IDLE := preload("res://Asets/Environment/Resources/Resources/M_Idle.png")
+const TEX_SPAWN := preload("res://Asets/Environment/Resources/Resources/W_Spawn.png")
+const TEX_IDLE := preload("res://Asets/Environment/Resources/Resources/W_Idle.png")
 
 const _STRIP_COLS := 7
 const _FRAME_W := 128
 const _SPAWN_START_COL := 1
 
-@export var meat_amount: int = 1
+@export var wood_amount: int = 1
 
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var _shape: CollisionShape2D = $CollisionShape2D
@@ -37,7 +37,7 @@ func _build_frames() -> void:
 	var tw: int = TEX_SPAWN.get_width()
 	var th: int = TEX_SPAWN.get_height()
 	if tw != _FRAME_W * _STRIP_COLS:
-		push_warning("meat_pickup: M_Spawn.png expected width %d, got %d" % [_FRAME_W * _STRIP_COLS, tw])
+		push_warning("wood_pickup: W_Spawn.png expected width %d, got %d" % [_FRAME_W * _STRIP_COLS, tw])
 	var sf := SpriteFrames.new()
 	if sf.has_animation(&"default"):
 		sf.remove_animation(&"default")
@@ -72,9 +72,9 @@ func _on_body_entered(body: Node2D) -> void:
 	if not GameplayFacade.is_player_body(body):
 		return
 	if Events.is_adventure_location(Events.current_location):
-		if not CrownSystem.can_collect_expedition_meat():
+		if not CrownSystem.can_collect_expedition_wood():
 			queue_free()
 			return
-		CrownSystem.track_expedition_meat(meat_amount)
-	GameManager.add_meat(meat_amount)
+		CrownSystem.track_expedition_wood(wood_amount)
+	GameManager.add_wood(wood_amount)
 	queue_free()
