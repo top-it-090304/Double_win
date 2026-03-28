@@ -434,6 +434,27 @@ func mark_lore_note_found(note_id: String) -> void:
 	story_flags["lore_note_%s" % note_id] = true
 
 
+func get_codex_content_version() -> int:
+	var n := 0
+	for key in story_flags:
+		var k: String = str(key)
+		if k.begins_with("_"):
+			continue
+		if k.ends_with("_done") or k.ends_with("_read") or k.ends_with("_cleared") or k.begins_with("lore_note_") or k == "worker_youth_dead" or k == "worker_youth_recruited" or k == "worker_youth_works_on_base":
+			n += 1
+	return n
+
+
+func mark_codex_opened() -> void:
+	story_flags["_codex_seen_version"] = get_codex_content_version()
+	save_game()
+
+
+func has_unseen_codex_content() -> bool:
+	var last_seen: int = int(story_flags.get("_codex_seen_version", 0))
+	return get_codex_content_version() > last_seen
+
+
 func get_building_tier(building_type: String) -> int:
 	if not building_levels.has(building_type):
 		return 0

@@ -17,6 +17,8 @@ const STORY_DIALOGUE_IDS: PackedStringArray = [
 ]
 
 const NON_STORY_DIALOGUE_IDS: PackedStringArray = [
+	"lore_veteran_first_expedition",
+	"lore_veteran_training",
 	"veteran_archer_banter",
 ]
 

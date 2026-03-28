@@ -13,6 +13,8 @@ extends "res://ui/HUD/game_hud.gd"
 @export var camp_codex_panel: Control
 @export var camp_codex_open_button: Button
 
+var _codex_badge: ColorRect
+
 
 func set_target_location(location: Events.LOCATION) -> void:
 	if teleport_menu and teleport_menu.has_method("set_target_location"):
@@ -36,14 +38,40 @@ func _ready() -> void:
 		debug_menu.hide()
 	if camp_codex_open_button:
 		camp_codex_open_button.pressed.connect(_on_codex_button_pressed)
+		_setup_codex_badge()
 	Events.location_changed.connect(_on_location_changed_codex_button)
 	_on_location_changed_codex_button(Events.current_location)
+	DialogueManager.dialogue_ended.connect(_on_any_dialogue_ended_for_badge)
+
+
+func _setup_codex_badge() -> void:
+	if camp_codex_open_button == null:
+		return
+	_codex_badge = ColorRect.new()
+	_codex_badge.custom_minimum_size = Vector2(10, 10)
+	_codex_badge.size = Vector2(10, 10)
+	_codex_badge.color = Color(0.95, 0.72, 0.2, 0.95)
+	_codex_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_codex_badge.visible = false
+	camp_codex_open_button.add_child(_codex_badge)
+	_codex_badge.position = Vector2(camp_codex_open_button.size.x - 14, 4)
+	_update_codex_badge()
+
+
+func _update_codex_badge() -> void:
+	if _codex_badge == null:
+		return
+	_codex_badge.visible = SaveManager.has_unseen_codex_content()
+
+
+func _on_any_dialogue_ended_for_badge(_seq: Variant) -> void:
+	call_deferred("_update_codex_badge")
 
 
 func _on_location_changed_codex_button(_loc: Events.LOCATION) -> void:
 	if camp_codex_open_button == null:
 		return
-	camp_codex_open_button.visible = Events.current_location == Events.LOCATION.BASE
+	camp_codex_open_button.visible = Events.current_location != Events.LOCATION.MENU
 
 
 func _suppress_camp_codex_for_other_modal() -> void:
@@ -344,6 +372,7 @@ func hide_camp_codex_menu() -> void:
 		return
 	camp_codex_panel.visible = false
 	get_tree().paused = false
+	_update_codex_badge()
 
 
 func try_open_squad_orders_menu(unit: Node2D) -> bool:

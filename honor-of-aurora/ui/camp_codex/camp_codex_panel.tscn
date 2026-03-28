@@ -284,7 +284,7 @@ text = "Книга лагеря"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.66, 0.74, 0.95)
 theme_override_font_sizes/font_size = 14
-text = "Сводка, досье, архив находок и снаряжение"
+text = "Сводка, досье, архив, хронология и предметы"
 
 [node name="CloseButton" type="Button" parent="SafeMargin/PanelRoot/InnerMargin/VBox/HeaderRow"]
 custom_minimum_size = Vector2(112, 40)
@@ -700,4 +700,4 @@ theme_override_font_sizes/font_size = 15
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
-text = "Инвентарь — раздел в разработке. Здесь появятся предметы и снаряжение."
+text = ""

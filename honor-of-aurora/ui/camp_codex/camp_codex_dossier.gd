@@ -3,21 +3,51 @@ class_name CampCodexDossier
 
 
 static func intro_plain_text() -> String:
-	return "Сводка похода, базы и отряда: цифры, общий взгляд на мир и личные пометки. Лица лагеря — во вкладке «Досье»."
+	return "Сводка похода, базы и отряда. Лица лагеря — во вкладке «Досье»."
 
 
 static func story_bbcode() -> String:
-	return (
-		"[font_size=22][b]Аврора[/b][/font_size]\n\n"
-		+ "[color=#aab8cc]Архипелаг держит рудники и стражей — пока корона не снимет указ. "
-		+ "Каждый поход добавляет к этой картине новый штрих: кто встретился у огня, что открыли острова, чем закончился разговор о цепи.[/color]"
-	)
+	var parts: PackedStringArray = []
+	parts.append("[font_size=22][b]Аврора[/b][/font_size]\n")
+	if not StoryState.has_flag("intro_base_island_done"):
+		parts.append("[color=#aab8cc]Ты прибыл на архипелаг Аврора по указу короны. Пять островов, пять стражей. Под каждым — сердцевина, без которой гаснут маяки королевства.[/color]")
+		return "\n".join(parts)
+	if not StoryState.has_flag("story_island_1_cleared"):
+		parts.append("[color=#aab8cc]База экспедиции на главном острове. Целитель Ордена Тихой Зари ждал тебя — корабль ушёл, обратного пути нет. На пяти соседних островах сидят стражи, запирающие рудники.[/color]")
+		return "\n".join(parts)
+	var cleared := _count_cleared_islands()
+	if cleared < 3:
+		parts.append("[color=#aab8cc]Стражи — не дикие твари. На первом нашлось клеймо ордена — восьмиконечная звезда. Карты короны лгут: шахты, обещанной казначеем, не оказалось. Рудники на материке иссякают, и корона идёт на всё ради сердцевины.[/color]")
+	elif not StoryState.has_flag("truth_and_choice_done"):
+		parts.append("[color=#aab8cc]Под архипелагом спит Заря — первобытная сила моря, старше слов для неё. Стражи были печатями, которые орден поставил столетия назад. Колокол на Тихой Отмели зазвонил после третьего — впервые за сто лет. С каждым убитым стражем сон тоньше.[/color]")
+	elif not StoryState.has_flag("story_island_5_cleared"):
+		parts.append("[color=#aab8cc]Монах признался: стражи — печати ордена. Корона знала это с самого начала. Каждый снятый узел приближал монаху отпуск к дочери. Осталось решить: будить Зарю или оставить последний замок на месте.[/color]")
+	else:
+		parts.append("[color=#aab8cc]Замки сняты. Вода светится, деревья скрипят без ветра, под землёй — гул. Заря просыпается. Ни орден, ни корона не знают, чем это кончится. Мир уже не будет прежним.[/color]")
+	return "\n".join(parts)
 
 
 static func personal_bbcode() -> String:
-	return (
-		"[color=#aab8cc]Свои пометки с дороги — позже. Найденные в мире тексты лежат во вкладке «Архив записок».[/color]"
-	)
+	var lines: PackedStringArray = []
+	if StoryState.has_flag("monk_ch2_hope") or StoryState.has_flag("monk_ch4_hope") or StoryState.has_flag("monk_ch5_hope"):
+		lines.append("[color=#a8c4a0]Ты давал монаху надежду — обещал, что путь закончится светом.[/color]")
+	if StoryState.has_flag("monk_ch2_doubt") or StoryState.has_flag("monk_ch4_doubt") or StoryState.has_flag("monk_ch5_doubt"):
+		lines.append("[color=#c4b8a0]Ты не скрывал сомнений — говорил монаху то, что не хотят слышать.[/color]")
+	if StoryState.has_flag("monk_ch2_duty") or StoryState.has_flag("monk_ch4_duty") or StoryState.has_flag("monk_ch5_duty"):
+		lines.append("[color=#a0b8c4]Ты напоминал монаху о долге — сначала контракт, потом дорога.[/color]")
+	if StoryState.has_flag("worker_youth_dead"):
+		lines.append("[color=#c4a0a0]Юноша погиб на островах. Дома — мать и младшая сестра, которая рисует кораблики и ждёт ракушку. В его кармане — ложь, написанная заранее: «У меня всё хорошо. Я приеду».[/color]")
+	elif StoryState.has_flag("worker_youth_recruited"):
+		lines.append("[color=#a0c4a8]Ты взял юношу в отряд. Решение — на твоей совести.[/color]")
+	elif StoryState.has_flag("worker_youth_works_on_base"):
+		lines.append("[color=#a8c4a0]Юноша работает на базе. Целый, живой.[/color]")
+	if StoryState.has_flag("hero_chose_finish_chain"):
+		lines.append("[color=#c8c4a0]Ты решил идти до конца — снять последнюю печать.[/color]")
+	if StoryState.has_flag("hero_chose_refuse_chain"):
+		lines.append("[color=#a0b0c8]Ты отказался будить Зарю. Замок стоит.[/color]")
+	if lines.is_empty():
+		lines.append("[color=#aab8cc]Пока записывать нечего. Впереди — острова и разговоры у огня.[/color]")
+	return "\n".join(lines)
 
 
 static func get_character_entries() -> Array[Dictionary]:
@@ -33,21 +63,21 @@ static func get_character_entries() -> Array[Dictionary]:
 			"key": "healer",
 			"display_name": "Целитель",
 			"role_line": "Брат Ордена Тихой Зари · монастырь на базе",
-			"brief_plain": "Целитель экспедиции: лечение, оговорённый с короной контракт ордена и разговоры у огня.",
+			"brief_plain": "Целитель экспедиции: лечение, контракт ордена с короной и разговоры у огня.",
 			"portrait": "res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/aa_healler.png",
 		},
 		{
 			"key": "youth",
 			"display_name": "Юноша",
 			"role_line": "Доброволец · склад и причал",
-			"brief_plain": "Доброволец с причала: работа на базе и просьба не забыть о нём, когда начнётся настоящий поход.",
+			"brief_plain": "Доброволец с причала: работа на базе и мечта о настоящем походе.",
 			"portrait": "res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_05.png",
 		},
 		{
 			"key": "veteran",
 			"display_name": "Бран",
 			"role_line": "Ветеран-лучник · стрельбище",
-			"brief_plain": "Бран, бывший королевский стрелок первой экспедиции. Тренирует лучников и помнит тех, кого списали в «допустимые потери».",
+			"brief_plain": "Бывший королевский стрелок первой экспедиции. Тренирует лучников и помнит тех, кого списали в «допустимые потери».",
 			"portrait": "res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_08.png",
 		},
 	]
@@ -64,6 +94,61 @@ static func build_stats_bbcode(tree: SceneTree) -> String:
 			out += "[color=#9eb0c8]%s[/color]  —  [color=#e8ecf0]%s[/color]\n" % [row["label"], row["value"]]
 		out += "\n"
 	return out
+
+
+static func build_timeline_bbcode() -> String:
+	var beats := _timeline_beats()
+	var out := ""
+	var any := false
+	for b in beats:
+		var d: Dictionary = b
+		var flg: String = String(d.get("flag", ""))
+		if flg != "" and not StoryState.has_flag(flg):
+			continue
+		any = true
+		var title: String = String(d.get("title", ""))
+		var body: String = String(d.get("body", ""))
+		out += "[font_size=16][b]%s[/b][/font_size]\n[color=#b8c0d0]%s[/color]\n\n" % [title, body]
+	if not any:
+		return "[color=#8899aa]Хронология пуста. Исследуй острова — события появятся здесь.[/color]"
+	return out.strip_edges()
+
+
+static func _timeline_beats() -> Array:
+	return [
+		{"flag": "intro_base_island_done", "title": "Прибытие на Аврору", "body": "Корабль ушёл. Целитель Ордена Тихой Зари встретил на берегу. Пять островов, пять стражей. Под ними — сердцевина для маяков короны."},
+		{"flag": "worker_youth_intro_done", "title": "Юноша на причале", "body": "Доброволец по объявлению короны. Просится в отряд — или хотя бы в работу."},
+		{"flag": "veteran_archer_intro_done", "title": "Бран у стрельбища", "body": "Ветеран первой экспедиции. Пятнадцать лет на этих камнях. Тренирует лучников и помнит каждое из одиннадцати имён."},
+		{"flag": "story_island_1_cleared", "title": "Первый страж повержен", "body": "На костях — клеймо ордена. Восьмиконечная звезда. Стражей поставили люди."},
+		{"flag": "monk_story_1_done", "title": "У огня: орден и контракт", "body": "Монах рассказал о контракте с короной: «до стабилизации узлов» — без срока, без даты."},
+		{"flag": "story_island_2_cleared", "title": "Второй страж повержен", "body": "Шахты на карте не оказалось — казначей нарисовал её для указа. Корона знала заранее."},
+		{"flag": "monk_story_2_done", "title": "У огня: жена и дочь", "body": "Монах приехал вдовцом. Дочь Лиан считал мёртвой. Каждый снятый узел приближает конец контракта."},
+		{"flag": "story_island_3_cleared", "title": "Третий страж повержен", "body": "Колокол на Тихой Отмели зазвонил впервые за сто лет. Стражи — печати. Под архипелагом спит Заря."},
+		{"flag": "monk_story_3_done", "title": "У огня: печати и цепь", "body": "Море теплее, ветер резче. Монах подтвердил правду: стражи — творение ордена."},
+		{"flag": "monk_letter_1_read", "title": "Первое письмо Лиан", "body": "«Папа. Если ты это читаешь — просто скажи «жив»». Она научилась читать сама. Первое слово — «папа». Показать было некому."},
+		{"flag": "monk_story_4_done", "title": "У огня: Лиан жива", "body": "Письмо с большой земли. Лиан жива. Монах дрожит — впервые говорит о том, чего хочет для себя."},
+		{"flag": "story_island_4_cleared", "title": "Четвёртый страж повержен", "body": "Страж не нападал первым — стоял и ждал. Живой замок ордена. Остался один."},
+		{"flag": "monk_story_5_done", "title": "У огня: свобода и цена", "body": "Монах: «Моя свобода зависит от твоего решения». Один акт — и контракт закрыт."},
+		{"flag": "monk_letter_2_read", "title": "Второе письмо Лиан", "body": "«Не умирай по дороге. Это всё, о чём прошу». Она хранит мешочек с его травами. Он уже не пахнет. А она помнит."},
+		{"flag": "youth_letter_1_done", "title": "Письмо с материка", "body": "Мать юноши узнала, где он. Сестра Ника рисует кораблики и спрашивает каждое утро: «Когда приедет?» Юноша ответил: «Вернусь с историей»."},
+		{"flag": "worker_youth_camp_done", "title": "У костра с юношей", "body": "Он спросил: «Зачем вы сюда пошли?» И рассказал про отца, который всю жизнь таскал ящики, а за столом ему нечего было сказать. «Я хочу, чтобы было что рассказать»."},
+		{"flag": "youth_letter_2_done", "title": "Второе письмо мамы", "body": "«Ника перестала спрашивать, когда ты приедешь. Просто рисует кораблики и вешает на стену. Их уже семь». Юноша обещал привезти ракушку — самую большую."},
+		{"flag": "worker_youth_dead", "title": "Гибель юноши", "body": "Нелепая засада среди камней. Последние слова: «Отправь письмо. Она не должна знать». В кармане — заранее написанное прощание, замаскированное под хорошие новости. «Кашу вари. На троих. Я приеду»."},
+		{"flag": "truth_and_choice_done", "title": "Правда и выбор", "body": "Монах признался во всём: стражи — печати, «тварь» — ложь короны, отпуск — его личная ставка. Выбор за тобой."},
+		{"flag": "hero_chose_finish_chain", "title": "Решение: идти до конца", "body": "Ты пообещал снять последнюю печать. Монах увидит дочь. Заря проснётся."},
+		{"flag": "hero_chose_refuse_chain", "title": "Решение: отказ", "body": "Ты отказался будить Зарю. Замок стоит. Монах остаётся — навсегда."},
+		{"flag": "monk_story_6_done", "title": "Финал линии монаха", "body": "Последняя исповедь у огня. Монах уходит — или остаётся — с тем, что ты помог ему понять."},
+		{"flag": "story_island_5_cleared", "title": "Пятый страж повержен", "body": "Все замки сняты. Вода светится. Заря просыпается. Мир уже не будет прежним."},
+		{"flag": "story_part1_refused_path", "title": "Финал: отказ", "body": "Последний страж стоит. Заря спит. Рыцарь уходит с чистой совестью. Корона ищет другой меч."},
+	]
+
+
+static func _count_cleared_islands() -> int:
+	var n := 0
+	for i in range(1, 6):
+		if StoryState.has_flag("story_island_%d_cleared" % i):
+			n += 1
+	return n
 
 
 static func _build_stats_sections(tree: SceneTree) -> Array:

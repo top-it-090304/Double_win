@@ -48,6 +48,11 @@ const DEFINITION_PATHS: PackedStringArray = [
 	"res://dialogue/definitions/veteran_story_4_def.tres",
 	"res://dialogue/definitions/veteran_truth_react_def.tres",
 	"res://dialogue/definitions/veteran_youth_death_def.tres",
+	"res://dialogue/definitions/worker_youth_camp_def.tres",
+	"res://dialogue/definitions/worker_youth_letter_1_def.tres",
+	"res://dialogue/definitions/worker_youth_letter_2_def.tres",
+	"res://dialogue/definitions/lore_veteran_first_expedition_def.tres",
+	"res://dialogue/definitions/lore_veteran_training_def.tres",
 ]
 
 var _by_id: Dictionary = {}

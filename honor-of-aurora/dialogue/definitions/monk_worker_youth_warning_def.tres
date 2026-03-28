@@ -7,7 +7,7 @@
 [sub_resource type="Resource" id="cond"]
 script = ExtResource("2_cond")
 required_flags = Array[String](["worker_youth_intro_done"])
-blocked_flags = Array[String](["monk_worker_youth_warning_done", "worker_youth_recruited"])
+blocked_flags = Array[String](["monk_worker_youth_warning_done", "worker_youth_recruited", "worker_youth_dead"])
 
 [resource]
 script = ExtResource("1_def")

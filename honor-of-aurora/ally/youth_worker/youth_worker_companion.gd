@@ -24,7 +24,7 @@ func _ready() -> void:
 		return
 	add_to_group("story_youth_companion")
 	add_to_group("dock_youth_interact")
-	max_health = 55
+	max_health = 12
 	attack_damage = 12
 	super._ready()
 	speed = 130.0
@@ -158,6 +158,8 @@ func _on_location_changed(loc: Events.LOCATION) -> void:
 		call_deferred("_maybe_begin_intro_sequence")
 		call_deferred("_maybe_trigger_death_scene")
 		call_deferred("_maybe_trigger_alive_truth_scene")
+		call_deferred("_maybe_trigger_camp_scene")
+		call_deferred("_maybe_trigger_letter_scene")
 
 
 func _maybe_trigger_death_scene() -> void:
@@ -168,6 +170,32 @@ func _maybe_trigger_death_scene() -> void:
 	if DialogueManager.is_active():
 		return
 	DialogueRegistry.try_start("worker_youth_death")
+
+
+func _maybe_trigger_camp_scene() -> void:
+	if not StoryState.has_flag("worker_youth_recruited"):
+		return
+	if StoryState.has_flag("worker_youth_camp_done"):
+		return
+	if StoryState.has_flag("worker_youth_dead"):
+		return
+	if DialogueManager.is_active():
+		return
+	DialogueRegistry.try_start("worker_youth_camp")
+
+
+func _maybe_trigger_letter_scene() -> void:
+	if StoryState.has_flag("worker_youth_dead"):
+		return
+	if not StoryState.has_flag("worker_youth_intro_done"):
+		return
+	if DialogueManager.is_active():
+		return
+	if not StoryState.has_flag("youth_letter_1_done") and DialogueRegistry.can_play("worker_youth_letter_1"):
+		DialogueRegistry.try_start("worker_youth_letter_1")
+		return
+	if StoryState.has_flag("youth_letter_1_done") and not StoryState.has_flag("youth_letter_2_done") and DialogueRegistry.can_play("worker_youth_letter_2"):
+		DialogueRegistry.try_start("worker_youth_letter_2")
 
 
 func _maybe_trigger_alive_truth_scene() -> void:

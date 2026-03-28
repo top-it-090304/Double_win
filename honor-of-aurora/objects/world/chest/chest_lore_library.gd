@@ -2,6 +2,57 @@ class_name ChestLoreLibrary
 extends Object
 ## Тексты записок по id. Добавляйте ключи и сюда, и в кандидаты на сундуке (lore_note_candidates).
 
+const CAT_CROWN := "Корона и политика"
+const CAT_ORDER := "Орден и Заря"
+const CAT_EXPEDITION := "Первая экспедиция"
+const CAT_CAMP := "Быт лагеря"
+
+const _TITLES: Dictionary = {
+	"chest_note_king_letter": "Письмо короля казначею",
+	"chest_note_contract_fragment": "Фрагмент договора с орденом",
+	"chest_note_treasurer_memo": "Записка казначея капитану порта",
+	"chest_note_supply_order": "Приказ интенданта о снабжении",
+	"chest_note_order_founding": "Хроника основания ордена",
+	"chest_note_guardian_origin": "Записи первого настоятеля",
+	"chest_note_dawn_warning": "Песня рыбаков о Заре",
+	"chest_note_seal_mechanics": "Заметки младшего брата ордена",
+	"chest_note_bell_record": "Журнал наблюдений: колокол",
+	"chest_note_first_expedition": "Полевой рапорт Брана",
+	"chest_note_veteran_names": "Список потерь первой экспедиции",
+	"chest_note_mars_last_order": "Последний приказ лейтенанта Марса",
+	"chest_note_bran_personal": "Неотправленное письмо Брана",
+	"chest_note_aurora_rumor": "Рыбацкая молва об Авроре",
+	"chest_note_ore_mine": "Заметка о сердцевине и маяках",
+	"chest_note_meat_supply": "Памятка о провианте",
+	"chest_note_archer_graffiti": "Граффити у стрельбища",
+	"chest_note_worker_complaint": "Жалоба рудокопа",
+	"chest_note_cook_recipe": "Рецепт лагерной каши",
+	"chest_note_youth_note": "Письмо юноши маме",
+}
+
+const _CATEGORIES: Dictionary = {
+	"chest_note_king_letter": CAT_CROWN,
+	"chest_note_contract_fragment": CAT_CROWN,
+	"chest_note_treasurer_memo": CAT_CROWN,
+	"chest_note_supply_order": CAT_CROWN,
+	"chest_note_order_founding": CAT_ORDER,
+	"chest_note_guardian_origin": CAT_ORDER,
+	"chest_note_dawn_warning": CAT_ORDER,
+	"chest_note_seal_mechanics": CAT_ORDER,
+	"chest_note_bell_record": CAT_ORDER,
+	"chest_note_first_expedition": CAT_EXPEDITION,
+	"chest_note_veteran_names": CAT_EXPEDITION,
+	"chest_note_mars_last_order": CAT_EXPEDITION,
+	"chest_note_bran_personal": CAT_EXPEDITION,
+	"chest_note_aurora_rumor": CAT_CAMP,
+	"chest_note_ore_mine": CAT_CAMP,
+	"chest_note_meat_supply": CAT_CAMP,
+	"chest_note_archer_graffiti": CAT_CAMP,
+	"chest_note_worker_complaint": CAT_CAMP,
+	"chest_note_cook_recipe": CAT_CAMP,
+	"chest_note_youth_note": CAT_CAMP,
+}
+
 const _TEXTS: Dictionary = {
 	# --- Корона и политика ---
 	"chest_note_king_letter":
@@ -49,7 +100,7 @@ const _TEXTS: Dictionary = {
 	"chest_note_cook_recipe":
 	"«Рецепт лагерной каши (секретный): вода, крупа, щепотка соли, надежда. Если надежды нет — добавь вторую щепотку соли. Вкус тот же, но руки заняты.»",
 	"chest_note_youth_note":
-	"«Записка мелким почерком: «Мама, я на острове. Здесь море и рыцарь. Рыцарь большой. Море ещё больше. Я работаю при складе. Не волнуйся. Пирогов не хватает. Твой сын.» Письмо не отправлено — нет почты.»",
+	"«Мелкий, торопливый почерк. Буквы пляшут — как будто писали на коленке.\n\nМама. Я на острове. Настоящем. Море — как ты говорила, только больше и злее.\n\nТут есть рыцарь. Он не такой, как в рассказах — усталый, молчаливый, но не злой. Он берёт меня с собой. Не как слугу — рядом.\n\nПоцелуй Нику. Скажи, что остров настоящий и рыбы тут огромные.\n\nЯ хочу, чтобы когда-нибудь я вернулся домой и сел за стол. И чтобы ты спросила: «Ну, расскажи». И я бы рассказал. Не про ящики в порту. Про настоящее.\n\nНе волнуйся. Тут кормят. Каша — не твоя, но терпимо.\n\nТвой сын.»\n\nПервый черновик — позже переписал и отправил с караваном.»",
 }
 
 
@@ -63,6 +114,8 @@ static func get_note_text(note_id: String) -> String:
 static func get_note_display_title(note_id: String) -> String:
 	if note_id.is_empty():
 		return ""
+	if _TITLES.has(note_id):
+		return str(_TITLES[note_id])
 	if not _TEXTS.has(note_id):
 		return note_id
 	var body: String = str(_TEXTS[note_id])
@@ -71,6 +124,10 @@ static func get_note_display_title(note_id: String) -> String:
 	if first.length() > 56:
 		return first.left(53) + "…"
 	return first if not first.is_empty() else String(note_id)
+
+
+static func get_note_category(note_id: String) -> String:
+	return str(_CATEGORIES.get(note_id, CAT_CAMP))
 
 
 static func get_all_note_ids() -> PackedStringArray:

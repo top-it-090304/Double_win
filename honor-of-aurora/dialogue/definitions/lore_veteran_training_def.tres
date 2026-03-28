@@ -2,16 +2,17 @@
 
 [ext_resource type="Script" path="res://dialogue/dialogue_definition.gd" id="1_def"]
 [ext_resource type="Script" path="res://dialogue/dialogue_conditions.gd" id="2_cond"]
-[ext_resource type="Resource" path="res://dialogue/monk_worker_youth_lament.tres" id="3_seq"]
+[ext_resource type="Resource" path="res://dialogue/lore_zone_veteran_training.tres" id="3_seq"]
 
 [sub_resource type="Resource" id="cond"]
 script = ExtResource("2_cond")
-required_flags = Array[String](["worker_youth_recruited"])
-blocked_flags = Array[String](["monk_worker_youth_lament_done", "monk_worker_youth_warning_done", "worker_youth_dead"])
+required_flags = Array[String](["intro_base_island_done"])
+blocked_flags = Array[String](["lore_veteran_training_done"])
+min_expedition_return_count = 2
 
 [resource]
 script = ExtResource("1_def")
-id = "monk_worker_youth_lament"
+id = "lore_veteran_training"
 sequence = ExtResource("3_seq")
 conditions = SubResource("cond")
-grant_flags_on_complete = Array[String](["monk_worker_youth_lament_done"])
+grant_flags_on_complete = Array[String](["lore_veteran_training_done"])
