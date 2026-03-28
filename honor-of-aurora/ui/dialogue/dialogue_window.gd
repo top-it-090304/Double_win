@@ -1,9 +1,5 @@
 extends Control
 
-const NAME_FONT_SIZE := 14
-const NAME_FONT_COLOR := Color(1, 1, 1, 1)
-const TEXT_FONT_SIZE := 22
-const TEXT_FONT_COLOR := Color(1, 1, 1, 1)
 const NAME_FONT_MIN := 8
 const TEXT_FONT_MIN := 8
 const TEXT_MEASURE_HEIGHT_TRIM := 2.0
@@ -79,12 +75,12 @@ func _ready() -> void:
 func _apply_label_theme() -> void:
 	if _name_label == null or _text_label == null:
 		return
-	_name_label.add_theme_font_size_override("font_size", NAME_FONT_SIZE)
-	_name_label.add_theme_color_override("font_color", NAME_FONT_COLOR)
+	_name_label.add_theme_font_size_override("font_size", DialogueUiConstants.NAME_FONT_SIZE)
+	_name_label.add_theme_color_override("font_color", DialogueUiConstants.NAME_FONT_COLOR)
 	_name_label.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
 	_name_label.clip_text = false
-	_text_label.add_theme_font_size_override("font_size", TEXT_FONT_SIZE)
-	_text_label.add_theme_color_override("font_color", TEXT_FONT_COLOR)
+	_text_label.add_theme_font_size_override("font_size", DialogueUiConstants.TEXT_FONT_SIZE)
+	_text_label.add_theme_color_override("font_color", DialogueUiConstants.TEXT_FONT_COLOR)
 	_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_text_label.clip_text = true
 	## Колонка текста растягивается по высоте блока с портретом; без центрирования короткие реплики «липнут» к верху.
@@ -304,7 +300,7 @@ func _text_max_height() -> float:
 		var vp: Viewport = get_viewport()
 		if vp:
 			h = vp.get_visible_rect().size.y * 0.11
-	return maxf(h, float(TEXT_FONT_SIZE) * 1.6)
+	return maxf(h, float(DialogueUiConstants.TEXT_FONT_SIZE) * 1.6)
 
 
 func _label_effective_size(label: Label) -> Vector2:
@@ -338,13 +334,13 @@ func _fit_name_font() -> void:
 		return
 	_name_label.visible = true
 	_name_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	_fit_font_to_label(_name_label, _name_label.text, NAME_FONT_SIZE, NAME_FONT_MIN)
+	_fit_font_to_label(_name_label, _name_label.text, DialogueUiConstants.NAME_FONT_SIZE, NAME_FONT_MIN)
 
 
 func _fit_dialogue_text_font() -> void:
 	if _text_label == null:
 		return
-	_fit_font_to_label(_text_label, _text_label.text, TEXT_FONT_SIZE, TEXT_FONT_MIN)
+	_fit_font_to_label(_text_label, _text_label.text, DialogueUiConstants.TEXT_FONT_SIZE, TEXT_FONT_MIN)
 
 
 func _build_text_pages(full_text: String) -> PackedStringArray:
@@ -355,11 +351,11 @@ func _build_text_pages(full_text: String) -> PackedStringArray:
 		return PackedStringArray([""])
 	var font: Font = _font_for_label(_text_label)
 	var max_w: float = maxf(_text_max_width(), 8.0)
-	var max_h: float = maxf(_text_max_height(), float(TEXT_FONT_SIZE) * 1.5)
+	var max_h: float = maxf(_text_max_height(), float(DialogueUiConstants.TEXT_FONT_SIZE) * 1.5)
 	var pages: Array[String] = []
 	var rest: String = t
 	while not rest.is_empty():
-		var page: String = _take_text_page(rest, font, TEXT_FONT_SIZE, max_w, max_h)
+		var page: String = _take_text_page(rest, font, DialogueUiConstants.TEXT_FONT_SIZE, max_w, max_h)
 		if page.is_empty():
 			page = rest.substr(0, 1)
 		pages.append(page)

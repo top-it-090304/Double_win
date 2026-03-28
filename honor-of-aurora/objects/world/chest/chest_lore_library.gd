@@ -59,6 +59,20 @@ static func get_note_text(note_id: String) -> String:
 	return str(_TEXTS[note_id])
 
 
+## Короткий заголовок для списка в архиве (кодекс / досье).
+static func get_note_display_title(note_id: String) -> String:
+	if note_id.is_empty():
+		return ""
+	if not _TEXTS.has(note_id):
+		return note_id
+	var body: String = str(_TEXTS[note_id])
+	var first := body.strip_edges().split("\n")[0].strip_edges()
+	first = first.trim_prefix("«").trim_suffix("»").strip_edges()
+	if first.length() > 56:
+		return first.left(53) + "…"
+	return first if not first.is_empty() else String(note_id)
+
+
 static func get_all_note_ids() -> PackedStringArray:
 	var out := PackedStringArray()
 	for k in _TEXTS.keys():

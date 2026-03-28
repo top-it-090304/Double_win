@@ -1,0 +1,703 @@
+[gd_scene load_steps=15 format=4 uid="uid://campcodexpanelroot"]
+
+[ext_resource type="Script" path="res://ui/camp_codex/camp_codex_panel.gd" id="1_script"]
+
+[sub_resource type="Gradient" id="Gradient_backdrop"]
+offsets = PackedFloat32Array(0, 0.55, 1)
+colors = PackedColorArray(0.04, 0.06, 0.12, 0.94, 0.02, 0.03, 0.07, 0.9, 0, 0, 0, 0.92)
+
+[sub_resource type="GradientTexture2D" id="GradientTex_backdrop"]
+gradient = SubResource("Gradient_backdrop")
+width = 4
+height = 512
+fill_from = Vector2(0.5, 0)
+fill_to = Vector2(0.5, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxPanelMain"]
+bg_color = Color(0.08, 0.09, 0.12, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.55, 0.48, 0.32, 0.55)
+corner_radius_top_left = 14.0
+corner_radius_top_right = 14.0
+corner_radius_bottom_right = 14.0
+corner_radius_bottom_left = 14.0
+shadow_color = Color(0, 0, 0, 0.55)
+shadow_size = 14
+shadow_offset = Vector2(0, 6)
+content_margin_left = 20.0
+content_margin_top = 18.0
+content_margin_right = 20.0
+content_margin_bottom = 18.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxBtn_n"]
+bg_color = Color(0.14, 0.16, 0.22, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.5, 0.62, 0.75)
+corner_radius_top_left = 8.0
+corner_radius_top_right = 8.0
+corner_radius_bottom_left = 8.0
+corner_radius_bottom_right = 8.0
+content_margin_left = 18.0
+content_margin_top = 8.0
+content_margin_right = 18.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxBtn_h"]
+bg_color = Color(0.2, 0.23, 0.32, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.65, 0.58, 0.4, 0.65)
+corner_radius_top_left = 8.0
+corner_radius_top_right = 8.0
+corner_radius_bottom_left = 8.0
+corner_radius_bottom_right = 8.0
+content_margin_left = 18.0
+content_margin_top = 8.0
+content_margin_right = 18.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxBtn_p"]
+bg_color = Color(0.09, 0.1, 0.14, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.32, 0.42, 1)
+corner_radius_top_left = 8.0
+corner_radius_top_right = 8.0
+corner_radius_bottom_left = 8.0
+corner_radius_bottom_right = 8.0
+content_margin_left = 18.0
+content_margin_top = 8.0
+content_margin_right = 18.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxTabSel"]
+bg_color = Color(0.12, 0.14, 0.19, 1)
+border_width_left = 1
+border_width_top = 2
+border_width_right = 1
+border_width_bottom = 0
+border_color = Color(0.78, 0.65, 0.35, 0.85)
+corner_radius_top_left = 8.0
+corner_radius_top_right = 8.0
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxTabUnsel"]
+bg_color = Color(0.07, 0.08, 0.1, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.32, 0.4, 0.5)
+corner_radius_top_left = 6.0
+corner_radius_top_right = 6.0
+content_margin_left = 14.0
+content_margin_top = 6.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxTabHover"]
+bg_color = Color(0.1, 0.12, 0.16, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.5, 0.45, 0.32, 0.55)
+corner_radius_top_left = 6.0
+corner_radius_top_right = 6.0
+content_margin_left = 14.0
+content_margin_top = 6.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxTabSep"]
+bg_color = Color(0.25, 0.28, 0.35, 0.35)
+border_width_left = 0
+border_width_top = 0
+border_width_right = 0
+border_width_bottom = 0
+content_margin_left = 4.0
+content_margin_top = 6.0
+content_margin_right = 4.0
+content_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxCard"]
+bg_color = Color(0.06, 0.07, 0.1, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.35, 0.38, 0.48, 0.45)
+corner_radius_top_left = 8.0
+corner_radius_top_right = 8.0
+corner_radius_bottom_right = 8.0
+corner_radius_bottom_left = 8.0
+content_margin_left = 14.0
+content_margin_top = 12.0
+content_margin_right = 14.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxList"]
+bg_color = Color(0.05, 0.06, 0.09, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.36, 0.45, 0.6)
+corner_radius_top_left = 6.0
+corner_radius_top_right = 6.0
+corner_radius_bottom_right = 6.0
+corner_radius_bottom_left = 6.0
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxDetail"]
+bg_color = Color(0.05, 0.06, 0.09, 0.88)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.38, 0.42, 0.52, 0.45)
+corner_radius_top_left = 8.0
+corner_radius_top_right = 8.0
+corner_radius_bottom_right = 8.0
+corner_radius_bottom_left = 8.0
+content_margin_left = 14.0
+content_margin_top = 12.0
+content_margin_right = 14.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxSlot"]
+bg_color = Color(0.05, 0.06, 0.08, 0.75)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.35, 0.38, 0.46, 0.55)
+corner_radius_top_left = 4.0
+corner_radius_top_right = 4.0
+corner_radius_bottom_right = 4.0
+corner_radius_bottom_left = 4.0
+
+[node name="CampCodexPanel" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+process_mode = 3
+script = ExtResource("1_script")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.015, 0.02, 0.05, 0.82)
+
+[node name="BackdropGradient" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("GradientTex_backdrop")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SafeMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 40
+
+[node name="PanelRoot" type="PanelContainer" parent="SafeMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxPanelMain")
+
+[node name="InnerMargin" type="MarginContainer" parent="SafeMargin/PanelRoot"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="VBox" type="VBoxContainer" parent="SafeMargin/PanelRoot/InnerMargin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="HeaderRow" type="HBoxContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="AccentBar" type="ColorRect" parent="SafeMargin/PanelRoot/InnerMargin/VBox/HeaderRow"]
+custom_minimum_size = Vector2(4, 56)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.78, 0.65, 0.35, 0.95)
+
+[node name="TitleBlock" type="VBoxContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="SafeMargin/PanelRoot/InnerMargin/VBox/HeaderRow/TitleBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.97, 0.94, 1)
+theme_override_font_sizes/font_size = 26
+text = "Книга лагеря"
+
+[node name="SubtitleLabel" type="Label" parent="SafeMargin/PanelRoot/InnerMargin/VBox/HeaderRow/TitleBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.66, 0.74, 0.95)
+theme_override_font_sizes/font_size = 14
+text = "Сводка, досье, архив находок и снаряжение"
+
+[node name="CloseButton" type="Button" parent="SafeMargin/PanelRoot/InnerMargin/VBox/HeaderRow"]
+custom_minimum_size = Vector2(112, 40)
+layout_mode = 2
+size_flags_vertical = 4
+focus_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.95, 0.92, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.85, 0.88, 0.94, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxBtn_n")
+theme_override_styles/hover = SubResource("StyleBoxBtn_h")
+theme_override_styles/pressed = SubResource("StyleBoxBtn_p")
+text = "Закрыть"
+
+[node name="HeaderRule" type="ColorRect" parent="SafeMargin/PanelRoot/InnerMargin/VBox"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.5, 0.45, 0.32, 0.35)
+
+[node name="MainTabs" type="TabContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_selected_color = Color(0.96, 0.93, 0.86, 1)
+theme_override_colors/font_unselected_color = Color(0.55, 0.58, 0.65, 0.95)
+theme_override_colors/font_hovered_color = Color(0.82, 0.84, 0.9, 1)
+theme_override_styles/tab_selected = SubResource("StyleBoxTabSel")
+theme_override_styles/tab_unselected = SubResource("StyleBoxTabUnsel")
+theme_override_styles/tab_hover = SubResource("StyleBoxTabHover")
+theme_override_styles/tab_separator = SubResource("StyleBoxTabSep")
+current_tab = 0
+
+[node name="DossierTab" type="Control" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs"]
+layout_mode = 2
+
+[node name="DossierScroll" type="ScrollContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="DossierPad" type="MarginContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 12
+
+[node name="DossierVBox" type="VBoxContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="IntroCard" type="PanelContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxCard")
+
+[node name="IntroMargin" type="MarginContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox/IntroCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="DossierLead" type="Label" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox/IntroCard/IntroMargin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 3
+text = ""
+
+[node name="CardProgress" type="PanelContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxCard")
+
+[node name="CardProgInner" type="VBoxContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox/CardProgress"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HdrProgress" type="Label" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox/CardProgress/CardProgInner"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.72, 0.45, 1)
+theme_override_font_sizes/font_size = 13
+text = "Прогресс и бой"
+
+[node name="BodyProgress" type="RichTextLabel" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox/CardProgress/CardProgInner"]
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+theme_override_colors/default_color = Color(0.78, 0.82, 0.9, 0.98)
+theme_override_font_sizes/normal_font_size = 15
+text = ""
+
+[node name="CardStory" type="PanelContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxCard")
+
+[node name="CardStoryInner" type="VBoxContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox/CardStory"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HdrStory" type="Label" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox/CardStory/CardStoryInner"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.72, 0.45, 1)
+theme_override_font_sizes/font_size = 13
+text = "Сюжет и мир"
+
+[node name="BodyStory" type="RichTextLabel" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox/CardStory/CardStoryInner"]
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+theme_override_colors/default_color = Color(0.78, 0.82, 0.9, 0.98)
+theme_override_font_sizes/normal_font_size = 15
+text = ""
+
+[node name="CardPersonal" type="PanelContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxCard")
+
+[node name="CardPersInner" type="VBoxContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox/CardPersonal"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HdrPersonal" type="Label" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox/CardPersonal/CardPersInner"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.72, 0.45, 1)
+theme_override_font_sizes/font_size = 13
+text = "Личные записи"
+
+[node name="BodyPersonal" type="RichTextLabel" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox/CardPersonal/CardPersInner"]
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+theme_override_colors/default_color = Color(0.78, 0.82, 0.9, 0.98)
+theme_override_font_sizes/normal_font_size = 15
+text = ""
+
+[node name="CharactersTab" type="Control" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs"]
+layout_mode = 2
+
+[node name="DossierSplit" type="HBoxContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 14
+
+[node name="LeftPanel" type="PanelContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxList")
+
+[node name="LeftMargin" type="MarginContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/LeftPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="LeftVBox" type="VBoxContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/LeftPanel/LeftMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="CharList" type="ItemList" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/LeftPanel/LeftMargin/LeftVBox"]
+custom_minimum_size = Vector2(0, 112)
+layout_mode = 2
+size_flags_vertical = 0
+focus_mode = 0
+theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
+theme_override_colors/font_hovered_color = Color(0.95, 0.96, 0.98, 1)
+theme_override_colors/font_selected_color = Color(0.98, 0.96, 0.88, 1)
+theme_override_colors/guide_color = Color(0.22, 0.25, 0.32, 0.6)
+theme_override_font_sizes/font_size = 14
+
+[node name="PortraitPanel" type="PanelContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/LeftPanel/LeftMargin/LeftVBox"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxSlot")
+
+[node name="CharPortrait" type="TextureRect" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/LeftPanel/LeftMargin/LeftVBox/PortraitPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RoleLineLabel" type="Label" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/LeftPanel/LeftMargin/LeftVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.78, 0.86, 0.92)
+theme_override_font_sizes/font_size = 13
+autowrap_mode = 3
+text = ""
+
+[node name="CharBrief" type="Label" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/LeftPanel/LeftMargin/LeftVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.82, 0.86, 0.93, 0.96)
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 3
+text = ""
+
+[node name="RightPanel" type="PanelContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxDetail")
+
+[node name="RightMargin" type="MarginContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/RightPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="CharStoryScroll" type="ScrollContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/RightPanel/RightMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="CharStoryBody" type="RichTextLabel" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/RightPanel/RightMargin/CharStoryScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+theme_override_colors/default_color = Color(0.9, 0.91, 0.94, 1)
+theme_override_font_sizes/normal_font_size = 15
+text = ""
+
+[node name="ArchiveTab" type="Control" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs"]
+layout_mode = 2
+
+[node name="ArchiveSplit" type="HBoxContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/ArchiveTab"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 14
+
+[node name="ListPanel" type="PanelContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/ArchiveTab/ArchiveSplit"]
+custom_minimum_size = Vector2(268, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxList")
+
+[node name="ListMargin" type="MarginContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/ArchiveTab/ArchiveSplit/ListPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="NoteList" type="ItemList" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/ArchiveTab/ArchiveSplit/ListPanel/ListMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
+theme_override_colors/font_hovered_color = Color(0.95, 0.96, 0.98, 1)
+theme_override_colors/font_selected_color = Color(0.98, 0.96, 0.88, 1)
+theme_override_colors/guide_color = Color(0.22, 0.25, 0.32, 0.6)
+theme_override_font_sizes/font_size = 14
+fixed_icon_size = Vector2i(0, 0)
+
+[node name="DetailPanel" type="PanelContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/ArchiveTab/ArchiveSplit"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxDetail")
+
+[node name="DetailMargin" type="MarginContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/ArchiveTab/ArchiveSplit/DetailPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="NoteDetailScroll" type="ScrollContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/ArchiveTab/ArchiveSplit/DetailPanel/DetailMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="NoteDetailBody" type="RichTextLabel" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/ArchiveTab/ArchiveSplit/DetailPanel/DetailMargin/NoteDetailScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+theme_override_colors/default_color = Color(0.9, 0.91, 0.94, 1)
+theme_override_font_sizes/normal_font_size = 16
+text = ""
+
+[node name="EmptyArchiveLabel" type="Label" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/ArchiveTab"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -28.0
+offset_right = 220.0
+offset_bottom = 28.0
+theme_override_colors/font_color = Color(0.55, 0.6, 0.68, 0.92)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "Нет записок"
+
+[node name="InventoryTab" type="Control" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs"]
+layout_mode = 2
+
+[node name="InventoryScroll" type="ScrollContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/InventoryTab"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="InventoryPad" type="MarginContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/InventoryTab/InventoryScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 12
+
+[node name="InvVBox" type="VBoxContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/InventoryTab/InventoryScroll/InventoryPad"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
+
+[node name="SlotRow" type="HBoxContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/InventoryTab/InventoryScroll/InventoryPad/InvVBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Slot1" type="PanelContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/InventoryTab/InventoryScroll/InventoryPad/InvVBox/SlotRow"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxSlot")
+
+[node name="Slot2" type="PanelContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/InventoryTab/InventoryScroll/InventoryPad/InvVBox/SlotRow"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxSlot")
+
+[node name="Slot3" type="PanelContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/InventoryTab/InventoryScroll/InventoryPad/InvVBox/SlotRow"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxSlot")
+
+[node name="Slot4" type="PanelContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/InventoryTab/InventoryScroll/InventoryPad/InvVBox/SlotRow"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxSlot")
+
+[node name="InvHintCard" type="PanelContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/InventoryTab/InventoryScroll/InventoryPad/InvVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxCard")
+
+[node name="InvHintInner" type="MarginContainer" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/InventoryTab/InventoryScroll/InventoryPad/InvVBox/InvHintCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="InventoryHint" type="Label" parent="SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/InventoryTab/InventoryScroll/InventoryPad/InvVBox/InvHintCard/InvHintInner"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.75, 0.8, 0.9, 0.98)
+theme_override_font_sizes/font_size = 15
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+text = "Инвентарь — раздел в разработке. Здесь появятся предметы и снаряжение."

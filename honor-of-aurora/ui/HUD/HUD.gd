@@ -10,14 +10,22 @@ extends "res://ui/HUD/game_hud.gd"
 @export var payshop_menu: Control
 @export var squad_orders_menu: Control
 @export var debug_menu: Control
+@export var camp_codex_panel: Control
+@export var camp_codex_open_button: Button
 
 
 func set_target_location(location: Events.LOCATION) -> void:
 	if teleport_menu and teleport_menu.has_method("set_target_location"):
 		teleport_menu.call("set_target_location", location)
 
+
 func _on_button_pressed() -> void:
 	Events.location_changed.emit(Events.LOCATION.MENU)
+
+
+func _on_codex_button_pressed() -> void:
+	SoundManager.play_ui_button()
+	show_camp_codex_menu()
 
 
 func _ready() -> void:
@@ -26,6 +34,22 @@ func _ready() -> void:
 	teleport_menu.hide()
 	if debug_menu:
 		debug_menu.hide()
+	if camp_codex_open_button:
+		camp_codex_open_button.pressed.connect(_on_codex_button_pressed)
+	Events.location_changed.connect(_on_location_changed_codex_button)
+	_on_location_changed_codex_button(Events.current_location)
+
+
+func _on_location_changed_codex_button(_loc: Events.LOCATION) -> void:
+	if camp_codex_open_button == null:
+		return
+	camp_codex_open_button.visible = Events.current_location == Events.LOCATION.BASE
+
+
+func _suppress_camp_codex_for_other_modal() -> void:
+	if camp_codex_panel and camp_codex_panel.visible:
+		camp_codex_panel.visible = false
+
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_debug_menu"):
@@ -67,12 +91,20 @@ func _input(event: InputEvent) -> void:
 			squad_orders_menu.close()
 		get_viewport().set_input_as_handled()
 		return
+	if camp_codex_panel != null and camp_codex_panel.visible and event.is_action_pressed("ui_cancel"):
+		if camp_codex_panel.has_method("try_handle_back") and camp_codex_panel.try_handle_back():
+			get_viewport().set_input_as_handled()
+			return
+		hide_camp_codex_menu()
+		get_viewport().set_input_as_handled()
+		return
 	if castle_menu != null and castle_menu.visible and event.is_action_pressed("ui_cancel"):
 		if castle_menu.has_method("try_close_hire_submenu") and castle_menu.try_close_hire_submenu():
 			get_viewport().set_input_as_handled()
 			return
 		hide_castle_menu()
 		get_viewport().set_input_as_handled()
+
 
 func show_teleport_menu():
 	if teleport_menu.visible:
@@ -81,6 +113,7 @@ func show_teleport_menu():
 		hide_debug_menu()
 	if squad_orders_menu and squad_orders_menu.visible and squad_orders_menu.has_method("close"):
 		squad_orders_menu.close()
+	_suppress_camp_codex_for_other_modal()
 	if barracks_menu:
 		barracks_menu.hide()
 	if monastery_menu:
@@ -94,6 +127,7 @@ func show_teleport_menu():
 	SoundManager.play_menu_open()
 	teleport_menu.show()
 	get_tree().paused = true
+
 
 func hide_teleport_menu():
 	if not teleport_menu.visible:
@@ -117,6 +151,7 @@ func show_castle_menu():
 		hide_debug_menu()
 	if squad_orders_menu and squad_orders_menu.visible and squad_orders_menu.has_method("close"):
 		squad_orders_menu.close()
+	_suppress_camp_codex_for_other_modal()
 	if barracks_menu:
 		barracks_menu.hide()
 	if monastery_menu:
@@ -149,6 +184,7 @@ func show_barracks_menu():
 		hide_debug_menu()
 	if squad_orders_menu and squad_orders_menu.visible and squad_orders_menu.has_method("close"):
 		squad_orders_menu.close()
+	_suppress_camp_codex_for_other_modal()
 	if castle_menu:
 		castle_menu.hide()
 	if monastery_menu:
@@ -181,6 +217,7 @@ func show_monastery_menu():
 		hide_debug_menu()
 	if squad_orders_menu and squad_orders_menu.visible and squad_orders_menu.has_method("close"):
 		squad_orders_menu.close()
+	_suppress_camp_codex_for_other_modal()
 	if castle_menu:
 		castle_menu.hide()
 	if barracks_menu:
@@ -213,6 +250,7 @@ func show_archery_menu():
 		hide_debug_menu()
 	if squad_orders_menu and squad_orders_menu.visible and squad_orders_menu.has_method("close"):
 		squad_orders_menu.close()
+	_suppress_camp_codex_for_other_modal()
 	if castle_menu:
 		castle_menu.hide()
 	if barracks_menu:
@@ -245,6 +283,7 @@ func show_payshop_menu():
 		hide_debug_menu()
 	if squad_orders_menu and squad_orders_menu.visible and squad_orders_menu.has_method("close"):
 		squad_orders_menu.close()
+	_suppress_camp_codex_for_other_modal()
 	if castle_menu:
 		castle_menu.hide()
 	if barracks_menu:
@@ -266,6 +305,44 @@ func hide_payshop_menu():
 	if payshop_menu == null:
 		return
 	payshop_menu.hide()
+	get_tree().paused = false
+
+
+func show_camp_codex_menu() -> void:
+	if DialogueManager.is_active():
+		return
+	if ChestLootUi.is_chest_popup_open():
+		return
+	SoundManager.play_menu_open()
+	if debug_menu and debug_menu.visible:
+		hide_debug_menu()
+	if squad_orders_menu and squad_orders_menu.visible and squad_orders_menu.has_method("close"):
+		squad_orders_menu.close()
+	if teleport_menu and teleport_menu.visible:
+		hide_teleport_menu()
+	if castle_menu:
+		castle_menu.hide()
+	if barracks_menu:
+		barracks_menu.hide()
+	if monastery_menu:
+		monastery_menu.hide()
+	if archery_menu:
+		archery_menu.hide()
+	if payshop_menu:
+		payshop_menu.hide()
+	if camp_codex_panel == null:
+		return
+	if camp_codex_panel.has_method("prepare_on_open"):
+		camp_codex_panel.prepare_on_open()
+	camp_codex_panel.visible = true
+	get_tree().paused = true
+
+
+func hide_camp_codex_menu() -> void:
+	SoundManager.play_menu_close()
+	if camp_codex_panel == null:
+		return
+	camp_codex_panel.visible = false
 	get_tree().paused = false
 
 
@@ -294,6 +371,8 @@ func try_open_squad_orders_menu(unit: Node2D) -> bool:
 		return false
 	if castle_menu and castle_menu.visible:
 		return false
+	if camp_codex_panel and camp_codex_panel.visible:
+		return false
 	if debug_menu and debug_menu.visible:
 		return false
 	squad_orders_menu.open_for(unit)
@@ -311,6 +390,8 @@ func show_debug_menu() -> void:
 		hide_castle_menu()
 	if payshop_menu and payshop_menu.visible:
 		hide_payshop_menu()
+	if camp_codex_panel and camp_codex_panel.visible:
+		hide_camp_codex_menu()
 	if teleport_menu and teleport_menu.visible:
 		hide_teleport_menu()
 	SoundManager.play_menu_open()

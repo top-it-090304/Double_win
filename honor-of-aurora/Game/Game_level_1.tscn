@@ -899,16 +899,13 @@ position = Vector2(-2536, -385)
 scale = Vector2(-1, 1)
 chest_save_id = "isl1_ruins_a"
 auto_roll_loot_tier = true
-lore_note_candidates = PackedStringArray()
 
 [node name="WorldChest2" parent="." instance=ExtResource("48_7m01x")]
 position = Vector2(-987, -849)
 chest_save_id = "isl1_ruins_b"
 auto_roll_loot_tier = true
-lore_note_candidates = PackedStringArray()
 
 [node name="WorldChest3" parent="." instance=ExtResource("48_7m01x")]
 position = Vector2(338, -375)
 chest_save_id = "isl1_ruins_c"
 auto_roll_loot_tier = true
-lore_note_candidates = PackedStringArray()
