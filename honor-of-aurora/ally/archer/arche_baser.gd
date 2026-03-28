@@ -22,6 +22,9 @@ extends "res://characters/ally_unit.gd"
 @export var patrol_max_segment_time: float = 50.0
 @export var patrol_wall_stuck_frames: int = 12
 @export_range(0.15, 1.0, 0.01) var patrol_speed_scale: float = 0.62
+@export var follow_use_navigation: bool = true
+## Стрелять только если лучник в пределах этого расстояния от героя (страж на башне не ограничен).
+@export var max_distance_from_hero_for_combat: float = 280.0
 
 var enemies_in_range : Array = []
 var facing_right := true
@@ -48,6 +51,8 @@ var _base_attack_cooldown: float = 3.0
 var _base_max_health: int = 60
 var _base_speed: float = 160.0
 var _base_projectile_damage: int = 10
+var _follow_nav: SquadNavFollow = SquadNavFollow.new()
+var _follow_nav_layer_sync_attempts: int = 0
 
 func _ready() -> void:
 	super._ready()
@@ -59,6 +64,7 @@ func _ready() -> void:
 	apply_building_progression_from_manager()
 	apply_archery_modifiers_from_manager()
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
+	max_slides = 6
 	sprite.play("idle")
 	
 	attack_timer = Timer.new()
@@ -78,6 +84,9 @@ func _ready() -> void:
 	
 	player = get_tree().get_first_node_in_group("player") as Node2D
 	call_deferred("_capture_base_patrol_spawn_after_placed")
+	call_deferred("_sync_follow_nav_layers_from_scene")
+	if not Events.location_changed.is_connected(_on_events_location_changed_resync_follow_nav):
+		Events.location_changed.connect(_on_events_location_changed_resync_follow_nav)
 	if health_component:
 		health_component.health_changed.connect(_on_squad_health_changed)
 
@@ -98,6 +107,22 @@ func apply_archery_modifiers_from_manager() -> void:
 			health_component.set_current_health(max_health)
 	if attack_timer:
 		attack_timer.wait_time = attack_cooldown
+
+
+func _on_events_location_changed_resync_follow_nav(_loc: Events.LOCATION) -> void:
+	call_deferred("_sync_follow_nav_layers_from_scene")
+
+
+func _sync_follow_nav_layers_from_scene() -> void:
+	if not is_instance_valid(self) or _follow_nav == null:
+		return
+	if not is_inside_tree():
+		if _follow_nav_layer_sync_attempts < 8:
+			_follow_nav_layer_sync_attempts += 1
+			call_deferred("_sync_follow_nav_layers_from_scene")
+		return
+	_follow_nav_layer_sync_attempts = 0
+	_follow_nav.sync_nav_layers_from_scene(self)
 
 
 func apply_building_progression_from_manager() -> void:
@@ -144,6 +169,15 @@ func _get_initial_max_health() -> int:
 
 func _get_initial_health() -> int:
 	return max_health
+
+
+func get_y_sort_bottom_y() -> float:
+	var y: float = super.get_y_sort_bottom_y()
+	## Стационарные стражи: чуть «ниже» линия для YSortManager → выше z_index, стабильно поверх башни.
+	if stationary_guard:
+		return y + 72.0
+	return y
+
 
 func _on_enemy_entered(body):
 	if body.is_in_group("enemy"):
@@ -205,6 +239,13 @@ func _on_idle_timer_timeout():
 			facing_right = !facing_right
 			sprite.flip_h = !facing_right
 
+
+func _stationary_guard_skip_move_and_slide() -> bool:
+	if not stationary_guard or state == State.FLEE:
+		return false
+	return velocity.length_squared() < 0.01
+
+
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		velocity = Vector2.ZERO
@@ -218,7 +259,8 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector2.ZERO
 		if sprite:
 			sprite.play("idle")
-		move_and_slide()
+		if not _stationary_guard_skip_move_and_slide():
+			move_and_slide()
 		return
 	
 	if not player or not is_instance_valid(player):
@@ -234,6 +276,11 @@ func _physics_process(delta: float) -> void:
 			else:
 				if sprite.animation != "idle":
 					sprite.play("idle")
+			if not stationary_guard and velocity.length_squared() > 4.0:
+				if SquadOrders.mode == SquadOrders.Mode.PATROL:
+					SquadWorkerLikeSteering.apply_wall_slide_toward(self, _patrol_goal, speed * patrol_speed_scale)
+				elif SquadOrders.mode == SquadOrders.Mode.COMBAT and player and is_instance_valid(player):
+					SquadWorkerLikeSteering.apply_wall_slide_toward(self, player.global_position, speed)
 		
 		State.SHOOT:
 			velocity = Vector2.ZERO
@@ -253,28 +300,47 @@ func _physics_process(delta: float) -> void:
 			if global_position.distance_to(flee_target) <= 12.0:
 				velocity = Vector2.ZERO
 				_refresh_state()
+	## Стационарные стражи: без мягкого разведения — иначе игрок/спутники в радиусе ~28px
+	## «выталкивают» лучника с башни каждый кадр (`character_unit._apply_soft_separation_to_velocity`).
+	if not stationary_guard or state == State.FLEE:
+		_apply_soft_separation_to_velocity(delta)
+	## При velocity≈0 `move_and_slide()` всё равно разрешает пересечения с коллизией земли/стен и
+	## сдвигает CharacterBody2D — позиция из сцены «уползает». Стационарный страж без бега не зовём.
+	if not _stationary_guard_skip_move_and_slide():
+		move_and_slide()
 	
-	_apply_soft_separation_to_velocity(delta)
-	move_and_slide()
-	
-	if state == State.FOLLOW:
+	if state == State.FOLLOW or state == State.SHOOT:
 		_refresh_state()
 
 func _get_follow_velocity() -> Vector2:
 	if stationary_guard:
 		return Vector2.ZERO
 	if _order_to_healer:
+		_follow_nav.clear()
 		return _get_healer_trek_velocity()
 	if SquadOrders.mode == SquadOrders.Mode.HOLD:
+		_follow_nav.clear()
 		return Vector2.ZERO
 	if SquadOrders.mode == SquadOrders.Mode.PATROL:
+		_follow_nav.clear()
 		return _get_base_patrol_velocity()
 	if not player:
+		_follow_nav.clear()
 		return Vector2.ZERO
 	
 	var dist = global_position.distance_to(player.global_position)
+	if dist <= follow_distance:
+		_follow_nav.clear()
 	if dist > follow_distance:
-		return global_position.direction_to(player.global_position) * speed
+		if follow_use_navigation and _follow_nav:
+			var dlt: float = get_physics_process_delta_time()
+			var vn: Variant = _follow_nav.get_velocity_or_null(self, player.global_position, speed, dlt)
+			if vn != null and vn is Vector2:
+				var fv: Vector2 = vn as Vector2
+				if fv.length_squared() > 1.0:
+					return fv
+				return SquadWorkerLikeSteering.steer_direction(self, player.global_position, speed) * speed
+		return SquadWorkerLikeSteering.steer_direction(self, player.global_position, speed) * speed
 	if dist < follow_stop_distance:
 		return Vector2.ZERO
 	return Vector2.ZERO
@@ -294,10 +360,10 @@ func _get_healer_trek_velocity() -> Vector2:
 		return Vector2.ZERO
 	if ha.overlaps_body(self):
 		return Vector2.ZERO
-	var dir := global_position.direction_to(healer.global_position)
-	if dir.length_squared() < 1e-6:
+	var steer := SquadWorkerLikeSteering.steer_direction(self, healer.global_position, speed)
+	if steer.length_squared() < 1e-6:
 		return Vector2.ZERO
-	return dir * speed
+	return steer * speed
 
 
 func _get_base_patrol_velocity() -> Vector2:
@@ -328,11 +394,12 @@ func _get_base_patrol_velocity() -> Vector2:
 			_patrol_stuck_frames = 0
 	else:
 		_patrol_stuck_frames = 0
-	var dir := global_position.direction_to(_patrol_goal)
+	var spd := speed * patrol_speed_scale
+	var dir := SquadWorkerLikeSteering.steer_direction(self, _patrol_goal, spd)
 	if dir.length_squared() < 1e-8:
 		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
-		dir = global_position.direction_to(_patrol_goal)
-	return dir * speed * patrol_speed_scale
+		dir = SquadWorkerLikeSteering.steer_direction(self, _patrol_goal, spd)
+	return dir * spd
 
 func _start_shooting_if_needed() -> void:
 	if state != State.SHOOT:
@@ -343,6 +410,25 @@ func _start_shooting_if_needed() -> void:
 	if attack_timer.is_stopped():
 		attack_timer.start()
 		call_deferred("attack")
+
+func squad_rally_after_reposition() -> void:
+	if _follow_nav:
+		_follow_nav.clear()
+	if state == State.SHOOT:
+		state = State.FOLLOW
+		if attack_timer:
+			attack_timer.stop()
+	if state == State.FLEE:
+		state = State.FOLLOW
+
+
+func _archer_close_enough_to_hero_for_combat() -> bool:
+	if stationary_guard:
+		return true
+	if player == null or not is_instance_valid(player):
+		return false
+	return global_position.distance_to(player.global_position) <= max_distance_from_hero_for_combat
+
 
 func _refresh_state() -> void:
 	enemies_in_range = enemies_in_range.filter(func(e): return is_instance_valid(e))
@@ -355,7 +441,7 @@ func _refresh_state() -> void:
 		attack_timer.stop()
 		return
 	
-	if not enemies_in_range.is_empty():
+	if not enemies_in_range.is_empty() and _archer_close_enough_to_hero_for_combat():
 		state = State.SHOOT
 		_start_shooting_if_needed()
 	else:

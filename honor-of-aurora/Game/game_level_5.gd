@@ -3,7 +3,6 @@ extends "res://Game/game_level_spawn_layer.gd"
 const ISLAND_KEY := "lvl5"
 const ISLAND_TIER := 5
 
-const _TROLL := preload("res://enemies/troll/troll.tscn")
 const _SHAMAN := preload("res://enemies/shaman/shaman.tscn")
 const _BEAR := preload("res://enemies/bear/bear.tscn")
 const _SKULL := preload("res://enemies/skull/skull.tscn")
@@ -12,13 +11,14 @@ const _HARPOON := preload("res://enemies/harpoon fish/harpoon_Fish.tscn")
 
 func _ready() -> void:
 	if StoryState.has_flag("story_island_5_cleared"):
+		_remove_defeated_scene_bosses_for_island(5)
 		return
 	IslandEncounterShared.attach_navigation_region(self)
 	var director := EncounterDirector.new()
 	director.island_key = ISLAND_KEY
 	add_child(director)
 	IslandEncounterShared.register_zones(director, self, ISLAND_KEY, ISLAND_TIER, _zones_cfg())
-	IslandEncounterShared.connect_resource_drops(director, self, ISLAND_TIER, _TROLL)
+	IslandEncounterShared.connect_resource_drops(director, self, ISLAND_TIER, _BEAR)
 	_spawn_roamers()
 
 
@@ -31,7 +31,7 @@ func _zones_cfg() -> Array:
 			"leash": 920.0,
 			"waves":
 			[
-				[IslandEncounterShared.wave(_TROLL, 1), IslandEncounterShared.wave(_SKULL, 2)],
+				[IslandEncounterShared.wave(_BEAR, 1), IslandEncounterShared.wave(_SKULL, 2)],
 				[IslandEncounterShared.wave(_BEAR, 2), IslandEncounterShared.wave(_SHAMAN, 2)],
 			],
 		},
@@ -42,7 +42,7 @@ func _zones_cfg() -> Array:
 			"leash": 950.0,
 			"waves":
 			[
-				[IslandEncounterShared.wave(_TROLL, 1), IslandEncounterShared.wave(_HARPOON, 2)],
+				[IslandEncounterShared.wave(_SHAMAN, 1), IslandEncounterShared.wave(_HARPOON, 2)],
 				[IslandEncounterShared.wave(_BEAR, 2), IslandEncounterShared.wave(_SKULL, 2)],
 			],
 		},
@@ -54,7 +54,7 @@ func _zones_cfg() -> Array:
 			"waves":
 			[
 				[IslandEncounterShared.wave(_SHAMAN, 2), IslandEncounterShared.wave(_HARPOON, 2)],
-				[IslandEncounterShared.wave(_TROLL, 1), IslandEncounterShared.wave(_BEAR, 2)],
+				[IslandEncounterShared.wave(_SKULL, 2), IslandEncounterShared.wave(_BEAR, 2)],
 			],
 		},
 		{
@@ -65,7 +65,7 @@ func _zones_cfg() -> Array:
 			"waves":
 			[
 				[IslandEncounterShared.wave(_SKULL, 2), IslandEncounterShared.wave(_SHAMAN, 2)],
-				[IslandEncounterShared.wave(_TROLL, 1), IslandEncounterShared.wave(_HARPOON, 2)],
+				[IslandEncounterShared.wave(_BEAR, 1), IslandEncounterShared.wave(_HARPOON, 2)],
 			],
 		},
 		{
@@ -76,7 +76,7 @@ func _zones_cfg() -> Array:
 			"waves":
 			[
 				[IslandEncounterShared.wave(_HARPOON, 3), IslandEncounterShared.wave(_SKULL, 2)],
-				[IslandEncounterShared.wave(_TROLL, 1), IslandEncounterShared.wave(_SHAMAN, 2)],
+				[IslandEncounterShared.wave(_BEAR, 1), IslandEncounterShared.wave(_SHAMAN, 2)],
 			],
 		},
 	]

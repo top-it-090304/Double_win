@@ -12,6 +12,7 @@ const _GNOME := preload("res://enemies/gnome/gnome.tscn")
 
 func _ready() -> void:
 	if StoryState.has_flag("story_island_2_cleared"):
+		_remove_defeated_scene_bosses_for_island(2)
 		return
 	IslandEncounterShared.attach_navigation_region(self)
 	var director := EncounterDirector.new()

@@ -4,21 +4,25 @@ class_name MobaActionButton
 ## Control + явная обработка ScreenTouch — параллельно со стиком (несколько касаний).
 ## Button + emulate_mouse_from_touch даёт один виртуальный курсор и блокирует второй палец.
 
-enum BtnKind { ATTACK, SHIELD }
+enum BtnKind { ATTACK, SHIELD, RALLY }
 
 @export var kind: BtnKind = BtnKind.ATTACK
 
 const TEX_ATTACK := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_05.png")
 const TEX_SHIELD := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_06.png")
+const TEX_RALLY := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Cursors/Cursor_04.png")
 
 const SZ_ATTACK := Vector2(100, 100)
 const SZ_SHIELD := Vector2(76, 76)
+const SZ_RALLY := Vector2(60, 60)
 
 ## Палитра: насыщенный коралл и лёд (щит/«чит») — заметнее на экране. (Литералы Color — const; from_hsv в const недопустим.)
 const ACCENT_ATTACK := Color(1.0, 0.21, 0.26, 1.0)
 const ACCENT_SHIELD := Color(0.1, 0.64, 1.0, 1.0)
 const BASE_INNER_ATTACK := Color(0.2, 0.07, 0.09, 1.0)
 const BASE_INNER_SHIELD := Color(0.04, 0.12, 0.26, 1.0)
+const ACCENT_RALLY := Color(0.95, 0.72, 0.22, 1.0)
+const BASE_INNER_RALLY := Color(0.16, 0.11, 0.04, 1.0)
 
 var _hovered: bool = false
 ## Индексы касаний, начавшиеся на этой кнопке (для щита и визуала).
@@ -29,7 +33,11 @@ var _mouse_pressed: bool = false
 func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	var sz := SZ_ATTACK if kind == BtnKind.ATTACK else SZ_SHIELD
+	var sz: Vector2 = SZ_SHIELD
+	if kind == BtnKind.ATTACK:
+		sz = SZ_ATTACK
+	elif kind == BtnKind.RALLY:
+		sz = SZ_RALLY
 	custom_minimum_size = sz
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
@@ -74,10 +82,10 @@ func _is_interaction_disabled() -> bool:
 	return process_mode == Node.PROCESS_MODE_DISABLED or not visible
 
 
-## Атака: ScreenTouch через _input (как у щита), иначе после set_input_as_handled() у щита
-## событие может не дойти до _gui_input кнопки атаки.
+## Атака и сбор: ScreenTouch через _input (как у щита), иначе после set_input_as_handled() у щита
+## событие может не дойти до _gui_input соседней кнопки.
 func _input(event: InputEvent) -> void:
-	if _is_interaction_disabled() or kind != BtnKind.ATTACK:
+	if _is_interaction_disabled() or (kind != BtnKind.ATTACK and kind != BtnKind.RALLY):
 		return
 	if not (event is InputEventScreenTouch):
 		return
@@ -88,7 +96,10 @@ func _input(event: InputEvent) -> void:
 		if not _is_point_inside(local):
 			return
 		_touch_indices[st.index] = true
-		MobileVirtualInput.queue_attack()
+		if kind == BtnKind.ATTACK:
+			MobileVirtualInput.queue_attack()
+		else:
+			_try_rally_squad()
 		queue_redraw()
 		get_viewport().set_input_as_handled()
 		return
@@ -112,6 +123,8 @@ func _gui_input(event: InputEvent) -> void:
 			_mouse_pressed = true
 			if kind == BtnKind.ATTACK:
 				MobileVirtualInput.queue_attack()
+			elif kind == BtnKind.RALLY:
+				_try_rally_squad()
 			else:
 				_sync_shield_state()
 			queue_redraw()
@@ -129,11 +142,17 @@ func _accent_color() -> Color:
 		return Color(0.45, 0.48, 0.55, 0.75)
 	if kind == BtnKind.ATTACK:
 		return ACCENT_ATTACK
+	if kind == BtnKind.RALLY:
+		return ACCENT_RALLY
 	return ACCENT_SHIELD
 
 
 func _inner_fill() -> Color:
-	var base := BASE_INNER_ATTACK if kind == BtnKind.ATTACK else BASE_INNER_SHIELD
+	var base: Color = BASE_INNER_SHIELD
+	if kind == BtnKind.ATTACK:
+		base = BASE_INNER_ATTACK
+	elif kind == BtnKind.RALLY:
+		base = BASE_INNER_RALLY
 	if _is_interaction_disabled():
 		return base.darkened(0.35)
 	if _is_visual_pressed():
@@ -172,8 +191,20 @@ func _draw() -> void:
 		gloss_a = 0.32
 	draw_arc(c, (r - 6.0) * 0.72, -PI * 0.88, -PI * 0.12, 32, Color(1.0, 1.0, 1.0, gloss_a), 4.5, true)
 
-	var tex := TEX_ATTACK if kind == BtnKind.ATTACK else TEX_SHIELD
+	var tex: Texture2D = TEX_SHIELD
+	if kind == BtnKind.ATTACK:
+		tex = TEX_ATTACK
+	elif kind == BtnKind.RALLY:
+		tex = TEX_RALLY
 	_draw_icon_texture(tex)
+
+
+func _try_rally_squad() -> void:
+	if DialogueManager.is_active() or ChestLootUi.is_chest_popup_open():
+		return
+	if Events.current_location == Events.LOCATION.MENU:
+		return
+	GameplayFacade.try_rally_straggler_allies_to_hero()
 
 
 func _draw_icon_texture(tex: Texture2D) -> void:

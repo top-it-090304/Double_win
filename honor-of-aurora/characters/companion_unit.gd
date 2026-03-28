@@ -77,6 +77,11 @@ func _capture_base_patrol_spawn_after_placed() -> void:
 	_patrol_has_goal = false
 
 
+func squad_rally_after_reposition() -> void:
+	if state == State.ATTACK:
+		state = State.FOLLOW
+
+
 func apply_building_progression_from_manager() -> void:
 	var unit_kind := "lancer"
 	if progression_building_type == "Castle":

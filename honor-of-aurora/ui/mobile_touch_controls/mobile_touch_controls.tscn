@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://cmobiletouch001"]
+[gd_scene load_steps=6 format=3 uid="uid://cmobiletouch001"]
 
 [ext_resource type="Script" path="res://ui/mobile_touch_controls/mobile_touch_controls.gd" id="1_mc"]
 [ext_resource type="Script" path="res://ui/mobile_touch_controls/virtual_joystick.gd" id="2_vj"]
 [ext_resource type="Script" path="res://ui/mobile_touch_controls/moba_action_button.gd" id="3_mb"]
 [ext_resource type="Script" path="res://ui/mobile_touch_controls/shield_moba_action_button.gd" id="4_sh"]
+[ext_resource type="Script" path="res://ui/mobile_touch_controls/rally_moba_action_button.gd" id="5_rl"]
 
 [node name="MobileTouchControls" type="Control"]
 layout_mode = 3
@@ -53,6 +54,19 @@ offset_right = -12.0
 offset_bottom = -20.0
 mouse_filter = 2
 modulate = Color(1, 1, 1, 0.96)
+
+[node name="RallyButton" type="Control" parent="Root/RightCluster"]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -104.0
+offset_top = -286.0
+offset_right = -44.0
+offset_bottom = -226.0
+script = ExtResource("5_rl")
 
 [node name="ShieldButton" type="Control" parent="Root/RightCluster"]
 layout_mode = 1

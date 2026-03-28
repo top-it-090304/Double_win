@@ -62,6 +62,15 @@ func upgrade_building() -> bool:
 
 
 func get_y_sort_bottom_y() -> float:
+	## Высокая башня: низ спрайта даёт огромный sort_y → юниты на платформе оказываются «под» текстурой.
+	## Считаем линию по y_sort_ground_ratio (платформа/зубцы), см. Tower.tscn.
+	if building_type == "Tower" and sprite != null and sprite.texture != null:
+		var tex_h := float(sprite.texture.get_height())
+		var sy := absf(sprite.global_scale.y)
+		var h := tex_h * sy
+		var cy := sprite.global_position.y
+		var ratio := clampf(y_sort_ground_ratio, 0.0, 1.0)
+		return cy + h * (ratio - 0.5) + y_sort_bottom_pixel_offset
 	var from_sprites := YSortSpriteBounds.max_global_y_from_descendants(self)
 	if not is_nan(from_sprites):
 		return from_sprites + y_sort_bottom_pixel_offset

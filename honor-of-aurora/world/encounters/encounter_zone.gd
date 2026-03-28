@@ -153,12 +153,22 @@ func _spawn_wave_entry(entry: EncounterWaveEntry) -> void:
 
 
 func _pick_spawn_position() -> Vector2:
-	var attempts := 18
+	var root: Node = _spawn_parent if _spawn_parent else get_parent()
+	var attempts := 24
 	for _i in attempts:
 		var off := Vector2(_rng.randf_range(-spawn_spread, spawn_spread), _rng.randf_range(-spawn_spread, spawn_spread))
 		var p := zone_center + off
+		var refined: Variant = IslandEncounterShared.refine_spawn_point_for_island(p, root)
+		if refined == null:
+			continue
+		p = refined as Vector2
 		if _is_spawn_position_free(p):
 			return p
+	var fb_var: Variant = IslandEncounterShared.refine_spawn_point_for_island(zone_center, root)
+	if fb_var != null:
+		var fb: Vector2 = fb_var as Vector2
+		if _is_spawn_position_free(fb):
+			return fb
 	return zone_center
 
 

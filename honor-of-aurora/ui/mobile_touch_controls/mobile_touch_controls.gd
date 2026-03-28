@@ -70,6 +70,10 @@ func _refresh_visibility() -> void:
 	var show := want and not blocked
 	visible = show
 	MobileVirtualInput.set_controls_visible(show)
+	if show:
+		var rally_btn := get_node_or_null("Root/RightCluster/RallyButton") as Control
+		if rally_btn:
+			rally_btn.visible = Events.current_location != Events.LOCATION.MENU
 
 
 func _apply_scaled_touch_zone(zone: Control, is_left: bool) -> void:

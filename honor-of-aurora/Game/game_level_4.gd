@@ -12,6 +12,7 @@ const _BEAR := preload("res://enemies/bear/bear.tscn")
 
 func _ready() -> void:
 	if StoryState.has_flag("story_island_4_cleared"):
+		_remove_defeated_scene_bosses_for_island(4)
 		return
 	IslandEncounterShared.attach_navigation_region(self)
 	var director := EncounterDirector.new()
