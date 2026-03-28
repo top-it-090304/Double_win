@@ -9,7 +9,10 @@ extends Control
 @onready var _sfx_slider: HSlider = %SfxSlider
 @onready var _ui_slider: HSlider = %UiSlider
 @onready var _dialogue_slider: HSlider = %DialogueSlider
+@onready var _perf_option: OptionButton = %PerformanceModeOption
+@onready var _perf_desc: Label = %PerformanceDesc
 @onready var _fps_option: OptionButton = %FpsOption
+@onready var _fps_label: Label = %FpsLabel
 @onready var _ui_scale_slider: HSlider = %UiScaleSlider
 @onready var _touch_mode: OptionButton = %TouchModeOption
 @onready var _touch_scale: HSlider = %TouchScaleSlider
@@ -29,6 +32,7 @@ func _ready() -> void:
 		_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	_fill_difficulty_options()
+	_fill_performance_options()
 	_fill_fps_options()
 	_fill_touch_mode_options()
 	_music_slider.value_changed.connect(_on_music_changed)
@@ -36,6 +40,7 @@ func _ready() -> void:
 	_ui_slider.value_changed.connect(_on_ui_changed)
 	_dialogue_slider.value_changed.connect(_on_dialogue_changed)
 	_difficulty.item_selected.connect(_on_difficulty_selected)
+	_perf_option.item_selected.connect(_on_performance_mode_selected)
 	_fps_option.item_selected.connect(_on_fps_selected)
 	_ui_scale_slider.value_changed.connect(_on_ui_scale_changed)
 	_touch_mode.item_selected.connect(_on_touch_mode_selected)
@@ -48,6 +53,14 @@ func _fill_difficulty_options() -> void:
 	_difficulty.clear()
 	for p in DifficultyConfig.get_all_presets():
 		_difficulty.add_item(str(p.get(DifficultyConfig.KEY_DISPLAY_NAME, "?")))
+
+
+func _fill_performance_options() -> void:
+	_perf_option.clear()
+	_perf_option.add_item("Минимальный")
+	_perf_option.add_item("Средний")
+	_perf_option.add_item("Максимальный")
+	_perf_option.add_item("Свой (только FPS)")
 
 
 func _fill_fps_options() -> void:
@@ -99,6 +112,7 @@ func show_settings() -> void:
 func _load_all_from_save() -> void:
 	_block_sliders(true)
 	_difficulty.set_block_signals(true)
+	_perf_option.set_block_signals(true)
 	_fps_option.set_block_signals(true)
 	_touch_mode.set_block_signals(true)
 	_haptic.set_block_signals(true)
@@ -108,13 +122,17 @@ func _load_all_from_save() -> void:
 	_dialogue_slider.value = SaveManager.volume_dialogue * 100.0
 	_difficulty.select(clampi(SaveManager.difficulty_id, 0, _difficulty.item_count - 1))
 	_update_difficulty_desc()
+	_perf_option.select(clampi(SaveManager.performance_mode, 0, _perf_option.item_count - 1))
+	_update_performance_desc()
 	_fps_option.select(_fps_index_from_value(SaveManager.max_fps))
+	_sync_fps_locked_from_performance_mode()
 	_ui_scale_slider.value = float(SaveManager.ui_scale_percent)
 	_touch_mode.select(clampi(SaveManager.touch_mode, 0, 2))
 	_touch_scale.value = float(SaveManager.touch_scale_percent)
 	_touch_opacity.value = float(SaveManager.touch_opacity_percent)
 	_haptic.button_pressed = SaveManager.haptic_enabled
 	_difficulty.set_block_signals(false)
+	_perf_option.set_block_signals(false)
 	_fps_option.set_block_signals(false)
 	_touch_mode.set_block_signals(false)
 	_haptic.set_block_signals(false)
@@ -162,10 +180,48 @@ func _on_dialogue_changed(v: float) -> void:
 	SaveManager.save_game()
 
 
+func _update_performance_desc() -> void:
+	if _perf_desc == null:
+		return
+	match SaveManager.performance_mode:
+		PerformancePreset.Mode.MINIMAL:
+			_perf_desc.text = "Минимальный: 30 FPS, физика 30 Гц, редкий пересчёт слоёв по Y (4 кадра), VSync — максимум экономии."
+		PerformancePreset.Mode.MEDIUM:
+			_perf_desc.text = "Средний: 60 FPS, физика 60 Гц, пересчёт Y-sort раз в 2 кадра, VSync — баланс."
+		PerformancePreset.Mode.MAXIMUM:
+			_perf_desc.text = "Максимальный: без лимита FPS, физика 60 Гц, Y-sort каждый кадр, VSync — максимум плавности картинки."
+		_:
+			_perf_desc.text = "Свой: задаётся только пункт «Частота кадров»; физика 60 Гц, средний пересчёт Y-sort."
+
+
+func _sync_fps_locked_from_performance_mode() -> void:
+	var custom := SaveManager.performance_mode == PerformancePreset.Mode.CUSTOM
+	_fps_option.disabled = not custom
+	if _fps_label:
+		_fps_label.modulate = Color(1, 1, 1, 1) if custom else Color(0.65, 0.68, 0.75, 1)
+
+
+func _on_performance_mode_selected(_idx: int) -> void:
+	SaveManager.performance_mode = clampi(_perf_option.selected, 0, 3)
+	_update_performance_desc()
+	SaveManager.save_game()
+	SaveManager.apply_window_and_engine_settings()
+	_fps_option.set_block_signals(true)
+	_fps_option.select(_fps_index_from_value(SaveManager.max_fps))
+	_fps_option.set_block_signals(false)
+	_sync_fps_locked_from_performance_mode()
+
+
 func _on_fps_selected(_idx: int) -> void:
+	SaveManager.performance_mode = PerformancePreset.Mode.CUSTOM
+	_perf_option.set_block_signals(true)
+	_perf_option.select(PerformancePreset.Mode.CUSTOM)
+	_perf_option.set_block_signals(false)
+	_update_performance_desc()
 	SaveManager.max_fps = _fps_value_from_index(_fps_option.selected)
 	SaveManager.save_game()
 	SaveManager.apply_window_and_engine_settings()
+	_sync_fps_locked_from_performance_mode()
 
 
 func _on_ui_scale_changed(v: float) -> void:
@@ -212,6 +268,7 @@ func _settings_scroll_touch_blocks_scroll(global_pos: Vector2) -> bool:
 		_sfx_slider,
 		_ui_slider,
 		_dialogue_slider,
+		_perf_option,
 		_fps_option,
 		_ui_scale_slider,
 		_touch_mode,

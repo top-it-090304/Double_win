@@ -63,6 +63,8 @@ var difficulty_id: int = 1
 var ui_scale_percent: int = 100
 ## Ограничение FPS (0 = без ограничения, иначе 30–240).
 var max_fps: int = 60
+## 0 мин., 1 сред., 2 макс., 3 свой (только лимит FPS из max_fps). См. PerformancePreset.
+var performance_mode: int = 1
 ## Сенсорное управление: 0 = авто, 1 = всегда показывать, 2 = скрыть (ПК/геймпад).
 var touch_mode: int = 0
 ## Размер виртуального джойстика и кнопок, % (70–150).
@@ -109,7 +111,7 @@ var expedition_meat_collected: int = 0
 
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
-const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "opened_chest_ids", "chest_rolled_tiers", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus", "premium_ore_purchased_total", "premium_ore_purchase_count", "ore_sent_to_crown_total", "crown_order_index", "crown_order_ore_sent", "crown_order_deadline_remaining", "crown_orders_failed", "crown_displeasure", "crown_title_index", "expeditions_until_caravan", "caravan_pending", "caravan_sent_count"]
+const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "opened_chest_ids", "chest_rolled_tiers", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "performance_mode", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus", "premium_ore_purchased_total", "premium_ore_purchase_count", "ore_sent_to_crown_total", "crown_order_index", "crown_order_ore_sent", "crown_order_deadline_remaining", "crown_orders_failed", "crown_displeasure", "crown_title_index", "expeditions_until_caravan", "caravan_pending", "caravan_sent_count"]
 const default_data := {
 	"gold" : 10,
 	"meat_count" : 0,
@@ -146,6 +148,7 @@ const default_data := {
 	"difficulty_id" : 1,
 	"ui_scale_percent" : 100,
 	"max_fps" : 60,
+	"performance_mode" : 1,
 	"touch_mode" : 0,
 	"touch_scale_percent" : 100,
 	"touch_opacity_percent" : 52,
@@ -172,6 +175,7 @@ func load_game():
 		current_health = HeroProgression.get_tier_for_level(current_level).max_health
 		building_levels = DEFAULT_BUILDING_LEVELS.duplicate()
 		_normalize_settings_fields()
+		apply_window_and_engine_settings()
 		call_deferred("apply_window_and_engine_settings")
 		return
 		
@@ -205,6 +209,8 @@ func load_game():
 				ui_scale_percent = clampi(int(v), 75, 130)
 			elif variable == "max_fps" and typeof(v) in [TYPE_FLOAT, TYPE_INT]:
 				max_fps = clampi(int(v), 0, 240)
+			elif variable == "performance_mode" and typeof(v) in [TYPE_FLOAT, TYPE_INT]:
+				performance_mode = PerformancePreset.clamp_mode(int(v))
 			elif variable == "touch_mode" and typeof(v) in [TYPE_FLOAT, TYPE_INT]:
 				touch_mode = clampi(int(v), 0, 2)
 			elif variable == "touch_scale_percent" and typeof(v) in [TYPE_FLOAT, TYPE_INT]:
@@ -305,13 +311,18 @@ func load_game():
 	if current_level >= BalanceConfig.MAX_HERO_LEVEL:
 		current_exp = 0
 
+	if not game_data.has("performance_mode"):
+		performance_mode = PerformancePreset.Mode.CUSTOM
+
 	_normalize_settings_fields()
+	apply_window_and_engine_settings()
 	call_deferred("apply_window_and_engine_settings")
 
 
 func _normalize_settings_fields() -> void:
 	ui_scale_percent = clampi(int(ui_scale_percent), 75, 130)
 	max_fps = clampi(int(max_fps), 0, 240)
+	performance_mode = PerformancePreset.clamp_mode(int(performance_mode))
 	touch_mode = clampi(int(touch_mode), 0, 2)
 	touch_scale_percent = clampi(int(touch_scale_percent), 70, 150)
 	touch_opacity_percent = clampi(int(touch_opacity_percent), 25, 100)
@@ -323,10 +334,10 @@ func apply_window_and_engine_settings() -> void:
 	var w := get_window()
 	if w:
 		w.content_scale_factor = clampf(float(ui_scale_percent) / 100.0, 0.75, 1.5)
-	if max_fps <= 0:
-		Engine.max_fps = 0
-	else:
-		Engine.max_fps = clampi(max_fps, 30, 240)
+	PerformancePreset.apply_from_save_manager(self)
+	var tree := get_tree()
+	if tree:
+		tree.call_group("wind_decor_sprite", "apply_wind_speed_from_settings")
 
 
 ## Старые сохранения без развилки: кто уже прошёл последний остров или финал монаха — считаем «добить цепь».

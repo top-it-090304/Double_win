@@ -29,8 +29,6 @@ func _process(_delta: float) -> void:
 	for node in tree.get_nodes_in_group(SORT_GROUP):
 		if not (node is Node2D):
 			continue
-		if not (node is CanvasItem):
-			continue
 		if bool(node.get_meta(META_MANUAL, false)):
 			continue
 		var n2d := node as Node2D

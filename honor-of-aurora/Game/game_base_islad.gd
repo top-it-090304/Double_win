@@ -55,10 +55,13 @@ func _apply_hide_unit_hp_after_ready(node: Node) -> void:
 
 
 func _hide_mini_hp_bars_on_all_non_player_units() -> void:
-	var root := get_tree().current_scene
+	var tree := get_tree()
+	if tree == null:
+		return
+	var root := tree.current_scene
 	if root == null:
 		return
-	for node in get_tree().get_nodes_in_group("character_unit"):
+	for node in tree.get_nodes_in_group("character_unit"):
 		if not root.is_ancestor_of(node):
 			continue
 		if node.is_in_group("player"):

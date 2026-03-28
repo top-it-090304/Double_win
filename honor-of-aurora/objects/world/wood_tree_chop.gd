@@ -33,13 +33,18 @@ func _physics_process(_delta: float) -> void:
 
 
 func _pawn_axe_hit() -> bool:
-	for pawn in get_tree().get_nodes_in_group("ally_pawn"):
+	var tree := get_tree()
+	if tree == null or tree.get_node_count_in_group(&"ally_pawn") < 1:
+		return false
+	var my_pos := global_position
+	var max_d2 := 58.0 * 58.0
+	for pawn in tree.get_nodes_in_group("ally_pawn"):
 		if pawn.has_method("get_worker_job_name") and pawn.get_worker_job_name() != "wood":
 			continue
 		if not pawn is Node2D:
 			continue
 		var n2: Node2D = pawn as Node2D
-		if global_position.distance_to(n2.global_position) > 58.0:
+		if my_pos.distance_squared_to(n2.global_position) > max_d2:
 			continue
 		var spr := n2.get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
 		if spr == null:

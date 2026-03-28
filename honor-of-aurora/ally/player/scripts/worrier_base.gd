@@ -58,6 +58,8 @@ func _ready() -> void:
 	if effect_sprite:
 		effect_sprite.visible = false
 	super._ready()
+	## В Godot 4.5+ можно задать anim.process_callback = IDLE, чтобы не привязывать кадры к physics_tick.
+	## В 4.4 этого API нет — плавность даёт common/physics_interpolation и пресеты FPS/физики.
 	level = SaveManager.current_level
 	exp = SaveManager.current_exp
 	_apply_hero_tier_for_level(level)

@@ -17,6 +17,8 @@ var health_component: Node
 
 
 func _ready() -> void:
+	## Плавное положение между шагами физики (важно при 30 Hz physics и 60 Hz экрана).
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_ON
 	add_to_group("character_unit")
 	add_to_group("y_sortable")
 	_ensure_health_component()
@@ -137,6 +139,8 @@ func _apply_soft_separation_to_velocity(delta: float) -> void:
 		return
 	var tree := get_tree()
 	if tree == null:
+		return
+	if tree.get_node_count_in_group(&"character_unit") < 2:
 		return
 	var min_dist := unit_soft_separation_distance
 	var min_dist_sq := min_dist * min_dist

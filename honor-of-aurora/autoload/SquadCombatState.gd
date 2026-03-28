@@ -3,10 +3,15 @@ extends Node
 ## Пока true — меню приказов отряду открыть нельзя.
 
 func is_engaged() -> bool:
-	var scene := get_tree().current_scene
+	var tree := get_tree()
+	if tree == null:
+		return false
+	if tree.get_node_count_in_group(&"enemy") < 1:
+		return false
+	var scene := tree.current_scene
 	if scene == null:
 		return false
-	for enemy in get_tree().get_nodes_in_group("enemy"):
+	for enemy in tree.get_nodes_in_group("enemy"):
 		if not is_instance_valid(enemy):
 			continue
 		if not scene.is_ancestor_of(enemy as Node):

@@ -73,7 +73,7 @@ layout_mode = 2
 text = "Назад"
 
 [node name="Scroll" type="ScrollContainer" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox"]
-custom_minimum_size = Vector2(0, 380)
+custom_minimum_size = Vector2(0, 440)
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
@@ -195,7 +195,26 @@ theme_override_colors/font_color = Color(0.88, 0.72, 0.42, 1)
 theme_override_font_sizes/font_size = 20
 text = "Экран"
 
+[node name="PerformanceLabel" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+text = "Режим производительности"
+
+[node name="PerformanceModeOption" type="OptionButton" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PerformanceDesc" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.62, 0.66, 0.74, 1)
+theme_override_font_sizes/font_size = 14
+text = "Меняет лимит FPS, шаг физики, частоту пересчёта слоёв по Y и VSync."
+
 [node name="FpsLabel" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Частота кадров"
 

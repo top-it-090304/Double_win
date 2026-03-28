@@ -1042,6 +1042,8 @@ func _finish_player_placement_after_scene_change(location: Events.LOCATION) -> v
 	SaveManager.resume_player_position_x = current_scene_player.global_position.x
 	SaveManager.resume_player_position_y = current_scene_player.global_position.y
 	SaveManager.save_game()
+	## После смены сцены снова применить FPS/физику/Y-sort (раньше только deferred при load — первые кадры могли быть «не те»).
+	SaveManager.apply_window_and_engine_settings()
 	PostFinaleWorld.apply_after_scene_loaded()
 
 func _spawn_saved_archers(root: Node) -> void:
