@@ -53,9 +53,25 @@ const DEFINITION_PATHS: PackedStringArray = [
 	"res://dialogue/definitions/worker_youth_letter_2_def.tres",
 	"res://dialogue/definitions/lore_veteran_first_expedition_def.tres",
 	"res://dialogue/definitions/lore_veteran_training_def.tres",
+	"res://dialogue/definitions/youth_belongings_def.tres",
+	"res://dialogue/definitions/monk_youth_death_reaction_def.tres",
+	"res://dialogue/definitions/youth_postmortem_letter_1_def.tres",
+	"res://dialogue/definitions/youth_postmortem_letter_2_def.tres",
+	"res://dialogue/definitions/youth_letter_sent_def.tres",
 ]
 
 var _by_id: Dictionary = {}
+## Очередь: если `try_start` вызван во время активного диалога, следующий id ждёт конца текущего (кроме NO_QUEUE_WHEN_BUSY).
+var _pending_dialogue_queue: Array[String] = []
+
+## Хабы и бантер не ставим в очередь — иначе «атака» у NPC уйдёт в хвост сюжета.
+const NO_QUEUE_WHEN_BUSY: PackedStringArray = [
+	"monk_interact_hub",
+	"heal_banter",
+	"healer_idle_fallback",
+	"veteran_archer_hub",
+	"veteran_archer_banter",
+]
 
 
 func _ready() -> void:
@@ -97,6 +113,13 @@ func can_play(dialogue_id: String) -> bool:
 func try_start(dialogue_id: String, pause_game: bool = false) -> bool:
 	if not can_play(dialogue_id):
 		return false
+	if DialogueManager.is_active():
+		if dialogue_id in NO_QUEUE_WHEN_BUSY:
+			return false
+		if dialogue_id in _pending_dialogue_queue:
+			return true
+		_pending_dialogue_queue.append(dialogue_id)
+		return true
 	var def := get_definition(dialogue_id) as DialogueDefinition
 	return DialogueManager.start_dialogue(def.sequence, pause_game)
 
@@ -115,3 +138,18 @@ func _on_dialogue_ended(sequence: DialogueSequence) -> void:
 		VeteranArcherStoryDialogue.grant_ending_flag_after_finale()
 	if sequence.id in ["heal_banter", "healer_idle_fallback", "monk_interact_hub", "veteran_archer_banter", "veteran_archer_hub"]:
 		sequence.lines.clear()
+	call_deferred("_flush_pending_dialogue_queue")
+
+
+func _flush_pending_dialogue_queue() -> void:
+	if DialogueManager.is_active():
+		return
+	while not _pending_dialogue_queue.is_empty():
+		var next_id: String = _pending_dialogue_queue.pop_front()
+		if not can_play(next_id):
+			continue
+		var next_def := get_definition(next_id) as DialogueDefinition
+		if next_def == null or next_def.sequence == null:
+			continue
+		DialogueManager.start_dialogue(next_def.sequence, false)
+		return

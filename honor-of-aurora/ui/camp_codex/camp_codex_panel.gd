@@ -33,6 +33,7 @@ var _item_entries: Array[Dictionary] = []
 var _item_detail_overlay: Control
 var _item_detail_icon_panel: PanelContainer
 var _item_detail_icon_label: Label
+var _item_detail_icon_tex: TextureRect
 var _item_detail_title: Label
 var _item_detail_brief: Label
 var _item_detail_desc: RichTextLabel
@@ -179,6 +180,7 @@ func _refresh_characters() -> void:
 
 
 func _on_character_list_selected(index: int) -> void:
+	SoundManager.play_ui_button()
 	_apply_character_selection(index)
 
 
@@ -216,6 +218,7 @@ func _on_close_pressed() -> void:
 
 
 func _on_main_tab_changed(tab: int) -> void:
+	SoundManager.play_ui_button()
 	if tab == 0:
 		_refresh_dossier()
 	if tab == 1:
@@ -249,11 +252,22 @@ func _refresh_archive_list() -> void:
 	for group in grouped:
 		var gd: Dictionary = group
 		var cat: String = String(gd.get("category", ""))
+		var hint: String = String(gd.get("hint", ""))
 		var entries: Array = gd.get("entries", []) as Array
 		if entries.is_empty():
 			continue
 		found_any = true
-		_archive_list.add_item("── %s ──" % cat)
+		var cat_count := entries.size()
+		var cat_total := CampCodexLoreArchive.get_total_for_category(cat)
+		var count_str := ""
+		if cat_total > 0:
+			count_str = "  (%d/%d)" % [cat_count, cat_total]
+		elif cat_count > 0:
+			count_str = "  (%d)" % cat_count
+		var sep_text := "── %s%s ──" % [cat, count_str]
+		if not hint.is_empty():
+			sep_text += "\n     %s" % hint
+		_archive_list.add_item(sep_text)
 		var sep_idx := _archive_list.item_count - 1
 		_archive_list.set_item_disabled(sep_idx, true)
 		_archive_list.set_item_selectable(sep_idx, false)
@@ -265,6 +279,12 @@ func _refresh_archive_list() -> void:
 			_archive_list.add_item("  %s" % String(ed.get("title", "")))
 			var list_idx := _archive_list.item_count - 1
 			_archive_list.set_item_metadata(list_idx, entry_idx)
+		var missing := cat_total - cat_count
+		for i in range(missing):
+			_archive_list.add_item("  [???]")
+			var m_idx := _archive_list.item_count - 1
+			_archive_list.set_item_selectable(m_idx, false)
+			_archive_list.set_item_custom_fg_color(m_idx, Color(0.35, 0.38, 0.45, 0.7))
 	if _empty_archive:
 		_empty_archive.visible = not found_any
 	if _archive_split:
@@ -277,6 +297,7 @@ func _refresh_archive_list() -> void:
 
 
 func _on_archive_item_selected(index: int) -> void:
+	SoundManager.play_ui_button()
 	if _archive_list == null or _archive_body == null:
 		return
 	var meta: Variant = _archive_list.get_item_metadata(index)
@@ -288,10 +309,20 @@ func _on_archive_item_selected(index: int) -> void:
 	var ed: Dictionary = _archive_entries[entry_idx]
 	var title := String(ed.get("title", ""))
 	var txt := String(ed.get("text_bbcode", ""))
-	_archive_body.bbcode_text = (
-		"[font_size=%d][b]%s[/b][/font_size]\n\n%s"
-		% [DialogueUiConstants.TEXT_FONT_SIZE, title, txt]
-	)
+	var is_letter: bool = ed.get("is_letter", false)
+	if is_letter:
+		_archive_body.bbcode_text = (
+			"[font_size=%d][b][color=#d4c9a0]%s[/color][/b][/font_size]\n"
+			% [DialogueUiConstants.TEXT_FONT_SIZE, title]
+			+ "[color=#8a8070]─────────────────────[/color]\n\n%s\n\n"
+			% txt
+			+ "[color=#8a8070]─────────────────────[/color]"
+		)
+	else:
+		_archive_body.bbcode_text = (
+			"[font_size=%d][b]%s[/b][/font_size]\n\n%s"
+			% [DialogueUiConstants.TEXT_FONT_SIZE, title, txt]
+		)
 
 
 func _refresh_items() -> void:
@@ -358,6 +389,7 @@ func _build_item_cell(item: Dictionary, idx: int) -> PanelContainer:
 		tex_rect.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		tex_rect.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		tex_rect.mouse_filter = Control.MOUSE_FILTER_PASS
+		tex_rect.modulate = Color(col.r, col.g, col.b, 0.95)
 		icon_panel.add_child(tex_rect)
 	else:
 		var char_lbl := Label.new()
@@ -386,6 +418,7 @@ func _build_item_cell(item: Dictionary, idx: int) -> PanelContainer:
 func _on_item_cell_input(event: InputEvent, idx: int) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		if idx >= 0 and idx < _item_entries.size():
+			SoundManager.play_dialogue_page_turn()
 			_show_item_detail(_item_entries[idx])
 
 
@@ -465,6 +498,15 @@ func _setup_item_detail_popup() -> void:
 	_item_detail_icon_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_item_detail_icon_panel.add_child(_item_detail_icon_label)
 
+	_item_detail_icon_tex = TextureRect.new()
+	_item_detail_icon_tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_item_detail_icon_tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_item_detail_icon_tex.custom_minimum_size = Vector2(56, 56)
+	_item_detail_icon_tex.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_item_detail_icon_tex.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_item_detail_icon_tex.visible = false
+	_item_detail_icon_panel.add_child(_item_detail_icon_tex)
+
 	var title_col := VBoxContainer.new()
 	title_col.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	title_col.add_theme_constant_override("separation", 4)
@@ -531,11 +573,35 @@ func _show_item_detail(item: Dictionary) -> void:
 	if _item_detail_overlay == null:
 		return
 	var col: Color = item.get("icon_color", Color(0.5, 0.5, 0.5)) as Color
+	var is_letter: bool = item.get("is_letter", false)
 	_item_detail_title.text = str(item.get("name", ""))
 	_item_detail_brief.text = str(item.get("brief", ""))
-	_item_detail_desc.text = str(item.get("description", ""))
-	_item_detail_icon_label.text = str(item.get("icon_char", "?"))
-	_item_detail_icon_label.add_theme_color_override("font_color", Color(col.r, col.g, col.b, 0.9))
+
+	var desc_text := str(item.get("description", ""))
+	if is_letter:
+		_item_detail_desc.bbcode_enabled = true
+		_item_detail_desc.text = ""
+		_item_detail_desc.bbcode_text = "[color=#d4c9a0][i]%s[/i][/color]" % desc_text
+		_item_detail_title.add_theme_color_override("font_color", Color(0.83, 0.79, 0.67, 1))
+	else:
+		_item_detail_desc.bbcode_enabled = true
+		_item_detail_desc.text = ""
+		_item_detail_desc.bbcode_text = desc_text
+		_item_detail_title.add_theme_color_override("font_color", Color(0.96, 0.93, 0.86, 1))
+
+	var icon_path: String = str(item.get("icon", ""))
+	var has_texture := not icon_path.is_empty() and ResourceLoader.exists(icon_path)
+	if has_texture:
+		_item_detail_icon_tex.texture = load(icon_path) as Texture2D
+		_item_detail_icon_tex.modulate = Color(col.r, col.g, col.b, 0.95)
+		_item_detail_icon_tex.visible = true
+		_item_detail_icon_label.visible = false
+	else:
+		_item_detail_icon_tex.visible = false
+		_item_detail_icon_label.visible = true
+		_item_detail_icon_label.text = str(item.get("icon_char", "?"))
+		_item_detail_icon_label.add_theme_color_override("font_color", Color(col.r, col.g, col.b, 0.9))
+
 	var icon_s := StyleBoxFlat.new()
 	icon_s.bg_color = Color(col.r, col.g, col.b, 0.2)
 	icon_s.set_border_width_all(1)
@@ -549,6 +615,8 @@ func _show_item_detail(item: Dictionary) -> void:
 func _hide_item_detail() -> void:
 	if _item_detail_overlay:
 		_item_detail_overlay.visible = false
+	if _item_detail_showing:
+		SoundManager.play_ui_button()
 	_item_detail_showing = false
 
 

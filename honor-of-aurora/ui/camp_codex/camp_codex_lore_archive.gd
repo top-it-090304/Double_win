@@ -8,12 +8,22 @@ const CAT_ORDER := "Орден и Заря"
 const CAT_EXPEDITION := "Первая экспедиция"
 const CAT_CAMP := "Быт лагеря"
 const CAT_HEALER := "Записи целителя"
-const CAT_LETTERS := "Письма"
-const CAT_YOUTH_MAIL := "Переписка юноши"
+const CAT_LETTERS := "✉ Письма Лиан"
+const CAT_YOUTH_MAIL := "✉ Переписка Мирона"
 
 const CATEGORY_ORDER: PackedStringArray = [
 	CAT_CROWN, CAT_ORDER, CAT_EXPEDITION, CAT_HEALER, CAT_LETTERS, CAT_YOUTH_MAIL, CAT_CAMP,
 ]
+
+const _CATEGORY_HINTS: Dictionary = {
+	CAT_LETTERS: "Дочь целителя пишет отцу на острова",
+	CAT_YOUTH_MAIL: "Письма Мирона домой и ответы матери",
+	CAT_HEALER: "Наблюдения целителя у костра",
+	CAT_EXPEDITION: "Воспоминания тех, кто был здесь до вас",
+	CAT_CROWN: "Указы, контракты и политика короны",
+	CAT_ORDER: "Тайны Ордена Тихой Зари",
+	CAT_CAMP: "Записки и находки из лагеря",
+}
 
 const _SPEAKER_NAMES: Dictionary = {
 	"healer": "Целитель",
@@ -36,13 +46,16 @@ const _LORE_ZONE_META: Dictionary = {
 	"lore_veteran_training": {"title": "Тренировка лучников", "cat": CAT_EXPEDITION, "flag": "lore_veteran_training_done"},
 	"monk_story_1": {"title": "У огня: орден и контракт", "cat": CAT_HEALER, "flag": "monk_story_1_done"},
 	"monk_story_3": {"title": "У огня: три стража и цепь", "cat": CAT_HEALER, "flag": "monk_story_3_done"},
-	"monk_letter_1": {"title": "Письмо Лиан (первое)", "cat": CAT_LETTERS, "flag": "monk_letter_1_read"},
-	"monk_letter_2": {"title": "Письмо Лиан (второе)", "cat": CAT_LETTERS, "flag": "monk_letter_2_read"},
-	"youth_mother_letter_1": {"title": "Письмо мамы (первое)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_1_done"},
-	"youth_reply_1": {"title": "Ответ юноши (первый)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_1_done"},
-	"youth_mother_letter_2": {"title": "Письмо мамы (второе)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_2_done"},
-	"youth_reply_2": {"title": "Ответ юноши (второй)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_2_done"},
-	"youth_last_letter": {"title": "Последнее письмо юноши", "cat": CAT_YOUTH_MAIL, "flag": "worker_youth_death_scene_done"},
+	"monk_letter_1": {"title": "✉ Лиан → отцу (первое)", "cat": CAT_LETTERS, "flag": "monk_letter_1_read", "is_letter": true},
+	"monk_letter_2": {"title": "✉ Лиан → отцу (второе)", "cat": CAT_LETTERS, "flag": "monk_letter_2_read", "is_letter": true},
+	"youth_mother_letter_1": {"title": "✉ Мама → сыну (первое)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_1_done", "is_letter": true, "order": 1},
+	"youth_reply_1": {"title": "✉ Сын → маме (первый ответ)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_1_done", "is_letter": true, "order": 2},
+	"youth_mother_letter_2": {"title": "✉ Мама → сыну (второе)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_2_done", "is_letter": true, "order": 3},
+	"youth_reply_2": {"title": "✉ Сын → маме (второй ответ)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_2_done", "is_letter": true, "order": 4},
+	"youth_last_letter": {"title": "✉ Последнее письмо Мирона (прощальное)", "cat": CAT_YOUTH_MAIL, "flag": "worker_youth_death_scene_done", "is_letter": true, "order": 5},
+	"youth_mother_letter_3": {"title": "✉ Мама → сыну (третье, без ответа)", "cat": CAT_YOUTH_MAIL, "flag": "youth_postmortem_1_done", "flag_also": "youth_letter_2_done", "is_letter": true, "order": 6},
+	"youth_mother_letter_postmortem_2": {"title": "✉ Мама → сыну (без ответа)", "cat": CAT_YOUTH_MAIL, "flag": "youth_postmortem_2_done", "flag_also": "youth_letter_1_done", "flag_not": "youth_letter_2_done", "is_letter": true, "order": 7},
+	"youth_nika_drawing_postmortem": {"title": "✉ Рисунок Ники (одиннадцатый кораблик)", "cat": CAT_YOUTH_MAIL, "flag": "youth_postmortem_2_done", "is_letter": true, "order": 8},
 }
 
 ## {id, title, category, text_bbcode} — только разблокированные записи.
@@ -63,12 +76,23 @@ static func get_unlocked_entries() -> Array[Dictionary]:
 		var flag: String = str(meta.get("flag", ""))
 		if flag.is_empty() or not StoryState.has_flag(flag):
 			continue
-		out.append({
+		var flag_also: String = str(meta.get("flag_also", ""))
+		if not flag_also.is_empty() and not StoryState.has_flag(flag_also):
+			continue
+		var flag_not: String = str(meta.get("flag_not", ""))
+		if not flag_not.is_empty() and StoryState.has_flag(flag_not):
+			continue
+		var entry: Dictionary = {
 			"id": key,
 			"title": str(meta.get("title", key)),
 			"category": str(meta.get("cat", CAT_HEALER)),
 			"text_bbcode": _format_lore_zone_text(key),
-		})
+		}
+		if meta.has("is_letter"):
+			entry["is_letter"] = true
+		if meta.has("order"):
+			entry["order"] = int(meta["order"])
+		out.append(entry)
 	return out
 
 
@@ -81,11 +105,19 @@ static func get_entries_grouped() -> Array[Dictionary]:
 		if not by_cat.has(cat):
 			by_cat[cat] = []
 		(by_cat[cat] as Array).append(e)
+	for cat in by_cat:
+		var arr: Array = by_cat[cat] as Array
+		arr.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+			return int(a.get("order", 999)) < int(b.get("order", 999)))
 	var out: Array[Dictionary] = []
 	for cat in CATEGORY_ORDER:
 		if not by_cat.has(cat):
 			continue
-		out.append({"category": cat, "entries": by_cat[cat] as Array})
+		out.append({
+			"category": cat,
+			"hint": str(_CATEGORY_HINTS.get(cat, "")),
+			"entries": by_cat[cat] as Array,
+		})
 	for cat in by_cat:
 		var already := false
 		for c in CATEGORY_ORDER:
@@ -93,8 +125,27 @@ static func get_entries_grouped() -> Array[Dictionary]:
 				already = true
 				break
 		if not already:
-			out.append({"category": cat, "entries": by_cat[cat] as Array})
+			out.append({
+				"category": cat,
+				"hint": str(_CATEGORY_HINTS.get(cat, "")),
+				"entries": by_cat[cat] as Array,
+			})
 	return out
+
+static func get_category_hint(cat: String) -> String:
+	return str(_CATEGORY_HINTS.get(cat, ""))
+
+
+static func get_total_for_category(cat: String) -> int:
+	var total := 0
+	for nid in ChestLoreLibrary.get_all_note_ids():
+		if ChestLoreLibrary.get_note_category(nid) == cat:
+			total += 1
+	for key in _LORE_ZONE_META:
+		var meta: Dictionary = _LORE_ZONE_META[key]
+		if str(meta.get("cat", "")) == cat:
+			total += 1
+	return total
 
 
 static func has_any_unlocked() -> bool:

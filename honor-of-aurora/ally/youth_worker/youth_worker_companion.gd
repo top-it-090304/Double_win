@@ -20,7 +20,15 @@ var _intro_chase_active: bool = false
 
 func _ready() -> void:
 	if StoryState.has_flag("worker_youth_dead"):
-		queue_free()
+		if StoryState.has_flag("worker_youth_death_scene_done"):
+			queue_free()
+			return
+		visible = false
+		set_physics_process(false)
+		set_process(false)
+		DialogueManager.dialogue_ended.connect(_on_dialogue_ended)
+		Events.location_changed.connect(_on_location_changed)
+		call_deferred("_maybe_trigger_death_scene")
 		return
 	add_to_group("story_youth_companion")
 	add_to_group("dock_youth_interact")
@@ -239,6 +247,10 @@ func _on_dialogue_ended(sequence: DialogueSequence) -> void:
 	if sequence == null:
 		return
 	var sid: String = sequence.id
+	if sid == "worker_youth_death":
+		get_tree().paused = false
+		queue_free()
+		return
 	if sid == "dock_worker_youth_intro":
 		_record_prompt_anchor_after_dialogue()
 	elif sid == "dock_worker_youth_recruit" or sid == "dock_worker_youth_ask_again":
@@ -273,7 +285,21 @@ func _handle_death() -> void:
 	StoryState.set_flag("worker_youth_dead", true)
 	StoryState.clear_flag("worker_youth_recruited")
 	set_meta("no_squad_death", true)
-	super._handle_death()
+	state = State.DEAD
+	_attack_cd = 999.0
+	velocity = Vector2.ZERO
+	var col := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if col:
+		col.set_deferred("disabled", true)
+	if attack_area:
+		attack_area.set_deferred("monitoring", false)
+	if sprite:
+		if sprite.sprite_frames and sprite.sprite_frames.has_animation(&"dead"):
+			sprite.stop()
+			sprite.play(&"dead")
+			await sprite.animation_finished
+	get_tree().paused = true
+	DialogueRegistry.try_start("worker_youth_death")
 
 
 ## По удару: первый выбор «в поход / на базе» и меню приказов — как у остальных союзников.

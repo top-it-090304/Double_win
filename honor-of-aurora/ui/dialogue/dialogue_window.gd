@@ -23,7 +23,7 @@ const TEX_VETERAN := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Huma
 const SPEAKER_LABELS := {
 	"healer": "Целитель",
 	"hero": "Рыцарь",
-	"young_worker": "Юноша",
+	"young_worker": "Мирон",
 	"narrator": "Повествование",
 	"letter": "Письмо",
 	"veteran": "Бран",

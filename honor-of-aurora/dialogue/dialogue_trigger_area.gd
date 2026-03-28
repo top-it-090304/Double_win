@@ -17,8 +17,6 @@ func _ready() -> void:
 func _on_body_entered(body: Node2D) -> void:
 	if not GameplayFacade.is_player_body(body):
 		return
-	if DialogueManager.is_active():
-		return
 	if not dialogue_id.is_empty():
 		if trigger_once and _triggered:
 			return

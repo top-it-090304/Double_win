@@ -28,8 +28,10 @@ const STORY_DIALOGUE_IDS: PackedStringArray = [
 	"truth_and_choice",
 	"monk_finale_refused",
 	"boss_post_5",
-	"monk_worker_youth_warning",
-	"monk_worker_youth_lament",
+	"monk_youth_death_reaction",
+	"youth_postmortem_letter_1",
+	"youth_postmortem_letter_2",
+	"youth_letter_sent",
 	"monk_story_1",
 	"monk_story_2",
 	"monk_story_3",
@@ -88,16 +90,34 @@ func _is_story_dialogue_id(d_id: String) -> bool:
 
 
 func _on_dialogue_ended_zone_flags(sequence: DialogueSequence) -> void:
-	var player := get_tree().get_first_node_in_group("player") as Node2D
-	if player != null and is_instance_valid(player) and heal_area.overlaps_body(player):
-		_block_zone_story_autostart_until_leave_heal_area = true
 	_handle_monk_hub_deferred(sequence)
+	call_deferred("_deferred_chain_monk_zone_story_after_dialogue")
 
 
 func _on_heal_zone_player_exited(body: Node2D) -> void:
 	if not GameplayFacade.is_player_body(body):
 		return
 	_block_zone_story_autostart_until_leave_heal_area = false
+
+
+## После любого закрытого диалога: если у костра ещё есть ожидающие сюжетные — запуск подряд; иначе блок до выхода из зоны (как раньше).
+func _deferred_chain_monk_zone_story_after_dialogue() -> void:
+	if not is_inside_tree():
+		return
+	if Events.current_location != Events.LOCATION.BASE:
+		return
+	if DialogueManager.is_active():
+		return
+	var player := get_tree().get_first_node_in_group("player") as Node2D
+	var in_heal: bool = (
+		player != null
+		and is_instance_valid(player)
+		and bool(heal_area.overlaps_body(player))
+	)
+	if in_heal and _attempt_start_zone_story_dialogue(true):
+		return
+	if in_heal:
+		_block_zone_story_autostart_until_leave_heal_area = true
 
 
 func _physics_process(delta):
@@ -201,6 +221,8 @@ func _pick_non_story_dialogue_id() -> String:
 
 
 func _attempt_start_zone_story_dialogue(ignore_zone_block: bool = false) -> bool:
+	if Events.current_location != Events.LOCATION.BASE:
+		return false
 	if DialogueManager.is_active():
 		return false
 	if not ignore_zone_block and _block_zone_story_autostart_until_leave_heal_area:

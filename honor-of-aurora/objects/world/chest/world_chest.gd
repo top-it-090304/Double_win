@@ -57,7 +57,7 @@ func is_player_in_open_range(player: Node2D) -> bool:
 		return false
 	if overlaps_body(player):
 		return true
-	return global_position.distance_to(player.global_position) <= 52.0
+	return global_position.distance_to(player.global_position) <= 78.0
 
 
 func is_unopened_chest() -> bool:

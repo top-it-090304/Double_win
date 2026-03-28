@@ -1,4 +1,4 @@
-[gd_scene load_steps=113 format=4 uid="uid://dp0hdabar2ldw"]
+[gd_scene load_steps=114 format=4 uid="uid://dp0hdabar2ldw"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_4yy23"]
 [ext_resource type="Script" uid="uid://ba31vgnsd74vs" path="res://Game/game_level_5.gd" id="1_ggf5t"]
@@ -48,6 +48,7 @@
 [ext_resource type="PackedScene" uid="uid://ov1iq7xxu5ks" path="res://objects/TeleportZone/teleport_zone.tscn" id="45_wpxaa"]
 [ext_resource type="PackedScene" uid="uid://blv7sgugmhgu4" path="res://ui/HUD/canvas_layer.tscn" id="46_ryubu"]
 [ext_resource type="PackedScene" uid="uid://erxes3g6not7" path="res://objects/SquadSpawnZone/squad_spawn_zone.tscn" id="47_squad"]
+[ext_resource type="PackedScene" uid="uid://dgvv3qgd71jvc" path="res://objects/world/chest/world_chest.tscn" id="48_wchest"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_seqsi"]
 texture = ExtResource("1_4yy23")
@@ -961,9 +962,26 @@ tile_set = ExtResource("43_7r2hg")
 
 [node name="Troll" parent="." groups=["BOSS"] instance=ExtResource("44_of8ko")]
 position = Vector2(1027, -1309)
-rotation = 3.14159
-scale = Vector2(1, -1)
 story_island = 5
+
+[node name="WorldChest" parent="." instance=ExtResource("48_wchest")]
+position = Vector2(-2536, -385)
+scale = Vector2(-1, 1)
+chest_save_id = "isl5_ruins_a"
+auto_roll_loot_tier = true
+island_for_loot_pool = 5
+
+[node name="WorldChest2" parent="." instance=ExtResource("48_wchest")]
+position = Vector2(-987, -849)
+chest_save_id = "isl5_ruins_b"
+auto_roll_loot_tier = true
+island_for_loot_pool = 5
+
+[node name="WorldChest3" parent="." instance=ExtResource("48_wchest")]
+position = Vector2(338, -375)
+chest_save_id = "isl5_ruins_c"
+auto_roll_loot_tier = true
+island_for_loot_pool = 5
 
 [node name="TeleportZone" parent="." instance=ExtResource("45_wpxaa")]
 position = Vector2(695, 876)

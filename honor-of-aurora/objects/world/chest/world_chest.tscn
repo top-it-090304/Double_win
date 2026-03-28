@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://chestvisualbase001" path="res://objects/world/chest/chest_visual.tscn" id="2_visual"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_chest"]
-radius = 30.0
+radius = 56.0
 
 [node name="WorldChest" type="Area2D"]
 collision_layer = 32

@@ -22,8 +22,9 @@ const NON_STORY_DIALOGUE_IDS: PackedStringArray = [
 	"veteran_archer_banter",
 ]
 
-const TALK_RADIUS: float = 140.0
-const AUTO_STORY_RADIUS: float = 120.0
+## Как у монаха: heal_area радиус 108 — та же дистанция для авто-сюжета и разговора по «атаке».
+const TALK_RADIUS: float = 108.0
+const AUTO_STORY_RADIUS: float = 108.0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
@@ -57,10 +58,10 @@ func _on_player_entered_zone() -> void:
 	_attempt_auto_story_dialogue()
 
 
-func _attempt_auto_story_dialogue() -> bool:
+func _attempt_auto_story_dialogue(ignore_block: bool = false) -> bool:
 	if DialogueManager.is_active():
 		return false
-	if _block_auto_until_leave:
+	if not ignore_block and _block_auto_until_leave:
 		return false
 	var d_id := _pick_story_dialogue_id()
 	if d_id.is_empty():
@@ -76,9 +77,7 @@ func try_open_interact_dialog() -> bool:
 		return false
 	if global_position.distance_to(player.global_position) > TALK_RADIUS:
 		return false
-	var story_id := _pick_story_dialogue_id()
-	if not story_id.is_empty() and DialogueRegistry.can_play(story_id):
-		return DialogueRegistry.try_start(story_id)
+	## Сюжет — только авто при входе в зону; по «атаке» — хаб и лор/бантер, как меню у монаха.
 	if DialogueRegistry.can_play("veteran_archer_hub"):
 		return DialogueRegistry.try_start("veteran_archer_hub")
 	var banter_id := _pick_non_story_dialogue_id()
@@ -102,7 +101,20 @@ func _pick_non_story_dialogue_id() -> String:
 
 
 func _on_dialogue_ended(_sequence: DialogueSequence) -> void:
-	_block_auto_until_leave = true
+	call_deferred("_deferred_chain_veteran_story_after_dialogue")
+
+
+func _deferred_chain_veteran_story_after_dialogue() -> void:
+	if not is_inside_tree():
+		return
+	if DialogueManager.is_active():
+		return
+	var player := _get_player()
+	var in_zone := player != null and global_position.distance_to(player.global_position) <= AUTO_STORY_RADIUS
+	if in_zone and _attempt_auto_story_dialogue(true):
+		return
+	if in_zone:
+		_block_auto_until_leave = true
 
 
 func _get_player() -> Node2D:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=119 format=4 uid="uid://d3j6p4nohjgh7"]
+[gd_scene load_steps=120 format=4 uid="uid://d3j6p4nohjgh7"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_pxbe1"]
 [ext_resource type="Script" uid="uid://gqp0cpolr5ui" path="res://Game/game_level_3.gd" id="1_xdp1w"]
@@ -52,6 +52,7 @@
 [ext_resource type="PackedScene" uid="uid://ov1iq7xxu5ks" path="res://objects/TeleportZone/teleport_zone.tscn" id="49_car8x"]
 [ext_resource type="PackedScene" uid="uid://blv7sgugmhgu4" path="res://ui/HUD/canvas_layer.tscn" id="50_e6a3v"]
 [ext_resource type="PackedScene" uid="uid://erxes3g6not7" path="res://objects/SquadSpawnZone/squad_spawn_zone.tscn" id="51_squad"]
+[ext_resource type="PackedScene" uid="uid://dgvv3qgd71jvc" path="res://objects/world/chest/world_chest.tscn" id="52_wchest"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_seqsi"]
 texture = ExtResource("1_pxbe1")
@@ -978,19 +979,32 @@ tile_set = ExtResource("45_yr4en")
 
 [node name="Panda" parent="." groups=["BOSS"] instance=ExtResource("46_rexv6")]
 position = Vector2(570, -1373)
-rotation = 3.14159
-scale = Vector2(1, -1)
 story_island = 3
 
 [node name="Gnoll" parent="." instance=ExtResource("47_1pdn6")]
 position = Vector2(1306, -1476)
-rotation = 3.14159
-scale = Vector2(1, -1)
 
 [node name="Lizard" parent="." instance=ExtResource("48_pkxvq")]
 position = Vector2(1033, -1111)
-rotation = 3.14159
-scale = Vector2(1, -1)
+
+[node name="WorldChest" parent="." instance=ExtResource("52_wchest")]
+position = Vector2(-2536, -385)
+scale = Vector2(-1, 1)
+chest_save_id = "isl3_ruins_a"
+auto_roll_loot_tier = true
+island_for_loot_pool = 3
+
+[node name="WorldChest2" parent="." instance=ExtResource("52_wchest")]
+position = Vector2(-987, -849)
+chest_save_id = "isl3_ruins_b"
+auto_roll_loot_tier = true
+island_for_loot_pool = 3
+
+[node name="WorldChest3" parent="." instance=ExtResource("52_wchest")]
+position = Vector2(338, -375)
+chest_save_id = "isl3_ruins_c"
+auto_roll_loot_tier = true
+island_for_loot_pool = 3
 
 [node name="TeleportZone" parent="." instance=ExtResource("49_car8x")]
 position = Vector2(702, 888)

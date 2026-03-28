@@ -36,11 +36,11 @@ static func personal_bbcode() -> String:
 	if StoryState.has_flag("monk_ch2_duty") or StoryState.has_flag("monk_ch4_duty") or StoryState.has_flag("monk_ch5_duty"):
 		lines.append("[color=#a0b8c4]Ты напоминал монаху о долге — сначала контракт, потом дорога.[/color]")
 	if StoryState.has_flag("worker_youth_dead"):
-		lines.append("[color=#c4a0a0]Юноша погиб на островах. Дома — мать и младшая сестра, которая рисует кораблики и ждёт ракушку. В его кармане — ложь, написанная заранее: «У меня всё хорошо. Я приеду».[/color]")
+		lines.append("[color=#c4a0a0]Мирон погиб на островах. Монах не произнёс ни слова — только руки дрожали. Дома — мать и сестра, которая рисует кораблики. В кармане — ложь, написанная заранее: «Кашу вари. На двоих. Моя порция — Нике». Он убрал себя из-за стола задолго до смерти.[/color]")
 	elif StoryState.has_flag("worker_youth_recruited"):
-		lines.append("[color=#a0c4a8]Ты взял юношу в отряд. Решение — на твоей совести.[/color]")
+		lines.append("[color=#a0c4a8]Ты взял Мирона в отряд. Решение — на твоей совести.[/color]")
 	elif StoryState.has_flag("worker_youth_works_on_base"):
-		lines.append("[color=#a8c4a0]Юноша работает на базе. Целый, живой.[/color]")
+		lines.append("[color=#a8c4a0]Мирон работает на базе. Целый, живой.[/color]")
 	if StoryState.has_flag("hero_chose_finish_chain"):
 		lines.append("[color=#c8c4a0]Ты решил идти до конца — снять последнюю печать.[/color]")
 	if StoryState.has_flag("hero_chose_refuse_chain"):
@@ -68,9 +68,9 @@ static func get_character_entries() -> Array[Dictionary]:
 		},
 		{
 			"key": "youth",
-			"display_name": "Юноша",
+			"display_name": "Мирон",
 			"role_line": "Доброволец · склад и причал",
-			"brief_plain": "Доброволец с причала: работа на базе и мечта о настоящем походе.",
+			"brief_plain": "Доброволец с причала: работа на базе и мечта о настоящем походе. Дома — мать и сестра Ника.",
 			"portrait": "res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_05.png",
 		},
 		{
@@ -88,11 +88,38 @@ static func build_stats_bbcode(tree: SceneTree) -> String:
 	var out := ""
 	for s in sections:
 		var sd: Dictionary = s
-		out += "[font_size=18][b]%s[/b][/font_size]\n" % sd["title"]
-		for item in sd["items"]:
-			var row: Dictionary = item
-			out += "[color=#9eb0c8]%s[/color]  —  [color=#e8ecf0]%s[/color]\n" % [row["label"], row["value"]]
-		out += "\n"
+		var title: String = sd["title"]
+		if title == "Исследование мира":
+			out += _render_lore_progress(sd)
+		else:
+			out += "[font_size=18][b]%s[/b][/font_size]\n" % title
+			for item in sd["items"]:
+				var row: Dictionary = item
+				out += "[color=#9eb0c8]%s[/color]  —  [color=#e8ecf0]%s[/color]\n" % [row["label"], row["value"]]
+			out += "\n"
+	return out
+
+
+static func _render_lore_progress(section: Dictionary) -> String:
+	var out := "[font_size=18][b]%s[/b][/font_size]\n\n" % section["title"]
+	for item in section["items"]:
+		var row: Dictionary = item
+		var label: String = row["label"]
+		var data: Dictionary = row.get("data", {})
+		var found: int = int(data.get("found", 0))
+		var total: int = int(data.get("total", 0))
+		var hint: String = str(data.get("hint", ""))
+		var pct := 0
+		if total > 0:
+			pct = int(float(found) / float(total) * 100.0)
+		var bar := _make_bar(found, total)
+		var status := ""
+		if found >= total and total > 0:
+			status = "[color=#6aaa6a] ✓[/color]"
+		elif not hint.is_empty():
+			status = "  [color=#607080]%s[/color]" % hint
+		out += "[color=#b8c4d8]%s[/color]  [color=#8090a8]%d/%d[/color]\n" % [label, found, total]
+		out += "%s  [color=#8898a8]%d%%[/color]%s\n\n" % [bar, pct, status]
 	return out
 
 
@@ -117,7 +144,7 @@ static func build_timeline_bbcode() -> String:
 static func _timeline_beats() -> Array:
 	return [
 		{"flag": "intro_base_island_done", "title": "Прибытие на Аврору", "body": "Корабль ушёл. Целитель Ордена Тихой Зари встретил на берегу. Пять островов, пять стражей. Под ними — сердцевина для маяков короны."},
-		{"flag": "worker_youth_intro_done", "title": "Юноша на причале", "body": "Доброволец по объявлению короны. Просится в отряд — или хотя бы в работу."},
+		{"flag": "worker_youth_intro_done", "title": "Мирон на причале", "body": "Доброволец по объявлению короны. Просится в отряд — или хотя бы в работу."},
 		{"flag": "veteran_archer_intro_done", "title": "Бран у стрельбища", "body": "Ветеран первой экспедиции. Пятнадцать лет на этих камнях. Тренирует лучников и помнит каждое из одиннадцати имён."},
 		{"flag": "story_island_1_cleared", "title": "Первый страж повержен", "body": "На костях — клеймо ордена. Восьмиконечная звезда. Стражей поставили люди."},
 		{"flag": "monk_story_1_done", "title": "У огня: орден и контракт", "body": "Монах рассказал о контракте с короной: «до стабилизации узлов» — без срока, без даты."},
@@ -130,10 +157,13 @@ static func _timeline_beats() -> Array:
 		{"flag": "story_island_4_cleared", "title": "Четвёртый страж повержен", "body": "Страж не нападал первым — стоял и ждал. Живой замок ордена. Остался один."},
 		{"flag": "monk_story_5_done", "title": "У огня: свобода и цена", "body": "Монах: «Моя свобода зависит от твоего решения». Один акт — и контракт закрыт."},
 		{"flag": "monk_letter_2_read", "title": "Второе письмо Лиан", "body": "«Не умирай по дороге. Это всё, о чём прошу». Она хранит мешочек с его травами. Он уже не пахнет. А она помнит."},
-		{"flag": "youth_letter_1_done", "title": "Письмо с материка", "body": "Мать юноши узнала, где он. Сестра Ника рисует кораблики и спрашивает каждое утро: «Когда приедет?» Юноша ответил: «Вернусь с историей»."},
-		{"flag": "worker_youth_camp_done", "title": "У костра с юношей", "body": "Он спросил: «Зачем вы сюда пошли?» И рассказал про отца, который всю жизнь таскал ящики, а за столом ему нечего было сказать. «Я хочу, чтобы было что рассказать»."},
-		{"flag": "youth_letter_2_done", "title": "Второе письмо мамы", "body": "«Ника перестала спрашивать, когда ты приедешь. Просто рисует кораблики и вешает на стену. Их уже семь». Юноша обещал привезти ракушку — самую большую."},
-		{"flag": "worker_youth_dead", "title": "Гибель юноши", "body": "Нелепая засада среди камней. Последние слова: «Отправь письмо. Она не должна знать». В кармане — заранее написанное прощание, замаскированное под хорошие новости. «Кашу вари. На троих. Я приеду»."},
+		{"flag": "youth_letter_1_done", "title": "Письмо с материка", "body": "Мать Мирона узнала, где он. Сестра Ника рисует кораблики и спрашивает каждое утро: «Когда приедет?» Мирон ответил: «Вернусь с историей»."},
+		{"flag": "worker_youth_camp_done", "title": "У костра с Мироном", "body": "Он спросил: «Зачем вы сюда пошли?» И рассказал про отца, который всю жизнь таскал ящики, а за столом ему нечего было сказать. «Я хочу, чтобы было что рассказать»."},
+		{"flag": "youth_letter_2_done", "title": "Второе письмо мамы", "body": "«Ника перестала спрашивать, когда ты приедешь. Просто рисует кораблики и вешает на стену. Их уже семь». Мирон обещал привезти ракушку — самую большую."},
+		{"flag": "worker_youth_dead", "title": "Гибель Мирона", "body": "Нелепая засада среди камней. Последние слова: «Отправь письмо. Она не должна знать». В кармане — прощание, замаскированное под хорошие новости. Он не написал «я приеду». Написал: «Моя порция — Нике. Она растёт». Убрал себя из-за стола."},
+		{"flag": "youth_postmortem_1_done", "title": "Почта мёртвому", "body": "Письмо от матери пришло на его имя. Она не знает. Монах прочитал. Прощальное письмо нужно отправить."},
+		{"flag": "youth_postmortem_2_done", "title": "Одиннадцатый кораблик", "body": "Ника прислала рисунок: «Братик-рыцар. Он ищет ракушку». Она всё ещё верит. Стена конечна — вера нет."},
+		{"flag": "youth_letter_sent_done", "title": "Письмо ушло", "body": "Караванщик увёз прощальное письмо Мирона на материк. Ложь — домой. Она получит его «хорошие новости» и перестанет ждать."},
 		{"flag": "truth_and_choice_done", "title": "Правда и выбор", "body": "Монах признался во всём: стражи — печати, «тварь» — ложь короны, отпуск — его личная ставка. Выбор за тобой."},
 		{"flag": "hero_chose_finish_chain", "title": "Решение: идти до конца", "body": "Ты пообещал снять последнюю печать. Монах увидит дочь. Заря проснётся."},
 		{"flag": "hero_chose_refuse_chain", "title": "Решение: отказ", "body": "Ты отказался будить Зарю. Замок стоит. Монах остаётся — навсегда."},
@@ -207,4 +237,72 @@ static func _build_stats_sections(tree: SceneTree) -> Array:
 		}
 	)
 	sections.append(base)
+	sections.append(_build_lore_progress_section())
 	return sections
+
+
+static func _build_lore_progress_section() -> Dictionary:
+	var items: Array = []
+
+	var boss_flags := ["story_island_1_cleared", "story_island_2_cleared", "story_island_3_cleared", "story_island_4_cleared", "story_island_5_cleared"]
+	items.append(_progress_row("Стражи повержены", boss_flags, "Исследуйте острова"))
+
+	var chest_ids := ChestLoreLibrary.get_all_note_ids()
+	var chest_found := 0
+	for nid in chest_ids:
+		if SaveManager.has_lore_note(nid):
+			chest_found += 1
+	var chest_total := chest_ids.size()
+	items.append(_progress_row_raw("Записки из сундуков", chest_found, chest_total, "Ищите сундуки на островах"))
+
+	var healer_flags := ["lore_deaths_liturgy_done", "lore_archer_sentinel_done", "lore_mine_chain_done", "lore_worker_island_done", "lore_gold_blood_done", "lore_return_veteran_done"]
+	items.append(_progress_row("Записи целителя", healer_flags, "Подходите к огню"))
+
+	var monk_flags := ["monk_story_1_done", "monk_story_2_done", "monk_story_3_done", "monk_story_4_done", "monk_story_5_done", "monk_story_6_done"]
+	items.append(_progress_row("Истории целителя", monk_flags, "Говорите с целителем"))
+
+	var veteran_flags := ["veteran_story_1_done", "veteran_story_2_done", "veteran_story_3_done", "veteran_story_4_done"]
+	items.append(_progress_row("Истории ветерана", veteran_flags, "Говорите с Браном"))
+
+	var lian_flags := ["monk_letter_1_read", "monk_letter_2_read"]
+	items.append(_progress_row("Письма Лиан", lian_flags, "Продвигайте линию целителя"))
+
+	var miron_flags := ["youth_letter_1_done", "youth_letter_2_done", "worker_youth_death_scene_done", "youth_belongings_found", "youth_postmortem_1_done", "youth_postmortem_2_done", "youth_letter_sent_done"]
+	items.append(_progress_row("Линия Мирона", miron_flags, "Общайтесь с Мироном"))
+
+	var item_found := StoryItemLibrary.get_unlocked_count()
+	var item_total := StoryItemLibrary.get_all_items().size()
+	items.append(_progress_row_raw("Предметы", item_found, item_total, "Исследуйте и слушайте"))
+
+	return {"title": "Исследование мира", "items": items}
+
+
+static func _progress_row(title: String, flags: Array, hint: String) -> Dictionary:
+	var found := 0
+	for f in flags:
+		if StoryState.has_flag(str(f)):
+			found += 1
+	return _progress_row_raw(title, found, flags.size(), hint)
+
+
+static func _progress_row_raw(title: String, found: int, total: int, hint: String) -> Dictionary:
+	return {
+		"label": title,
+		"value": "",
+		"data": {"found": found, "total": total, "hint": hint},
+	}
+
+
+static func _make_bar(found: int, total: int) -> String:
+	var bar_len := 10
+	var filled := 0
+	if total > 0:
+		filled = int(round(float(found) / float(total) * float(bar_len)))
+	filled = clampi(filled, 0, bar_len)
+	var empty := bar_len - filled
+	var bar := ""
+	if filled > 0:
+		bar += "[color=#5a9a5a]%s[/color]" % "█".repeat(filled)
+	if empty > 0:
+		bar += "[color=#2a3038]%s[/color]" % "░".repeat(empty)
+	return bar

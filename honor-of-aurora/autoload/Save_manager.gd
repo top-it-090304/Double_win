@@ -440,7 +440,7 @@ func get_codex_content_version() -> int:
 		var k: String = str(key)
 		if k.begins_with("_"):
 			continue
-		if k.ends_with("_done") or k.ends_with("_read") or k.ends_with("_cleared") or k.begins_with("lore_note_") or k == "worker_youth_dead" or k == "worker_youth_recruited" or k == "worker_youth_works_on_base":
+		if k.ends_with("_done") or k.ends_with("_read") or k.ends_with("_cleared") or k.ends_with("_found") or k.begins_with("lore_note_") or k == "worker_youth_dead" or k == "worker_youth_recruited" or k == "worker_youth_works_on_base":
 			n += 1
 	return n
 
