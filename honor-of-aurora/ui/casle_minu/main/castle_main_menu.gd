@@ -13,30 +13,93 @@ func get_hud() -> Node:
 @export var pawn_scene: PackedScene
 @export var spawn_offset: Vector2 = Vector2(80, 0)
 
+const _CROWN_TITLE_ICONS := {
+	"recruit": "res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_01.png",
+	"scout": "res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_03.png",
+	"guardian": "res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_08.png",
+	"knight": "res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_11.png",
+	"keeper": "res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_03.png",
+	"hero": "res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_05.png",
+}
+
+const _PATH_MAIN_ACTIONS := "CastleMenuPanel/Center/Frame/InnerMargin/InnerVBox/MainActions"
+const _PATH_HIRE_VBOX := "HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox"
+const _PATH_UPGRADE_GRID := "UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid"
+const _PATH_CARAVAN_VBOX := "CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox"
+
+var _crown_help_layer: CanvasLayer
+var _crown_title_icon: TextureRect
+var _crown_title_name_lbl: Label
+var _crown_title_sub_lbl: Label
+var _caravan_brief: RichTextLabel
+
+
+func _apply_dialogue_default_font_to_richtext(rtl: RichTextLabel) -> void:
+	## Тот же источник, что у подписей в dialogue_window (без override — ThemeDB.fallback_font).
+	var f := ThemeDB.fallback_font
+	if f:
+		rtl.add_theme_font_override("normal_font", f)
+		rtl.add_theme_font_override("bold_font", f)
+
 
 func _ready() -> void:
 	unit_hire_cost = BalanceConfig.get_unit_hire_cost()
 	_refresh_hire_buy_ui()
+	_build_crown_title_strip()
+	_build_crown_help_modal()
+	_bind_caravan_brief()
+	_refresh_crown_title_strip()
+	if not Events.crown_title_changed.is_connected(_on_crown_title_changed_ui):
+		Events.crown_title_changed.connect(_on_crown_title_changed_ui)
+	if not Events.crown_displeasure_changed.is_connected(_on_crown_displeasure_changed_ui):
+		Events.crown_displeasure_changed.connect(_on_crown_displeasure_changed_ui)
+	if not visibility_changed.is_connected(_on_castle_root_visibility_changed):
+		visibility_changed.connect(_on_castle_root_visibility_changed)
+
+
+func _on_castle_root_visibility_changed() -> void:
+	if not visible:
+		_close_crown_help()
+		return
+	_refresh_crown_title_strip()
+
+
+func _on_crown_title_changed_ui(_idx: int, _name: String) -> void:
+	_refresh_crown_title_strip()
+	if _caravan_brief:
+		var csp := get_node_or_null("CaravanSelectPanel") as Control
+		if csp and csp.visible:
+			_refresh_caravan_ui()
+
+
+func _on_crown_displeasure_changed_ui(_lvl: int) -> void:
+	_refresh_crown_title_strip()
+	if _caravan_brief:
+		var csp := get_node_or_null("CaravanSelectPanel") as Control
+		if csp and csp.visible:
+			_refresh_caravan_ui()
 
 
 func reset_castle_menu_state() -> void:
+	_close_crown_help()
 	_close_upgrade_select()
 	_close_hire_select()
 	_close_caravan_select()
 	var main_panel := get_node_or_null("CastleMenuPanel") as CanvasItem
 	if main_panel:
 		main_panel.visible = true
+	_refresh_crown_title_strip()
 
 
 func _refresh_hire_buy_ui() -> void:
 	var ore_cost := BalanceConfig.get_unit_hire_ore_cost()
-	var price_lbl := get_node_or_null("HireSelectPanel/HirePanel/HirePriceLabel") as Label
+	var price_lbl := get_node_or_null("%s/HirePriceLabel" % _PATH_HIRE_VBOX) as Label
 	if price_lbl:
 		price_lbl.text = "Все типы — %d зол. + %d руды" % [unit_hire_cost, ore_cost]
 	for path in [
-		"HireSelectPanel/HirePanel/slot_archer/ColumnArcher/BuyArcher",
-		"HireSelectPanel/HirePanel/slot_lancer/ColumnLancer/BuyLancer",
-		"HireSelectPanel/HirePanel/slot_pawn/ColumnPawn/BuyPawn",
+		"%s/HireSlotsRow/slot_archer/ColumnArcher/BuyArcher" % _PATH_HIRE_VBOX,
+		"%s/HireSlotsRow/slot_lancer/ColumnLancer/BuyLancer" % _PATH_HIRE_VBOX,
+		"%s/HireSlotsRow/slot_pawn/ColumnPawn/BuyPawn" % _PATH_HIRE_VBOX,
 	]:
 		var b := get_node_or_null(path) as Button
 		if b:
@@ -86,6 +149,7 @@ func _close_upgrade_select() -> void:
 
 
 func _open_upgrade_select() -> void:
+	_close_crown_help()
 	_refresh_upgrade_building_buttons()
 	var hire := get_node_or_null("HireSelectPanel") as Control
 	var upgrade := get_node_or_null("UpgradeSelectPanel") as Control
@@ -114,9 +178,9 @@ func _refresh_upgrade_building_buttons() -> void:
 	for entry in _UPGRADE_SLOTS:
 		var type_key: String = entry.type
 		var b_tier: int = SaveManager.get_building_tier(type_key)
-		var base := "UpgradeSelectPanel/UpgradePanel/UpgradeGrid/%s/%s" % [entry.slot, entry.column]
+		var base := "%s/%s/%s" % [_PATH_UPGRADE_GRID, entry.slot, entry.column]
 		var btn := get_node_or_null("%s/%s" % [base, entry.btn]) as Button
-		var cost_row := get_node_or_null("%s/%s/CostRow" % [base, entry.btn]) as HBoxContainer
+		var cost_row := get_node_or_null("%s/%s/CostRow" % [base, entry.btn]) as Control
 		var gold_lbl := get_node_or_null("%s/%s/CostRow/GoldCostRow/GoldCostLabel" % [base, entry.btn]) as Label
 		var wood_lbl := get_node_or_null("%s/%s/CostRow/WoodCostRow/WoodCostLabel" % [base, entry.btn]) as Label
 		var ore_lbl := get_node_or_null("%s/%s/CostRow/OreCostRow/OreCostLabel" % [base, entry.btn]) as Label
@@ -214,6 +278,7 @@ func _on_upgrade_archery_pressed() -> void:
 
 
 func _open_hire_select() -> void:
+	_close_crown_help()
 	var upgrade := get_node_or_null("UpgradeSelectPanel") as Control
 	var caravan := get_node_or_null("CaravanSelectPanel") as Control
 	if upgrade:
@@ -221,7 +286,7 @@ func _open_hire_select() -> void:
 	if caravan:
 		caravan.visible = false
 	_refresh_hire_buy_ui()
-	var quote_lbl := get_node_or_null("HireSelectPanel/HirePanel/SubtitleHire") as Label
+	var quote_lbl := get_node_or_null("%s/SubtitleHire" % _PATH_HIRE_VBOX) as Label
 	if quote_lbl:
 		quote_lbl.text = HireQuoteRotator.pick_next()
 	var hire := get_node_or_null("HireSelectPanel") as Control
@@ -235,6 +300,9 @@ func _open_hire_select() -> void:
 
 func _on_back_pressed() -> void:
 	SoundManager.play_ui_button()
+	if _crown_help_layer and _crown_help_layer.visible:
+		_close_crown_help()
+		return
 	var hud := get_hud()
 	if hud == null or not hud.has_method("hide_castle_menu"):
 		return
@@ -271,6 +339,319 @@ func _on_upgreat_pressed() -> void:
 	_open_upgrade_select()
 
 
+func _close_crown_help() -> void:
+	if _crown_help_layer:
+		_crown_help_layer.hide()
+
+
+func _on_crown_help_close_pressed() -> void:
+	SoundManager.play_ui_button()
+	_close_crown_help()
+
+
+func _on_crown_help_btn_pressed() -> void:
+	SoundManager.play_ui_button()
+	if _crown_help_layer == null:
+		return
+	_crown_help_layer.show()
+	var rtl := _crown_help_layer.get_node_or_null("Root/Margin/Panel/MarginVBox/Scroll/HelpBody") as RichTextLabel
+	if rtl:
+		rtl.text = _build_crown_titles_help_bbcode()
+
+
+func _build_crown_title_strip_style() -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.08, 0.09, 0.12, 0.96)
+	sb.set_border_width_all(1)
+	sb.border_color = Color(0.55, 0.48, 0.32, 0.5)
+	sb.set_corner_radius_all(12)
+	sb.shadow_color = Color(0, 0, 0, 0.45)
+	sb.shadow_size = 10
+	sb.shadow_offset = Vector2(0, 4)
+	sb.content_margin_left = 14
+	sb.content_margin_top = 10
+	sb.content_margin_right = 14
+	sb.content_margin_bottom = 10
+	return sb
+
+
+func _build_crown_title_strip() -> void:
+	var main_actions := get_node_or_null(_PATH_MAIN_ACTIONS) as VBoxContainer
+	if main_actions == null or main_actions.get_node_or_null("CrownTitleStrip"):
+		return
+	var wrap := MarginContainer.new()
+	wrap.name = "CrownTitleStrip"
+	wrap.add_theme_constant_override("margin_bottom", 8)
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", _build_crown_title_strip_style())
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 14)
+	var icon_frame := PanelContainer.new()
+	var icon_sb := StyleBoxFlat.new()
+	icon_sb.bg_color = Color(0.12, 0.14, 0.2, 1)
+	icon_sb.set_border_width_all(1)
+	icon_sb.border_color = Color(0.78, 0.65, 0.35, 0.45)
+	icon_sb.set_corner_radius_all(10)
+	icon_sb.content_margin_left = 6
+	icon_sb.content_margin_top = 6
+	icon_sb.content_margin_right = 6
+	icon_sb.content_margin_bottom = 6
+	icon_frame.add_theme_stylebox_override("panel", icon_sb)
+	icon_frame.custom_minimum_size = Vector2(76, 76)
+	_crown_title_icon = TextureRect.new()
+	_crown_title_icon.custom_minimum_size = Vector2(64, 64)
+	_crown_title_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_crown_title_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon_frame.add_child(_crown_title_icon)
+	row.add_child(icon_frame)
+	var text_col := VBoxContainer.new()
+	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_col.add_theme_constant_override("separation", 4)
+	_crown_title_name_lbl = Label.new()
+	_crown_title_name_lbl.add_theme_color_override("font_color", Color(0.94, 0.9, 0.78, 1))
+	_crown_title_name_lbl.add_theme_font_size_override("font_size", 26)
+	_crown_title_sub_lbl = Label.new()
+	_crown_title_sub_lbl.add_theme_color_override("font_color", Color(0.72, 0.78, 0.88, 0.95))
+	_crown_title_sub_lbl.add_theme_font_size_override("font_size", 17)
+	_crown_title_sub_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	text_col.add_child(_crown_title_name_lbl)
+	text_col.add_child(_crown_title_sub_lbl)
+	row.add_child(text_col)
+	var help_btn := Button.new()
+	help_btn.text = "Справка"
+	help_btn.focus_mode = Control.FOCUS_NONE
+	help_btn.custom_minimum_size = Vector2(120, 44)
+	help_btn.add_theme_font_size_override("font_size", 20)
+	var hb := StyleBoxFlat.new()
+	hb.bg_color = Color(0.14, 0.16, 0.22, 0.98)
+	hb.set_border_width_all(1)
+	hb.border_color = Color(0.45, 0.5, 0.62, 0.75)
+	hb.set_corner_radius_all(8)
+	hb.content_margin_left = 14
+	hb.content_margin_top = 8
+	hb.content_margin_right = 14
+	hb.content_margin_bottom = 8
+	var hb_h := hb.duplicate() as StyleBoxFlat
+	hb_h.bg_color = Color(0.2, 0.23, 0.32, 1)
+	var hb_p := hb.duplicate() as StyleBoxFlat
+	hb_p.bg_color = Color(0.09, 0.1, 0.14, 1)
+	help_btn.add_theme_stylebox_override("normal", hb)
+	help_btn.add_theme_stylebox_override("hover", hb_h)
+	help_btn.add_theme_stylebox_override("pressed", hb_p)
+	help_btn.add_theme_color_override("font_color", Color(0.92, 0.9, 0.84, 1))
+	help_btn.pressed.connect(_on_crown_help_btn_pressed)
+	row.add_child(help_btn)
+	panel.add_child(row)
+	wrap.add_child(panel)
+	main_actions.add_child(wrap)
+	main_actions.move_child(wrap, 0)
+
+
+func _crown_title_texture() -> Texture2D:
+	var t: Dictionary = CrownSystem.get_current_title()
+	var tid := str(t.get("id", "recruit"))
+	var path: String = str(_CROWN_TITLE_ICONS.get(tid, _CROWN_TITLE_ICONS["recruit"]))
+	if ResourceLoader.exists(path):
+		return load(path) as Texture2D
+	return null
+
+
+func _next_title_threshold_after(total: int) -> int:
+	var next := -1
+	for title in BalanceConfig.CROWN_TITLES:
+		if title is Dictionary:
+			var th := int(title.get("ore_threshold", 0))
+			if th > total:
+				if next < 0 or th < next:
+					next = th
+	return next
+
+
+func _crown_progress_subline() -> String:
+	var sent := SaveManager.ore_sent_to_crown_total
+	var next_th := _next_title_threshold_after(sent)
+	if next_th < 0:
+		return "Отправлено руды Короне: %d — высшая ступень титула." % sent
+	var need := next_th - sent
+	return "Отправлено руды Короне: %d  ·  до следующего титула: %d" % [sent, need]
+
+
+func _crown_effect_subline() -> String:
+	var t: Dictionary = CrownSystem.get_current_title()
+	var mine_b := int(t.get("mine_ore_bonus", 0))
+	if mine_b > 0:
+		return "Шахта при возврате с похода: +%d к руде" % mine_b
+	return "Шахта: без титульного бонуса (следующие ступени дадут +руду)"
+
+
+func _refresh_crown_title_strip() -> void:
+	if _crown_title_icon == null or _crown_title_name_lbl == null:
+		return
+	var tex := _crown_title_texture()
+	_crown_title_icon.texture = tex
+	_crown_title_name_lbl.text = CrownSystem.get_current_title_name()
+	var dis := SaveManager.crown_displeasure
+	var dis_s := ""
+	if dis > 0:
+		dis_s = "  ·  немилость Короны: %d" % dis
+	_crown_title_sub_lbl.text = "%s%s\n%s" % [_crown_progress_subline(), dis_s, _crown_effect_subline()]
+
+
+func _build_crown_help_modal() -> void:
+	_crown_help_layer = CanvasLayer.new()
+	_crown_help_layer.layer = 12
+	_crown_help_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	_crown_help_layer.visible = false
+	add_child(_crown_help_layer)
+	var root := Control.new()
+	root.name = "Root"
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_crown_help_layer.add_child(root)
+	var dim := ColorRect.new()
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.color = Color(0.02, 0.03, 0.06, 0.72)
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	root.add_child(dim)
+	var margin := MarginContainer.new()
+	margin.name = "Margin"
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", 28)
+	margin.add_theme_constant_override("margin_top", 36)
+	margin.add_theme_constant_override("margin_right", 28)
+	margin.add_theme_constant_override("margin_bottom", 36)
+	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_child(margin)
+	var panel := PanelContainer.new()
+	panel.name = "Panel"
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var psb := StyleBoxFlat.new()
+	psb.bg_color = Color(0.08, 0.09, 0.12, 0.98)
+	psb.set_border_width_all(1)
+	psb.border_color = Color(0.55, 0.48, 0.32, 0.55)
+	psb.set_corner_radius_all(14)
+	psb.shadow_color = Color(0, 0, 0, 0.55)
+	psb.shadow_size = 14
+	psb.shadow_offset = Vector2(0, 6)
+	psb.content_margin_left = 20
+	psb.content_margin_top = 18
+	psb.content_margin_right = 20
+	psb.content_margin_bottom = 18
+	panel.add_theme_stylebox_override("panel", psb)
+	margin.add_child(panel)
+	var vbox := VBoxContainer.new()
+	vbox.name = "MarginVBox"
+	vbox.add_theme_constant_override("separation", 12)
+	panel.add_child(vbox)
+	var header := HBoxContainer.new()
+	var ht := Label.new()
+	ht.text = "Титулы Короны"
+	ht.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ht.add_theme_color_override("font_color", Color(0.94, 0.92, 0.88, 1))
+	ht.add_theme_font_size_override("font_size", 32)
+	var close_b := Button.new()
+	close_b.text = "Закрыть"
+	close_b.focus_mode = Control.FOCUS_NONE
+	close_b.add_theme_font_size_override("font_size", 20)
+	close_b.pressed.connect(_on_crown_help_close_pressed)
+	header.add_child(ht)
+	header.add_child(close_b)
+	vbox.add_child(header)
+	var scroll := ScrollContainer.new()
+	scroll.name = "Scroll"
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(scroll)
+	var rtl := RichTextLabel.new()
+	rtl.name = "HelpBody"
+	rtl.bbcode_enabled = true
+	rtl.fit_content = true
+	rtl.scroll_active = false
+	rtl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rtl.add_theme_color_override("default_color", Color(0.78, 0.82, 0.9, 0.98))
+	rtl.add_theme_font_size_override("normal_font_size", 16)
+	_apply_dialogue_default_font_to_richtext(rtl)
+	scroll.add_child(rtl)
+
+
+func _build_crown_titles_help_bbcode() -> String:
+	var lines: PackedStringArray = []
+	lines.append("[b]Как получить титул[/b]")
+	lines.append("Каждая отправка [color=#9fd4ff]руды[/color] караваном Короны увеличивает ваш [color=#e8c97a]суммарный счёт[/color]. Титул зависит только от этого счёта — не от одной партии.")
+	lines.append("")
+	lines.append("[b]Ступени[/b]")
+	for t in BalanceConfig.CROWN_TITLES:
+		if t is Dictionary:
+			var nm := str(t.get("name", ""))
+			var th := int(t.get("ore_threshold", 0))
+			var mb := int(t.get("mine_ore_bonus", 0))
+			var bonus := "шахта +" + str(mb) if mb > 0 else "без бонуса шахты"
+			lines.append("· [color=#e8c97a]%s[/color] — с [color=#9fd4ff]%d[/color] руды всего; %s" % [nm, th, bonus])
+	lines.append("")
+	lines.append("[b]Эффекты в игре[/b]")
+	lines.append("Сейчас титул влияет на добычу [color=#9fd4ff]шахты[/color] при возврате с острова (см. ступени выше).")
+	lines.append("")
+	lines.append("[b]Караван и приказы[/b]")
+	lines.append("Подробности — в разделе «Караван Короны» в замке.")
+	return "\n".join(lines)
+
+
+func _bind_caravan_brief() -> void:
+	_caravan_brief = get_node_or_null("%s/CaravanBriefScroll/CaravanBrief" % _PATH_CARAVAN_VBOX) as RichTextLabel
+	if _caravan_brief:
+		_apply_dialogue_default_font_to_richtext(_caravan_brief)
+
+
+func _caravan_arrival_rewards_line() -> String:
+	var g := BalanceConfig.get_caravan_supply_gold()
+	var m := BalanceConfig.get_caravan_supply_meat()
+	var dis := SaveManager.crown_displeasure
+	var g_show := int(round(float(g) * BalanceConfig.get_displeasure_gold_mult(dis)))
+	return "При [b]прибытии[/b] каравана на базу вы сразу получаете [color=#e8c97a]%d золота[/color] и [color=#c49a6c]%d мяса[/color] (золото при немилости снижено; сейчас уровень немилости: [color=#ff9a7a]%d[/color])." % [g_show, m, dis]
+
+
+func _caravan_mechanics_bbcode() -> String:
+	var lines: PackedStringArray = []
+	var interval := BalanceConfig.CARAVAN_EXPEDITION_INTERVAL
+	var pending := SaveManager.caravan_pending
+	var exp_left := SaveManager.expeditions_until_caravan
+	var order := CrownSystem.get_current_order_info()
+	lines.append("[b][color=#e8c97a]Ваш титул[/color][/b]  —  %s" % CrownSystem.get_current_title_name())
+	if SaveManager.crown_displeasure > 0:
+		lines.append("[color=#ff9a7a]Немилость Короны %d[/color]: меньше золота в жалованье при прибытии каравана." % SaveManager.crown_displeasure)
+	lines.append("")
+	lines.append("[b]Что вы получаете при прибытии[/b]")
+	lines.append(_caravan_arrival_rewards_line())
+	lines.append("[b]Как часто приходит караван[/b]")
+	lines.append("После того как караван [b]уехал[/b] с вашей отгрузкой, считаются возвращения с похода: через [color=#9fd4ff]%d[/color] возвращений прибудет следующий рейс." % interval)
+	lines.append("[color=#b0b8c8]Пока у причала стоит караван и ждёт руду, походы [b]не[/b] уменьшают этот счётчик и [b]не[/b] отсчитывают срок приказа. Можно «Отпустить порожним», чтобы снова шло время.[/color]")
+	lines.append("")
+	if pending:
+		lines.append("[b]Сейчас[/b]: караван у причала — отгрузите [color=#9fd4ff]сердцевину[/color] или отпустите пустым.")
+	else:
+		var left := maxi(0, exp_left)
+		if left <= 0:
+			lines.append("[b]Сейчас[/b]: следующее [b]возвращение[/b] с похода приведёт караван Короны.")
+		else:
+			lines.append("[b]Сейчас[/b]: до прибытия каравана осталось [color=#9fd4ff]%d[/color] возвращений с похода." % left)
+	lines.append("")
+	if order.is_empty():
+		lines.append("[b]Приказ Короны[/b] появится с первым же прибытием каравана.")
+	else:
+		var req := int(order.get("ore_required", 0))
+		var sent := int(order.get("ore_sent", 0))
+		var dl := int(order.get("deadline_remaining", 0))
+		lines.append("[b]Текущий приказ[/b]: сдать [color=#9fd4ff]%d[/color] руды (отгружено [color=#9fd4ff]%d[/color])." % [req, sent])
+		lines.append("Срок отсчитывается в [b]походах[/b] после выдачи приказа: осталось [color=#ffb870]%d[/color]." % dl)
+		lines.append("Если срок истечёт и будет отгружено [b]меньше половины[/b] нормы — растёт [color=#ff9a7a]немилость[/color] (до %d)." % BalanceConfig.DISPLEASURE_MAX_LEVEL)
+		lines.append("Перевыполнение (~[b]120%%[/b] нормы за одну отгрузку после недобора) снижает немилость.")
+	lines.append("")
+	lines.append("[b]Титул[/b]: растёт от [b]всей[/b] отправленной Короне руды — см. плашку вверху замка или кнопку «Справка».")
+	return "\n".join(lines)
+
+
 func _resolve_archer_scene() -> PackedScene:
 	if archer_scene != null:
 		return archer_scene
@@ -301,7 +682,7 @@ func _resolve_scene_for_hire(kind: HireKind) -> PackedScene:
 
 
 func _show_hire_fail(msg: String) -> void:
-	var quote_lbl := get_node_or_null("HireSelectPanel/HirePanel/SubtitleHire") as Label
+	var quote_lbl := get_node_or_null("%s/SubtitleHire" % _PATH_HIRE_VBOX) as Label
 	if quote_lbl:
 		quote_lbl.text = msg
 
@@ -354,6 +735,7 @@ var _caravan_ore_to_send: int = 0
 
 
 func _open_caravan_select() -> void:
+	_close_crown_help()
 	var hire := get_node_or_null("HireSelectPanel") as Control
 	var upgrade := get_node_or_null("UpgradeSelectPanel") as Control
 	var caravan := get_node_or_null("CaravanSelectPanel") as Control
@@ -383,39 +765,14 @@ func _close_caravan_select() -> void:
 func _refresh_caravan_ui() -> void:
 	var pending := SaveManager.caravan_pending
 	var ore_available := SaveManager.ore_count
-	var order := CrownSystem.get_current_order_info()
 
-	var status_lbl := get_node_or_null("CaravanSelectPanel/CaravanPanel/CaravanStatus") as Label
-	var order_lbl := get_node_or_null("CaravanSelectPanel/CaravanPanel/OrderInfo") as Label
-	var title_lbl := get_node_or_null("CaravanSelectPanel/CaravanPanel/TitleInfo") as Label
-	var ore_lbl := get_node_or_null("CaravanSelectPanel/CaravanPanel/OreAvailable") as Label
-	var send_all_btn := get_node_or_null("CaravanSelectPanel/CaravanPanel/BtnSendAll") as Button
-	var send_half_btn := get_node_or_null("CaravanSelectPanel/CaravanPanel/BtnSendHalf") as Button
-	var dismiss_btn := get_node_or_null("CaravanSelectPanel/CaravanPanel/BtnDismiss") as Button
+	var ore_lbl := get_node_or_null("%s/OreAvailable" % _PATH_CARAVAN_VBOX) as Label
+	var send_all_btn := get_node_or_null("%s/BtnRow/BtnSendAll" % _PATH_CARAVAN_VBOX) as Button
+	var send_half_btn := get_node_or_null("%s/BtnRow/BtnSendHalf" % _PATH_CARAVAN_VBOX) as Button
+	var dismiss_btn := get_node_or_null("%s/BtnDismiss" % _PATH_CARAVAN_VBOX) as Button
 
-	if title_lbl:
-		var t_name := CrownSystem.get_current_title_name()
-		var displeasure := SaveManager.crown_displeasure
-		var d_text := ""
-		if displeasure > 0:
-			d_text = "  (немилость: %d)" % displeasure
-		title_lbl.text = "Титул: %s%s" % [t_name, d_text]
-
-	if status_lbl:
-		if pending:
-			status_lbl.text = "Караван ждёт у причала. Загрузите руду."
-		else:
-			var exp_left := SaveManager.expeditions_until_caravan
-			status_lbl.text = "Следующий караван через %d поход(ов)" % exp_left
-
-	if order_lbl:
-		if order.is_empty():
-			order_lbl.text = "Приказов Короны пока нет."
-		else:
-			var req := int(order.get("ore_required", 0))
-			var sent := int(order.get("ore_sent", 0))
-			var deadline := int(order.get("deadline_remaining", 0))
-			order_lbl.text = "Приказ: %d / %d руды. Осталось походов: %d" % [sent, req, deadline]
+	if _caravan_brief:
+		_caravan_brief.text = _caravan_mechanics_bbcode()
 
 	if ore_lbl:
 		ore_lbl.text = "Руда на складе: %d" % ore_available
@@ -427,11 +784,11 @@ func _refresh_caravan_ui() -> void:
 	if send_half_btn:
 		var half := maxi(1, ore_available / 2)
 		send_half_btn.disabled = not pending or ore_available <= 0
-		send_half_btn.text = "Отправить %d" % half
+		send_half_btn.text = "Отправить половину (%d)" % half
 
 	if dismiss_btn:
 		dismiss_btn.disabled = not pending
-		dismiss_btn.text = "Отпустить порожним"
+		dismiss_btn.text = "Отпустить порожним (без отгрузки)"
 
 
 func _on_caravan_pressed() -> void:

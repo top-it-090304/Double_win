@@ -38,6 +38,10 @@ var _item_detail_title: Label
 var _item_detail_brief: Label
 var _item_detail_desc: RichTextLabel
 var _item_detail_showing := false
+var _codex_marker_info: Dictionary = {}
+## Пока true — не пишем «просмотрено» от программного выбора в списках.
+var _codex_block_click_marks: bool = false
+var _codex_prev_tab: int = 0
 
 
 func _ready() -> void:
@@ -130,17 +134,26 @@ func reset_camp_codex_state() -> void:
 
 
 func prepare_on_open() -> void:
+	_codex_block_click_marks = true
+	_codex_marker_info = SaveManager.compute_codex_new_marker_info(get_tree())
 	_refresh_archive_list()
 	_refresh_dossier()
 	_refresh_characters()
 	_refresh_timeline()
 	_refresh_items()
+	_apply_codex_tab_markers()
 	if _main_tabs:
 		_main_tabs.current_tab = 0
+		_codex_prev_tab = 0
 	_scroll_dossier_top()
 	_scroll_character_story_top()
-	SaveManager.mark_codex_opened()
-	call_deferred("_focus_close_button")
+	SaveManager.mark_codex_opened(get_tree())
+	call_deferred("_codex_finish_open_setup")
+
+
+func _codex_finish_open_setup() -> void:
+	_codex_block_click_marks = false
+	_focus_close_button()
 
 
 func _scroll_dossier_top() -> void:
@@ -168,6 +181,8 @@ func _refresh_characters() -> void:
 	var entries := CampCodexDossier.get_character_entries()
 	if _char_list == null:
 		return
+	var prev_block := _codex_block_click_marks
+	_codex_block_click_marks = true
 	_char_list.clear()
 	for d in entries:
 		var dict: Dictionary = d
@@ -177,10 +192,19 @@ func _refresh_characters() -> void:
 	if _char_list.item_count > 0:
 		_char_list.select(0)
 		_apply_character_selection(0)
+	_codex_block_click_marks = prev_block
+	_stamp_character_new_icons()
 
 
 func _on_character_list_selected(index: int) -> void:
 	SoundManager.play_ui_button()
+	if not _codex_block_click_marks:
+		var entries := CampCodexDossier.get_character_entries()
+		if index >= 0 and index < entries.size():
+			var key := String(entries[index].get("key", ""))
+			if not key.is_empty():
+				SaveManager.codex_mark_character_clicked(get_tree(), key)
+				_refresh_codex_marker_ui()
 	_apply_character_selection(index)
 
 
@@ -212,12 +236,26 @@ func _focus_close_button() -> void:
 
 func _on_close_pressed() -> void:
 	SoundManager.play_ui_button()
+	if _main_tabs:
+		var ct := _main_tabs.current_tab
+		if ct == 0:
+			SaveManager.codex_mark_summary_seen(get_tree())
+		elif ct == 3:
+			SaveManager.codex_mark_timeline_seen(get_tree())
 	var hud := GameplayFacade.get_hud(get_tree())
 	if hud and hud.has_method("hide_camp_codex_menu"):
 		hud.hide_camp_codex_menu()
 
 
 func _on_main_tab_changed(tab: int) -> void:
+	if not _codex_block_click_marks and _main_tabs:
+		if _codex_prev_tab == 0 and tab != 0:
+			SaveManager.codex_mark_summary_seen(get_tree())
+			_refresh_codex_marker_ui()
+		if _codex_prev_tab == 3 and tab != 3:
+			SaveManager.codex_mark_timeline_seen(get_tree())
+			_refresh_codex_marker_ui()
+	_codex_prev_tab = tab
 	SoundManager.play_ui_button()
 	if tab == 0:
 		_refresh_dossier()
@@ -229,6 +267,13 @@ func _on_main_tab_changed(tab: int) -> void:
 		_refresh_timeline()
 	if tab == 4:
 		_refresh_items()
+	match tab:
+		1:
+			_stamp_character_new_icons()
+		2:
+			_stamp_archive_new_icons()
+		_:
+			pass
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -294,6 +339,7 @@ func _refresh_archive_list() -> void:
 			_archive_body.bbcode_text = "[color=#aab8cc]Выберите запись в списке слева.[/color]"
 		else:
 			_archive_body.bbcode_text = "[center][color=#aab8cc]Записей пока нет. Ищите сундуки на островах и слушайте разговоры у огня.[/color][/center]"
+	_stamp_archive_new_icons()
 
 
 func _on_archive_item_selected(index: int) -> void:
@@ -307,6 +353,11 @@ func _on_archive_item_selected(index: int) -> void:
 	if entry_idx < 0 or entry_idx >= _archive_entries.size():
 		return
 	var ed: Dictionary = _archive_entries[entry_idx]
+	if not _codex_block_click_marks:
+		var eid := str(ed.get("id", ""))
+		if not eid.is_empty():
+			SaveManager.codex_mark_archive_clicked(eid)
+			_refresh_codex_marker_ui()
 	var title := String(ed.get("title", ""))
 	var txt := String(ed.get("text_bbcode", ""))
 	var is_letter: bool = ed.get("is_letter", false)
@@ -334,7 +385,8 @@ func _refresh_items() -> void:
 	var items := StoryItemLibrary.get_unlocked_items()
 	for item in items:
 		_item_entries.append(item)
-		var cell := _build_item_cell(item, _item_entries.size() - 1)
+		var is_new := _is_codex_item_marked_new(str(item.get("id", "")))
+		var cell := _build_item_cell(item, _item_entries.size() - 1, is_new)
 		_items_grid.add_child(cell)
 	var found_any := not _item_entries.is_empty()
 	if _items_empty:
@@ -344,9 +396,135 @@ func _refresh_items() -> void:
 	_hide_item_detail()
 
 
-func _build_item_cell(item: Dictionary, idx: int) -> PanelContainer:
+func _new_codex_id_set(marker_key: String) -> Dictionary:
+	var d := {}
+	var v: Variant = _codex_marker_info.get(marker_key, null)
+	if v is PackedStringArray:
+		for x in v as PackedStringArray:
+			d[str(x)] = true
+	elif v is Array:
+		for x in v as Array:
+			d[str(x)] = true
+	return d
+
+
+func _is_codex_item_marked_new(item_id: String) -> bool:
+	if item_id.is_empty():
+		return false
+	return _new_codex_id_set("new_item_ids").has(item_id)
+
+
+func _refresh_codex_marker_ui() -> void:
+	_codex_marker_info = SaveManager.compute_codex_new_marker_info(get_tree())
+	_apply_codex_tab_markers()
+	if _main_tabs == null:
+		return
+	match _main_tabs.current_tab:
+		1:
+			_stamp_character_new_icons()
+		2:
+			_stamp_archive_new_icons()
+		4:
+			_refresh_items()
+
+
+func _refresh_codex_marker_ui_preserve_items() -> void:
+	_codex_marker_info = SaveManager.compute_codex_new_marker_info(get_tree())
+	_apply_codex_tab_markers()
+	_sync_item_grid_codex_badges()
+
+
+func _apply_codex_tab_markers() -> void:
+	if _main_tabs == null:
+		return
+	var tex: Texture2D = CodexNewMarker.get_badge_texture()
+	var n := _main_tabs.get_tab_count()
+	for i in n:
+		_main_tabs.set_tab_icon(i, null)
+	var tabs_v: Variant = _codex_marker_info.get("tabs", [])
+	if tabs_v is Array:
+		var tabs_a: Array = tabs_v
+		for i in mini(tabs_a.size(), n):
+			if tabs_a[i]:
+				_main_tabs.set_tab_icon(i, tex)
+
+
+func _stamp_archive_new_icons() -> void:
+	if _archive_list == null:
+		return
+	var new_set := _new_codex_id_set("new_archive_ids")
+	if new_set.is_empty():
+		return
+	var tex: Texture2D = CodexNewMarker.get_badge_texture()
+	for row in range(_archive_list.item_count):
+		var meta: Variant = _archive_list.get_item_metadata(row)
+		if meta == null or str(meta) == "":
+			continue
+		var entry_idx: int = int(meta)
+		if entry_idx < 0 or entry_idx >= _archive_entries.size():
+			continue
+		var eid := str(_archive_entries[entry_idx].get("id", ""))
+		if new_set.has(eid):
+			_archive_list.set_item_icon(row, tex)
+
+
+func _stamp_character_new_icons() -> void:
+	if _char_list == null:
+		return
+	var new_set := _new_codex_id_set("new_char_keys")
+	if new_set.is_empty():
+		return
+	var tex: Texture2D = CodexNewMarker.get_badge_texture()
+	var entries := CampCodexDossier.get_character_entries()
+	for i in mini(_char_list.item_count, entries.size()):
+		var k := str(entries[i].get("key", ""))
+		if new_set.has(k):
+			_char_list.set_item_icon(i, tex)
+
+
+func _create_codex_item_badge() -> TextureRect:
+	var nb := TextureRect.new()
+	nb.name = "CodexNewBadge"
+	nb.texture = CodexNewMarker.get_badge_texture()
+	nb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	nb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	nb.custom_minimum_size = Vector2(18, 22)
+	nb.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return nb
+
+
+func _place_codex_badge_on_cell(pc: PanelContainer, nb: TextureRect) -> void:
+	pc.add_child(nb)
+	nb.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	nb.offset_left = -22.0
+	nb.offset_top = 4.0
+	nb.offset_right = -2.0
+	nb.offset_bottom = 26.0
+
+
+func _sync_item_grid_codex_badges() -> void:
+	if _items_grid == null:
+		return
+	var new_set := _new_codex_id_set("new_item_ids")
+	for c in _items_grid.get_children():
+		if not (c is PanelContainer):
+			continue
+		var pc := c as PanelContainer
+		var iid := ""
+		if pc.has_meta("codex_item_id"):
+			iid = str(pc.get_meta("codex_item_id"))
+		var want := new_set.has(iid)
+		var existing := pc.get_node_or_null("CodexNewBadge") as TextureRect
+		if want and existing == null:
+			_place_codex_badge_on_cell(pc, _create_codex_item_badge())
+		elif not want and existing != null:
+			existing.queue_free()
+
+
+func _build_item_cell(item: Dictionary, idx: int, is_new: bool = false) -> PanelContainer:
 	var col: Color = item.get("icon_color", Color(0.4, 0.4, 0.4)) as Color
 	var cell := PanelContainer.new()
+	cell.set_meta("codex_item_id", str(item.get("id", "")))
 	cell.custom_minimum_size = Vector2(100, 118)
 	var style_n := StyleBoxFlat.new()
 	style_n.bg_color = Color(0.07, 0.08, 0.12, 0.92)
@@ -412,6 +590,8 @@ func _build_item_cell(item: Dictionary, idx: int) -> PanelContainer:
 	name_lbl.custom_minimum_size.x = 84
 	name_lbl.mouse_filter = Control.MOUSE_FILTER_PASS
 	vbox.add_child(name_lbl)
+	if is_new:
+		_place_codex_badge_on_cell(cell, _create_codex_item_badge())
 	return cell
 
 
@@ -572,6 +752,10 @@ func _setup_item_detail_popup() -> void:
 func _show_item_detail(item: Dictionary) -> void:
 	if _item_detail_overlay == null:
 		return
+	var iid := str(item.get("id", ""))
+	if not iid.is_empty():
+		SaveManager.codex_mark_item_clicked(iid)
+		_refresh_codex_marker_ui_preserve_items()
 	var col: Color = item.get("icon_color", Color(0.5, 0.5, 0.5)) as Color
 	var is_letter: bool = item.get("is_letter", false)
 	_item_detail_title.text = str(item.get("name", ""))

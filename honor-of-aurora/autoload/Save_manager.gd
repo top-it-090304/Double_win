@@ -109,6 +109,15 @@ var expedition_ore_collected: int = 0
 var expedition_wood_collected: int = 0
 var expedition_meat_collected: int = 0
 
+## Кэш тяжёлого build_codex_seen_state на один кадр (см. invalidate_codex_state_build_cache).
+var _codex_state_cache_frame: int = -1000000
+var _codex_state_cache_tree_id: int = 0
+var _codex_state_cache_data: Dictionary = {}
+
+
+const _CODEX_SNAP_KEY := "_codex_snap_v1"
+const _CODEX_SNAP_MIGRATED_KEY := "_codex_snap_v1_migrated"
+const _CODEX_UI_KEY := "_codex_ui"
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
 const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "opened_chest_ids", "chest_rolled_tiers", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "performance_mode", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus", "premium_ore_purchased_total", "premium_ore_purchase_count", "ore_sent_to_crown_total", "crown_order_index", "crown_order_ore_sent", "crown_order_deadline_remaining", "crown_orders_failed", "crown_displeasure", "crown_title_index", "expeditions_until_caravan", "caravan_pending", "caravan_sent_count"]
@@ -176,6 +185,7 @@ func load_game():
 		building_levels = DEFAULT_BUILDING_LEVELS.duplicate()
 		_normalize_settings_fields()
 		apply_window_and_engine_settings()
+		invalidate_codex_state_build_cache()
 		call_deferred("apply_window_and_engine_settings")
 		return
 		
@@ -316,6 +326,7 @@ func load_game():
 
 	_normalize_settings_fields()
 	apply_window_and_engine_settings()
+	invalidate_codex_state_build_cache()
 	call_deferred("apply_window_and_engine_settings")
 
 
@@ -511,6 +522,7 @@ func mark_lore_note_found(note_id: String) -> void:
 	if note_id.is_empty():
 		return
 	story_flags["lore_note_%s" % note_id] = true
+	invalidate_codex_state_build_cache()
 
 
 func get_codex_content_version() -> int:
@@ -524,14 +536,335 @@ func get_codex_content_version() -> int:
 	return n
 
 
-func mark_codex_opened() -> void:
+func invalidate_codex_state_build_cache() -> void:
+	_codex_state_cache_frame = -1000000
+	_codex_state_cache_tree_id = 0
+	_codex_state_cache_data.clear()
+
+
+func _build_codex_seen_state_uncached(tree: SceneTree) -> Dictionary:
+	var arch: Array = []
+	for e in CampCodexLoreArchive.get_unlocked_entries():
+		arch.append(str(e.get("id", "")))
+	arch.sort()
+	var items: Array = []
+	for it in StoryItemLibrary.get_unlocked_items():
+		items.append(str(it.get("id", "")))
+	items.sort()
+	var char_h := {}
+	for ch in CampCodexDossier.get_character_entries():
+		var k := str(ch.get("key", ""))
+		char_h[k] = CampCodexDossierStories.get_story_bbcode(k).hash()
+	return {
+		"archive_ids": arch,
+		"item_ids": items,
+		"dossier_story": CampCodexDossier.story_bbcode().hash(),
+		"dossier_personal": CampCodexDossier.personal_bbcode().hash(),
+		"dossier_stats": CampCodexDossier.build_stats_bbcode(tree).hash(),
+		"char_stories": char_h,
+		"timeline": CampCodexDossier.build_timeline_bbcode().hash(),
+	}
+
+
+func build_codex_seen_state(tree: SceneTree) -> Dictionary:
+	if tree == null:
+		return {}
+	var f := Engine.get_process_frames()
+	var tid := tree.get_instance_id()
+	if f == _codex_state_cache_frame and tid == _codex_state_cache_tree_id and not _codex_state_cache_data.is_empty():
+		return _codex_state_cache_data
+	_codex_state_cache_data = _build_codex_seen_state_uncached(tree)
+	_codex_state_cache_frame = f
+	_codex_state_cache_tree_id = tid
+	return _codex_state_cache_data
+
+
+func _codex_int_hash(v: Variant) -> int:
+	if v == null:
+		return 0
+	if v is int:
+		return v
+	if v is float:
+		return int(v)
+	return int(v)
+
+
+func _codex_string_array_from_variant(v: Variant) -> PackedStringArray:
+	var out: PackedStringArray = []
+	if v is Array:
+		for x in v as Array:
+			out.append(str(x))
+	elif v is PackedStringArray:
+		out = (v as PackedStringArray).duplicate()
+	out.sort()
+	return out
+
+
+func _codex_char_map_from_variant(v: Variant) -> Dictionary:
+	var out := {}
+	if v is Dictionary:
+		for k in v:
+			out[str(k)] = _codex_int_hash(v[k])
+	return out
+
+
+func get_codex_seen_state_dict() -> Dictionary:
+	var js := str(story_flags.get(_CODEX_SNAP_KEY, ""))
+	if js.is_empty():
+		return {}
+	var parsed: Variant = JSON.parse_string(js)
+	return parsed as Dictionary if parsed is Dictionary else {}
+
+
+func _codex_snapshots_equal(cur: Dictionary, seen: Dictionary) -> bool:
+	var ca := _codex_string_array_from_variant(cur.get("archive_ids", []))
+	var sa := _codex_string_array_from_variant(seen.get("archive_ids", []))
+	if ca != sa:
+		return false
+	var ci := _codex_string_array_from_variant(cur.get("item_ids", []))
+	var si := _codex_string_array_from_variant(seen.get("item_ids", []))
+	if ci != si:
+		return false
+	if _codex_int_hash(cur.get("dossier_story", 0)) != _codex_int_hash(seen.get("dossier_story", 0)):
+		return false
+	if _codex_int_hash(cur.get("dossier_personal", 0)) != _codex_int_hash(seen.get("dossier_personal", 0)):
+		return false
+	if _codex_int_hash(cur.get("dossier_stats", 0)) != _codex_int_hash(seen.get("dossier_stats", 0)):
+		return false
+	if _codex_int_hash(cur.get("timeline", 0)) != _codex_int_hash(seen.get("timeline", 0)):
+		return false
+	var cc := _codex_char_map_from_variant(cur.get("char_stories", {}))
+	var sc := _codex_char_map_from_variant(seen.get("char_stories", {}))
+	if cc.size() != sc.size():
+		return false
+	for k in cc:
+		if not sc.has(k) or int(sc[k]) != int(cc[k]):
+			return false
+	return true
+
+
+func _ensure_codex_snap_migrated(tree: SceneTree) -> void:
+	if story_flags.get(_CODEX_SNAP_MIGRATED_KEY, false):
+		return
+	story_flags[_CODEX_SNAP_MIGRATED_KEY] = true
+	if not str(story_flags.get(_CODEX_SNAP_KEY, "")).is_empty():
+		return
+	var last_seen: int = int(story_flags.get("_codex_seen_version", 0))
+	var cur_ver := get_codex_content_version()
+	if cur_ver <= last_seen:
+		story_flags[_CODEX_SNAP_KEY] = JSON.stringify(build_codex_seen_state(tree))
+
+
+func mark_codex_opened(tree: SceneTree = null) -> void:
+	var t: SceneTree = tree if tree != null else get_tree()
 	story_flags["_codex_seen_version"] = get_codex_content_version()
+	if t != null:
+		story_flags[_CODEX_SNAP_KEY] = JSON.stringify(build_codex_seen_state(t))
 	save_game()
 
 
+func _codex_summary_combined_hash_from_state(st: Dictionary) -> int:
+	var a := _codex_int_hash(st.get("dossier_story", 0))
+	var b := _codex_int_hash(st.get("dossier_personal", 0))
+	var c := _codex_int_hash(st.get("dossier_stats", 0))
+	var s := "%d|%d|%d" % [a, b, c]
+	return int(s.hash())
+
+
+func _codex_ui_ensure_subdicts(ui: Dictionary) -> void:
+	if not ui.has("a") or not ui["a"] is Dictionary:
+		ui["a"] = {}
+	if not ui.has("c") or not ui["c"] is Dictionary:
+		ui["c"] = {}
+	if not ui.has("i") or not ui["i"] is Dictionary:
+		ui["i"] = {}
+
+
+func _ensure_codex_ui_clicked_initialized(tree: SceneTree) -> void:
+	if story_flags.has(_CODEX_UI_KEY) and story_flags[_CODEX_UI_KEY] is Dictionary:
+		_codex_ui_ensure_subdicts(story_flags[_CODEX_UI_KEY])
+		return
+	var st := build_codex_seen_state(tree)
+	var ui := {"a": {}, "c": {}, "i": {}, "sum": 0, "tl": 0}
+	for id in _codex_string_array_from_variant(st.get("archive_ids", [])):
+		ui["a"][id] = true
+	for id in _codex_string_array_from_variant(st.get("item_ids", [])):
+		ui["i"][id] = true
+	var ch_raw: Variant = st.get("char_stories", {})
+	if ch_raw is Dictionary:
+		for k in ch_raw:
+			ui["c"][str(k)] = _codex_int_hash(ch_raw[k])
+	ui["sum"] = _codex_summary_combined_hash_from_state(st)
+	ui["tl"] = _codex_int_hash(st.get("timeline", 0))
+	story_flags[_CODEX_UI_KEY] = ui
+
+
+func codex_mark_archive_clicked(entry_id: String) -> void:
+	if entry_id.is_empty():
+		return
+	var tree := get_tree()
+	if tree == null:
+		return
+	_ensure_codex_ui_clicked_initialized(tree)
+	var ui: Dictionary = story_flags[_CODEX_UI_KEY]
+	_codex_ui_ensure_subdicts(ui)
+	(ui["a"] as Dictionary)[entry_id] = true
+	save_game()
+	_notify_codex_hud_refresh()
+
+
+func codex_mark_character_clicked(tree: SceneTree, char_key: String) -> void:
+	if char_key.is_empty() or tree == null:
+		return
+	_ensure_codex_ui_clicked_initialized(tree)
+	var h := CampCodexDossierStories.get_story_bbcode(char_key).hash()
+	var ui: Dictionary = story_flags[_CODEX_UI_KEY]
+	_codex_ui_ensure_subdicts(ui)
+	(ui["c"] as Dictionary)[char_key] = h
+	save_game()
+	_notify_codex_hud_refresh()
+
+
+func codex_mark_item_clicked(item_id: String) -> void:
+	if item_id.is_empty():
+		return
+	var tree := get_tree()
+	if tree == null:
+		return
+	_ensure_codex_ui_clicked_initialized(tree)
+	var ui: Dictionary = story_flags[_CODEX_UI_KEY]
+	_codex_ui_ensure_subdicts(ui)
+	(ui["i"] as Dictionary)[item_id] = true
+	save_game()
+	_notify_codex_hud_refresh()
+
+
+func codex_mark_summary_seen(tree: SceneTree) -> void:
+	if tree == null:
+		return
+	_ensure_codex_ui_clicked_initialized(tree)
+	var st := build_codex_seen_state(tree)
+	var ui: Dictionary = story_flags[_CODEX_UI_KEY]
+	ui["sum"] = _codex_summary_combined_hash_from_state(st)
+	save_game()
+	_notify_codex_hud_refresh()
+
+
+func codex_mark_timeline_seen(tree: SceneTree) -> void:
+	if tree == null:
+		return
+	_ensure_codex_ui_clicked_initialized(tree)
+	var st := build_codex_seen_state(tree)
+	var ui: Dictionary = story_flags[_CODEX_UI_KEY]
+	ui["tl"] = _codex_int_hash(st.get("timeline", 0))
+	save_game()
+	_notify_codex_hud_refresh()
+
+
+func _notify_codex_hud_refresh() -> void:
+	var tree := get_tree()
+	if tree == null:
+		return
+	for n in tree.get_nodes_in_group("hud"):
+		if n.has_method("_update_codex_badge"):
+			n.call("_update_codex_badge")
+
+
+func _codex_marker_collection_nonempty(v: Variant) -> bool:
+	if v is PackedStringArray:
+		return not (v as PackedStringArray).is_empty()
+	if v is Array:
+		return not (v as Array).is_empty()
+	return false
+
+
+func _codex_info_has_pending(info: Dictionary) -> bool:
+	var tabs_v: Variant = info.get("tabs", [])
+	if tabs_v is Array:
+		for t in tabs_v as Array:
+			if t:
+				return true
+	if _codex_marker_collection_nonempty(info.get("new_archive_ids", null)):
+		return true
+	if _codex_marker_collection_nonempty(info.get("new_item_ids", null)):
+		return true
+	if _codex_marker_collection_nonempty(info.get("new_char_keys", null)):
+		return true
+	return false
+
+
 func has_unseen_codex_content() -> bool:
-	var last_seen: int = int(story_flags.get("_codex_seen_version", 0))
-	return get_codex_content_version() > last_seen
+	var tree := get_tree()
+	if tree == null:
+		return false
+	_ensure_codex_snap_migrated(tree)
+	_ensure_codex_ui_clicked_initialized(tree)
+	var cur := build_codex_seen_state(tree)
+	var info := compute_codex_new_marker_info_with_cur(tree, cur)
+	if _codex_info_has_pending(info):
+		return true
+	## Совместимость: старые сохранения без снимка — счётчик флагов.
+	var snap_s := str(story_flags.get(_CODEX_SNAP_KEY, ""))
+	if snap_s.is_empty():
+		var last_seen: int = int(story_flags.get("_codex_seen_version", 0))
+		return get_codex_content_version() > last_seen
+	var seen: Dictionary = get_codex_seen_state_dict()
+	if seen.is_empty():
+		var last_seen2: int = int(story_flags.get("_codex_seen_version", 0))
+		return get_codex_content_version() > last_seen2
+	return not _codex_snapshots_equal(cur, seen)
+
+
+func compute_codex_new_marker_info(tree: SceneTree) -> Dictionary:
+	return compute_codex_new_marker_info_with_cur(tree, build_codex_seen_state(tree))
+
+
+func compute_codex_new_marker_info_with_cur(tree: SceneTree, cur: Dictionary) -> Dictionary:
+	_ensure_codex_snap_migrated(tree)
+	_ensure_codex_ui_clicked_initialized(tree)
+	var ui: Dictionary = story_flags[_CODEX_UI_KEY]
+	_codex_ui_ensure_subdicts(ui)
+	var a: Dictionary = ui["a"] as Dictionary
+	var c: Dictionary = ui["c"] as Dictionary
+	var i: Dictionary = ui["i"] as Dictionary
+	var cur_arch := _codex_string_array_from_variant(cur.get("archive_ids", []))
+	var new_arch: PackedStringArray = []
+	for id in cur_arch:
+		if not a.get(id, false):
+			new_arch.append(id)
+	var cur_items := _codex_string_array_from_variant(cur.get("item_ids", []))
+	var new_items: PackedStringArray = []
+	for id in cur_items:
+		if not i.get(id, false):
+			new_items.append(id)
+	var cc := _codex_char_map_from_variant(cur.get("char_stories", {}))
+	var new_chars: PackedStringArray = []
+	var cur_sum := _codex_summary_combined_hash_from_state(cur)
+	var cur_tl := _codex_int_hash(cur.get("timeline", 0))
+	var ack_sum := _codex_int_hash(ui.get("sum", -1999999999))
+	var ack_tl := _codex_int_hash(ui.get("tl", -1999999999))
+	var tabs: Array = [false, false, false, false, false]
+	if cur_sum != ack_sum:
+		tabs[0] = true
+	for k in cc:
+		var cur_h := int(cc[k])
+		var ack_raw: Variant = c.get(k, -1888888888)
+		var ack_h := _codex_int_hash(ack_raw)
+		if cur_h != ack_h:
+			tabs[1] = true
+			new_chars.append(k)
+	if not new_arch.is_empty():
+		tabs[2] = true
+	if cur_tl != ack_tl:
+		tabs[3] = true
+	if not new_items.is_empty():
+		tabs[4] = true
+	return {
+		"tabs": tabs,
+		"new_archive_ids": new_arch,
+		"new_item_ids": new_items,
+		"new_char_keys": new_chars,
+	}
 
 
 func get_building_tier(building_type: String) -> int:
@@ -561,6 +894,7 @@ func configure_death_resume_to_base_teleport() -> void:
 
 
 func reset_data():
+	invalidate_codex_state_build_cache()
 	var keep_vm := volume_music
 	var keep_vs := volume_sfx
 	var keep_vu := volume_ui

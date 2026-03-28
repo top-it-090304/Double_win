@@ -13,7 +13,7 @@ extends "res://ui/HUD/game_hud.gd"
 @export var camp_codex_panel: Control
 @export var camp_codex_open_button: Button
 
-var _codex_badge: ColorRect
+var _codex_badge: TextureRect
 
 
 func set_target_location(location: Events.LOCATION) -> void:
@@ -38,6 +38,8 @@ func _ready() -> void:
 		debug_menu.hide()
 	if camp_codex_open_button:
 		camp_codex_open_button.pressed.connect(_on_codex_button_pressed)
+		if not camp_codex_open_button.resized.is_connected(_on_codex_open_button_resized):
+			camp_codex_open_button.resized.connect(_on_codex_open_button_resized)
 		_setup_codex_badge()
 	Events.location_changed.connect(_on_location_changed_codex_button)
 	_on_location_changed_codex_button(Events.current_location)
@@ -47,15 +49,27 @@ func _ready() -> void:
 func _setup_codex_badge() -> void:
 	if camp_codex_open_button == null:
 		return
-	_codex_badge = ColorRect.new()
-	_codex_badge.custom_minimum_size = Vector2(10, 10)
-	_codex_badge.size = Vector2(10, 10)
-	_codex_badge.color = Color(0.95, 0.72, 0.2, 0.95)
+	_codex_badge = TextureRect.new()
+	_codex_badge.texture = CodexNewMarker.get_badge_texture()
+	_codex_badge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_codex_badge.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_codex_badge.custom_minimum_size = Vector2(20, 24)
+	_codex_badge.size = Vector2(20, 24)
 	_codex_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_codex_badge.visible = false
 	camp_codex_open_button.add_child(_codex_badge)
-	_codex_badge.position = Vector2(camp_codex_open_button.size.x - 14, 4)
+	_position_codex_badge()
 	_update_codex_badge()
+
+
+func _position_codex_badge() -> void:
+	if _codex_badge == null or camp_codex_open_button == null:
+		return
+	_codex_badge.position = Vector2(maxi(4.0, camp_codex_open_button.size.x - 22.0), 4.0)
+
+
+func _on_codex_open_button_resized() -> void:
+	_position_codex_badge()
 
 
 func _update_codex_badge() -> void:
