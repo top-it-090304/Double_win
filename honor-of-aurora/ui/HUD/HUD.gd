@@ -16,7 +16,6 @@ extends "res://ui/HUD/game_hud.gd"
 var _codex_badge: TextureRect
 var _armor_hud_root: Control
 var _armor_hud_label: Label
-var _supply_hud_label: Label
 
 
 func set_target_location(location: Events.LOCATION) -> void:
@@ -49,14 +48,12 @@ func _ready() -> void:
 			camp_codex_open_button.resized.connect(_on_codex_open_button_resized)
 		_setup_codex_badge()
 	Events.location_changed.connect(_on_location_changed_codex_button)
-	Events.location_changed.connect(_on_location_changed_supply_hud)
-	Events.armor_durability_changed.connect(_on_supply_hud_data_changed)
-	Events.crown_displeasure_changed.connect(_on_supply_hud_data_changed)
-	Events.crown_favor_changed.connect(_on_supply_hud_data_changed)
+	Events.location_changed.connect(_on_location_changed_armor_hud)
+	Events.armor_durability_changed.connect(_on_armor_hud_data_changed)
 	_on_location_changed_codex_button(Events.current_location)
 	DialogueManager.dialogue_ended.connect(_on_any_dialogue_ended_for_badge)
-	_build_supply_hud()
-	_refresh_supply_hud()
+	_setup_armor_hud_nodes()
+	_refresh_armor_hud()
 
 
 func _setup_codex_badge() -> void:
@@ -103,31 +100,22 @@ func _on_location_changed_codex_button(_loc: Events.LOCATION) -> void:
 	camp_codex_open_button.visible = Events.current_location != Events.LOCATION.MENU
 
 
-func _build_supply_hud() -> void:
-	var tex_rect := get_node_or_null("TextureRect") as Control
-	if tex_rect == null:
-		return
-
+func _setup_armor_hud_nodes() -> void:
 	_armor_hud_root = get_node_or_null("ArmorDurabilityHud") as Control
 	_armor_hud_label = get_node_or_null("ArmorDurabilityHud/ArmorPctLabel") as Label
 
-	_supply_hud_label = Label.new()
-	_supply_hud_label.add_theme_font_size_override("font_size", 18)
-	_supply_hud_label.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 0.75))
-	_supply_hud_label.position = Vector2(420, 82)
-	_supply_hud_label.size = Vector2(360, 24)
-	tex_rect.add_child(_supply_hud_label)
+
+func _armor_hud_should_show() -> bool:
+	## Броня нужна на базе и на всех островах; в главном меню скрываем.
+	return Events.current_location != Events.LOCATION.MENU
 
 
-func _refresh_supply_hud() -> void:
-	var on_base := Events.current_location == Events.LOCATION.BASE
+func _refresh_armor_hud() -> void:
+	var show_armor := _armor_hud_should_show()
 	if _armor_hud_root:
-		_armor_hud_root.visible = on_base
-	if _supply_hud_label:
-		_supply_hud_label.visible = on_base
-	if not on_base:
+		_armor_hud_root.visible = show_armor
+	if not show_armor:
 		return
-
 	if _armor_hud_label:
 		var dur := CrownSystem.get_armor_durability()
 		var pct := int(round(float(dur) / float(BalanceConfig.ARMOR_MAX_DURABILITY) * 100.0))
@@ -141,26 +129,13 @@ func _refresh_supply_hud() -> void:
 		_armor_hud_label.add_theme_color_override("font_color", c)
 		_armor_hud_label.text = "%d%%" % pct
 
-	if _supply_hud_label:
-		var d := SaveManager.crown_displeasure
-		var f := SaveManager.crown_favor
-		if d > 0:
-			_supply_hud_label.add_theme_color_override("font_color", Color(0.9, 0.5, 0.4, 0.85))
-			_supply_hud_label.text = "Немилость %s" % ["I", "II", "III"][clampi(d - 1, 0, 2)]
-		elif f > 0:
-			_supply_hud_label.add_theme_color_override("font_color", Color(0.5, 0.85, 0.6, 0.85))
-			_supply_hud_label.text = "Одобрение %s" % ["I", "II", "III"][clampi(f - 1, 0, 2)]
-		else:
-			_supply_hud_label.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 0.5))
-			_supply_hud_label.text = ""
+
+func _on_location_changed_armor_hud(_loc: Events.LOCATION) -> void:
+	_refresh_armor_hud()
 
 
-func _on_location_changed_supply_hud(_loc: Events.LOCATION) -> void:
-	_refresh_supply_hud()
-
-
-func _on_supply_hud_data_changed(_value: int) -> void:
-	_refresh_supply_hud()
+func _on_armor_hud_data_changed(_value: int) -> void:
+	_refresh_armor_hud()
 
 
 func _suppress_camp_codex_for_other_modal() -> void:
@@ -220,6 +195,9 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if castle_menu != null and castle_menu.visible and event.is_action_pressed("ui_cancel"):
+		if castle_menu.has_method("try_close_crown_mood_effects_modal") and castle_menu.try_close_crown_mood_effects_modal():
+			get_viewport().set_input_as_handled()
+			return
 		if castle_menu.has_method("try_close_hire_submenu") and castle_menu.try_close_hire_submenu():
 			get_viewport().set_input_as_handled()
 			return

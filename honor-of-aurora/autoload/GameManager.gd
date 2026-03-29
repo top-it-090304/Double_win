@@ -701,6 +701,12 @@ func handle_location_changed(new_location: Events.LOCATION):
 			SaveManager.save_game()
 
 	if prev_location == Events.LOCATION.BASE and Events.is_adventure_location(new_location):
+		## Караван у причала нельзя увезти на остров. Если борт ещё ждёт загрузки, при отплытии
+		## паромщик отпускает его порожним — как «Отпустить порожним» в замке. Иначе
+		## `caravan_pending` блокирует тики каравана/срока приказа при возвратах и возможны
+		## рассинхроны после прерванного диалога прибытия или быстрой смены сцены.
+		if SaveManager.caravan_pending:
+			CrownSystem.dismiss_caravan_empty()
 		CrownSystem.spend_expedition_provisions()
 		_capture_expedition_start_snapshot()
 

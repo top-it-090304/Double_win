@@ -37,6 +37,14 @@ var _crown_icon_aspect: AspectRatioContainer
 var _crown_title_icon: TextureRect
 var _crown_title_name_lbl: Label
 var _crown_title_sub_lbl: Label
+var _crown_mood_accent: ColorRect
+var _crown_mood_headline: Label
+var _crown_mood_detail: Label
+var _crown_mood_strip_panel: PanelContainer
+var _crown_mood_panel_style_normal: StyleBoxFlat
+var _crown_mood_panel_style_hover: StyleBoxFlat
+var _crown_mood_effects_layer: CanvasLayer
+var _crown_mood_effects_rtl: RichTextLabel
 var _caravan_brief: RichTextLabel
 var _caravan_details_scroll: ScrollContainer
 var _caravan_details_btn: Button
@@ -70,6 +78,8 @@ func _ready() -> void:
 	unit_hire_cost = BalanceConfig.get_unit_hire_cost()
 	_refresh_hire_buy_ui()
 	_build_crown_title_strip()
+	_ensure_crown_mood_strip()
+	_build_crown_mood_effects_modal_if_needed()
 	_build_crown_help_modal()
 	_setup_caravan_panel_nodes()
 	_refresh_crown_title_strip()
@@ -77,6 +87,8 @@ func _ready() -> void:
 		Events.crown_title_changed.connect(_on_crown_title_changed_ui)
 	if not Events.crown_displeasure_changed.is_connected(_on_crown_displeasure_changed_ui):
 		Events.crown_displeasure_changed.connect(_on_crown_displeasure_changed_ui)
+	if not Events.crown_favor_changed.is_connected(_on_crown_favor_changed_ui):
+		Events.crown_favor_changed.connect(_on_crown_favor_changed_ui)
 	if not Events.caravan_arrived.is_connected(_on_caravan_event_refresh_ui):
 		Events.caravan_arrived.connect(_on_caravan_event_refresh_ui)
 	if not Events.caravan_dispatched.is_connected(_on_caravan_event_refresh_ui):
@@ -87,6 +99,7 @@ func _ready() -> void:
 
 func _on_castle_root_visibility_changed() -> void:
 	if not visible:
+		_hide_crown_mood_effects_modal()
 		_close_crown_help()
 		return
 	_refresh_crown_title_strip()
@@ -98,6 +111,11 @@ func _on_crown_title_changed_ui(_idx: int, _name: String) -> void:
 
 
 func _on_crown_displeasure_changed_ui(_lvl: int) -> void:
+	_refresh_crown_title_strip()
+	_refresh_caravan_ui_if_open()
+
+
+func _on_crown_favor_changed_ui(_lvl: int) -> void:
 	_refresh_crown_title_strip()
 	_refresh_caravan_ui_if_open()
 
@@ -115,6 +133,7 @@ func _refresh_caravan_ui_if_open() -> void:
 func reset_castle_menu_state() -> void:
 	if CrownTitlePreview.visible:
 		CrownTitlePreview.hide_preview()
+	_hide_crown_mood_effects_modal()
 	_close_crown_help()
 	_close_upgrade_select()
 	_close_hire_select()
@@ -144,6 +163,13 @@ func _refresh_hire_buy_ui() -> void:
 			gl.text = str(unit_hire_cost)
 		if ol:
 			ol.text = str(ore_cost)
+
+
+func try_close_crown_mood_effects_modal() -> bool:
+	if _crown_mood_effects_layer == null or not _crown_mood_effects_layer.visible:
+		return false
+	_hide_crown_mood_effects_modal()
+	return true
 
 
 func try_close_hire_submenu() -> bool:
@@ -496,6 +522,316 @@ func _build_crown_title_strip() -> void:
 	main_actions.move_child(wrap, 0)
 
 
+func _ensure_crown_mood_strip() -> void:
+	## Немилость / одобрение Короны — только в замке (не в HUD).
+	var main_actions := get_node_or_null(_PATH_MAIN_ACTIONS) as VBoxContainer
+	if main_actions == null or main_actions.get_node_or_null("CrownMoodStrip"):
+		return
+	var wrap := MarginContainer.new()
+	wrap.name = "CrownMoodStrip"
+	wrap.add_theme_constant_override("margin_bottom", 6)
+	var panel := PanelContainer.new()
+	var psb := StyleBoxFlat.new()
+	psb.bg_color = Color(0.05, 0.06, 0.09, 0.96)
+	psb.set_border_width_all(1)
+	psb.border_color = Color(0.42, 0.38, 0.52, 0.45)
+	psb.set_corner_radius_all(10)
+	psb.content_margin_left = 12
+	psb.content_margin_top = 8
+	psb.content_margin_right = 14
+	psb.content_margin_bottom = 8
+	panel.add_theme_stylebox_override("panel", psb)
+	_crown_mood_strip_panel = panel
+	_crown_mood_panel_style_normal = psb
+	_crown_mood_panel_style_hover = psb.duplicate() as StyleBoxFlat
+	_crown_mood_panel_style_hover.border_color = Color(0.58, 0.52, 0.75, 0.88)
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	panel.gui_input.connect(_on_crown_mood_strip_gui_input)
+	if not panel.mouse_entered.is_connected(_on_crown_mood_strip_mouse_entered):
+		panel.mouse_entered.connect(_on_crown_mood_strip_mouse_entered)
+	if not panel.mouse_exited.is_connected(_on_crown_mood_strip_mouse_exited):
+		panel.mouse_exited.connect(_on_crown_mood_strip_mouse_exited)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	_crown_mood_accent = ColorRect.new()
+	_crown_mood_accent.custom_minimum_size = Vector2(5, 0)
+	_crown_mood_accent.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_crown_mood_accent.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(_crown_mood_accent)
+	var text_col := VBoxContainer.new()
+	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_col.add_theme_constant_override("separation", 2)
+	_crown_mood_headline = Label.new()
+	_crown_mood_headline.add_theme_font_size_override("font_size", 21)
+	_crown_mood_detail = Label.new()
+	_crown_mood_detail.add_theme_font_size_override("font_size", 15)
+	_crown_mood_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	text_col.add_child(_crown_mood_headline)
+	text_col.add_child(_crown_mood_detail)
+	row.add_child(text_col)
+	panel.add_child(row)
+	wrap.add_child(panel)
+	main_actions.add_child(wrap)
+	var strip := main_actions.get_node_or_null("CrownTitleStrip")
+	if strip != null:
+		main_actions.move_child(wrap, strip.get_index() + 1)
+	_refresh_crown_mood_strip()
+
+
+func _build_crown_mood_effects_modal_if_needed() -> void:
+	if _crown_mood_effects_layer != null:
+		return
+	_crown_mood_effects_layer = CanvasLayer.new()
+	_crown_mood_effects_layer.layer = 13
+	_crown_mood_effects_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	_crown_mood_effects_layer.visible = false
+	add_child(_crown_mood_effects_layer)
+	var root := Control.new()
+	root.name = "CrownMoodEffectsRoot"
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_crown_mood_effects_layer.add_child(root)
+	var dim := ColorRect.new()
+	dim.name = "Dim"
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.color = Color(0.02, 0.03, 0.06, 0.65)
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	dim.gui_input.connect(_on_crown_mood_effects_dim_gui_input)
+	root.add_child(dim)
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(center)
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(420, 200)
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	var psb := StyleBoxFlat.new()
+	psb.bg_color = Color(0.07, 0.08, 0.11, 0.99)
+	psb.set_border_width_all(1)
+	psb.border_color = Color(0.5, 0.44, 0.62, 0.65)
+	psb.set_corner_radius_all(14)
+	psb.content_margin_left = 18
+	psb.content_margin_top = 14
+	psb.content_margin_right = 18
+	psb.content_margin_bottom = 16
+	panel.add_theme_stylebox_override("panel", psb)
+	center.add_child(panel)
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	panel.add_child(vbox)
+	var header := HBoxContainer.new()
+	var ht := Label.new()
+	ht.text = "Влияние на базу"
+	ht.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ht.add_theme_color_override("font_color", Color(0.92, 0.88, 0.82, 1))
+	ht.add_theme_font_size_override("font_size", 22)
+	var close_b := Button.new()
+	close_b.text = "Закрыть"
+	close_b.focus_mode = Control.FOCUS_NONE
+	close_b.add_theme_font_size_override("font_size", 18)
+	close_b.pressed.connect(_on_crown_mood_effects_close_pressed)
+	header.add_child(ht)
+	header.add_child(close_b)
+	vbox.add_child(header)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.custom_minimum_size = Vector2(0, 220)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(scroll)
+	_crown_mood_effects_rtl = RichTextLabel.new()
+	_crown_mood_effects_rtl.bbcode_enabled = true
+	_crown_mood_effects_rtl.fit_content = true
+	_crown_mood_effects_rtl.scroll_active = false
+	_crown_mood_effects_rtl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_crown_mood_effects_rtl.add_theme_color_override("default_color", Color(0.82, 0.86, 0.92, 0.95))
+	_crown_mood_effects_rtl.add_theme_font_size_override("normal_font_size", 16)
+	_crown_mood_effects_rtl.custom_minimum_size = Vector2(380, 0)
+	_apply_dialogue_default_font_to_richtext(_crown_mood_effects_rtl)
+	scroll.add_child(_crown_mood_effects_rtl)
+
+
+func _on_crown_mood_effects_dim_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var mb := event as InputEventMouseButton
+		if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
+			_hide_crown_mood_effects_modal()
+
+
+func _on_crown_mood_effects_close_pressed() -> void:
+	SoundManager.play_ui_button()
+	_hide_crown_mood_effects_modal()
+
+
+func _hide_crown_mood_effects_modal() -> void:
+	if _crown_mood_effects_layer:
+		_crown_mood_effects_layer.hide()
+
+
+func _on_crown_mood_strip_mouse_entered() -> void:
+	if _crown_mood_strip_panel and _crown_mood_panel_style_hover:
+		_crown_mood_strip_panel.add_theme_stylebox_override("panel", _crown_mood_panel_style_hover)
+
+
+func _on_crown_mood_strip_mouse_exited() -> void:
+	if _crown_mood_strip_panel and _crown_mood_panel_style_normal:
+		_crown_mood_strip_panel.add_theme_stylebox_override("panel", _crown_mood_panel_style_normal)
+
+
+func _on_crown_mood_strip_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var mb := event as InputEventMouseButton
+		if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
+			SoundManager.play_ui_button()
+			_show_crown_mood_effects_modal()
+			get_viewport().set_input_as_handled()
+
+
+func _show_crown_mood_effects_modal() -> void:
+	if _crown_mood_effects_layer == null or _crown_mood_effects_rtl == null:
+		return
+	_crown_mood_effects_rtl.text = _format_crown_mood_effects_bbcode()
+	_crown_mood_effects_layer.show()
+
+
+func _format_crown_mood_effects_bbcode() -> String:
+	var d := SaveManager.crown_displeasure
+	var f := SaveManager.crown_favor
+	var out: PackedStringArray = []
+	if d > 0:
+		out.append("[b][color=#e8a090]Немилость · уровень %d[/color][/b]\n" % d)
+		var g_m := BalanceConfig.get_displeasure_gold_mult(d)
+		out.append(
+			"• Жалованье каравана (золото): [color=#ffaaaa]%d%%[/color] от суммы без штрафа\n"
+			% int(round(g_m * 100.0))
+		)
+		var b_m := BalanceConfig.get_displeasure_building_cost_mult(d)
+		out.append(
+			"• Улучшения зданий: [color=#ffaaaa]+%d%%[/color] к стоимости\n"
+			% int(round((b_m - 1.0) * 100.0))
+		)
+		var h_m := BalanceConfig.get_supply_heal_mult(d, 0)
+		out.append(
+			"• Исцеление у целителя: [color=#ffaaaa]%d%%[/color] эффективности\n" % int(round(h_m * 100.0))
+		)
+		var r_m := BalanceConfig.get_supply_rest_mult(d, 0)
+		out.append(
+			"• Привал на острове: [color=#ffaaaa]%d%%[/color] к объёму исцеления\n" % int(round(r_m * 100.0))
+		)
+		var s_m := BalanceConfig.get_supply_service_cost_mult(d, 0)
+		out.append(
+			"• Услуги на базе (оружейная, монастырь и др.): [color=#ffaaaa]×%.2f[/color] к цене\n" % s_m
+		)
+		var a_m := BalanceConfig.get_supply_archer_damage_mult(d, 0)
+		out.append(
+			"• Урон лучников: [color=#ffaaaa]%d%%[/color] от обычного\n" % int(round(a_m * 100.0))
+		)
+		var rg0 := BalanceConfig.get_armor_repair_gold_cost(0, 0)
+		var rgd := BalanceConfig.get_armor_repair_gold_cost(d, 0)
+		var ro0 := BalanceConfig.get_armor_repair_ore_cost(0, 0)
+		var rod := BalanceConfig.get_armor_repair_ore_cost(d, 0)
+		if rg0 > 0:
+			var gold_x := int(round((float(rgd) / float(rg0) - 1.0) * 100.0))
+			if ro0 > 0:
+				var ore_x := int(round((float(rod) / float(ro0) - 1.0) * 100.0))
+				out.append(
+					"• Ремонт снаряжения: золото [color=#ffaaaa]+%d%%[/color], руда [color=#ffaaaa]+%d%%[/color] к цене без немилости\n"
+					% [gold_x, ore_x]
+				)
+			else:
+				out.append(
+					"• Ремонт снаряжения: золото [color=#ffaaaa]+%d%%[/color] к цене без немилости\n" % gold_x
+				)
+		else:
+			out.append("• Ремонт снаряжения: дороже при немилости\n")
+	elif f > 0:
+		out.append("[b][color=#7ed4a8]Одобрение · уровень %d[/color][/b]\n" % f)
+		out.append(
+			"• Жалование каравана: [color=#a8e8c8]без бонуса одобрения[/color] (влияют только титул и немилость)\n"
+		)
+		var h_mf := BalanceConfig.get_supply_heal_mult(0, f)
+		out.append(
+			"• Исцеление у целителя: [color=#a8e8c8]%d%%[/color] эффективности\n" % int(round(h_mf * 100.0))
+		)
+		var r_mf := BalanceConfig.get_supply_rest_mult(0, f)
+		out.append(
+			"• Привал на острове: [color=#a8e8c8]%d%%[/color] к объёму исцеления\n" % int(round(r_mf * 100.0))
+		)
+		var s_mf := BalanceConfig.get_supply_service_cost_mult(0, f)
+		out.append(
+			"• Услуги на базе: [color=#a8e8c8]×%.2f[/color] к цене (скидка)\n" % s_mf
+		)
+		var a_mf := BalanceConfig.get_supply_archer_damage_mult(0, f)
+		out.append(
+			"• Урон лучников: [color=#a8e8c8]%d%%[/color] от обычного\n" % int(round(a_mf * 100.0))
+		)
+		var rg0f := BalanceConfig.get_armor_repair_gold_cost(0, 0)
+		var rgff := BalanceConfig.get_armor_repair_gold_cost(0, f)
+		var ro0f := BalanceConfig.get_armor_repair_ore_cost(0, 0)
+		var roff := BalanceConfig.get_armor_repair_ore_cost(0, f)
+		if rg0f > 0:
+			var gp := int(round((float(rgff) / float(rg0f)) * 100.0))
+			if ro0f > 0:
+				var op := int(round((float(roff) / float(ro0f)) * 100.0))
+				out.append(
+					"• Ремонт снаряжения: золото [color=#a8e8c8]%d%%[/color], руда [color=#a8e8c8]%d%%[/color] от цены без одобрения\n"
+					% [gp, op]
+				)
+			else:
+				out.append(
+					"• Ремонт снаряжения: золото [color=#a8e8c8]%d%%[/color] от цены без одобрения\n" % gp
+				)
+	else:
+		out.append("[b][color=#d4c49a]Стандартные отношения[/color][/b]\n")
+		out.append(
+			"• Немилость и одобрение [color=#b8c4d8]не меняют[/color] множители снабжения и услуг.\n"
+		)
+		out.append(
+			"• Жалование каравана по-прежнему зависит от [color=#b8c4d8]титула[/color] и отсутствия немилости.\n"
+		)
+		out.append(
+			"\n[i]Приказы Короны, выполняемые караваном, повышают одобрение; срывы сроков — немилость.[/i]"
+		)
+	return "".join(out)
+
+
+func _refresh_crown_mood_strip() -> void:
+	if _crown_mood_headline == null or _crown_mood_detail == null:
+		return
+	var d := SaveManager.crown_displeasure
+	var f := SaveManager.crown_favor
+	var accent: Color
+	if d > 0:
+		accent = Color(0.78, 0.32, 0.26, 1)
+		var rn: Array[String] = ["I", "II", "III"]
+		_crown_mood_headline.text = "Немилость · %s" % rn[clampi(d - 1, 0, 2)]
+		_crown_mood_headline.add_theme_color_override("font_color", Color(0.96, 0.74, 0.68, 1))
+		var dlines: Array[String] = [
+			"Снабжение урезано",
+			"Снабжение сильно урезано",
+			"Критический дефицит снабжения",
+		]
+		_crown_mood_detail.text = dlines[clampi(d - 1, 0, 2)]
+	elif f > 0:
+		accent = Color(0.32, 0.72, 0.52, 1)
+		var rn2: Array[String] = ["I", "II", "III"]
+		_crown_mood_headline.text = "Одобрение · %s" % rn2[clampi(f - 1, 0, 2)]
+		_crown_mood_headline.add_theme_color_override("font_color", Color(0.68, 0.94, 0.82, 1))
+		var flines: Array[String] = [
+			"Улучшенное снабжение",
+			"Усиленное снабжение",
+			"Элитное снабжение",
+		]
+		_crown_mood_detail.text = flines[clampi(f - 1, 0, 2)]
+	else:
+		accent = Color(0.62, 0.52, 0.34, 1)
+		_crown_mood_headline.text = "Отношения с Короной"
+		_crown_mood_headline.add_theme_color_override("font_color", Color(0.9, 0.86, 0.78, 1))
+		_crown_mood_detail.text = "Стандартное снабжение и услуги на базе"
+	if _crown_mood_accent:
+		_crown_mood_accent.color = accent
+	_crown_mood_detail.add_theme_color_override("font_color", Color(0.72, 0.76, 0.84, 0.88))
+
+
 func _crown_title_texture() -> Texture2D:
 	var art := CrownSystem.load_current_crown_title_texture()
 	if art:
@@ -537,6 +873,7 @@ func _on_crown_title_strip_icon_gui_input(event: InputEvent) -> void:
 
 func _refresh_crown_title_strip() -> void:
 	if _crown_title_icon == null or _crown_title_name_lbl == null:
+		_refresh_crown_mood_strip()
 		return
 	var tex := _crown_title_texture()
 	_crown_title_icon.texture = tex
@@ -552,6 +889,7 @@ func _refresh_crown_title_strip() -> void:
 	if not grat.is_empty():
 		sub = "%s\n\n%s" % [sub, grat]
 	_crown_title_sub_lbl.text = sub
+	_refresh_crown_mood_strip()
 
 
 func _build_crown_help_modal() -> void:
