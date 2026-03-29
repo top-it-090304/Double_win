@@ -42,6 +42,8 @@ var _codex_marker_info: Dictionary = {}
 ## Пока true — не пишем «просмотрено» от программного выбора в списках.
 var _codex_block_click_marks: bool = false
 var _codex_prev_tab: int = 0
+var _crown_dossier_block: PanelContainer
+var _crown_dossier_hbox: HBoxContainer
 
 
 func _ready() -> void:
@@ -51,6 +53,8 @@ func _ready() -> void:
 		_close_btn.pressed.connect(_on_close_pressed)
 	if _main_tabs:
 		_main_tabs.tab_changed.connect(_on_main_tab_changed)
+	if not Events.crown_title_changed.is_connected(_on_crown_title_changed_refresh_dossier):
+		Events.crown_title_changed.connect(_on_crown_title_changed_refresh_dossier)
 	if _archive_list:
 		_archive_list.item_selected.connect(_on_archive_item_selected)
 	if _char_list:
@@ -156,6 +160,124 @@ func _codex_finish_open_setup() -> void:
 	_focus_close_button()
 
 
+func _on_crown_title_changed_refresh_dossier(_idx: int, _name: String) -> void:
+	if not visible or _main_tabs == null:
+		return
+	if _main_tabs.current_tab == 0:
+		_refresh_dossier()
+	elif _main_tabs.current_tab == 1 and _char_list:
+		var sel: PackedInt32Array = _char_list.get_selected_items()
+		if sel.size() > 0:
+			_apply_character_selection(int(sel[0]))
+
+
+func _dossier_root_vbox() -> VBoxContainer:
+	return _body_progress.get_node("../../..") as VBoxContainer
+
+
+func _ensure_crown_dossier_panel() -> void:
+	if _crown_dossier_block != null and is_instance_valid(_crown_dossier_block):
+		return
+	var v := _dossier_root_vbox()
+	if v == null:
+		return
+	_crown_dossier_block = PanelContainer.new()
+	_crown_dossier_block.name = "CrownDossierBlock"
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.06, 0.07, 0.1, 0.92)
+	sb.set_border_width_all(1)
+	sb.border_color = Color(0.35, 0.38, 0.48, 0.45)
+	sb.set_corner_radius_all(8)
+	sb.content_margin_left = 14
+	sb.content_margin_top = 12
+	sb.content_margin_right = 14
+	sb.content_margin_bottom = 12
+	_crown_dossier_block.add_theme_stylebox_override("panel", sb)
+	_crown_dossier_hbox = HBoxContainer.new()
+	_crown_dossier_hbox.add_theme_constant_override("separation", 14)
+	_crown_dossier_block.add_child(_crown_dossier_hbox)
+	v.add_child(_crown_dossier_block)
+	v.move_child(_crown_dossier_block, 1)
+
+
+func _make_dossier_crown_chip(art_path: String) -> Control:
+	var wrap := PanelContainer.new()
+	var chip_sb := StyleBoxFlat.new()
+	chip_sb.bg_color = Color(0.1, 0.11, 0.16, 1)
+	chip_sb.set_border_width_all(1)
+	chip_sb.border_color = Color(0.78, 0.65, 0.35, 0.4)
+	chip_sb.set_corner_radius_all(8)
+	chip_sb.content_margin_left = 6
+	chip_sb.content_margin_top = 6
+	chip_sb.content_margin_right = 6
+	chip_sb.content_margin_bottom = 6
+	wrap.add_theme_stylebox_override("panel", chip_sb)
+	wrap.custom_minimum_size = Vector2(88, 88)
+	wrap.mouse_filter = Control.MOUSE_FILTER_STOP
+	var ar := AspectRatioContainer.new()
+	ar.set_anchors_preset(Control.PRESET_FULL_RECT)
+	wrap.add_child(ar)
+	var tr := TextureRect.new()
+	tr.set_anchors_preset(Control.PRESET_FULL_RECT)
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var tex := load(art_path) as Texture2D
+	tr.texture = tex
+	if tex:
+		var gs := tex.get_size()
+		ar.ratio = float(gs.x) / float(maxi(1, int(gs.y)))
+	else:
+		ar.ratio = 1.0
+	ar.add_child(tr)
+	wrap.gui_input.connect(func(ev: InputEvent) -> void:
+		if ev is InputEventMouseButton:
+			var mb := ev as InputEventMouseButton
+			if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
+				CrownTitlePreview.show_texture_from_path(art_path)
+	)
+	return wrap
+
+
+func _refresh_crown_dossier_panel() -> void:
+	_ensure_crown_dossier_panel()
+	if _crown_dossier_hbox == null:
+		return
+	for c in _crown_dossier_hbox.get_children():
+		c.queue_free()
+	var data := CampCodexDossier.crown_dossier_panel_data()
+	var art_path := String(data.get("art_path", ""))
+	if not art_path.is_empty():
+		_crown_dossier_hbox.add_child(_make_dossier_crown_chip(art_path))
+	var text_col := VBoxContainer.new()
+	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_col.add_theme_constant_override("separation", 6)
+	var hdr := Label.new()
+	hdr.text = "Титул Короны"
+	hdr.add_theme_color_override("font_color", Color(0.82, 0.72, 0.45, 1))
+	hdr.add_theme_font_size_override("font_size", 13)
+	text_col.add_child(hdr)
+	var nm_lbl := Label.new()
+	nm_lbl.text = String(data.get("title_name", ""))
+	nm_lbl.add_theme_color_override("font_color", Color(0.94, 0.9, 0.78, 1))
+	nm_lbl.add_theme_font_size_override("font_size", 20)
+	nm_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	text_col.add_child(nm_lbl)
+	var sent_lbl := Label.new()
+	sent_lbl.text = String(data.get("sent_line", ""))
+	sent_lbl.add_theme_color_override("font_color", Color(0.62, 0.72, 0.82, 0.95))
+	sent_lbl.add_theme_font_size_override("font_size", 15)
+	sent_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	text_col.add_child(sent_lbl)
+	var fx_lbl := Label.new()
+	fx_lbl.text = String(data.get("fx_line", ""))
+	fx_lbl.add_theme_color_override("font_color", Color(0.7, 0.74, 0.82, 0.92))
+	fx_lbl.add_theme_font_size_override("font_size", 14)
+	fx_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	text_col.add_child(fx_lbl)
+	_crown_dossier_hbox.add_child(text_col)
+
+
 func _scroll_dossier_top() -> void:
 	if _dossier_scroll:
 		_dossier_scroll.scroll_vertical = 0
@@ -169,6 +291,7 @@ func _scroll_character_story_top() -> void:
 func _refresh_dossier() -> void:
 	if _dossier_lead:
 		_dossier_lead.text = CampCodexDossier.intro_plain_text()
+	_refresh_crown_dossier_panel()
 	if _body_progress:
 		_body_progress.bbcode_text = CampCodexDossier.build_stats_bbcode(get_tree())
 	if _body_story:
@@ -220,13 +343,71 @@ func _apply_character_selection(index: int) -> void:
 		if ResourceLoader.exists(path):
 			t2 = load(path) as Texture2D
 		_char_portrait.texture = t2
+		_update_hero_crown_badge_on_portrait(key == "hero")
 	if _role_line_label:
-		_role_line_label.text = String(d.get("role_line", ""))
+		var role_txt := String(d.get("role_line", ""))
+		if key == "hero":
+			role_txt += "\nТитул Короны: %s" % CrownSystem.get_current_title_name()
+		_role_line_label.text = role_txt
 	if _char_brief:
 		_char_brief.text = String(d.get("brief_plain", ""))
 	if _char_story:
 		_char_story.bbcode_text = CampCodexDossierStories.get_story_bbcode(key)
 	_scroll_character_story_top()
+
+
+func _update_hero_crown_badge_on_portrait(hero_selected: bool) -> void:
+	if _char_portrait == null:
+		return
+	var legacy := _char_portrait.get_node_or_null("CrownTitleBadge")
+	if legacy:
+		legacy.queue_free()
+	var wrap := _char_portrait.get_node_or_null("CrownTitleBadgeWrap") as Control
+	if not hero_selected:
+		if wrap:
+			wrap.visible = false
+		return
+	if wrap == null:
+		wrap = Control.new()
+		wrap.name = "CrownTitleBadgeWrap"
+		wrap.mouse_filter = Control.MOUSE_FILTER_STOP
+		wrap.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+		wrap.anchor_left = 1.0
+		wrap.anchor_top = 1.0
+		wrap.anchor_right = 1.0
+		wrap.anchor_bottom = 1.0
+		wrap.offset_left = -72.0
+		wrap.offset_top = -72.0
+		wrap.offset_right = -4.0
+		wrap.offset_bottom = -4.0
+		var ar := AspectRatioContainer.new()
+		ar.set_anchors_preset(Control.PRESET_FULL_RECT)
+		wrap.add_child(ar)
+		var tr := TextureRect.new()
+		tr.set_anchors_preset(Control.PRESET_FULL_RECT)
+		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		ar.add_child(tr)
+		_char_portrait.add_child(wrap)
+		wrap.gui_input.connect(_on_hero_crown_badge_gui_input)
+	var ar2 := wrap.get_child(0) as AspectRatioContainer
+	var tr2 := ar2.get_child(0) as TextureRect
+	var tex := CrownSystem.load_current_crown_title_texture()
+	tr2.texture = tex
+	if tex:
+		var gs := tex.get_size()
+		ar2.ratio = float(gs.x) / float(maxi(1, int(gs.y)))
+	else:
+		ar2.ratio = 1.0
+	wrap.visible = tex != null
+
+
+func _on_hero_crown_badge_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var mb := event as InputEventMouseButton
+		if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
+			CrownTitlePreview.show_texture(CrownSystem.load_current_crown_title_texture())
 
 
 func _focus_close_button() -> void:
@@ -278,6 +459,10 @@ func _on_main_tab_changed(tab: int) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
+		return
+	if CrownTitlePreview.visible and event.is_action_pressed("ui_cancel"):
+		CrownTitlePreview.hide_preview()
+		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("ui_cancel"):
 		if _item_detail_showing:

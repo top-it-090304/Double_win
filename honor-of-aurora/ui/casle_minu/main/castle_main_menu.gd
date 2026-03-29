@@ -28,6 +28,7 @@ const _PATH_UPGRADE_GRID := "UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInne
 const _PATH_CARAVAN_VBOX := "CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox"
 
 var _crown_help_layer: CanvasLayer
+var _crown_icon_aspect: AspectRatioContainer
 var _crown_title_icon: TextureRect
 var _crown_title_name_lbl: Label
 var _crown_title_sub_lbl: Label
@@ -81,6 +82,8 @@ func _on_crown_displeasure_changed_ui(_lvl: int) -> void:
 
 
 func reset_castle_menu_state() -> void:
+	if CrownTitlePreview.visible:
+		CrownTitlePreview.hide_preview()
 	_close_crown_help()
 	_close_upgrade_select()
 	_close_hire_select()
@@ -340,6 +343,8 @@ func _on_upgreat_pressed() -> void:
 
 
 func _close_crown_help() -> void:
+	if CrownTitlePreview.visible:
+		CrownTitlePreview.hide_preview()
 	if _crown_help_layer:
 		_crown_help_layer.hide()
 
@@ -354,9 +359,7 @@ func _on_crown_help_btn_pressed() -> void:
 	if _crown_help_layer == null:
 		return
 	_crown_help_layer.show()
-	var rtl := _crown_help_layer.get_node_or_null("Root/Margin/Panel/MarginVBox/Scroll/HelpBody") as RichTextLabel
-	if rtl:
-		rtl.text = _build_crown_titles_help_bbcode()
+	_populate_crown_help_panel()
 
 
 func _build_crown_title_strip_style() -> StyleBoxFlat:
@@ -398,11 +401,19 @@ func _build_crown_title_strip() -> void:
 	icon_sb.content_margin_bottom = 6
 	icon_frame.add_theme_stylebox_override("panel", icon_sb)
 	icon_frame.custom_minimum_size = Vector2(76, 76)
+	icon_frame.mouse_filter = Control.MOUSE_FILTER_STOP
+	icon_frame.gui_input.connect(_on_crown_title_strip_icon_gui_input)
+	_crown_icon_aspect = AspectRatioContainer.new()
+	_crown_icon_aspect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_crown_icon_aspect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_crown_icon_aspect.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	icon_frame.add_child(_crown_icon_aspect)
 	_crown_title_icon = TextureRect.new()
-	_crown_title_icon.custom_minimum_size = Vector2(64, 64)
+	_crown_title_icon.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_crown_title_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_crown_title_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon_frame.add_child(_crown_title_icon)
+	_crown_title_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_crown_icon_aspect.add_child(_crown_title_icon)
 	row.add_child(icon_frame)
 	var text_col := VBoxContainer.new()
 	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -448,6 +459,9 @@ func _build_crown_title_strip() -> void:
 
 
 func _crown_title_texture() -> Texture2D:
+	var art := CrownSystem.load_current_crown_title_texture()
+	if art:
+		return art
 	var t: Dictionary = CrownSystem.get_current_title()
 	var tid := str(t.get("id", "recruit"))
 	var path: String = str(_CROWN_TITLE_ICONS.get(tid, _CROWN_TITLE_ICONS["recruit"]))
@@ -484,11 +498,24 @@ func _crown_effect_subline() -> String:
 	return "Шахта: без титульного бонуса (следующие ступени дадут +руду)"
 
 
+func _on_crown_title_strip_icon_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var mb := event as InputEventMouseButton
+		if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
+			CrownTitlePreview.show_texture(_crown_title_texture())
+
+
 func _refresh_crown_title_strip() -> void:
 	if _crown_title_icon == null or _crown_title_name_lbl == null:
 		return
 	var tex := _crown_title_texture()
 	_crown_title_icon.texture = tex
+	if _crown_icon_aspect:
+		if tex:
+			var gs := tex.get_size()
+			_crown_icon_aspect.ratio = float(gs.x) / float(maxi(1, int(gs.y)))
+		else:
+			_crown_icon_aspect.ratio = 1.0
 	_crown_title_name_lbl.text = CrownSystem.get_current_title_name()
 	var dis := SaveManager.crown_displeasure
 	var dis_s := ""
@@ -564,38 +591,128 @@ func _build_crown_help_modal() -> void:
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	vbox.add_child(scroll)
-	var rtl := RichTextLabel.new()
-	rtl.name = "HelpBody"
-	rtl.bbcode_enabled = true
-	rtl.fit_content = true
-	rtl.scroll_active = false
-	rtl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var scroll_v := VBoxContainer.new()
+	scroll_v.name = "HelpScrollVBox"
+	scroll_v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll_v.add_theme_constant_override("separation", 10)
+	scroll.add_child(scroll_v)
+	var rtl_intro := RichTextLabel.new()
+	rtl_intro.name = "HelpIntro"
+	rtl_intro.bbcode_enabled = true
+	rtl_intro.fit_content = true
+	rtl_intro.scroll_active = false
+	rtl_intro.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rtl_intro.add_theme_color_override("default_color", Color(0.78, 0.82, 0.9, 0.98))
+	rtl_intro.add_theme_font_size_override("normal_font_size", 16)
+	_apply_dialogue_default_font_to_richtext(rtl_intro)
+	scroll_v.add_child(rtl_intro)
+	var steps_v := VBoxContainer.new()
+	steps_v.name = "HelpSteps"
+	steps_v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	steps_v.add_theme_constant_override("separation", 8)
+	scroll_v.add_child(steps_v)
+	var rtl_footer := RichTextLabel.new()
+	rtl_footer.name = "HelpFooter"
+	rtl_footer.bbcode_enabled = true
+	rtl_footer.fit_content = true
+	rtl_footer.scroll_active = false
+	rtl_footer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rtl_footer.add_theme_color_override("default_color", Color(0.78, 0.82, 0.9, 0.98))
+	rtl_footer.add_theme_font_size_override("normal_font_size", 16)
+	_apply_dialogue_default_font_to_richtext(rtl_footer)
+	scroll_v.add_child(rtl_footer)
+
+
+func _rtl_theme_line(rtl: RichTextLabel) -> void:
 	rtl.add_theme_color_override("default_color", Color(0.78, 0.82, 0.9, 0.98))
 	rtl.add_theme_font_size_override("normal_font_size", 16)
 	_apply_dialogue_default_font_to_richtext(rtl)
-	scroll.add_child(rtl)
 
 
-func _build_crown_titles_help_bbcode() -> String:
-	var lines: PackedStringArray = []
-	lines.append("[b]Как получить титул[/b]")
-	lines.append("Каждая отправка [color=#9fd4ff]руды[/color] караваном Короны увеличивает ваш [color=#e8c97a]суммарный счёт[/color]. Титул зависит только от этого счёта — не от одной партии.")
-	lines.append("")
-	lines.append("[b]Ступени[/b]")
+func _make_crown_help_title_chip(art_path: String) -> Control:
+	var wrap := PanelContainer.new()
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.1, 0.11, 0.16, 1)
+	sb.set_border_width_all(1)
+	sb.border_color = Color(0.78, 0.65, 0.35, 0.4)
+	sb.set_corner_radius_all(8)
+	sb.content_margin_left = 4
+	sb.content_margin_top = 4
+	sb.content_margin_right = 4
+	sb.content_margin_bottom = 4
+	wrap.add_theme_stylebox_override("panel", sb)
+	wrap.custom_minimum_size = Vector2(52, 52)
+	wrap.mouse_filter = Control.MOUSE_FILTER_STOP
+	var ar := AspectRatioContainer.new()
+	ar.set_anchors_preset(Control.PRESET_FULL_RECT)
+	wrap.add_child(ar)
+	var tr := TextureRect.new()
+	tr.set_anchors_preset(Control.PRESET_FULL_RECT)
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var tex := load(art_path) as Texture2D
+	tr.texture = tex
+	if tex:
+		var gs := tex.get_size()
+		ar.ratio = float(gs.x) / float(maxi(1, int(gs.y)))
+	else:
+		ar.ratio = 1.0
+	ar.add_child(tr)
+	wrap.gui_input.connect(func(ev: InputEvent) -> void:
+		if ev is InputEventMouseButton:
+			var mb := ev as InputEventMouseButton
+			if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
+				CrownTitlePreview.show_texture_from_path(art_path)
+	)
+	return wrap
+
+
+func _populate_crown_help_panel() -> void:
+	var intro := _crown_help_layer.get_node_or_null("Root/Margin/Panel/MarginVBox/Scroll/HelpScrollVBox/HelpIntro") as RichTextLabel
+	var steps := _crown_help_layer.get_node_or_null("Root/Margin/Panel/MarginVBox/Scroll/HelpScrollVBox/HelpSteps") as VBoxContainer
+	var footer := _crown_help_layer.get_node_or_null("Root/Margin/Panel/MarginVBox/Scroll/HelpScrollVBox/HelpFooter") as RichTextLabel
+	if intro == null or steps == null or footer == null:
+		return
+	var head: PackedStringArray = []
+	head.append("[b]Как получить титул[/b]")
+	head.append("Каждая отправка [color=#9fd4ff]руды[/color] караваном Короны увеличивает ваш [color=#e8c97a]суммарный счёт[/color]. Титул зависит только от этого счёта — не от одной партии.")
+	head.append("")
+	head.append("[b]Ступени[/b] (нажмите на герб, чтобы увеличить)")
+	intro.text = "\n".join(head)
+	for c in steps.get_children():
+		c.queue_free()
+	var step_i := 0
 	for t in BalanceConfig.CROWN_TITLES:
 		if t is Dictionary:
 			var nm := str(t.get("name", ""))
 			var th := int(t.get("ore_threshold", 0))
 			var mb := int(t.get("mine_ore_bonus", 0))
 			var bonus := "шахта +" + str(mb) if mb > 0 else "без бонуса шахты"
-			lines.append("· [color=#e8c97a]%s[/color] — с [color=#9fd4ff]%d[/color] руды всего; %s" % [nm, th, bonus])
-	lines.append("")
-	lines.append("[b]Эффекты в игре[/b]")
-	lines.append("Сейчас титул влияет на добычу [color=#9fd4ff]шахты[/color] при возврате с острова (см. ступени выше).")
-	lines.append("")
-	lines.append("[b]Караван и приказы[/b]")
-	lines.append("Подробности — в разделе «Караван Короны» в замке.")
-	return "\n".join(lines)
+			var art_p := CrownSystem.get_crown_title_art_path_for_index(step_i)
+			var row := HBoxContainer.new()
+			row.add_theme_constant_override("separation", 12)
+			row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			if ResourceLoader.exists(art_p):
+				row.add_child(_make_crown_help_title_chip(art_p))
+			var line := RichTextLabel.new()
+			line.bbcode_enabled = true
+			line.fit_content = true
+			line.scroll_active = false
+			line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			_rtl_theme_line(line)
+			line.text = "· [color=#e8c97a]%s[/color] — с [color=#9fd4ff]%d[/color] руды всего; %s" % [nm, th, bonus]
+			row.add_child(line)
+			steps.add_child(row)
+			step_i += 1
+	var tail: PackedStringArray = []
+	tail.append("")
+	tail.append("[b]Эффекты в игре[/b]")
+	tail.append("Сейчас титул влияет на добычу [color=#9fd4ff]шахты[/color] при возврате с острова (см. ступени выше).")
+	tail.append("")
+	tail.append("[b]Караван и приказы[/b]")
+	tail.append("Подробности — в разделе «Караван Короны» в замке.")
+	footer.text = "\n".join(tail)
 
 
 func _bind_caravan_brief() -> void:

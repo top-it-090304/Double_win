@@ -100,6 +100,32 @@ static func build_stats_bbcode(tree: SceneTree) -> String:
 	return out
 
 
+## Данные для отдельной карточки «Титул Короны» в сводке (иконка + текст, без растягивания в RichTextLabel).
+static func crown_dossier_panel_data() -> Dictionary:
+	var path := CrownSystem.get_current_crown_title_art_path()
+	var has_art := path != "" and ResourceLoader.exists(path)
+	var nm := CrownSystem.get_current_title_name()
+	var t: Dictionary = CrownSystem.get_current_title()
+	var mine_b := int(t.get("mine_ore_bonus", 0))
+	var gold_r := float(t.get("gold_bonus_ratio", 0.0))
+	var disc := float(t.get("service_discount", 0.0))
+	var sent := SaveManager.ore_sent_to_crown_total
+	var fx: PackedStringArray = []
+	if gold_r > 0.001:
+		fx.append("+%d%% к золоту в жалованье каравана" % int(round(gold_r * 100.0)))
+	if disc > 0.001:
+		fx.append("скидка на услуги %d%%" % int(round(disc * 100.0)))
+	if mine_b > 0:
+		fx.append("шахта при возврате: +%d руды" % mine_b)
+	var fx_line: String = " · ".join(fx) if fx.size() > 0 else "Следующие ступени титула усилят бонусы."
+	return {
+		"art_path": path if has_art else "",
+		"title_name": nm,
+		"sent_line": "Отправлено руды Короне всего: %d" % sent,
+		"fx_line": fx_line,
+	}
+
+
 static func _render_lore_progress(section: Dictionary) -> String:
 	var out := "[font_size=18][b]%s[/b][/font_size]\n\n" % section["title"]
 	for item in section["items"]:
@@ -243,6 +269,21 @@ static func _build_stats_sections(tree: SceneTree) -> Array:
 
 static func _build_lore_progress_section() -> Dictionary:
 	var items: Array = []
+
+	## Титулы после стартового «Рекрута»: 5 ступеней, счётчик = индекс текущего титула (0…5).
+	var crown_extra := BalanceConfig.CROWN_TITLES.size() - 1
+	if crown_extra < 1:
+		crown_extra = 1
+	var crown_idx := BalanceConfig.get_crown_title_index_for_ore_sent(SaveManager.ore_sent_to_crown_total)
+	var crown_found := clampi(crown_idx, 0, crown_extra)
+	items.append(
+		_progress_row_raw(
+			"Титулы Короны",
+			crown_found,
+			crown_extra,
+			"Отправляйте руду караваном с базы",
+		)
+	)
 
 	var boss_flags := ["story_island_1_cleared", "story_island_2_cleared", "story_island_3_cleared", "story_island_4_cleared", "story_island_5_cleared"]
 	items.append(_progress_row("Стражи повержены", boss_flags, "Исследуйте острова"))

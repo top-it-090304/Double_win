@@ -282,6 +282,35 @@ func get_current_title_name() -> String:
 	return str(get_current_title().get("name", "Рекрут Авроры"))
 
 
+## Арт титула: `res://Asets/титулы/1.png` … `6.png` (номер = индекс в BalanceConfig.CROWN_TITLES + 1).
+const CROWN_TITLE_ART_BASE := "res://Asets/титулы"
+
+
+func get_crown_title_art_path_for_index(title_index: int) -> String:
+	var n := BalanceConfig.CROWN_TITLES.size()
+	var i := clampi(title_index, 0, maxi(0, n - 1))
+	return "%s/%d.png" % [CROWN_TITLE_ART_BASE, i + 1]
+
+
+func get_current_crown_title_art_path() -> String:
+	var idx := BalanceConfig.get_crown_title_index_for_ore_sent(SaveManager.ore_sent_to_crown_total)
+	return get_crown_title_art_path_for_index(idx)
+
+
+func load_crown_title_texture_for_index(title_index: int) -> Texture2D:
+	var path := get_crown_title_art_path_for_index(title_index)
+	if ResourceLoader.exists(path):
+		return load(path) as Texture2D
+	return null
+
+
+func load_current_crown_title_texture() -> Texture2D:
+	var path := get_current_crown_title_art_path()
+	if ResourceLoader.exists(path):
+		return load(path) as Texture2D
+	return null
+
+
 func _update_crown_title() -> void:
 	var new_idx := BalanceConfig.get_crown_title_index_for_ore_sent(SaveManager.ore_sent_to_crown_total)
 	if new_idx > SaveManager.crown_title_index:

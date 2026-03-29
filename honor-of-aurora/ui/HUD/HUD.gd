@@ -94,6 +94,10 @@ func _suppress_camp_codex_for_other_modal() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if CrownTitlePreview.visible and event.is_action_pressed("ui_cancel"):
+		CrownTitlePreview.hide_preview()
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("toggle_debug_menu"):
 		if debug_menu == null:
 			return
