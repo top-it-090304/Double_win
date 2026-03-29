@@ -4,6 +4,7 @@ const GOLD_PICKUP_SCENE := preload("res://objects/resource_pickups/gold_pickup.t
 const MEAT_PICKUP_SCENE := preload("res://objects/resource_pickups/meat_pickup.tscn")
 const WOOD_PICKUP_SCENE := preload("res://objects/resource_pickups/wood_pickup.tscn")
 const ORE_PICKUP_SCENE := preload("res://objects/resource_pickups/ore_pickup.tscn")
+const BOSS_ORE_SPARK_SCENE := preload("res://objects/resource_pickups/boss_ore_spark.tscn")
 
 var current_scene_player: Node = null
 
@@ -934,6 +935,37 @@ func _spawn_ore_pickup_at_impl(world_pos: Vector2, amount: int, draw_under_node:
 		parent.move_child(p, insert_index)
 	if p is Node2D:
 		(p as Node2D).global_position = world_pos + Vector2(0, -14)
+
+
+## Осколки сердцевины после босса острова (story_island 1..5). Не режутся лимитом руды за поход.
+func spawn_boss_ore_sparks_at(world_pos: Vector2, story_island: int, draw_under_node: Node2D = null) -> void:
+	call_deferred("_spawn_boss_ore_sparks_at_impl", world_pos, story_island, draw_under_node)
+
+
+func _spawn_boss_ore_sparks_at_impl(world_pos: Vector2, story_island: int, draw_under_node: Node2D) -> void:
+	var count := BalanceConfig.get_boss_defeat_ore_spark_count(story_island)
+	if count <= 0:
+		return
+	var scene_root: Node = get_tree().current_scene
+	if scene_root == null:
+		return
+	var parent: Node = scene_root
+	var insert_index: int = -1
+	if draw_under_node != null and is_instance_valid(draw_under_node) and draw_under_node.get_parent() != null:
+		parent = draw_under_node.get_parent()
+		insert_index = draw_under_node.get_index()
+	for _spark_idx in range(count):
+		var spark: Node = BOSS_ORE_SPARK_SCENE.instantiate()
+		if spark == null:
+			continue
+		parent.add_child(spark)
+		if insert_index >= 0:
+			parent.move_child(spark, insert_index)
+		var ang := randf() * TAU
+		var rad := randf_range(32.0, 128.0)
+		var off := Vector2(cos(ang), sin(ang)) * rad
+		if spark is Node2D:
+			(spark as Node2D).global_position = world_pos + off + Vector2(0, -10)
 
 
 ## Максимум лучников + копейщиков по запасу мяса.

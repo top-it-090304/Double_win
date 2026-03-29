@@ -560,6 +560,8 @@ func die():
 		if story_island > 0:
 			GameManager.on_story_island_boss_defeated(story_island)
 		GameManager.boss_kill()
+		if story_island >= 1 and story_island <= 5:
+			GameManager.spawn_boss_ore_sparks_at(global_position, story_island, self)
 
 	$CollisionShape2D.set_deferred("disabled", true)
 	var gold_amt := int(round(float(BalanceConfig.get_gold_reward(enemy_level, is_boss)) * reward_mult))

@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://hh5io7pl8bgi"]
+
+[ext_resource type="Script" path="res://objects/resource_pickups/boss_ore_spark.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://dg60366rso8od" path="res://Asets/Руда/1.png" id="2_icon"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_spark"]
+radius = 20.0
+
+[node name="BossOreSpark" type="Area2D"]
+collision_layer = 0
+collision_mask = 2
+monitoring = true
+script = ExtResource("1_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_spark")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_icon")

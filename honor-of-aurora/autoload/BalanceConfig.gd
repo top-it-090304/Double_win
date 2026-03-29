@@ -204,6 +204,16 @@ const MAX_ORE_PER_EXPEDITION := 6
 const MAX_WOOD_PER_EXPEDITION := 18
 const MAX_MEAT_PER_EXPEDITION := 5
 
+
+## Сколько осколков сердцевины появляется после победы над стражем острова.
+## Линейно по номеру острова: 1→20, 2→30, 3→40, 4→50, 5→60.
+func get_boss_defeat_ore_spark_count(story_island_index: int) -> int:
+	var s := clampi(story_island_index, 0, 5)
+	if s < 1:
+		return 0
+	return 10 + s * 10
+
+
 ## ─── Неигровые бонусы за донат (пороги суммарной купленной руды) ───
 const PATRON_TIERS := [
 	{"id": "supporter",   "ore_threshold": 50,   "reward": "thank_letter",  "label": "Письмо благодарности в кодексе"},

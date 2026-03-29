@@ -7,6 +7,9 @@ const TEXT_MEASURE_HEIGHT_TRIM := 2.0
 const CHOICE_MOUSE_ARM_DELAY_SEC := 0.12
 ## Минимальная высота строки варианта (компактнее — больше пунктов в видимой области скролла).
 const CHOICE_BUTTON_MIN_HEIGHT := 32
+## Минимальная ширина под именем; фактическая ширина колонки = max(это, ширина строки имени). Портрет не растягивается (как у целителя).
+const NAME_LABEL_MIN_WIDTH := 72.0
+const NAME_LABEL_WIDTH_PAD_PX := 10.0
 ## Высота полосы диалога: якорь снизу, offset_top отрицательный — чем меньше, тем выше панель.
 const CHROME_OFFSET_TOP_MIN := -180.0
 const CHROME_OFFSET_TOP_MAX := -320.0
@@ -38,6 +41,7 @@ const SPEAKER_FACES := {
 }
 
 @onready var _dialogue_chrome: Control = $DialogueChrome
+@onready var _face_frame: PanelContainer = $DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox/Row/LeftCol/FaceFrame
 @onready var _face: TextureRect = $DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox/Row/LeftCol/FaceFrame/face
 @onready var _name_label: Label = $DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox/Row/LeftCol/Name
 @onready var _text_label: Label = $DialogueChrome/PanelRoot/MarginMain/VBox/ContentVBox/Row/text
@@ -63,8 +67,11 @@ func _ready() -> void:
 		_continue_btn.pressed.connect(_on_continue_pressed)
 	if _close_btn:
 		_close_btn.pressed.connect(_force_close_dialogue)
-	if _face == null or _name_label == null or _text_label == null or _choices_scroll == null or _choices_vbox == null:
-		push_error("DialogueWindow: не найдены узлы face / Name / text / ChoicesScroll / ChoicesVBox под ContentVBox — проверьте дерево сцены.")
+	if _face_frame == null or _face == null or _name_label == null or _text_label == null or _choices_scroll == null or _choices_vbox == null:
+		push_error("DialogueWindow: не найдены узлы FaceFrame / face / Name / text / ChoicesScroll / ChoicesVBox под ContentVBox — проверьте дерево сцены.")
+	## Рамка портрета 72×72 не растягивается; портрет и подпись по центру колонки — общая вертикальная ось.
+	if _face_frame:
+		_face_frame.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	if _choices_scroll:
 		_choices_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		_choices_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
@@ -87,8 +94,10 @@ func _apply_label_theme() -> void:
 		return
 	_name_label.add_theme_font_size_override("font_size", DialogueUiConstants.NAME_FONT_SIZE)
 	_name_label.add_theme_color_override("font_color", DialogueUiConstants.NAME_FONT_COLOR)
-	_name_label.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+	_name_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_name_label.clip_text = false
+	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_name_label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_text_label.add_theme_font_size_override("font_size", DialogueUiConstants.TEXT_FONT_SIZE)
 	_text_label.add_theme_color_override("font_color", DialogueUiConstants.TEXT_FONT_COLOR)
 	_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -213,6 +222,7 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 	_clear_choice_ui()
 	var sid: String = line.speaker_id
 	_name_label.text = SPEAKER_LABELS.get(sid, sid.capitalize() if not sid.is_empty() else "?")
+	_update_name_label_min_width_for_current_text()
 	var tex: Texture2D = SPEAKER_FACES.get(sid, null)
 	if tex:
 		_face.texture = tex
@@ -310,10 +320,32 @@ func _on_dialogue_ended(_sequence: DialogueSequence) -> void:
 	visible = false
 	_text_label.text = ""
 	_name_label.text = ""
+	_reset_name_label_min_width()
 	_face.texture = null
 	_text_pages = []
 	_text_page_index = 0
 	_refresh_continue_button()
+
+
+func _reset_name_label_min_width() -> void:
+	if _name_label:
+		_name_label.custom_minimum_size = Vector2(NAME_LABEL_MIN_WIDTH, 0)
+
+
+func _update_name_label_min_width_for_current_text() -> void:
+	if _name_label == null:
+		return
+	var t: String = _name_label.text
+	if t.is_empty():
+		_reset_name_label_min_width()
+		return
+	var font: Font = _font_for_label(_name_label)
+	var fs: int = _name_label.get_theme_font_size("font_size")
+	if fs <= 0:
+		fs = DialogueUiConstants.NAME_FONT_SIZE
+	var sz: Vector2 = font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+	var w: float = maxf(NAME_LABEL_MIN_WIDTH, float(sz.x) + NAME_LABEL_WIDTH_PAD_PX)
+	_name_label.custom_minimum_size = Vector2(w, 0)
 
 
 func _font_for_label(label: Label) -> Font:
@@ -376,6 +408,7 @@ func _fit_name_font() -> void:
 	_name_label.visible = true
 	_name_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	_fit_font_to_label(_name_label, _name_label.text, DialogueUiConstants.NAME_FONT_SIZE, NAME_FONT_MIN)
+	_update_name_label_min_width_for_current_text()
 
 
 func _fit_dialogue_text_font() -> void:
