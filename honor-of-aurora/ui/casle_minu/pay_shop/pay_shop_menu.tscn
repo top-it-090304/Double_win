@@ -66,7 +66,7 @@ offset_bottom = 90.0
 theme_override_constants/icon_max_width = 56
 theme_override_fonts/font = ExtResource("2_font")
 icon = ExtResource("3_back")
-flat = true
+flat = false
 
 [node name="PayShopTitle" type="Label" parent="PayShopPanel"]
 layout_mode = 0

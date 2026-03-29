@@ -101,7 +101,7 @@ offset_bottom = 90.0
 theme_override_constants/icon_max_width = 56
 theme_override_fonts/font = ExtResource("2_font")
 icon = ExtResource("3_back")
-flat = true
+flat = false
 
 [node name="MonasteryTitle" type="Label" parent="MonasteryPanel"]
 layout_mode = 0
@@ -189,7 +189,7 @@ theme_override_font_sizes/font_size = 30
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
 text = "0 + 0"
 icon = ExtResource("4_coin")
-flat = true
+flat = false
 alignment = 1
 
 [node name="OreHintV" type="HBoxContainer" parent="MonasteryPanel/MainActions/SlotsRow/slot_vitality/ColumnVitality"]
@@ -254,7 +254,7 @@ theme_override_font_sizes/font_size = 30
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
 text = "0 + 0"
 icon = ExtResource("4_coin")
-flat = true
+flat = false
 alignment = 1
 
 [node name="OreHintR" type="HBoxContainer" parent="MonasteryPanel/MainActions/SlotsRow/slot_revive/ColumnRevive"]

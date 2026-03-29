@@ -126,7 +126,7 @@ func _refresh_hire_buy_ui() -> void:
 	var ore_cost := BalanceConfig.get_unit_hire_ore_cost()
 	var price_lbl := get_node_or_null("%s/HirePriceLabel" % _PATH_HIRE_VBOX) as Label
 	if price_lbl:
-		price_lbl.text = "Все типы — %d зол. + %d Сердцевины" % [unit_hire_cost, ore_cost]
+		price_lbl.text = "Все типы: %d зол. и %d Сердцевины (как на кнопках)" % [unit_hire_cost, ore_cost]
 	for path in [
 		"%s/HireSlotsRow/slot_archer/ColumnArcher/BuyArcher" % _PATH_HIRE_VBOX,
 		"%s/HireSlotsRow/slot_lancer/ColumnLancer/BuyLancer" % _PATH_HIRE_VBOX,
@@ -134,7 +134,13 @@ func _refresh_hire_buy_ui() -> void:
 	]:
 		var b := get_node_or_null(path) as Button
 		if b:
-			b.text = "%d + %d" % [unit_hire_cost, ore_cost]
+			b.text = ""
+		var gl := get_node_or_null("%s/CostRow/GoldCostRow/GoldCostLabel" % path) as Label
+		var ol := get_node_or_null("%s/CostRow/OreCostRow/OreCostLabel" % path) as Label
+		if gl:
+			gl.text = str(unit_hire_cost)
+		if ol:
+			ol.text = str(ore_cost)
 
 
 func try_close_hire_submenu() -> bool:

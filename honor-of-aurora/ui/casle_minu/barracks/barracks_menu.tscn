@@ -212,7 +212,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_h")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_p")
 icon = ExtResource("3_back")
-flat = true
+flat = false
 expand_icon = false
 
 [node name="BarracksTitle" type="Label" parent="BarracksPanel"]
@@ -339,7 +339,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
 text = "0"
 icon = ExtResource("6_coin")
-flat = true
+flat = false
 alignment = 1
 icon_alignment = 0
 expand_icon = false
@@ -414,7 +414,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
 text = "0"
 icon = ExtResource("6_coin")
-flat = true
+flat = false
 alignment = 1
 icon_alignment = 0
 expand_icon = false

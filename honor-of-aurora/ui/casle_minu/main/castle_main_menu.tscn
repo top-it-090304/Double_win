@@ -220,7 +220,7 @@ theme_override_styles/normal = SubResource("StyleBox_menu_n")
 theme_override_styles/hover = SubResource("StyleBox_menu_h")
 theme_override_styles/pressed = SubResource("StyleBox_menu_p")
 icon = ExtResource("2_back")
-flat = true
+flat = false
 
 [node name="CastleTitle" type="Label" parent="CastleMenuPanel/Center/Frame/InnerMargin/InnerVBox/TopBar"]
 layout_mode = 2
@@ -284,6 +284,7 @@ text = "Найм"
 horizontal_alignment = 1
 
 [node name="LabelHireDesc" type="Label" parent="CastleMenuPanel/Center/Frame/InnerMargin/InnerVBox/MainActions/SlotsRow/slot_hire/ColumnHire"]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.78, 0.88, 0.92)
 theme_override_font_sizes/font_size = 14
@@ -301,7 +302,7 @@ theme_override_styles/hover = SubResource("StyleBox_cta_h")
 theme_override_styles/pressed = SubResource("StyleBox_cta_p")
 theme_override_colors/font_color = Color(0.12, 0.1, 0.06, 1)
 text = "Открыть"
-flat = true
+flat = false
 
 [node name="slot_upgrade" type="PanelContainer" parent="CastleMenuPanel/Center/Frame/InnerMargin/InnerVBox/MainActions/SlotsRow"]
 layout_mode = 2
@@ -342,6 +343,7 @@ text = "Улучшения"
 horizontal_alignment = 1
 
 [node name="LabelUpgradeDesc" type="Label" parent="CastleMenuPanel/Center/Frame/InnerMargin/InnerVBox/MainActions/SlotsRow/slot_upgrade/ColumnUpgrade"]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.78, 0.88, 0.92)
 theme_override_font_sizes/font_size = 14
@@ -359,7 +361,7 @@ theme_override_styles/hover = SubResource("StyleBox_cta_h")
 theme_override_styles/pressed = SubResource("StyleBox_cta_p")
 theme_override_colors/font_color = Color(0.12, 0.1, 0.06, 1)
 text = "Открыть"
-flat = true
+flat = false
 
 [node name="slot_caravan" type="PanelContainer" parent="CastleMenuPanel/Center/Frame/InnerMargin/InnerVBox/MainActions/SlotsRow"]
 layout_mode = 2
@@ -400,10 +402,11 @@ text = "Караван"
 horizontal_alignment = 1
 
 [node name="LabelCaravanDesc" type="Label" parent="CastleMenuPanel/Center/Frame/InnerMargin/InnerVBox/MainActions/SlotsRow/slot_caravan/ColumnCaravan"]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.78, 0.88, 0.92)
 theme_override_font_sizes/font_size = 14
-text = "Приказы Короны, титул, Сердцевина"
+text = "Приказы, титул, Сердцевина"
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -417,7 +420,7 @@ theme_override_styles/hover = SubResource("StyleBox_cta_h")
 theme_override_styles/pressed = SubResource("StyleBox_cta_p")
 theme_override_colors/font_color = Color(0.12, 0.1, 0.06, 1)
 text = "Открыть"
-flat = true
+flat = false
 
 [node name="HireSelectPanel" type="Control" parent="."]
 visible = false
@@ -474,7 +477,7 @@ theme_override_styles/normal = SubResource("StyleBox_menu_n")
 theme_override_styles/hover = SubResource("StyleBox_menu_h")
 theme_override_styles/pressed = SubResource("StyleBox_menu_p")
 icon = ExtResource("2_back")
-flat = true
+flat = false
 
 [node name="TitleHire" type="Label" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireTop"]
 layout_mode = 2
@@ -500,7 +503,7 @@ autowrap_mode = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.88, 0.72, 1)
 theme_override_font_sizes/font_size = 16
-text = "Все типы — золото + Сердцевина"
+text = "Все типы: золото и Сердцевина (как на кнопках)"
 horizontal_alignment = 1
 
 [node name="HireSlotsRow" type="HBoxContainer" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox"]
@@ -547,7 +550,7 @@ text = "Лучник"
 horizontal_alignment = 1
 
 [node name="BuyArcher" type="Button" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_archer/ColumnArcher"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 16
@@ -555,8 +558,61 @@ theme_override_styles/normal = SubResource("StyleBox_cta_n")
 theme_override_styles/hover = SubResource("StyleBox_cta_h")
 theme_override_styles/pressed = SubResource("StyleBox_cta_p")
 theme_override_colors/font_color = Color(0.12, 0.1, 0.06, 1)
-text = "0 + 0"
-flat = true
+text = ""
+flat = false
+
+[node name="CostRow" type="HBoxContainer" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_archer/ColumnArcher/BuyArcher"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 6.0
+offset_right = -8.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="GoldCostRow" type="HBoxContainer" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_archer/ColumnArcher/BuyArcher/CostRow"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="GoldIcon" type="TextureRect" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_archer/ColumnArcher/BuyArcher/CostRow/GoldCostRow"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture = ExtResource("4_gold")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GoldCostLabel" type="Label" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_archer/ColumnArcher/BuyArcher/CostRow/GoldCostRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 18
+text = "0"
+vertical_alignment = 1
+
+[node name="OreCostRow" type="HBoxContainer" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_archer/ColumnArcher/BuyArcher/CostRow"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="OreIcon" type="TextureRect" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_archer/ColumnArcher/BuyArcher/CostRow/OreCostRow"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture = ExtResource("5_ore")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="OreCostLabel" type="Label" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_archer/ColumnArcher/BuyArcher/CostRow/OreCostRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 18
+text = "0"
+vertical_alignment = 1
 
 [node name="slot_lancer" type="PanelContainer" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow"]
 layout_mode = 2
@@ -596,7 +652,7 @@ text = "Копейщик"
 horizontal_alignment = 1
 
 [node name="BuyLancer" type="Button" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_lancer/ColumnLancer"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 16
@@ -604,8 +660,61 @@ theme_override_styles/normal = SubResource("StyleBox_cta_n")
 theme_override_styles/hover = SubResource("StyleBox_cta_h")
 theme_override_styles/pressed = SubResource("StyleBox_cta_p")
 theme_override_colors/font_color = Color(0.12, 0.1, 0.06, 1)
-text = "0 + 0"
-flat = true
+text = ""
+flat = false
+
+[node name="CostRow" type="HBoxContainer" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_lancer/ColumnLancer/BuyLancer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 6.0
+offset_right = -8.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="GoldCostRow" type="HBoxContainer" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_lancer/ColumnLancer/BuyLancer/CostRow"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="GoldIcon" type="TextureRect" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_lancer/ColumnLancer/BuyLancer/CostRow/GoldCostRow"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture = ExtResource("4_gold")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GoldCostLabel" type="Label" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_lancer/ColumnLancer/BuyLancer/CostRow/GoldCostRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 18
+text = "0"
+vertical_alignment = 1
+
+[node name="OreCostRow" type="HBoxContainer" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_lancer/ColumnLancer/BuyLancer/CostRow"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="OreIcon" type="TextureRect" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_lancer/ColumnLancer/BuyLancer/CostRow/OreCostRow"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture = ExtResource("5_ore")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="OreCostLabel" type="Label" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_lancer/ColumnLancer/BuyLancer/CostRow/OreCostRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 18
+text = "0"
+vertical_alignment = 1
 
 [node name="slot_pawn" type="PanelContainer" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow"]
 layout_mode = 2
@@ -645,7 +754,7 @@ text = "Рабочий"
 horizontal_alignment = 1
 
 [node name="BuyPawn" type="Button" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_pawn/ColumnPawn"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 16
@@ -653,8 +762,61 @@ theme_override_styles/normal = SubResource("StyleBox_cta_n")
 theme_override_styles/hover = SubResource("StyleBox_cta_h")
 theme_override_styles/pressed = SubResource("StyleBox_cta_p")
 theme_override_colors/font_color = Color(0.12, 0.1, 0.06, 1)
-text = "0 + 0"
-flat = true
+text = ""
+flat = false
+
+[node name="CostRow" type="HBoxContainer" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_pawn/ColumnPawn/BuyPawn"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 6.0
+offset_right = -8.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="GoldCostRow" type="HBoxContainer" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_pawn/ColumnPawn/BuyPawn/CostRow"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="GoldIcon" type="TextureRect" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_pawn/ColumnPawn/BuyPawn/CostRow/GoldCostRow"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture = ExtResource("4_gold")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GoldCostLabel" type="Label" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_pawn/ColumnPawn/BuyPawn/CostRow/GoldCostRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 18
+text = "0"
+vertical_alignment = 1
+
+[node name="OreCostRow" type="HBoxContainer" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_pawn/ColumnPawn/BuyPawn/CostRow"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="OreIcon" type="TextureRect" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_pawn/ColumnPawn/BuyPawn/CostRow/OreCostRow"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture = ExtResource("5_ore")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="OreCostLabel" type="Label" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox/HireSlotsRow/slot_pawn/ColumnPawn/BuyPawn/CostRow/OreCostRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 18
+text = "0"
+vertical_alignment = 1
 
 [node name="UpgradeSelectPanel" type="Control" parent="."]
 visible = false
@@ -711,7 +873,7 @@ theme_override_styles/normal = SubResource("StyleBox_menu_n")
 theme_override_styles/hover = SubResource("StyleBox_menu_h")
 theme_override_styles/pressed = SubResource("StyleBox_menu_p")
 icon = ExtResource("2_back")
-flat = true
+flat = false
 
 [node name="TitleUpgrade" type="Label" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeTop"]
 layout_mode = 2
@@ -750,7 +912,7 @@ theme_override_constants/separation = 8
 alignment = 1
 
 [node name="BuildingPreview" type="TextureRect" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_monastery/ColumnMonastery"]
-custom_minimum_size = Vector2(96, 96)
+custom_minimum_size = Vector2(88, 88)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
@@ -771,7 +933,7 @@ horizontal_alignment = 1
 text = "Уровень 1 / 5"
 
 [node name="BtnMonastery" type="Button" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_monastery/ColumnMonastery"]
-custom_minimum_size = Vector2(0, 104)
+custom_minimum_size = Vector2(0, 72)
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 16
@@ -779,21 +941,21 @@ theme_override_styles/normal = SubResource("StyleBox_cta_n")
 theme_override_styles/hover = SubResource("StyleBox_cta_h")
 theme_override_styles/pressed = SubResource("StyleBox_cta_p")
 theme_override_colors/font_color = Color(0.12, 0.1, 0.06, 1)
-flat = true
+flat = false
 
 [node name="CostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_monastery/ColumnMonastery/BtnMonastery"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 8.0
-offset_right = -10.0
-offset_bottom = -8.0
+offset_left = 8.0
+offset_top = 5.0
+offset_right = -8.0
+offset_bottom = -5.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 alignment = 1
 
 [node name="GoldCostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_monastery/ColumnMonastery/BtnMonastery/CostRow"]
@@ -802,7 +964,7 @@ alignment = 1
 theme_override_constants/separation = 8
 
 [node name="GoldIcon" type="TextureRect" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_monastery/ColumnMonastery/BtnMonastery/CostRow/GoldCostRow"]
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 texture = ExtResource("4_gold")
 expand_mode = 1
@@ -811,7 +973,7 @@ stretch_mode = 5
 [node name="GoldCostLabel" type="Label" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_monastery/ColumnMonastery/BtnMonastery/CostRow/GoldCostRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 19
 text = "0"
 vertical_alignment = 1
 
@@ -821,7 +983,7 @@ alignment = 1
 theme_override_constants/separation = 8
 
 [node name="WoodIcon" type="TextureRect" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_monastery/ColumnMonastery/BtnMonastery/CostRow/WoodCostRow"]
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 texture = ExtResource("10_wood")
 expand_mode = 1
@@ -830,7 +992,7 @@ stretch_mode = 5
 [node name="WoodCostLabel" type="Label" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_monastery/ColumnMonastery/BtnMonastery/CostRow/WoodCostRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 19
 text = "0"
 vertical_alignment = 1
 
@@ -840,7 +1002,7 @@ alignment = 1
 theme_override_constants/separation = 8
 
 [node name="OreIcon" type="TextureRect" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_monastery/ColumnMonastery/BtnMonastery/CostRow/OreCostRow"]
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 texture = ExtResource("5_ore")
 expand_mode = 1
@@ -849,7 +1011,7 @@ stretch_mode = 5
 [node name="OreCostLabel" type="Label" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_monastery/ColumnMonastery/BtnMonastery/CostRow/OreCostRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 19
 text = "0"
 vertical_alignment = 1
 
@@ -864,7 +1026,7 @@ theme_override_constants/separation = 8
 alignment = 1
 
 [node name="BuildingPreview" type="TextureRect" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_castle/ColumnCastle"]
-custom_minimum_size = Vector2(96, 96)
+custom_minimum_size = Vector2(88, 88)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
@@ -885,7 +1047,7 @@ horizontal_alignment = 1
 text = "Уровень 1 / 5"
 
 [node name="BtnCastle" type="Button" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_castle/ColumnCastle"]
-custom_minimum_size = Vector2(0, 104)
+custom_minimum_size = Vector2(0, 72)
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 16
@@ -893,21 +1055,21 @@ theme_override_styles/normal = SubResource("StyleBox_cta_n")
 theme_override_styles/hover = SubResource("StyleBox_cta_h")
 theme_override_styles/pressed = SubResource("StyleBox_cta_p")
 theme_override_colors/font_color = Color(0.12, 0.1, 0.06, 1)
-flat = true
+flat = false
 
 [node name="CostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 8.0
-offset_right = -10.0
-offset_bottom = -8.0
+offset_left = 8.0
+offset_top = 5.0
+offset_right = -8.0
+offset_bottom = -5.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 alignment = 1
 
 [node name="GoldCostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle/CostRow"]
@@ -916,7 +1078,7 @@ alignment = 1
 theme_override_constants/separation = 8
 
 [node name="GoldIcon" type="TextureRect" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle/CostRow/GoldCostRow"]
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 texture = ExtResource("4_gold")
 expand_mode = 1
@@ -925,7 +1087,7 @@ stretch_mode = 5
 [node name="GoldCostLabel" type="Label" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle/CostRow/GoldCostRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 19
 text = "0"
 vertical_alignment = 1
 
@@ -935,7 +1097,7 @@ alignment = 1
 theme_override_constants/separation = 8
 
 [node name="WoodIcon" type="TextureRect" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle/CostRow/WoodCostRow"]
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 texture = ExtResource("10_wood")
 expand_mode = 1
@@ -944,7 +1106,7 @@ stretch_mode = 5
 [node name="WoodCostLabel" type="Label" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle/CostRow/WoodCostRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 19
 text = "0"
 vertical_alignment = 1
 
@@ -954,7 +1116,7 @@ alignment = 1
 theme_override_constants/separation = 8
 
 [node name="OreIcon" type="TextureRect" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle/CostRow/OreCostRow"]
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 texture = ExtResource("5_ore")
 expand_mode = 1
@@ -963,7 +1125,7 @@ stretch_mode = 5
 [node name="OreCostLabel" type="Label" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle/CostRow/OreCostRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 19
 text = "0"
 vertical_alignment = 1
 
@@ -978,7 +1140,7 @@ theme_override_constants/separation = 8
 alignment = 1
 
 [node name="BuildingPreview" type="TextureRect" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_barracks/ColumnBarracks"]
-custom_minimum_size = Vector2(96, 96)
+custom_minimum_size = Vector2(88, 88)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
@@ -999,7 +1161,7 @@ horizontal_alignment = 1
 text = "Уровень 1 / 5"
 
 [node name="BtnBarracks" type="Button" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_barracks/ColumnBarracks"]
-custom_minimum_size = Vector2(0, 104)
+custom_minimum_size = Vector2(0, 72)
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 16
@@ -1007,21 +1169,21 @@ theme_override_styles/normal = SubResource("StyleBox_cta_n")
 theme_override_styles/hover = SubResource("StyleBox_cta_h")
 theme_override_styles/pressed = SubResource("StyleBox_cta_p")
 theme_override_colors/font_color = Color(0.12, 0.1, 0.06, 1)
-flat = true
+flat = false
 
 [node name="CostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 8.0
-offset_right = -10.0
-offset_bottom = -8.0
+offset_left = 8.0
+offset_top = 5.0
+offset_right = -8.0
+offset_bottom = -5.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 alignment = 1
 
 [node name="GoldCostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks/CostRow"]
@@ -1030,7 +1192,7 @@ alignment = 1
 theme_override_constants/separation = 8
 
 [node name="GoldIcon" type="TextureRect" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks/CostRow/GoldCostRow"]
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 texture = ExtResource("4_gold")
 expand_mode = 1
@@ -1039,7 +1201,7 @@ stretch_mode = 5
 [node name="GoldCostLabel" type="Label" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks/CostRow/GoldCostRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 19
 text = "0"
 vertical_alignment = 1
 
@@ -1049,7 +1211,7 @@ alignment = 1
 theme_override_constants/separation = 8
 
 [node name="WoodIcon" type="TextureRect" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks/CostRow/WoodCostRow"]
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 texture = ExtResource("10_wood")
 expand_mode = 1
@@ -1058,7 +1220,7 @@ stretch_mode = 5
 [node name="WoodCostLabel" type="Label" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks/CostRow/WoodCostRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 19
 text = "0"
 vertical_alignment = 1
 
@@ -1068,7 +1230,7 @@ alignment = 1
 theme_override_constants/separation = 8
 
 [node name="OreIcon" type="TextureRect" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks/CostRow/OreCostRow"]
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 texture = ExtResource("5_ore")
 expand_mode = 1
@@ -1077,7 +1239,7 @@ stretch_mode = 5
 [node name="OreCostLabel" type="Label" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks/CostRow/OreCostRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 19
 text = "0"
 vertical_alignment = 1
 
@@ -1092,7 +1254,7 @@ theme_override_constants/separation = 8
 alignment = 1
 
 [node name="BuildingPreview" type="TextureRect" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_archery/ColumnArchery"]
-custom_minimum_size = Vector2(96, 96)
+custom_minimum_size = Vector2(88, 88)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
@@ -1113,7 +1275,7 @@ horizontal_alignment = 1
 text = "Уровень 1 / 5"
 
 [node name="BtnArchery" type="Button" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_archery/ColumnArchery"]
-custom_minimum_size = Vector2(0, 104)
+custom_minimum_size = Vector2(0, 72)
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 16
@@ -1121,21 +1283,21 @@ theme_override_styles/normal = SubResource("StyleBox_cta_n")
 theme_override_styles/hover = SubResource("StyleBox_cta_h")
 theme_override_styles/pressed = SubResource("StyleBox_cta_p")
 theme_override_colors/font_color = Color(0.12, 0.1, 0.06, 1)
-flat = true
+flat = false
 
 [node name="CostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 8.0
-offset_right = -10.0
-offset_bottom = -8.0
+offset_left = 8.0
+offset_top = 5.0
+offset_right = -8.0
+offset_bottom = -5.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 alignment = 1
 
 [node name="GoldCostRow" type="HBoxContainer" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery/CostRow"]
@@ -1144,7 +1306,7 @@ alignment = 1
 theme_override_constants/separation = 8
 
 [node name="GoldIcon" type="TextureRect" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery/CostRow/GoldCostRow"]
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 texture = ExtResource("4_gold")
 expand_mode = 1
@@ -1153,7 +1315,7 @@ stretch_mode = 5
 [node name="GoldCostLabel" type="Label" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery/CostRow/GoldCostRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 19
 text = "0"
 vertical_alignment = 1
 
@@ -1163,7 +1325,7 @@ alignment = 1
 theme_override_constants/separation = 8
 
 [node name="WoodIcon" type="TextureRect" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery/CostRow/WoodCostRow"]
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 texture = ExtResource("10_wood")
 expand_mode = 1
@@ -1172,7 +1334,7 @@ stretch_mode = 5
 [node name="WoodCostLabel" type="Label" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery/CostRow/WoodCostRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 19
 text = "0"
 vertical_alignment = 1
 
@@ -1182,7 +1344,7 @@ alignment = 1
 theme_override_constants/separation = 8
 
 [node name="OreIcon" type="TextureRect" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery/CostRow/OreCostRow"]
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 texture = ExtResource("5_ore")
 expand_mode = 1
@@ -1191,7 +1353,7 @@ stretch_mode = 5
 [node name="OreCostLabel" type="Label" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery/CostRow/OreCostRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 19
 text = "0"
 vertical_alignment = 1
 
@@ -1250,7 +1412,7 @@ theme_override_styles/normal = SubResource("StyleBox_menu_n")
 theme_override_styles/hover = SubResource("StyleBox_menu_h")
 theme_override_styles/pressed = SubResource("StyleBox_menu_p")
 icon = ExtResource("2_back")
-flat = true
+flat = false
 
 [node name="CaravanTitle" type="Label" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanTop"]
 layout_mode = 2
@@ -1368,7 +1530,7 @@ theme_override_styles/hover = SubResource("StyleBox_menu_h")
 theme_override_styles/pressed = SubResource("StyleBox_menu_p")
 theme_override_colors/font_color = Color(0.85, 0.88, 0.94, 1)
 text = "Подробнее о правилах ▼"
-flat = true
+flat = false
 
 [node name="CaravanDetailsScroll" type="ScrollContainer" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox"]
 visible = false
@@ -1410,7 +1572,7 @@ theme_override_styles/hover = SubResource("StyleBox_cta_h")
 theme_override_styles/pressed = SubResource("StyleBox_cta_p")
 theme_override_colors/font_color = Color(0.12, 0.1, 0.06, 1)
 text = "Отправить всё"
-flat = true
+flat = false
 
 [node name="BtnSendHalf" type="Button" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/BtnRow"]
 custom_minimum_size = Vector2(200, 48)
@@ -1422,7 +1584,7 @@ theme_override_styles/hover = SubResource("StyleBox_menu_h")
 theme_override_styles/pressed = SubResource("StyleBox_menu_p")
 theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
 text = "Отправить половину"
-flat = true
+flat = false
 
 [node name="BtnDismiss" type="Button" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox"]
 custom_minimum_size = Vector2(0, 42)
@@ -1434,7 +1596,7 @@ theme_override_styles/hover = SubResource("StyleBox_menu_h")
 theme_override_styles/pressed = SubResource("StyleBox_menu_p")
 theme_override_colors/font_color = Color(0.75, 0.72, 0.68, 1)
 text = "Отпустить порожним"
-flat = true
+flat = false
 
 [connection signal="pressed" from="CastleMenuPanel/Center/Frame/InnerMargin/InnerVBox/TopBar/castle_back_btn" to="." method="_on_back_pressed"]
 [connection signal="pressed" from="CastleMenuPanel/Center/Frame/InnerMargin/InnerVBox/MainActions/SlotsRow/slot_hire/ColumnHire/hire" to="." method="_on_hire_pressed"]
