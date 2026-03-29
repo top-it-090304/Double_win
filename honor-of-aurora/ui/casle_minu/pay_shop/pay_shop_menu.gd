@@ -1,5 +1,14 @@
 extends Control
 
+## Иконки пакетов по порядку в BalanceConfig.PREMIUM_ORE_PACKS: 1, 6, 2, 8.
+const _PACK_ROW_TEXTURES := {
+	"starter": preload("res://Asets/Руда/1.png"),
+	"adventurer": preload("res://Asets/Руда/6.png"),
+	"commander": preload("res://Asets/Руда/2.png"),
+	"warlord": preload("res://Asets/Руда/8.png"),
+}
+const _ORE_ICON_MAIN := preload("res://Asets/Руда/1.png")
+
 
 func get_hud() -> Node:
 	return GameplayFacade.get_hud(get_tree())
@@ -61,6 +70,13 @@ func _make_pack_row(pack_id: String, pack: Dictionary) -> Control:
 	row.custom_minimum_size = Vector2(0, 64)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_theme_constant_override("separation", 14)
+
+	var icon_rect := TextureRect.new()
+	icon_rect.custom_minimum_size = Vector2(56, 56)
+	icon_rect.texture = _PACK_ROW_TEXTURES.get(pack_id, _ORE_ICON_MAIN)
+	icon_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+	icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	row.add_child(icon_rect)
 
 	var info := Label.new()
 	var ore := int(pack.get("ore", 0))

@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://5rocvcom335g" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_03.png" id="4_coin"]
 [ext_resource type="Texture2D" uid="uid://c2yb0ddmumn38" path="res://Asets/Environment/Resources/Resources/W_Idle.png" id="5_wood"]
 [ext_resource type="Texture2D" uid="uid://dltpvkd2iefjo" path="res://Asets/Environment/Resources/Resources/M_Idle.png" id="6_meat"]
-[ext_resource type="Texture2D" uid="uid://i63dx8gd1h5m" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_07.png" id="7_ore"]
+[ext_resource type="Texture2D" uid="uid://dg60366rso8od" path="res://Asets/Руда/1.png" id="7_ore"]
 [ext_resource type="Texture2D" uid="uid://bygplsu8pi5pk" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_02.png" id="8_exp"]
 [ext_resource type="Texture2D" uid="uid://djxaxn100yy3x" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_01.png" id="9_buff"]
 [ext_resource type="Texture2D" uid="uid://cf5kysi7be050" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_05.png" id="11_sword"]

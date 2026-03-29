@@ -1040,7 +1040,7 @@ position = Vector2(1348, 501)
 position = Vector2(-243, 717)
 
 [node name="veteran_archer" parent="." instance=ExtResource("68_3li1g")]
-position = Vector2(797, 254)
+position = Vector2(555, 232)
 
 [node name="barak_zone" type="Node" parent="."]
 

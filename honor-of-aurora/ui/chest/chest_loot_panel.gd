@@ -2,7 +2,7 @@ extends CanvasLayer
 ## Панель добычи сундука: стиль как у диалогов / меню замка, иконки ресурсов, компактный текст.
 
 const _TEX_GOLD := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_03.png")
-const _TEX_ORE := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_07.png")
+const _TEX_ORE := preload("res://Asets/Руда/1.png")
 const _TEX_MEAT := preload("res://Asets/Environment/Resources/Resources/M_Idle.png")
 const _TEX_WOOD := preload("res://Asets/Environment/Resources/Resources/W_Idle.png")
 const _ORE_SHADER := preload("res://ui/resources_hud/ore_icon_gold.gdshader")

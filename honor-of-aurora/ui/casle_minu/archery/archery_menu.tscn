@@ -4,7 +4,7 @@
 [ext_resource type="FontFile" uid="uid://cj4nta75kb3fi" path="res://ui/font/AlumniSansCollegiateOne-Italic.ttf" id="2_font"]
 [ext_resource type="Texture2D" uid="uid://cjha34kojfsit" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_08.png" id="3_back"]
 [ext_resource type="Texture2D" uid="uid://5rocvcom335g" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_03.png" id="4_coin"]
-[ext_resource type="Texture2D" uid="uid://i63dx8gd1h5m" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_07.png" id="5_ore"]
+[ext_resource type="Texture2D" uid="uid://dg60366rso8od" path="res://Asets/Руда/1.png" id="5_ore"]
 [ext_resource type="Shader" uid="uid://dore1c0ng0ldsh" path="res://ui/resources_hud/ore_icon_gold.gdshader" id="6_ore_shader"]
 [ext_resource type="Texture2D" uid="uid://cf5kysi7be050" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_05.png" id="7_arrow"]
 [ext_resource type="Texture2D" uid="uid://dgwuk12s7shin" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_06.png" id="8_guard"]
