@@ -1,5 +1,7 @@
 extends Control
 
+var _touch_scroll_helper := TouchScrollHelper.new()
+
 ## Иконки пакетов по порядку в BalanceConfig.PREMIUM_ORE_PACKS: 1, 6, 2, 8.
 const _PACK_ROW_TEXTURES := {
 	"starter": preload("res://Asets/Руда/1.png"),
@@ -15,6 +17,10 @@ func get_hud() -> Node:
 
 
 func _ready() -> void:
+	_touch_scroll_helper.add_root(self)
+	set_process_input(true)
+	if not visibility_changed.is_connected(_on_payshop_visibility_for_touch_scroll):
+		visibility_changed.connect(_on_payshop_visibility_for_touch_scroll)
 	Events.ore_changed.connect(_on_ore_changed)
 	Events.premium_ore_pack_purchased.connect(_on_pack_purchased)
 	_rebuild_rows()
@@ -107,7 +113,20 @@ func _on_buy_pack_pressed(pack_id: String) -> void:
 	GameplayFacade.purchase_premium_ore_pack(pack_id)
 
 
+func _input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if _touch_scroll_helper.consume_touch_scroll(event):
+		get_viewport().set_input_as_handled()
+
+
+func _on_payshop_visibility_for_touch_scroll() -> void:
+	if not visible:
+		_touch_scroll_helper.reset()
+
+
 func _on_back_pressed() -> void:
+	_touch_scroll_helper.reset()
 	SoundManager.play_ui_button()
 	var hud := get_hud()
 	if hud and hud.has_method("hide_payshop_menu"):

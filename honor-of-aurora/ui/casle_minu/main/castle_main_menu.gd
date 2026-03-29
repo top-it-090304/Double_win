@@ -65,6 +65,8 @@ var _caravan_dot_style_fill: StyleBoxFlat
 var _caravan_dot_style_dim: StyleBoxFlat
 var _caravan_dot_style_hold: StyleBoxFlat
 
+var _touch_scroll_helper := TouchScrollHelper.new()
+
 
 func _apply_dialogue_default_font_to_richtext(rtl: RichTextLabel) -> void:
 	## Тот же источник, что у подписей в dialogue_window (без override — ThemeDB.fallback_font).
@@ -83,6 +85,8 @@ func _ready() -> void:
 	_build_crown_help_modal()
 	_setup_caravan_panel_nodes()
 	_refresh_crown_title_strip()
+	_touch_scroll_helper.add_root(self)
+	set_process_input(true)
 	if not Events.crown_title_changed.is_connected(_on_crown_title_changed_ui):
 		Events.crown_title_changed.connect(_on_crown_title_changed_ui)
 	if not Events.crown_displeasure_changed.is_connected(_on_crown_displeasure_changed_ui):
@@ -99,6 +103,7 @@ func _ready() -> void:
 
 func _on_castle_root_visibility_changed() -> void:
 	if not visible:
+		_touch_scroll_helper.reset()
 		_hide_crown_mood_effects_modal()
 		_close_crown_help()
 		return
@@ -1851,3 +1856,8 @@ func _on_dismiss_caravan_pressed() -> void:
 	SoundManager.play_ui_button()
 	CrownSystem.dismiss_caravan_empty()
 	_refresh_caravan_ui()
+func _input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if _touch_scroll_helper.consume_touch_scroll(event):
+		get_viewport().set_input_as_handled()

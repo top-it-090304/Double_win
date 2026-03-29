@@ -113,7 +113,7 @@ const CROWN_TITLES := [
 		],
 	},
 	{
-		"id": "scout", "name": "Разведчик Архипелага", "ore_threshold": 15,
+		"id": "scout", "name": "Разведчик Архипелага", "ore_threshold": 30,
 		"gold_bonus_ratio": 0.05, "mine_ore_bonus": 0, "service_discount": 0.0,
 		"flavors": [
 			"Архипелаг перестал быть в отчёте пустым квадратом: казначей видит партии и имя.",
@@ -123,7 +123,7 @@ const CROWN_TITLES := [
 		],
 	},
 	{
-		"id": "guardian", "name": "Страж Маяков", "ore_threshold": 50,
+		"id": "guardian", "name": "Страж Маяков", "ore_threshold": 100,
 		"gold_bonus_ratio": 0.05, "mine_ore_bonus": 1, "service_discount": 0.0,
 		"flavors": [
 			"Без Сердцевины с островов маяки на материке гаснут. Страж в списках Короны — звено между жилой и огнём.",
@@ -133,7 +133,7 @@ const CROWN_TITLES := [
 		],
 	},
 	{
-		"id": "knight", "name": "Рыцарь Сердцевины", "ore_threshold": 120,
+		"id": "knight", "name": "Рыцарь Сердцевины", "ore_threshold": 240,
 		"gold_bonus_ratio": 0.05, "mine_ore_bonus": 1, "service_discount": 0.10,
 		"flavors": [
 			"В зале — звонко; в гавани то же звание значит отгрузку, о которой двор помнит дольше, чем тост.",
@@ -143,7 +143,7 @@ const CROWN_TITLES := [
 		],
 	},
 	{
-		"id": "keeper", "name": "Хранитель Авроры", "ore_threshold": 250,
+		"id": "keeper", "name": "Хранитель Авроры", "ore_threshold": 500,
 		"gold_bonus_ratio": 0.08, "mine_ore_bonus": 2, "service_discount": 0.10,
 		"flavors": [
 			"Аврора в книгах одна; хранитель в этом имени — не придворная должность, а привязка к этой воде и этой жиле.",
@@ -153,7 +153,7 @@ const CROWN_TITLES := [
 		],
 	},
 	{
-		"id": "hero", "name": "Герой Короны", "ore_threshold": 500,
+		"id": "hero", "name": "Герой Короны", "ore_threshold": 1000,
 		"gold_bonus_ratio": 0.10, "mine_ore_bonus": 2, "service_discount": 0.15,
 		"flavors": [
 			"Корона возвела тебя в герои перед материком: летопись и совет, печать на почёте — в реестре экспедиции равных нет.",
@@ -212,6 +212,14 @@ func get_boss_defeat_ore_spark_count(story_island_index: int) -> int:
 	if s < 1:
 		return 0
 	return 10 + s * 10
+
+
+## Сколько осколков сердцевины (как у босса, с притяжением) за очистку сильной зоны у руин / сундуков: доля от боссовского спауна.
+func get_encounter_clear_boss_style_ore_spark_count(island_tier: int) -> int:
+	var boss_n := get_boss_defeat_ore_spark_count(island_tier)
+	if boss_n <= 0:
+		return 0
+	return maxi(1, int(round(float(boss_n) * 0.2)))
 
 
 ## ─── Неигровые бонусы за донат (пороги суммарной купленной руды) ───
@@ -429,19 +437,18 @@ func get_crown_order(order_index: int) -> Dictionary:
 ## ─── Титулы ───
 
 func get_crown_title_for_ore_sent(ore_sent_total: int) -> Dictionary:
-	var best: Dictionary = CROWN_TITLES[0]
-	for t in CROWN_TITLES:
-		if t is Dictionary and ore_sent_total >= int(t.get("ore_threshold", 0)):
-			best = t
-	return best.duplicate()
+	for i in range(CROWN_TITLES.size() - 1, -1, -1):
+		var t: Dictionary = CROWN_TITLES[i]
+		if ore_sent_total >= int(t.get("ore_threshold", 0)):
+			return t.duplicate()
+	return (CROWN_TITLES[0] as Dictionary).duplicate()
 
 
 func get_crown_title_index_for_ore_sent(ore_sent_total: int) -> int:
-	var idx := 0
-	for i in range(CROWN_TITLES.size()):
+	for i in range(CROWN_TITLES.size() - 1, -1, -1):
 		if ore_sent_total >= int(CROWN_TITLES[i].get("ore_threshold", 0)):
-			idx = i
-	return idx
+			return i
+	return 0
 
 
 ## Случайная подпись из пула `flavors`; иначе одиночное поле `flavor` (устар.).

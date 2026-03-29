@@ -13,6 +13,7 @@ const EXP_ADD := 5000
 const SPEED_ADD := 80.0
 
 var _actions: RefCounted
+var _touch_scroll_helper := TouchScrollHelper.new()
 
 
 func _ready() -> void:
@@ -22,10 +23,21 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	set_process_input(true)
+	_touch_scroll_helper.add_root(self)
+	if not visibility_changed.is_connected(_on_debug_visibility_for_touch_scroll):
+		visibility_changed.connect(_on_debug_visibility_for_touch_scroll)
+
+
+func _on_debug_visibility_for_touch_scroll() -> void:
+	if not visible:
+		_touch_scroll_helper.reset()
 
 
 func _input(event: InputEvent) -> void:
 	if not visible:
+		return
+	if _touch_scroll_helper.consume_touch_scroll(event):
+		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("ui_cancel"):
 		_close_debug()

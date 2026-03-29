@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://c553p5s31feqq"]
+[gd_scene load_steps=3 format=3 uid="uid://c553p5s31feqq"]
 
 [ext_resource type="Script" path="res://objects/resource_pickups/ore_pickup.gd" id="1_script"]
 
@@ -14,5 +14,5 @@ script = ExtResource("1_script")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_pickup")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(0, -8)

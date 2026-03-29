@@ -16,6 +16,7 @@ const _ORE_SHADER := preload("res://ui/resources_hud/ore_icon_gold.gdshader")
 @onready var _confirm: Button = $RootLayout/Center/PanelRoot/Margin/VBox/Footer/ConfirmButton
 
 var _ore_material: ShaderMaterial
+var _touch_scroll_helper := TouchScrollHelper.new()
 
 
 func _exit_tree() -> void:
@@ -25,6 +26,8 @@ func _exit_tree() -> void:
 func _ready() -> void:
 	layer = 95
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_touch_scroll_helper.add_root(self)
+	set_process_input(true)
 	set_process_unhandled_input(true)
 	visible = false
 	_ore_material = ShaderMaterial.new()
@@ -114,6 +117,13 @@ func _close() -> void:
 func _on_backdrop_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		_close()
+
+
+func _input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if _touch_scroll_helper.consume_touch_scroll(event):
+		get_viewport().set_input_as_handled()
 
 
 func _unhandled_input(event: InputEvent) -> void:

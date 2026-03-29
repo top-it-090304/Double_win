@@ -1,5 +1,7 @@
 extends Control
 
+var _touch_scroll_helper := TouchScrollHelper.new()
+
 @onready var _backdrop: ColorRect = $Backdrop
 @onready var _safe_margin: MarginContainer = $SafeMargin
 @onready var _main_tabs: TabContainer = $SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs
@@ -50,6 +52,10 @@ var _help_tab: Control
 func _ready() -> void:
 	visible = false
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_touch_scroll_helper.add_root(self)
+	set_process_input(true)
+	if not visibility_changed.is_connected(_on_codex_visibility_for_touch_scroll):
+		visibility_changed.connect(_on_codex_visibility_for_touch_scroll)
 	if _close_btn:
 		_close_btn.pressed.connect(_on_close_pressed)
 	if _main_tabs:
@@ -521,6 +527,18 @@ func _on_hero_crown_badge_gui_input(event: InputEvent) -> void:
 func _focus_close_button() -> void:
 	if _close_btn and visible:
 		_close_btn.grab_focus()
+
+
+func _on_codex_visibility_for_touch_scroll() -> void:
+	if not visible:
+		_touch_scroll_helper.reset()
+
+
+func _input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if _touch_scroll_helper.consume_touch_scroll(event):
+		get_viewport().set_input_as_handled()
 
 
 func _on_close_pressed() -> void:

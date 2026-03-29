@@ -35,12 +35,14 @@ var _stage: int = 0
 ## Время (сек, по Time.get_ticks_msec), когда снова можно взять новый случайный вопрос солдату.
 var _patrol_banter_available_at: float = 0.0
 var _banter_cooldown_timer: Timer = null
+var _touch_scroll_helper := TouchScrollHelper.new()
 
 
 func _ready() -> void:
 	visible = false
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	set_process_input(true)
+	_touch_scroll_helper.add_root(self)
 	_apply_label_theme()
 	_close_btn.pressed.connect(close)
 	_continue_btn.pressed.connect(_on_continue_pressed)
@@ -63,6 +65,9 @@ func _apply_label_theme() -> void:
 
 func _input(event: InputEvent) -> void:
 	if not visible:
+		return
+	if _touch_scroll_helper.consume_touch_scroll(event):
+		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("ui_cancel"):
 		close()
@@ -88,6 +93,7 @@ func open_for(unit: Node2D) -> void:
 func close() -> void:
 	if not visible:
 		return
+	_touch_scroll_helper.reset()
 	_stop_banter_cooldown_timer()
 	_clear_choice_buttons()
 	SoundManager.play_menu_close()

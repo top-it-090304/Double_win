@@ -553,7 +553,11 @@ func die():
 	state = State.DEATH
 	if _anim_safety_timer:
 		_anim_safety_timer.stop()
-	anim.play("dead")
+	## Иначе при смерти во время attack/hit сигнал animation_finished от прерванного клипа
+	## завершает await до проигрыша dead — враг исчезает мгновенно (см. companion_unit._die).
+	if anim.sprite_frames and anim.sprite_frames.has_animation(&"dead"):
+		anim.stop()
+		anim.play(&"dead")
 
 	if is_in_group("BOSS"):
 		## Сначала сюжетные флаги и финал (ветер), затем счётчик — иначе музыка тира 5 успевает начаться до глушения.
@@ -567,7 +571,8 @@ func die():
 	var gold_amt := int(round(float(BalanceConfig.get_gold_reward(enemy_level, is_boss)) * reward_mult))
 	if gold_amt > 0:
 		GameManager.spawn_gold_pickup_at(global_position, gold_amt, self)
-	await anim.animation_finished
+	if anim.sprite_frames and anim.sprite_frames.has_animation(&"dead"):
+		await anim.animation_finished
 	queue_free()
 
 

@@ -308,6 +308,8 @@ func get_current_title_flavor() -> String:
 ## Арт титула: `res://Asets/титулы/1.png` … `6.png` (номер = индекс в BalanceConfig.CROWN_TITLES + 1).
 const CROWN_TITLE_ART_BASE := "res://Asets/титулы"
 
+var _crown_title_texture_cache: Dictionary = {}
+
 
 func get_crown_title_art_path_for_index(title_index: int) -> String:
 	var n := BalanceConfig.CROWN_TITLES.size()
@@ -321,17 +323,24 @@ func get_current_crown_title_art_path() -> String:
 
 
 func load_crown_title_texture_for_index(title_index: int) -> Texture2D:
-	var path := get_crown_title_art_path_for_index(title_index)
-	if ResourceLoader.exists(path):
-		return load(path) as Texture2D
-	return null
+	return _load_crown_title_texture_at_path(get_crown_title_art_path_for_index(title_index))
 
 
 func load_current_crown_title_texture() -> Texture2D:
-	var path := get_current_crown_title_art_path()
-	if ResourceLoader.exists(path):
-		return load(path) as Texture2D
-	return null
+	return _load_crown_title_texture_at_path(get_current_crown_title_art_path())
+
+
+func _load_crown_title_texture_at_path(path: String) -> Texture2D:
+	if path.is_empty():
+		return null
+	if _crown_title_texture_cache.has(path):
+		return _crown_title_texture_cache[path] as Texture2D
+	if not ResourceLoader.exists(path):
+		return null
+	var tex: Texture2D = load(path) as Texture2D
+	if tex:
+		_crown_title_texture_cache[path] = tex
+	return tex
 
 
 func _update_crown_title() -> void:

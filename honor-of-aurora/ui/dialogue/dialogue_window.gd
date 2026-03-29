@@ -22,6 +22,8 @@ const TEX_PLAYER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human
 ## Тот же аватар, что у рабочего в меню отряда (squad_orders_menu TEX_PAWN).
 const TEX_WORKER := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_05.png")
 const TEX_VETERAN := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Human Avatars/Avatars_08.png")
+## Портрет интенданта (speaker_id caravan); в окне — отражение по X.
+const TEX_INTENDANT := preload("res://Asets/Unit_pack/Units/моряк.png")
 
 const SPEAKER_LABELS := {
 	"healer": "Целитель",
@@ -38,6 +40,12 @@ const SPEAKER_FACES := {
 	"hero": TEX_PLAYER,
 	"young_worker": TEX_WORKER,
 	"veteran": TEX_VETERAN,
+	"caravan": TEX_INTENDANT,
+}
+
+## Горизонтальное отражение портрета (лицо смотрит в сторону текста).
+const SPEAKER_FACE_FLIP_H := {
+	"caravan": true,
 }
 
 @onready var _dialogue_chrome: Control = $DialogueChrome
@@ -226,9 +234,11 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 	var tex: Texture2D = SPEAKER_FACES.get(sid, null)
 	if tex:
 		_face.texture = tex
+		_face.flip_h = bool(SPEAKER_FACE_FLIP_H.get(sid, false))
 		_face.visible = true
 	else:
 		_face.texture = null
+		_face.flip_h = false
 		_face.visible = false
 
 	if line is DialogueChoiceLine:
@@ -322,6 +332,7 @@ func _on_dialogue_ended(_sequence: DialogueSequence) -> void:
 	_name_label.text = ""
 	_reset_name_label_min_width()
 	_face.texture = null
+	_face.flip_h = false
 	_text_pages = []
 	_text_page_index = 0
 	_refresh_continue_button()

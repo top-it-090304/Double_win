@@ -1,9 +1,9 @@
 extends Area2D
-## Осколок сердцевины после победы над стражем острова. Та же иконка, что в HUD (Сердцевина).
+## Осколок сердцевины после босса / зачистки зоны. Случайный вид из `Asets/Руда`.
 ## Не учитывается в лимите добычи руды за поход.
 ## В большом радиусе притягивается к герою, чтобы не оставаться в недосягаемых точках.
 
-const ICON := preload("res://Asets/Руда/1.png")
+const _ICON_FALLBACK := preload("res://Asets/Руда/1.png")
 
 @export var ore_amount: int = 1
 ## На каком расстоянии от героя осколок начинает подтягиваться.
@@ -29,8 +29,11 @@ func _ready() -> void:
 	monitoring = true
 	body_entered.connect(_on_body_entered)
 	if _sprite:
-		_sprite.texture = ICON
-		var tw := float(ICON.get_width())
+		var tex: Texture2D = OreVariantLibrary.pick_random_ore_texture()
+		if tex == null:
+			tex = _ICON_FALLBACK
+		_sprite.texture = tex
+		var tw := float(tex.get_width())
 		if tw > 1.0:
 			var s := 56.0 / tw
 			_sprite.scale = Vector2(s, s)
@@ -40,23 +43,35 @@ func _ready() -> void:
 		tw_anim.tween_property(_sprite, "scale", sc, 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 
 
+func _resolve_player_node2d(tree: SceneTree) -> Node2D:
+	var cached: Node = GameManager.current_scene_player
+	if cached is Node2D and is_instance_valid(cached):
+		var p2d := cached as Node2D
+		if p2d.is_inside_tree():
+			return p2d
+	return tree.get_first_node_in_group("player") as Node2D
+
+
 func _physics_process(delta: float) -> void:
 	var tree := get_tree()
 	if tree == null or tree.paused:
 		return
-	var player := tree.get_first_node_in_group("player") as Node2D
-	if player == null or not is_instance_valid(player) or not player.is_inside_tree():
+	var player := _resolve_player_node2d(tree)
+	if player == null:
 		return
 	var to_hero := player.global_position - global_position
-	var dist := to_hero.length()
-	if dist > magnet_radius:
+	var dist_sq := to_hero.length_squared()
+	var r := magnet_radius
+	var r_sq := r * r
+	if dist_sq > r_sq:
 		_pull_velocity = _pull_velocity.move_toward(Vector2.ZERO, magnet_deceleration * delta)
 		if _pull_velocity.length_squared() > 0.0001:
 			global_position += _pull_velocity * delta
 		return
-	if dist < 1.0:
+	if dist_sq < 1.0:
 		return
-	var inward := 1.0 - (dist / magnet_radius)
+	var dist := sqrt(dist_sq)
+	var inward := 1.0 - (dist / r)
 	var target_speed := lerpf(magnet_speed_near_edge, magnet_speed_near_hero, pow(inward, 1.65))
 	var desired_vel: Vector2 = (to_hero / dist) * target_speed
 	_pull_velocity = _pull_velocity.move_toward(desired_vel, magnet_acceleration * delta)

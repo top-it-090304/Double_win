@@ -675,6 +675,9 @@ func handle_location_changed(new_location: Events.LOCATION):
 		reset_archery_preparation()
 		_finalize_expedition_losses_snapshot()
 		SaveManager.reset_island_chest_progress_after_expedition()
+		var _isl_ret := IslandProgress.story_island_index_from_location(prev_location)
+		if _isl_ret >= 1:
+			IslandProgress.reset_zone_save_for_island_if_boss_alive(_isl_ret)
 		SaveManager.expedition_return_count += 1
 		expedition_return_count_incremented = true
 		Events.pending_healer_dialogue_after_expedition = true
@@ -692,6 +695,9 @@ func handle_location_changed(new_location: Events.LOCATION):
 			reset_archery_preparation()
 			_finalize_expedition_losses_snapshot()
 			SaveManager.reset_island_chest_progress_after_expedition()
+			var _isl_menu := IslandProgress.story_island_index_from_location(SaveManager.resume_game_location as Events.LOCATION)
+			if _isl_menu >= 1:
+				IslandProgress.reset_zone_save_for_island_if_boss_alive(_isl_menu)
 			SaveManager.expedition_return_count += 1
 			expedition_return_count_incremented = true
 			Events.pending_healer_dialogue_after_expedition = true
@@ -939,12 +945,17 @@ func _spawn_ore_pickup_at_impl(world_pos: Vector2, amount: int, draw_under_node:
 
 ## Осколки сердцевины после босса острова (story_island 1..5). Не режутся лимитом руды за поход.
 func spawn_boss_ore_sparks_at(world_pos: Vector2, story_island: int, draw_under_node: Node2D = null) -> void:
-	call_deferred("_spawn_boss_ore_sparks_at_impl", world_pos, story_island, draw_under_node)
-
-
-func _spawn_boss_ore_sparks_at_impl(world_pos: Vector2, story_island: int, draw_under_node: Node2D) -> void:
 	var count := BalanceConfig.get_boss_defeat_ore_spark_count(story_island)
-	if count <= 0:
+	spawn_boss_ore_sparks_count_at(world_pos, count, draw_under_node)
+
+
+## То же, что после босса (`boss_ore_spark`), но явное число осколков — например доля за очистку зоны у сундуков.
+func spawn_boss_ore_sparks_count_at(world_pos: Vector2, spark_count: int, draw_under_node: Node2D = null) -> void:
+	call_deferred("_spawn_boss_ore_sparks_count_impl", world_pos, spark_count, draw_under_node)
+
+
+func _spawn_boss_ore_sparks_count_impl(world_pos: Vector2, spark_count: int, draw_under_node: Node2D) -> void:
+	if spark_count <= 0:
 		return
 	var scene_root: Node = get_tree().current_scene
 	if scene_root == null:
@@ -954,7 +965,7 @@ func _spawn_boss_ore_sparks_at_impl(world_pos: Vector2, story_island: int, draw_
 	if draw_under_node != null and is_instance_valid(draw_under_node) and draw_under_node.get_parent() != null:
 		parent = draw_under_node.get_parent()
 		insert_index = draw_under_node.get_index()
-	for _spark_idx in range(count):
+	for _spark_idx in range(spark_count):
 		var spark: Node = BOSS_ORE_SPARK_SCENE.instantiate()
 		if spark == null:
 			continue

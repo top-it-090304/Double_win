@@ -17,6 +17,8 @@ var _ready_pickup: bool = false
 
 
 func _ready() -> void:
+	if _sprite:
+		_sprite.visible = false
 	call_deferred("_setup_after_physics")
 
 
@@ -29,6 +31,7 @@ func _setup_after_physics() -> void:
 	body_entered.connect(_on_body_entered)
 	_build_frames()
 	if _sprite and _sprite.sprite_frames:
+		_sprite.visible = true
 		_sprite.animation_finished.connect(_on_anim_finished)
 		_sprite.play(&"spawn")
 

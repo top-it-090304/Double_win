@@ -134,7 +134,7 @@ static func _is_spawn_position_free(p: Vector2, parent: Node) -> bool:
 
 
 ## ═══════════════════════════════════════════════════════
-##  РЕСУРСНЫЕ ПИКАПЫ ПРИ ОЧИСТКЕ ЗОНЫ
+##  РЕСУРСНЫЕ ПИКАПЫ ПРИ ОЧИСТКЕ ЗОНЫ (сильные волны у руин / рядом с сундуками на карте)
 ## ═══════════════════════════════════════════════════════
 
 const _ORE_PICKUP_SCENE := preload("res://objects/resource_pickups/ore_pickup.tscn")
@@ -168,6 +168,11 @@ static func _on_zone_cleared_spawn_resources(zone: EncounterZone, parent: Node, 
 	if _MEAT_PICKUP_SCENE != null:
 		for _j in meat_count:
 			_spawn_pickup_near(parent, _MEAT_PICKUP_SCENE, center, rng)
+
+	## Осколки сердцевины как у босса (притяжение к герою), число = 0.2 × боссовский спаун для этого острова.
+	var boss_style_sparks := BalanceConfig.get_encounter_clear_boss_style_ore_spark_count(island_tier)
+	if boss_style_sparks > 0:
+		GameManager.spawn_boss_ore_sparks_count_at(center, boss_style_sparks, null)
 
 	var ore_chance: float = _ore_zone_chance_by_tier[clampi(island_tier - 1, 0, _ore_zone_chance_by_tier.size() - 1)]
 	if rng.randf() < ore_chance:

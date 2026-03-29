@@ -154,7 +154,7 @@ func debug_add_max_hp_and_fill(amount: int) -> void:
 		health_component.set_current_health(max_health)
 	SaveManager.current_health = health_component.current_health if health_component else 0
 	_clear_resume_from_death_if_needed()
-	SaveManager.save_game()
+	SaveManager.request_save_game_deferred()
 	_refresh_health_bar_ui()
 	health_changed.emit(health)
 
@@ -167,7 +167,7 @@ func fill_health_to_max_persistent() -> void:
 	health_component.set_current_health(max_health)
 	SaveManager.current_health = max_health
 	_clear_resume_from_death_if_needed()
-	SaveManager.save_game()
+	SaveManager.request_save_game_deferred()
 	_refresh_health_bar_ui()
 	health_changed.emit(health)
 
@@ -495,7 +495,7 @@ func heal(amount: int, persist: bool = true) -> void:
 	if persist:
 		SaveManager.current_health = health_component.current_health if health_component else 0
 		_clear_resume_from_death_if_needed()
-		SaveManager.save_game()
+		SaveManager.request_save_game_deferred()
 	health_changed.emit(health)
 	if not persist:
 		_suppress_health_save = false
@@ -532,7 +532,7 @@ func _on_health_changed(_current_health):
 		return
 	SaveManager.current_health = health_component.current_health if health_component else 0
 	_clear_resume_from_death_if_needed()
-	SaveManager.save_game()
+	SaveManager.request_save_game_deferred()
 	
 func apply_paralysis(duration_sec: float) -> void:
 	_paralysis_time = maxf(_paralysis_time, duration_sec)
@@ -557,7 +557,7 @@ func gain_exp(amount: int, persist: bool = true):
 	if persist:
 		SaveManager.current_level = level
 		SaveManager.current_exp = exp
-		SaveManager.save_game()
+		SaveManager.request_save_game_deferred()
 	if not persist:
 		_suppress_health_save = false
 
