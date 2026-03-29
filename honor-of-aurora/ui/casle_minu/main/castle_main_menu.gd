@@ -26,6 +26,8 @@ const _PATH_MAIN_ACTIONS := "CastleMenuPanel/Center/Frame/InnerMargin/InnerVBox/
 const _PATH_HIRE_VBOX := "HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox"
 const _PATH_UPGRADE_GRID := "UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid"
 const _PATH_CARAVAN_VBOX := "CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox"
+const _PATH_CARAVAN_SUMMARY := "%s/CaravanSummaryVBox" % _PATH_CARAVAN_VBOX
+const _CARAVAN_DOT_SLOTS_MAX := 12
 
 var _crown_help_layer: CanvasLayer
 var _crown_icon_aspect: AspectRatioContainer
@@ -33,6 +35,24 @@ var _crown_title_icon: TextureRect
 var _crown_title_name_lbl: Label
 var _crown_title_sub_lbl: Label
 var _caravan_brief: RichTextLabel
+var _caravan_details_scroll: ScrollContainer
+var _caravan_details_btn: Button
+var _caravan_details_expanded: bool = false
+var _caravan_status_line: Label
+var _caravan_expedition_caption: Label
+var _caravan_dot_row: HBoxContainer
+var _caravan_rewards_line: Label
+var _caravan_pending_hint: Label
+var _caravan_warning_line: Label
+var _caravan_order_title: Label
+var _caravan_order_ore_lbl: Label
+var _caravan_order_ore_bar: ProgressBar
+var _caravan_order_dl_lbl: Label
+var _caravan_order_dl_bar: ProgressBar
+var _caravan_dot_panels: Array[Panel] = []
+var _caravan_dot_style_fill: StyleBoxFlat
+var _caravan_dot_style_dim: StyleBoxFlat
+var _caravan_dot_style_hold: StyleBoxFlat
 
 
 func _apply_dialogue_default_font_to_richtext(rtl: RichTextLabel) -> void:
@@ -48,12 +68,16 @@ func _ready() -> void:
 	_refresh_hire_buy_ui()
 	_build_crown_title_strip()
 	_build_crown_help_modal()
-	_bind_caravan_brief()
+	_setup_caravan_panel_nodes()
 	_refresh_crown_title_strip()
 	if not Events.crown_title_changed.is_connected(_on_crown_title_changed_ui):
 		Events.crown_title_changed.connect(_on_crown_title_changed_ui)
 	if not Events.crown_displeasure_changed.is_connected(_on_crown_displeasure_changed_ui):
 		Events.crown_displeasure_changed.connect(_on_crown_displeasure_changed_ui)
+	if not Events.caravan_arrived.is_connected(_on_caravan_event_refresh_ui):
+		Events.caravan_arrived.connect(_on_caravan_event_refresh_ui)
+	if not Events.caravan_dispatched.is_connected(_on_caravan_event_refresh_ui):
+		Events.caravan_dispatched.connect(_on_caravan_event_refresh_ui)
 	if not visibility_changed.is_connected(_on_castle_root_visibility_changed):
 		visibility_changed.connect(_on_castle_root_visibility_changed)
 
@@ -67,18 +91,22 @@ func _on_castle_root_visibility_changed() -> void:
 
 func _on_crown_title_changed_ui(_idx: int, _name: String) -> void:
 	_refresh_crown_title_strip()
-	if _caravan_brief:
-		var csp := get_node_or_null("CaravanSelectPanel") as Control
-		if csp and csp.visible:
-			_refresh_caravan_ui()
+	_refresh_caravan_ui_if_open()
 
 
 func _on_crown_displeasure_changed_ui(_lvl: int) -> void:
 	_refresh_crown_title_strip()
-	if _caravan_brief:
-		var csp := get_node_or_null("CaravanSelectPanel") as Control
-		if csp and csp.visible:
-			_refresh_caravan_ui()
+	_refresh_caravan_ui_if_open()
+
+
+func _on_caravan_event_refresh_ui(_a = null, _b = null) -> void:
+	_refresh_caravan_ui_if_open()
+
+
+func _refresh_caravan_ui_if_open() -> void:
+	var csp := get_node_or_null("CaravanSelectPanel") as Control
+	if csp and csp.visible:
+		_refresh_caravan_ui()
 
 
 func reset_castle_menu_state() -> void:
@@ -715,58 +743,232 @@ func _populate_crown_help_panel() -> void:
 	footer.text = "\n".join(tail)
 
 
-func _bind_caravan_brief() -> void:
-	_caravan_brief = get_node_or_null("%s/CaravanBriefScroll/CaravanBrief" % _PATH_CARAVAN_VBOX) as RichTextLabel
+func _setup_caravan_panel_nodes() -> void:
+	_caravan_brief = get_node_or_null("%s/CaravanDetailsScroll/CaravanBrief" % _PATH_CARAVAN_VBOX) as RichTextLabel
 	if _caravan_brief:
 		_apply_dialogue_default_font_to_richtext(_caravan_brief)
+	_caravan_details_scroll = get_node_or_null("%s/CaravanDetailsScroll" % _PATH_CARAVAN_VBOX) as ScrollContainer
+	_caravan_details_btn = get_node_or_null("%s/BtnCaravanDetails" % _PATH_CARAVAN_VBOX) as Button
+	_caravan_status_line = get_node_or_null("%s/CaravanStatusLine" % _PATH_CARAVAN_SUMMARY) as Label
+	_caravan_expedition_caption = get_node_or_null("%s/CaravanExpeditionCaption" % _PATH_CARAVAN_SUMMARY) as Label
+	_caravan_dot_row = get_node_or_null("%s/CaravanDotRow" % _PATH_CARAVAN_SUMMARY) as HBoxContainer
+	_caravan_rewards_line = get_node_or_null("%s/CaravanRewardsLine" % _PATH_CARAVAN_SUMMARY) as Label
+	_caravan_pending_hint = get_node_or_null("%s/CaravanPendingHint" % _PATH_CARAVAN_SUMMARY) as Label
+	_caravan_warning_line = get_node_or_null("%s/CaravanWarningLine" % _PATH_CARAVAN_SUMMARY) as Label
+	_caravan_order_title = get_node_or_null("%s/CaravanOrderPanel/OrderMargin/OrderVBox/CaravanOrderTitle" % _PATH_CARAVAN_SUMMARY) as Label
+	_caravan_order_ore_lbl = get_node_or_null("%s/CaravanOrderPanel/OrderMargin/OrderVBox/CaravanOrderOreLabel" % _PATH_CARAVAN_SUMMARY) as Label
+	_caravan_order_ore_bar = get_node_or_null("%s/CaravanOrderPanel/OrderMargin/OrderVBox/CaravanOrderOreBar" % _PATH_CARAVAN_SUMMARY) as ProgressBar
+	_caravan_order_dl_lbl = get_node_or_null("%s/CaravanOrderPanel/OrderMargin/OrderVBox/CaravanOrderDeadlineLabel" % _PATH_CARAVAN_SUMMARY) as Label
+	_caravan_order_dl_bar = get_node_or_null("%s/CaravanOrderPanel/OrderMargin/OrderVBox/CaravanOrderDeadlineBar" % _PATH_CARAVAN_SUMMARY) as ProgressBar
+	_init_caravan_dot_styles()
+	_build_caravan_dot_widgets()
+	_apply_caravan_details_toggle(false)
 
 
-func _caravan_arrival_rewards_line() -> String:
-	var g := BalanceConfig.get_caravan_supply_gold()
+func _init_caravan_dot_styles() -> void:
+	_caravan_dot_style_fill = StyleBoxFlat.new()
+	_caravan_dot_style_fill.bg_color = Color(0.38, 0.72, 0.95, 1)
+	_caravan_dot_style_fill.set_corner_radius_all(4)
+	_caravan_dot_style_dim = StyleBoxFlat.new()
+	_caravan_dot_style_dim.bg_color = Color(0.18, 0.2, 0.26, 1)
+	_caravan_dot_style_dim.set_corner_radius_all(4)
+	_caravan_dot_style_hold = StyleBoxFlat.new()
+	_caravan_dot_style_hold.bg_color = Color(0.32, 0.36, 0.44, 1)
+	_caravan_dot_style_hold.set_corner_radius_all(4)
+
+
+func _build_caravan_dot_widgets() -> void:
+	if _caravan_dot_row == null:
+		return
+	for c in _caravan_dot_row.get_children():
+		c.queue_free()
+	_caravan_dot_panels.clear()
+	for i in _CARAVAN_DOT_SLOTS_MAX:
+		var p := Panel.new()
+		p.custom_minimum_size = Vector2(32, 10)
+		p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_caravan_dot_row.add_child(p)
+		_caravan_dot_panels.append(p)
+
+
+func _apply_caravan_details_toggle(expanded: bool) -> void:
+	_caravan_details_expanded = expanded
+	if _caravan_details_btn:
+		_caravan_details_btn.text = "Скрыть правила ▲" if expanded else "Подробнее о правилах ▼"
+	if _caravan_details_scroll:
+		_caravan_details_scroll.visible = expanded
+
+
+func _on_caravan_details_pressed() -> void:
+	SoundManager.play_ui_button()
+	_apply_caravan_details_toggle(not _caravan_details_expanded)
+
+
+func _caravan_rules_bbcode() -> String:
+	var interval := BalanceConfig.CARAVAN_EXPEDITION_INTERVAL
+	var lines: PackedStringArray = []
+	lines.append("[b]Титул[/b]: зависит от суммарной руды, отправленной Короне (плашка вверху замка, кнопка «Справка»).")
+	lines.append("")
+	lines.append("[b]Рейсы[/b]: после отъезда каравана следующий прибудет через [color=#9fd4ff]%d[/color] возвратов с острова." % interval)
+	lines.append("")
+	lines.append("[b]Пока караван у причала[/b]: эти возвраты не считаются; срок приказа не уменьшается. «Отпустить порожним» снимает ожидание.")
+	lines.append("")
+	lines.append("[b]Приказ[/b]: сдать руду за лимит походов. Если к концу срока отгружено меньше половины нормы — растёт [color=#ff9a7a]немилость[/color] (макс. %d). Одна отгрузка примерно на [b]120%%[/b] нормы после недобора снижает немилость." % BalanceConfig.DISPLEASURE_MAX_LEVEL)
+	lines.append("")
+	lines.append("[b]Немилость[/b]: меньше золота в жалованье при прибытии каравана.")
+	return "\n".join(lines)
+
+
+func _refresh_caravan_status_and_order() -> void:
+	var interval_cfg := maxi(1, BalanceConfig.CARAVAN_EXPEDITION_INTERVAL)
+	var pending := SaveManager.caravan_pending
+	var exp_left := maxi(0, SaveManager.expeditions_until_caravan)
+	var order := CrownSystem.get_current_order_info()
+
+	if _caravan_status_line:
+		if pending:
+			_caravan_status_line.text = "Караван у причала. Загрузите руду или отпустите порожним."
+		else:
+			if exp_left <= 0:
+				_caravan_status_line.text = "Следующий возврат с острова приведёт караван."
+			elif exp_left == 1:
+				_caravan_status_line.text = "До прибытия каравана остался 1 возврат с острова."
+			else:
+				_caravan_status_line.text = "До прибытия каравана осталось %d возвратов с острова." % exp_left
+
+	if _caravan_expedition_caption:
+		_caravan_expedition_caption.visible = not pending
+
+	if _caravan_pending_hint:
+		_caravan_pending_hint.visible = pending
+
+	if _caravan_dot_row:
+		_caravan_dot_row.visible = not pending
+
+	var g_base := BalanceConfig.get_caravan_supply_gold()
 	var m := BalanceConfig.get_caravan_supply_meat()
 	var dis := SaveManager.crown_displeasure
-	var g_show := int(round(float(g) * BalanceConfig.get_displeasure_gold_mult(dis)))
-	return "При [b]прибытии[/b] каравана на базу вы сразу получаете [color=#e8c97a]%d золота[/color] и [color=#c49a6c]%d мяса[/color] (золото при немилости снижено; сейчас уровень немилости: [color=#ff9a7a]%d[/color])." % [g_show, m, dis]
+	var g_show := int(round(float(g_base) * BalanceConfig.get_displeasure_gold_mult(dis)))
+	if _caravan_rewards_line:
+		var rs := "При следующем прибытии: +%d зол., +%d мяса." % [g_show, m]
+		if dis > 0:
+			rs += " Немилость %d — к золоту применён штраф." % dis
+		_caravan_rewards_line.text = rs
+
+	_refresh_caravan_expedition_dots(interval_cfg, pending, exp_left)
+	_refresh_caravan_order_block(order, pending)
+	_refresh_caravan_warning(order, pending)
 
 
-func _caravan_mechanics_bbcode() -> String:
-	var lines: PackedStringArray = []
-	var interval := BalanceConfig.CARAVAN_EXPEDITION_INTERVAL
-	var pending := SaveManager.caravan_pending
-	var exp_left := SaveManager.expeditions_until_caravan
-	var order := CrownSystem.get_current_order_info()
-	lines.append("[b][color=#e8c97a]Ваш титул[/color][/b]  —  %s" % CrownSystem.get_current_title_name())
-	if SaveManager.crown_displeasure > 0:
-		lines.append("[color=#ff9a7a]Немилость Короны %d[/color]: меньше золота в жалованье при прибытии каравана." % SaveManager.crown_displeasure)
-	lines.append("")
-	lines.append("[b]Что вы получаете при прибытии[/b]")
-	lines.append(_caravan_arrival_rewards_line())
-	lines.append("[b]Как часто приходит караван[/b]")
-	lines.append("После того как караван [b]уехал[/b] с вашей отгрузкой, считаются возвращения с похода: через [color=#9fd4ff]%d[/color] возвращений прибудет следующий рейс." % interval)
-	lines.append("[color=#b0b8c8]Пока у причала стоит караван и ждёт руду, походы [b]не[/b] уменьшают этот счётчик и [b]не[/b] отсчитывают срок приказа. Можно «Отпустить порожним», чтобы снова шло время.[/color]")
-	lines.append("")
-	if pending:
-		lines.append("[b]Сейчас[/b]: караван у причала — отгрузите [color=#9fd4ff]сердцевину[/color] или отпустите пустым.")
-	else:
-		var left := maxi(0, exp_left)
-		if left <= 0:
-			lines.append("[b]Сейчас[/b]: следующее [b]возвращение[/b] с похода приведёт караван Короны.")
+func _refresh_caravan_expedition_dots(interval_cfg: int, pending: bool, exp_left: int) -> void:
+	if _caravan_dot_panels.is_empty():
+		return
+	var n := mini(interval_cfg, _CARAVAN_DOT_SLOTS_MAX)
+	var completed_raw := 0
+	if not pending:
+		completed_raw = clampi(interval_cfg - exp_left, 0, interval_cfg)
+	var filled := 0
+	if not pending and interval_cfg > 0:
+		filled = clampi(int(round(float(completed_raw) * float(n) / float(interval_cfg))), 0, n)
+	for i in _caravan_dot_panels.size():
+		var p := _caravan_dot_panels[i]
+		if i >= n:
+			p.visible = false
+			continue
+		p.visible = true
+		var st: StyleBoxFlat
+		if pending:
+			st = _caravan_dot_style_hold
+		elif i < filled:
+			st = _caravan_dot_style_fill
 		else:
-			lines.append("[b]Сейчас[/b]: до прибытия каравана осталось [color=#9fd4ff]%d[/color] возвращений с похода." % left)
-	lines.append("")
+			st = _caravan_dot_style_dim
+		p.add_theme_stylebox_override("panel", st)
+
+
+func _refresh_caravan_order_block(order: Dictionary, caravan_pending: bool) -> void:
+	if _caravan_order_title == null:
+		return
 	if order.is_empty():
-		lines.append("[b]Приказ Короны[/b] появится с первым же прибытием каравана.")
-	else:
-		var req := int(order.get("ore_required", 0))
-		var sent := int(order.get("ore_sent", 0))
-		var dl := int(order.get("deadline_remaining", 0))
-		lines.append("[b]Текущий приказ[/b]: сдать [color=#9fd4ff]%d[/color] руды (отгружено [color=#9fd4ff]%d[/color])." % [req, sent])
-		lines.append("Срок отсчитывается в [b]походах[/b] после выдачи приказа: осталось [color=#ffb870]%d[/color]." % dl)
-		lines.append("Если срок истечёт и будет отгружено [b]меньше половины[/b] нормы — растёт [color=#ff9a7a]немилость[/color] (до %d)." % BalanceConfig.DISPLEASURE_MAX_LEVEL)
-		lines.append("Перевыполнение (~[b]120%%[/b] нормы за одну отгрузку после недобора) снижает немилость.")
-	lines.append("")
-	lines.append("[b]Титул[/b]: растёт от [b]всей[/b] отправленной Короне руды — см. плашку вверху замка или кнопку «Справка».")
-	return "\n".join(lines)
+		_caravan_order_title.text = "Приказ Короны"
+		if _caravan_order_ore_lbl:
+			if SaveManager.crown_order_index <= 0:
+				_caravan_order_ore_lbl.text = "Появится после первого прибытия каравана."
+			else:
+				_caravan_order_ore_lbl.text = "Нет активного приказа. Новое поручение может прийти с прибытием каравана."
+		if _caravan_order_ore_bar:
+			_caravan_order_ore_bar.visible = false
+		if _caravan_order_dl_lbl:
+			_caravan_order_dl_lbl.visible = false
+		if _caravan_order_dl_bar:
+			_caravan_order_dl_bar.visible = false
+		return
+
+	var req := maxi(1, int(order.get("ore_required", 1)))
+	var sent := maxi(0, int(order.get("ore_sent", 0)))
+	var dl_left := maxi(0, int(order.get("deadline_remaining", 0)))
+	var dl_total := maxi(1, int(order.get("deadline_expeditions", 4)))
+
+	if _caravan_order_ore_bar:
+		_caravan_order_ore_bar.visible = true
+		_caravan_order_ore_bar.max_value = float(req)
+		_caravan_order_ore_bar.value = float(mini(sent, req))
+
+	if _caravan_order_dl_bar:
+		_caravan_order_dl_bar.visible = true
+		_caravan_order_dl_bar.max_value = float(dl_total)
+		_caravan_order_dl_bar.value = float(mini(dl_left, dl_total))
+
+	if sent >= req:
+		_caravan_order_title.text = "Приказ Короны"
+		if _caravan_order_ore_lbl:
+			_caravan_order_ore_lbl.text = "Норма выполнена (%d / %d). Отгрузите караван для следующего цикла." % [sent, req]
+		if _caravan_order_dl_lbl:
+			_caravan_order_dl_lbl.visible = true
+			var extra := ""
+			if caravan_pending:
+				extra = " Срок не идёт, пока караван у причала."
+			_caravan_order_dl_lbl.text = "Новый приказ придёт с очередным прибытием каравана.%s" % extra
+		if _caravan_order_dl_bar:
+			_caravan_order_dl_bar.visible = false
+		return
+
+	_caravan_order_title.text = "Приказ Короны"
+	if _caravan_order_ore_lbl:
+		_caravan_order_ore_lbl.text = "Руда к приказу: %d / %d" % [sent, req]
+
+	if _caravan_order_dl_lbl:
+		_caravan_order_dl_lbl.visible = true
+		var freeze := ""
+		if caravan_pending:
+			freeze = " (на паузе, пока караван у причала)"
+		if dl_left > 0:
+			_caravan_order_dl_lbl.text = "Срок: осталось %d походов из %d.%s" % [dl_left, dl_total, freeze]
+		else:
+			_caravan_order_dl_lbl.text = "Срок походов истёк. Норму всё ещё можно закрыть отгрузкой.%s" % freeze
+
+
+func _refresh_caravan_warning(order: Dictionary, caravan_pending: bool) -> void:
+	if _caravan_warning_line == null:
+		return
+	_caravan_warning_line.visible = false
+	if order.is_empty():
+		return
+	var req := int(order.get("ore_required", 0))
+	var sent := int(order.get("ore_sent", 0))
+	var dl_left := int(order.get("deadline_remaining", 0))
+	if req <= 0:
+		return
+	if sent >= req:
+		return
+	if dl_left != 1:
+		return
+	var half_barrier := int(float(req) * 0.5)
+	if sent >= half_barrier:
+		return
+	_caravan_warning_line.visible = true
+	var freeze := " Срок не идёт, пока караван ждёт у причала." if caravan_pending else ""
+	_caravan_warning_line.text = "Остался 1 поход до конца срока приказа, норма ещё не выполнена.%s" % freeze
 
 
 func _resolve_archer_scene() -> PackedScene:
@@ -866,6 +1068,7 @@ func _open_caravan_select() -> void:
 	if main_panel:
 		main_panel.visible = false
 	_set_main_castle_chrome_visible(false)
+	_apply_caravan_details_toggle(false)
 	_refresh_caravan_ui()
 
 
@@ -889,7 +1092,8 @@ func _refresh_caravan_ui() -> void:
 	var dismiss_btn := get_node_or_null("%s/BtnDismiss" % _PATH_CARAVAN_VBOX) as Button
 
 	if _caravan_brief:
-		_caravan_brief.text = _caravan_mechanics_bbcode()
+		_caravan_brief.text = _caravan_rules_bbcode()
+	_refresh_caravan_status_and_order()
 
 	if ore_lbl:
 		ore_lbl.text = "Руда на складе: %d" % ore_available

@@ -1222,7 +1222,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="CaravanPanel" type="PanelContainer" parent="CaravanSelectPanel/CCenter"]
-custom_minimum_size = Vector2(960, 620)
+custom_minimum_size = Vector2(960, 700)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBox_modal")
 
@@ -1264,21 +1264,128 @@ vertical_alignment = 1
 [node name="SepCar" type="HSeparator" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox"]
 layout_mode = 2
 
-[node name="CaravanBriefScroll" type="ScrollContainer" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox"]
-custom_minimum_size = Vector2(0, 320)
+[node name="CaravanSummaryVBox" type="VBoxContainer" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CaravanStatusLine" type="Label" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanSummaryVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
+theme_override_font_sizes/font_size = 17
+text = "Статус каравана"
+autowrap_mode = 3
+
+[node name="CaravanExpeditionCaption" type="Label" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanSummaryVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.6, 0.68, 1)
+theme_override_font_sizes/font_size = 13
+text = "Возвраты с острова до следующего рейса"
+
+[node name="CaravanDotRow" type="HBoxContainer" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanSummaryVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="CaravanRewardsLine" type="Label" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanSummaryVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 0.98)
+theme_override_font_sizes/font_size = 15
+text = "Жалованье при прибытии"
+autowrap_mode = 3
+
+[node name="CaravanPendingHint" type="Label" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanSummaryVBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.66, 0.74, 1)
+theme_override_font_sizes/font_size = 13
+text = "Пока караван ждёт у причала, походы не приближают следующий рейс и не отсчитывают срок приказа."
+autowrap_mode = 3
+
+[node name="CaravanWarningLine" type="Label" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanSummaryVBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.65, 0.45, 1)
+theme_override_font_sizes/font_size = 14
+text = ""
+autowrap_mode = 3
+
+[node name="CaravanOrderPanel" type="PanelContainer" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanSummaryVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBox_slot")
+
+[node name="OrderMargin" type="MarginContainer" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanSummaryVBox/CaravanOrderPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="OrderVBox" type="VBoxContainer" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanSummaryVBox/CaravanOrderPanel/OrderMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CaravanOrderTitle" type="Label" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanSummaryVBox/CaravanOrderPanel/OrderMargin/OrderVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.84, 0.62, 1)
+theme_override_font_sizes/font_size = 16
+text = "Приказ Короны"
+
+[node name="CaravanOrderOreLabel" type="Label" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanSummaryVBox/CaravanOrderPanel/OrderMargin/OrderVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 0.98)
+theme_override_font_sizes/font_size = 14
+text = "Руда: —"
+
+[node name="CaravanOrderOreBar" type="ProgressBar" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanSummaryVBox/CaravanOrderPanel/OrderMargin/OrderVBox"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+value = 0.0
+show_percentage = false
+
+[node name="CaravanOrderDeadlineLabel" type="Label" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanSummaryVBox/CaravanOrderPanel/OrderMargin/OrderVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 0.98)
+theme_override_font_sizes/font_size = 14
+text = "Срок: —"
+
+[node name="CaravanOrderDeadlineBar" type="ProgressBar" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanSummaryVBox/CaravanOrderPanel/OrderMargin/OrderVBox"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+value = 0.0
+show_percentage = false
+
+[node name="BtnCaravanDetails" type="Button" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBox_menu_n")
+theme_override_styles/hover = SubResource("StyleBox_menu_h")
+theme_override_styles/pressed = SubResource("StyleBox_menu_p")
+theme_override_colors/font_color = Color(0.85, 0.88, 0.94, 1)
+text = "Подробнее о правилах ▼"
+flat = true
+
+[node name="CaravanDetailsScroll" type="ScrollContainer" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox"]
+visible = false
+custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 2
 
-[node name="CaravanBrief" type="RichTextLabel" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanBriefScroll"]
+[node name="CaravanBrief" type="RichTextLabel" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanDetailsScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 bbcode_enabled = true
 fit_content = true
 scroll_active = false
 theme_override_colors/default_color = Color(0.78, 0.82, 0.9, 0.98)
-theme_override_font_sizes/normal_font_size = 15
+theme_override_font_sizes/normal_font_size = 14
 text = ""
 
 [node name="OreAvailable" type="Label" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox"]
@@ -1342,6 +1449,7 @@ flat = true
 [connection signal="pressed" from="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_castle/ColumnCastle/BtnCastle" to="." method="_on_upgrade_castle_pressed"]
 [connection signal="pressed" from="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_barracks/ColumnBarracks/BtnBarracks" to="." method="_on_upgrade_barracks_pressed"]
 [connection signal="pressed" from="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_archery/ColumnArchery/BtnArchery" to="." method="_on_upgrade_archery_pressed"]
+[connection signal="pressed" from="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/BtnCaravanDetails" to="." method="_on_caravan_details_pressed"]
 [connection signal="pressed" from="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanTop/caravan_back_btn" to="." method="_on_caravan_back_pressed"]
 [connection signal="pressed" from="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/BtnRow/BtnSendAll" to="." method="_on_send_all_pressed"]
 [connection signal="pressed" from="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/BtnRow/BtnSendHalf" to="." method="_on_send_half_pressed"]
