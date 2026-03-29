@@ -1,8 +1,12 @@
 extends Control
 
 const _BarracksQuotes := preload("res://ui/casle_minu/barracks/barracks_quotes.gd")
+const _MENU_FONT: Font = preload("res://ui/font/AlumniSansCollegiateOne-Italic.ttf")
 
-var _armor_status_label: Label
+var _armor_wear_block: PanelContainer
+var _armor_status_prefix: Label
+var _armor_status_pct: Label
+var _armor_penalty_label: Label
 var _armor_repair_btn: Button
 var _armor_repair_cost_label: Label
 var _supply_status_label: Label
@@ -10,6 +14,41 @@ var _supply_status_label: Label
 
 func get_hud() -> Node:
 	return GameplayFacade.get_hud(get_tree())
+
+
+## Тот же силуэт, что у `barracks_back_btn` / нижних кнопок меню (StyleBoxFlat_menu_btn*).
+func _armor_row_button_style(state: int) -> StyleBoxFlat:
+	var s := StyleBoxFlat.new()
+	s.set_border_width_all(1)
+	s.set_corner_radius_all(8.0)
+	s.content_margin_left = 12.0
+	s.content_margin_top = 5.0
+	s.content_margin_right = 12.0
+	s.content_margin_bottom = 5.0
+	match state:
+		1:
+			s.bg_color = Color(0.2, 0.24, 0.33, 1)
+			s.border_color = Color(0.45, 0.55, 0.68, 0.95)
+			s.shadow_color = Color(0, 0, 0, 0.3)
+			s.shadow_size = 5
+			s.shadow_offset = Vector2(0, 2)
+		2:
+			s.bg_color = Color(0.11, 0.13, 0.18, 1)
+			s.border_color = Color(0.25, 0.3, 0.4, 1)
+			s.shadow_color = Color(0, 0, 0, 0.25)
+			s.shadow_size = 4
+			s.shadow_offset = Vector2(0, 2)
+		_:
+			s.bg_color = Color(0.16, 0.19, 0.26, 0.96)
+			s.border_color = Color(0.32, 0.4, 0.52, 0.9)
+			s.shadow_color = Color(0, 0, 0, 0.25)
+			s.shadow_size = 4
+			s.shadow_offset = Vector2(0, 2)
+	return s
+
+
+func _durability_theme_color(color_hex: String) -> Color:
+	return Color("#" + color_hex)
 
 
 func _ready() -> void:
@@ -103,9 +142,9 @@ func _build_armor_repair_ui() -> void:
 
 	var section := VBoxContainer.new()
 	section.name = "ArmorRepairSection"
-	section.add_theme_constant_override("separation", 6)
+	section.add_theme_constant_override("separation", 4)
 	section.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	section.offset_top = -82.0
+	section.offset_top = -78.0
 	section.offset_left = 32.0
 	section.offset_right = -32.0
 	section.offset_bottom = -6.0
@@ -122,33 +161,64 @@ func _build_armor_repair_ui() -> void:
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	section.add_child(row)
 
-	_armor_status_label = Label.new()
-	_armor_status_label.add_theme_color_override("font_color", Color(0.78, 0.82, 0.9, 0.95))
-	_armor_status_label.add_theme_font_size_override("font_size", 22)
-	_armor_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(_armor_status_label)
+	_armor_wear_block = PanelContainer.new()
+	_armor_wear_block.add_theme_stylebox_override("panel", _armor_row_button_style(0))
+	_armor_wear_block.custom_minimum_size = Vector2(0, 32)
+	_armor_wear_block.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_armor_wear_block.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(_armor_wear_block)
+
+	var wear_row := HBoxContainer.new()
+	wear_row.add_theme_constant_override("separation", 8)
+	wear_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	_armor_wear_block.add_child(wear_row)
+
+	_armor_status_prefix = Label.new()
+	_armor_status_prefix.text = "Снаряжение:"
+	_armor_status_prefix.add_theme_font_override("font", _MENU_FONT)
+	_armor_status_prefix.add_theme_font_size_override("font_size", 20)
+	_armor_status_prefix.add_theme_color_override("font_color", Color(0.78, 0.82, 0.9, 0.95))
+	wear_row.add_child(_armor_status_prefix)
+
+	_armor_status_pct = Label.new()
+	_armor_status_pct.add_theme_font_override("font", _MENU_FONT)
+	_armor_status_pct.add_theme_font_size_override("font_size", 20)
+	wear_row.add_child(_armor_status_pct)
+
+	_armor_penalty_label = Label.new()
+	_armor_penalty_label.add_theme_font_override("font", _MENU_FONT)
+	_armor_penalty_label.add_theme_font_size_override("font_size", 16)
+	_armor_penalty_label.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 0.85))
+	wear_row.add_child(_armor_penalty_label)
 
 	_armor_repair_cost_label = Label.new()
+	_armor_repair_cost_label.add_theme_font_override("font", _MENU_FONT)
 	_armor_repair_cost_label.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 0.82))
-	_armor_repair_cost_label.add_theme_font_size_override("font_size", 20)
+	_armor_repair_cost_label.add_theme_font_size_override("font_size", 18)
 	row.add_child(_armor_repair_cost_label)
 
 	_armor_repair_btn = Button.new()
-	_armor_repair_btn.custom_minimum_size = Vector2(160, 38)
-	_armor_repair_btn.add_theme_font_size_override("font_size", 24)
+	_armor_repair_btn.custom_minimum_size = Vector2(152, 32)
+	_armor_repair_btn.add_theme_font_override("font", _MENU_FONT)
+	_armor_repair_btn.add_theme_font_size_override("font_size", 22)
 	_armor_repair_btn.add_theme_color_override("font_color", Color(0.98, 0.95, 0.88, 1))
+	_armor_repair_btn.add_theme_stylebox_override("normal", _armor_row_button_style(0))
+	_armor_repair_btn.add_theme_stylebox_override("hover", _armor_row_button_style(1))
+	_armor_repair_btn.add_theme_stylebox_override("pressed", _armor_row_button_style(2))
+	_armor_repair_btn.add_theme_stylebox_override("disabled", _armor_row_button_style(0))
 	_armor_repair_btn.pressed.connect(_on_repair_armor_pressed)
 	row.add_child(_armor_repair_btn)
 
 	_supply_status_label = Label.new()
+	_supply_status_label.add_theme_font_override("font", _MENU_FONT)
 	_supply_status_label.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 0.75))
-	_supply_status_label.add_theme_font_size_override("font_size", 18)
+	_supply_status_label.add_theme_font_size_override("font_size", 16)
 	_supply_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	section.add_child(_supply_status_label)
 
 
 func _refresh_armor_repair_section() -> void:
-	if _armor_status_label == null:
+	if _armor_status_pct == null:
 		return
 	var dur := CrownSystem.get_armor_durability()
 	var max_dur := BalanceConfig.ARMOR_MAX_DURABILITY
@@ -162,12 +232,14 @@ func _refresh_armor_repair_section() -> void:
 	else:
 		color_hex = "88cc88"
 
-	var penalty := CrownSystem.get_armor_block_penalty()
-	var penalty_text := ""
-	if penalty > 0.001:
-		penalty_text = "  (блок +%.0f%% урона)" % (penalty * 100.0)
+	_armor_status_pct.text = "%d%%" % pct
+	_armor_status_pct.add_theme_color_override("font_color", _durability_theme_color(color_hex))
 
-	_armor_status_label.text = "Снаряжение: [color=%s]%d%%[/color]%s" % [color_hex, pct, penalty_text]
+	var penalty := CrownSystem.get_armor_block_penalty()
+	if penalty > 0.001:
+		_armor_penalty_label.text = "  (блок +%.0f%% урона)" % (penalty * 100.0)
+	else:
+		_armor_penalty_label.text = ""
 
 	var cost := CrownSystem.get_armor_repair_cost()
 	var g: int = int(cost.get("gold", 0))

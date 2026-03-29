@@ -14,6 +14,7 @@ extends "res://ui/HUD/game_hud.gd"
 @export var camp_codex_open_button: Button
 
 var _codex_badge: TextureRect
+var _armor_hud_root: Control
 var _armor_hud_label: Label
 var _supply_hud_label: Label
 
@@ -107,12 +108,8 @@ func _build_supply_hud() -> void:
 	if tex_rect == null:
 		return
 
-	_armor_hud_label = Label.new()
-	_armor_hud_label.add_theme_font_size_override("font_size", 18)
-	_armor_hud_label.add_theme_color_override("font_color", Color(0.82, 0.86, 0.92, 0.85))
-	_armor_hud_label.position = Vector2(154, 82)
-	_armor_hud_label.size = Vector2(260, 24)
-	tex_rect.add_child(_armor_hud_label)
+	_armor_hud_root = get_node_or_null("ArmorDurabilityHud") as Control
+	_armor_hud_label = get_node_or_null("ArmorDurabilityHud/ArmorPctLabel") as Label
 
 	_supply_hud_label = Label.new()
 	_supply_hud_label.add_theme_font_size_override("font_size", 18)
@@ -124,8 +121,8 @@ func _build_supply_hud() -> void:
 
 func _refresh_supply_hud() -> void:
 	var on_base := Events.current_location == Events.LOCATION.BASE
-	if _armor_hud_label:
-		_armor_hud_label.visible = on_base
+	if _armor_hud_root:
+		_armor_hud_root.visible = on_base
 	if _supply_hud_label:
 		_supply_hud_label.visible = on_base
 	if not on_base:
@@ -142,7 +139,7 @@ func _refresh_supply_hud() -> void:
 		else:
 			c = Color(0.55, 0.8, 0.55)
 		_armor_hud_label.add_theme_color_override("font_color", c)
-		_armor_hud_label.text = "Броня: %d%%" % pct
+		_armor_hud_label.text = "%d%%" % pct
 
 	if _supply_hud_label:
 		var d := SaveManager.crown_displeasure

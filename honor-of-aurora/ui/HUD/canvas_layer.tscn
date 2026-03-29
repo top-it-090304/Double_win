@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://blv7sgugmhgu4"]
+[gd_scene load_steps=21 format=3 uid="uid://blv7sgugmhgu4"]
 
 [ext_resource type="PackedScene" uid="uid://cnpf1px7wa4c4" path="res://ui/hp_bar/hp_bar.tscn" id="1_2ux7j"]
 [ext_resource type="Script" uid="uid://cxjk4ntx4c07e" path="res://ui/HUD/HUD.gd" id="1_smmqc"]
@@ -8,22 +8,23 @@
 [ext_resource type="PackedScene" uid="uid://c5sanv15hjusy" path="res://ui/gold/gold.tscn" id="2_5vgpw"]
 [ext_resource type="Texture2D" uid="uid://cjha34kojfsit" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_08.png" id="4_ap7xm"]
 [ext_resource type="Texture2D" uid="uid://8bdu2gxxatje" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_11.png" id="4_codex_icon"]
-[ext_resource type="PackedScene" path="res://ui/camp_codex/camp_codex_panel.tscn" id="camp_codex_scene"]
 [ext_resource type="PackedScene" uid="uid://cmfxxbaugd182" path="res://ui/level_menu/teleport_menu.tscn" id="5_ap7xm"]
 [ext_resource type="PackedScene" uid="uid://b8krmenu1brrx" path="res://ui/casle_minu/barracks/barracks_menu.tscn" id="6a_barracks"]
-[ext_resource type="PackedScene" uid="uid://bdhapr120iqry" path="res://ui/casle_minu/main/castle_main_menu.tscn" id="6_swbn3"]
 [ext_resource type="PackedScene" path="res://ui/casle_minu/monastery/monastery_menu.tscn" id="6b_mona"]
 [ext_resource type="PackedScene" path="res://ui/casle_minu/archery/archery_menu.tscn" id="6c_arch"]
+[ext_resource type="PackedScene" uid="uid://bdhapr120iqry" path="res://ui/casle_minu/main/castle_main_menu.tscn" id="6_swbn3"]
 [ext_resource type="PackedScene" uid="uid://duvvelmi0nd4g" path="res://ui/squad/squad_orders_menu.tscn" id="7a_squad"]
 [ext_resource type="PackedScene" uid="uid://cxrosschd3sn8" path="res://ui/dialogue/dialogue_window.tscn" id="7_dialogue"]
 [ext_resource type="PackedScene" uid="uid://br3bcwtq1i8ae" path="res://ui/mobile_touch_controls/mobile_touch_controls.tscn" id="8_mobile"]
 [ext_resource type="PackedScene" uid="uid://dbugmenu001" path="res://ui/debug_menu/debug_menu.tscn" id="9_debug"]
 [ext_resource type="PackedScene" path="res://ui/casle_minu/pay_shop/pay_shop_menu.tscn" id="10_pay"]
+[ext_resource type="PackedScene" uid="uid://b8q3e34lq86dv" path="res://ui/camp_codex/camp_codex_panel.tscn" id="camp_codex_scene"]
+[ext_resource type="Texture2D" uid="uid://dgwuk12s7shin" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_06.png" id="shield_hud_icon"]
 
 [node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("teleport_menu", "castle_menu", "barracks_menu", "monastery_menu", "archery_menu", "payshop_menu", "squad_orders_menu", "debug_menu", "camp_codex_panel", "camp_codex_open_button") groups=["hud"]]
-visible = false
-layer = 5
 process_mode = 3
+layer = 5
+visible = false
 script = ExtResource("1_smmqc")
 teleport_menu = NodePath("teleport_menu")
 castle_menu = NodePath("CastleMainMenu")
@@ -45,55 +46,79 @@ grow_vertical = 2
 
 [node name="hp_bar" parent="TextureRect" instance=ExtResource("1_2ux7j")]
 layout_mode = 0
-offset_left = 151.0
+offset_left = 310.0
 offset_top = 34.0
-offset_right = 363.0
+offset_right = 522.0
 offset_bottom = 74.0
 
-[node name="Gold" parent="." instance=ExtResource("2_5vgpw")]
-offset_left = 388.0
+[node name="ArmorDurabilityHud" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(100, 72)
+offset_left = 158.0
 offset_top = 18.0
-offset_right = 572.0
+offset_right = 258.0
+offset_bottom = 90.0
+tooltip_text = "Износ снаряжения. Ремонт в оружейной."
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="ShieldIcon" type="TextureRect" parent="ArmorDurabilityHud"]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("shield_hud_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ArmorPctLabel" type="Label" parent="ArmorDurabilityHud"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+text = "100%"
+vertical_alignment = 1
+
+[node name="Gold" parent="." instance=ExtResource("2_5vgpw")]
+offset_left = 536.0
+offset_top = 18.0
+offset_right = 720.0
 offset_bottom = 90.0
 
 [node name="OreCounter" parent="." instance=ExtResource("2c_ore")]
-offset_left = 584.0
+offset_left = 689.0
 offset_top = 18.0
-offset_right = 768.0
+offset_right = 873.0
 offset_bottom = 90.0
 
 [node name="MeatCounter" parent="." instance=ExtResource("2a_meat")]
-offset_left = 780.0
+offset_left = 858.0
 offset_top = 18.0
-offset_right = 964.0
+offset_right = 1042.0
 offset_bottom = 90.0
 
 [node name="WoodCounter" parent="." instance=ExtResource("2b_wood")]
-offset_left = 976.0
+offset_left = 1017.0
 offset_top = 18.0
-offset_right = 1160.0
+offset_right = 1201.0
 offset_bottom = 90.0
 
 [node name="Button" type="Button" parent="."]
-offset_left = 56.0
+offset_left = 44.0
 offset_top = 18.0
-offset_right = 128.0
+offset_right = 116.0
 offset_bottom = 90.0
 icon = ExtResource("4_ap7xm")
 flat = true
 
 [node name="CodexOpenButton" type="Button" parent="."]
-offset_left = 1172.0
+offset_left = 1176.0
 offset_top = 18.0
-offset_right = 1244.0
+offset_right = 1248.0
 offset_bottom = 90.0
 tooltip_text = "Книга лагеря: сводка, досье, архив, хронология, предметы"
-focus_mode = 2
 icon = ExtResource("4_codex_icon")
 flat = true
 
 [node name="CampCodexPanel" parent="." instance=ExtResource("camp_codex_scene")]
-visible = false
 
 [node name="teleport_menu" parent="." instance=ExtResource("5_ap7xm")]
 process_mode = 3
@@ -124,6 +149,5 @@ visible = false
 visible = false
 
 [node name="DebugMenu" parent="." instance=ExtResource("9_debug")]
-visible = false
 
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

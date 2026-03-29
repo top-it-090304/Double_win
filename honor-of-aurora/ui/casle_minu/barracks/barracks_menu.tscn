@@ -143,10 +143,10 @@ corner_radius_top_left = 10.0
 corner_radius_top_right = 10.0
 corner_radius_bottom_left = 10.0
 corner_radius_bottom_right = 10.0
-content_margin_left = 12.0
-content_margin_top = 12.0
-content_margin_right = 12.0
-content_margin_bottom = 12.0
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_portrait_frame"]
 bg_color = Color(0.08, 0.09, 0.12, 1)
@@ -257,7 +257,7 @@ anchor_bottom = 1.0
 offset_left = 32.0
 offset_top = 196.0
 offset_right = -32.0
-offset_bottom = -88.0
+offset_bottom = -96.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 0
@@ -270,7 +270,7 @@ theme_override_constants/separation = 20
 alignment = 0
 
 [node name="slot_sword" type="PanelContainer" parent="BarracksPanel/MainActions/SlotsRow"]
-custom_minimum_size = Vector2(280, 318)
+custom_minimum_size = Vector2(280, 218)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
@@ -278,11 +278,11 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_hire_slot")
 
 [node name="ColumnSword" type="VBoxContainer" parent="BarracksPanel/MainActions/SlotsRow/slot_sword"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 alignment = 0
 
 [node name="PortraitFrameSword" type="Panel" parent="BarracksPanel/MainActions/SlotsRow/slot_sword/ColumnSword"]
-custom_minimum_size = Vector2(136, 136)
+custom_minimum_size = Vector2(84, 84)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_portrait_frame")
@@ -292,10 +292,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 8.0
-offset_top = 8.0
-offset_right = -8.0
-offset_bottom = -8.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = -6.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 0
@@ -307,33 +307,33 @@ stretch_mode = 5
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.88, 0.84, 1)
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 26
 horizontal_alignment = 1
 text = "Заточка"
 
 [node name="SwordBuffDesc" type="Label" parent="BarracksPanel/MainActions/SlotsRow/slot_sword/ColumnSword"]
-custom_minimum_size = Vector2(0, 34)
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 0.95)
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 text = ""
 
 [node name="BtnSharpenSword" type="Button" parent="BarracksPanel/MainActions/SlotsRow/slot_sword/ColumnSword"]
-custom_minimum_size = Vector2(176, 54)
+custom_minimum_size = Vector2(168, 40)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/h_separation = 10
-theme_override_constants/icon_max_width = 40
+theme_override_constants/h_separation = 8
+theme_override_constants/icon_max_width = 34
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
 theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
 theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
 theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 34
+theme_override_font_sizes/font_size = 30
 theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
 theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")
@@ -345,7 +345,7 @@ icon_alignment = 0
 expand_icon = false
 
 [node name="slot_shield" type="PanelContainer" parent="BarracksPanel/MainActions/SlotsRow"]
-custom_minimum_size = Vector2(280, 318)
+custom_minimum_size = Vector2(280, 218)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
@@ -353,11 +353,11 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_hire_slot")
 
 [node name="ColumnShield" type="VBoxContainer" parent="BarracksPanel/MainActions/SlotsRow/slot_shield"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 alignment = 0
 
 [node name="PortraitFrameShield" type="Panel" parent="BarracksPanel/MainActions/SlotsRow/slot_shield/ColumnShield"]
-custom_minimum_size = Vector2(136, 136)
+custom_minimum_size = Vector2(84, 84)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_portrait_frame")
@@ -367,10 +367,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 8.0
-offset_top = 8.0
-offset_right = -8.0
-offset_bottom = -8.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = -6.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 0
@@ -382,33 +382,33 @@ stretch_mode = 5
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.88, 0.84, 1)
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 26
 horizontal_alignment = 1
 text = "Щит"
 
 [node name="ShieldBuffDesc" type="Label" parent="BarracksPanel/MainActions/SlotsRow/slot_shield/ColumnShield"]
-custom_minimum_size = Vector2(0, 34)
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 0.95)
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 text = ""
 
 [node name="BtnRepairShield" type="Button" parent="BarracksPanel/MainActions/SlotsRow/slot_shield/ColumnShield"]
-custom_minimum_size = Vector2(176, 54)
+custom_minimum_size = Vector2(168, 40)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/h_separation = 10
-theme_override_constants/icon_max_width = 40
+theme_override_constants/h_separation = 8
+theme_override_constants/icon_max_width = 34
 theme_override_colors/font_color = Color(0.98, 0.95, 0.88, 1)
 theme_override_colors/font_hover_color = Color(1, 0.99, 0.94, 1)
 theme_override_colors/font_pressed_color = Color(0.88, 0.84, 0.72, 1)
 theme_override_colors/font_hover_pressed_color = Color(0.75, 0.7, 0.58, 1)
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 34
+theme_override_font_sizes/font_size = 30
 theme_override_styles/normal = SubResource("StyleBoxFlat_cta_gold")
 theme_override_styles/hover = SubResource("StyleBoxFlat_cta_gold_h")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_gold_p")

@@ -26,6 +26,7 @@ texture_progress = ExtResource("2_lsnvh")
 script = ExtResource("3_lsnvh")
 
 [node name="Label" type="Label" parent="."]
+visible = false
 layout_mode = 0
 offset_left = 3.0
 offset_top = 8.0
