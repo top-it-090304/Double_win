@@ -174,7 +174,7 @@ func _process_follow(_delta: float) -> void:
 		return
 
 	if SquadOrders.mode == SquadOrders.Mode.PATROL:
-		## На островах пешки не спавнятся из экономики; единственная — сюжетный юноша.
+		## На островах рабочие не спавнятся из экономики; единственный — сюжетный юноша.
 		## Режим PATROL здесь — наследие «работы» на базе: иначе он кружит и не дерётся.
 		if Events.current_location != Events.LOCATION.BASE and is_in_group("ally_pawn"):
 			pass

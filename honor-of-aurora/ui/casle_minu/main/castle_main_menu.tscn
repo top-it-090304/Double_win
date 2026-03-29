@@ -403,7 +403,7 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.78, 0.88, 0.92)
 theme_override_font_sizes/font_size = 14
-text = "Приказы Короны, титул, руда"
+text = "Приказы Короны, титул, Сердцевина"
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -500,7 +500,7 @@ autowrap_mode = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.88, 0.72, 1)
 theme_override_font_sizes/font_size = 16
-text = "Все типы — золото + руда"
+text = "Все типы — золото + Сердцевина"
 horizontal_alignment = 1
 
 [node name="HireSlotsRow" type="HBoxContainer" parent="HireSelectPanel/HCenter/HirePanel/HireInner/HireVBox"]
@@ -761,7 +761,7 @@ theme_override_colors/font_color = Color(0.9, 0.88, 0.84, 1)
 theme_override_font_sizes/font_size = 17
 horizontal_alignment = 1
 autowrap_mode = 3
-text = "Монастырь"
+text = "Церковь"
 
 [node name="LabelTier" type="Label" parent="UpgradeSelectPanel/UCenter/UpgradePanel/UpgradeInner/UpgradeVBox/UpgradeScroll/UpgradeGrid/slot_monastery/ColumnMonastery"]
 layout_mode = 2
@@ -1334,7 +1334,7 @@ text = "Приказ Короны"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 0.98)
 theme_override_font_sizes/font_size = 14
-text = "Руда: —"
+text = "Сердцевина: —"
 
 [node name="CaravanOrderOreBar" type="ProgressBar" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox/CaravanSummaryVBox/CaravanOrderPanel/OrderMargin/OrderVBox"]
 custom_minimum_size = Vector2(0, 22)
@@ -1392,7 +1392,7 @@ text = ""
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.88, 1.0, 1)
 theme_override_font_sizes/font_size = 18
-text = "Руда на складе: 0"
+text = "Сердцевина на складе: 0"
 horizontal_alignment = 1
 
 [node name="BtnRow" type="HBoxContainer" parent="CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanVBox"]

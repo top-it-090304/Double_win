@@ -284,7 +284,7 @@ text = "Книга лагеря"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.66, 0.74, 0.95)
 theme_override_font_sizes/font_size = 14
-text = "Сводка, досье, архив, хронология и предметы"
+text = "Сводка, досье, архив, хронология, предметы и справка"
 
 [node name="CloseButton" type="Button" parent="SafeMargin/PanelRoot/InnerMargin/VBox/HeaderRow"]
 custom_minimum_size = Vector2(112, 40)

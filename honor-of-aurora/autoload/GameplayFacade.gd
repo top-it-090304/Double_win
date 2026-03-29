@@ -142,7 +142,7 @@ func can_receive_monk_heal(body: Node) -> bool:
 		return true
 	if body.is_in_group("healer"):
 		return true
-	## Отряд: лучники, копейщики, пешки — те же боевые юниты, что и герой (character_unit).
+	## Отряд: лучники, копейщики, рабочие — те же боевые юниты, что и герой (character_unit).
 	if body.is_in_group("ally") and body.is_in_group("character_unit"):
 		return true
 	return false

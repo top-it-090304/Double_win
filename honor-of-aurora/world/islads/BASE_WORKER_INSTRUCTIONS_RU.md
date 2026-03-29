@@ -45,7 +45,7 @@
 
 ## Где лежит код движения рабочего
 
-`ally/pawn/scripts/pawn_base.gd` — путь считается через **`NavigationServer2D.map_get_path`**, слои как у **`NavigationAgent2D`** на пешке.
+`ally/pawn/scripts/pawn_base.gd` — путь считается через **`NavigationServer2D.map_get_path`**, слои как у **`NavigationAgent2D`** у рабочего (на узле).
 
 ## Ошибка `merge a navigation mesh polygon edge` / `merge_rasterizer_cell_scale`
 
@@ -53,8 +53,8 @@
 
 - **`use_preset_holes = false`** на `IslandNavigationRegion` — пресет **только внешний контур**, без дыр (дыры можно снова включить в инспекторе, когда отрисуешь их аккуратно в редакторе).
 - После назначения полигона вызывается **`NavigationServer2D.map_set_cell_size`** под **`cell_size`** ресурса.
-- У пешки **`base_move_use_map_force_update = false`** — принудительный sync карты отключён (его можно включить, если без него путь «отстаёт»).
-- **Запасной режим:** на инстансе пешки включи **`base_move_use_navigation_agent_path`** — движение через **`get_next_path_position`**, без `map_get_path` (как старый вариант).
+- У рабочего **`base_move_use_map_force_update = false`** — принудительный sync карты отключён (его можно включить, если без него путь «отстаёт»).
+- **Запасной режим:** на инстансе рабочего включи **`base_move_use_navigation_agent_path`** — движение через **`get_next_path_position`**, без `map_get_path` (как старый вариант).
 
 В **Project Settings** уже стоит `navigation/3d/merge_rasterizer_cell_scale = 0.001` (рекомендация из текста ошибки).
 

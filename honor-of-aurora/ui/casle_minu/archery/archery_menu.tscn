@@ -208,7 +208,7 @@ stretch_mode = 5
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 18
-text = "требует руду"
+text = "требует Сердцевину"
 
 [node name="slot_guard" type="PanelContainer" parent="ArcheryPanel/MainActions/SlotsRow"]
 custom_minimum_size = Vector2(320, 280)
@@ -273,7 +273,7 @@ stretch_mode = 5
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 18
-text = "требует руду"
+text = "требует Сердцевину"
 
 [connection signal="pressed" from="ArcheryPanel/BackBtn" to="." method="_on_back_pressed"]
 [connection signal="pressed" from="ArcheryPanel/MainActions/SlotsRow/slot_volley/ColumnVolley/BtnVolleyOrder" to="." method="_on_volley_order_pressed"]

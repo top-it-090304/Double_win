@@ -45,7 +45,7 @@ func _on_pack_purchased(_pack_id: String, _ore_added: int) -> void:
 func _refresh_summary() -> void:
 	var subtitle := get_node_or_null("PayShopPanel/PayShopSubtitle") as Label
 	if subtitle:
-		subtitle.text = "Премиум-магазин руды. Покупки: %d · Куплено руды: %d · На балансе: %d" % [
+		subtitle.text = "Премиум-магазин Сердцевины. Покупки: %d · Куплено Сердцевины: %d · На балансе: %d" % [
 			SaveManager.premium_ore_purchase_count,
 			SaveManager.premium_ore_purchased_total,
 			SaveManager.ore_count,
@@ -82,7 +82,7 @@ func _make_pack_row(pack_id: String, pack: Dictionary) -> Control:
 	var ore := int(pack.get("ore", 0))
 	var bonus := int(pack.get("bonus_ore", 0))
 	var total := ore + bonus
-	info.text = "%s · %d + %d бонус = %d руды" % [String(pack.get("title", pack_id)), ore, bonus, total]
+	info.text = "%s · %d + %d бонус = %d Сердцевины" % [String(pack.get("title", pack_id)), ore, bonus, total]
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(info)

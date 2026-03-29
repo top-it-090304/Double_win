@@ -854,7 +854,7 @@ position = Vector2(2464, -320)
 position = Vector2(1358, 213)
 
 [node name="ArcheryMenuZone" parent="." instance=ExtResource("59_archz")]
-position = Vector2(698, 113)
+position = Vector2(719, 161)
 
 [node name="PayShopMenuZone" parent="." instance=ExtResource("59_payz")]
 position = Vector2(-971, 18)

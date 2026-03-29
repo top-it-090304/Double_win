@@ -44,6 +44,7 @@ var _codex_block_click_marks: bool = false
 var _codex_prev_tab: int = 0
 var _crown_dossier_block: PanelContainer
 var _crown_dossier_hbox: HBoxContainer
+var _help_tab: Control
 
 
 func _ready() -> void:
@@ -59,9 +60,10 @@ func _ready() -> void:
 		_archive_list.item_selected.connect(_on_archive_item_selected)
 	if _char_list:
 		_char_list.item_selected.connect(_on_character_list_selected)
-	_set_tab_titles()
 	_setup_timeline_tab()
 	_setup_items_tab()
+	_setup_help_tab()
+	_set_tab_titles()
 
 
 func _set_tab_titles() -> void:
@@ -73,6 +75,8 @@ func _set_tab_titles() -> void:
 	_main_tabs.set_tab_title(3, "Хронология")
 	if _main_tabs.get_tab_count() > 4:
 		_main_tabs.set_tab_title(4, "Предметы")
+	if _main_tabs.get_tab_count() > 5:
+		_main_tabs.set_tab_title(5, "Справка")
 
 
 func _setup_timeline_tab() -> void:
@@ -98,7 +102,6 @@ func _setup_items_tab() -> void:
 	_items_tab = Control.new()
 	_items_tab.name = "ItemsTab"
 	_main_tabs.add_child(_items_tab)
-	_main_tabs.set_tab_title(_main_tabs.get_tab_count() - 1, "Предметы")
 
 	_items_scroll = ScrollContainer.new()
 	_items_scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -129,6 +132,111 @@ func _setup_items_tab() -> void:
 	_items_tab.add_child(_items_empty)
 
 	_setup_item_detail_popup()
+
+
+func _setup_help_tab() -> void:
+	if _main_tabs == null:
+		return
+	_help_tab = Control.new()
+	_help_tab.name = "HelpTab"
+	_main_tabs.add_child(_help_tab)
+	var scroll := ScrollContainer.new()
+	scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_help_tab.add_child(scroll)
+	var pad := MarginContainer.new()
+	pad.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pad.add_theme_constant_override("margin_left", 2)
+	pad.add_theme_constant_override("margin_top", 4)
+	pad.add_theme_constant_override("margin_right", 6)
+	pad.add_theme_constant_override("margin_bottom", 12)
+	scroll.add_child(pad)
+	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 12)
+	pad.add_child(vbox)
+	var lead := Label.new()
+	lead.text = "Краткие пояснения по ресурсам и терминам мира. Подробности сюжета — в сводке, досье и архиве."
+	lead.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lead.add_theme_color_override("font_color", Color(0.62, 0.66, 0.74, 0.95))
+	lead.add_theme_font_size_override("font_size", 14)
+	vbox.add_child(lead)
+	for sec in CampCodexGlossary.get_sections():
+		if not (sec is Dictionary):
+			continue
+		var sd: Dictionary = sec
+		vbox.add_child(_make_help_heading(str(sd.get("heading", ""))))
+		for e in sd.get("entries", []) as Array:
+			if e is Dictionary:
+				vbox.add_child(_make_help_entry_card(e))
+
+
+func _make_help_heading(title: String) -> Label:
+	var l := Label.new()
+	l.text = title
+	l.add_theme_color_override("font_color", Color(0.82, 0.72, 0.45, 1))
+	l.add_theme_font_size_override("font_size", 16)
+	return l
+
+
+func _make_help_entry_card(entry: Dictionary) -> PanelContainer:
+	var card := PanelContainer.new()
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.06, 0.07, 0.1, 0.92)
+	sb.set_border_width_all(1)
+	sb.border_color = Color(0.35, 0.38, 0.48, 0.45)
+	sb.set_corner_radius_all(8)
+	sb.content_margin_left = 14
+	sb.content_margin_top = 12
+	sb.content_margin_right = 14
+	sb.content_margin_bottom = 12
+	card.add_theme_stylebox_override("panel", sb)
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 14)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var icon_wrap := PanelContainer.new()
+	var isb := StyleBoxFlat.new()
+	isb.bg_color = Color(0.1, 0.11, 0.16, 1)
+	isb.set_border_width_all(1)
+	isb.border_color = Color(0.78, 0.65, 0.35, 0.35)
+	isb.set_corner_radius_all(8)
+	isb.content_margin_left = 6
+	isb.content_margin_top = 6
+	isb.content_margin_right = 6
+	isb.content_margin_bottom = 6
+	icon_wrap.add_theme_stylebox_override("panel", isb)
+	icon_wrap.custom_minimum_size = Vector2(76, 76)
+	var ctr := CenterContainer.new()
+	ctr.set_anchors_preset(Control.PRESET_FULL_RECT)
+	icon_wrap.add_child(ctr)
+	var tr := TextureRect.new()
+	tr.custom_minimum_size = Vector2(64, 64)
+	tr.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	var ipath := str(entry.get("icon", ""))
+	if ResourceLoader.exists(ipath):
+		tr.texture = load(ipath) as Texture2D
+	ctr.add_child(tr)
+	row.add_child(icon_wrap)
+	var col := VBoxContainer.new()
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	col.add_theme_constant_override("separation", 6)
+	var ttl := Label.new()
+	ttl.text = str(entry.get("title", ""))
+	ttl.add_theme_color_override("font_color", Color(0.82, 0.72, 0.45, 1))
+	ttl.add_theme_font_size_override("font_size", 15)
+	col.add_child(ttl)
+	var body := Label.new()
+	body.text = str(entry.get("body", ""))
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.add_theme_color_override("font_color", Color(0.78, 0.82, 0.9, 0.98))
+	body.add_theme_font_size_override("font_size", 14)
+	col.add_child(body)
+	row.add_child(col)
+	card.add_child(row)
+	return card
 
 
 func reset_camp_codex_state() -> void:
@@ -523,7 +631,7 @@ func _refresh_archive_list() -> void:
 		if found_any:
 			_archive_body.bbcode_text = "[color=#aab8cc]Выберите запись в списке слева.[/color]"
 		else:
-			_archive_body.bbcode_text = "[center][color=#aab8cc]Записей пока нет. Ищите сундуки на островах и слушайте разговоры у огня.[/color][/center]"
+			_archive_body.bbcode_text = "[center][color=#aab8cc]Записей пока нет. Ищите сундуки на островах и слушайте целителя у церкви.[/color][/center]"
 	_stamp_archive_new_icons()
 
 

@@ -7,7 +7,7 @@ func ensure_lines_ready() -> void:
 	if not lines.is_empty():
 		return
 	id = "worker_youth_alive_truth"
-	lines.append(_plain("young_worker", "Эй… Я слышал разговор у костра. Не подслушивал — ветер несёт голоса дальше, чем кажется."))
+	lines.append(_plain("young_worker", "Эй… Я слышал разговор у церкви. Не подслушивал — ветер несёт голоса дальше, чем кажется."))
 	lines.append(_plain("young_worker", "Это правда? Стражи — не звери? И указ — не про свободу?"))
 	lines.append(_plain("hero", "Ты не должен был это слышать."))
 	lines.append(_plain("young_worker", "Может, и не должен. Но я рад."))

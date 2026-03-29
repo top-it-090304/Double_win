@@ -126,7 +126,7 @@ func _refresh_hire_buy_ui() -> void:
 	var ore_cost := BalanceConfig.get_unit_hire_ore_cost()
 	var price_lbl := get_node_or_null("%s/HirePriceLabel" % _PATH_HIRE_VBOX) as Label
 	if price_lbl:
-		price_lbl.text = "Все типы — %d зол. + %d руды" % [unit_hire_cost, ore_cost]
+		price_lbl.text = "Все типы — %d зол. + %d Сердцевины" % [unit_hire_cost, ore_cost]
 	for path in [
 		"%s/HireSlotsRow/slot_archer/ColumnArcher/BuyArcher" % _PATH_HIRE_VBOX,
 		"%s/HireSlotsRow/slot_lancer/ColumnLancer/BuyLancer" % _PATH_HIRE_VBOX,
@@ -513,17 +513,17 @@ func _crown_progress_subline() -> String:
 	var sent := SaveManager.ore_sent_to_crown_total
 	var next_th := _next_title_threshold_after(sent)
 	if next_th < 0:
-		return "Отправлено руды Короне: %d — высшая ступень титула." % sent
+		return "Отправлено Короне Сердцевины: %d — высшая ступень титула." % sent
 	var need := next_th - sent
-	return "Отправлено руды Короне: %d  ·  до следующего титула: %d" % [sent, need]
+	return "Отправлено Короне Сердцевины: %d  ·  до следующего титула: %d" % [sent, need]
 
 
 func _crown_effect_subline() -> String:
 	var t: Dictionary = CrownSystem.get_current_title()
 	var mine_b := int(t.get("mine_ore_bonus", 0))
 	if mine_b > 0:
-		return "Шахта при возврате с похода: +%d к руде" % mine_b
-	return "Шахта: без титульного бонуса (следующие ступени дадут +руду)"
+		return "Шахта при возврате с похода: +%d к Сердцевине" % mine_b
+	return "Шахта: без титульного бонуса (следующие ступени дадут +Сердцевину)"
 
 
 func _on_crown_title_strip_icon_gui_input(event: InputEvent) -> void:
@@ -703,8 +703,10 @@ func _populate_crown_help_panel() -> void:
 	if intro == null or steps == null or footer == null:
 		return
 	var head: PackedStringArray = []
+	head.append(CampCodexDossier.serdtsevina_info_bbcode())
+	head.append("")
 	head.append("[b]Как получить титул[/b]")
-	head.append("Каждая отправка [color=#9fd4ff]руды[/color] караваном Короны увеличивает ваш [color=#e8c97a]суммарный счёт[/color]. Титул зависит только от этого счёта — не от одной партии.")
+	head.append("Каждая отправка [color=#9fd4ff]Сердцевины[/color] караваном Короны увеличивает ваш [color=#e8c97a]суммарный счёт[/color]. Титул зависит только от этого счёта — не от одной партии.")
 	head.append("")
 	head.append("[b]Ступени[/b] (нажмите на герб, чтобы увеличить)")
 	intro.text = "\n".join(head)
@@ -729,7 +731,7 @@ func _populate_crown_help_panel() -> void:
 			line.scroll_active = false
 			line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			_rtl_theme_line(line)
-			line.text = "· [color=#e8c97a]%s[/color] — с [color=#9fd4ff]%d[/color] руды всего; %s" % [nm, th, bonus]
+			line.text = "· [color=#e8c97a]%s[/color] — с [color=#9fd4ff]%d[/color] ед. Сердцевины всего; %s" % [nm, th, bonus]
 			row.add_child(line)
 			steps.add_child(row)
 			step_i += 1
@@ -807,13 +809,15 @@ func _on_caravan_details_pressed() -> void:
 func _caravan_rules_bbcode() -> String:
 	var interval := BalanceConfig.CARAVAN_EXPEDITION_INTERVAL
 	var lines: PackedStringArray = []
-	lines.append("[b]Титул[/b]: зависит от суммарной руды, отправленной Короне (плашка вверху замка, кнопка «Справка»).")
+	lines.append(CampCodexDossier.serdtsevina_info_bbcode())
+	lines.append("")
+	lines.append("[b]Титул[/b]: зависит от суммарной Сердцевины, отправленной Короне (плашка вверху замка, кнопка «Справка»).")
 	lines.append("")
 	lines.append("[b]Рейсы[/b]: после отъезда каравана следующий прибудет через [color=#9fd4ff]%d[/color] возвратов с острова." % interval)
 	lines.append("")
 	lines.append("[b]Пока караван у причала[/b]: эти возвраты не считаются; срок приказа не уменьшается. «Отпустить порожним» снимает ожидание.")
 	lines.append("")
-	lines.append("[b]Приказ[/b]: сдать руду за лимит походов. Если к концу срока отгружено меньше половины нормы — растёт [color=#ff9a7a]немилость[/color] (макс. %d). Одна отгрузка примерно на [b]120%%[/b] нормы после недобора снижает немилость." % BalanceConfig.DISPLEASURE_MAX_LEVEL)
+	lines.append("[b]Приказ[/b]: сдать Сердцевину за лимит походов. Если к концу срока отгружено меньше половины нормы — растёт [color=#ff9a7a]немилость[/color] (макс. %d). Одна отгрузка примерно на [b]120%%[/b] нормы после недобора снижает немилость." % BalanceConfig.DISPLEASURE_MAX_LEVEL)
 	lines.append("")
 	lines.append("[b]Немилость[/b]: меньше золота в жалованье при прибытии каравана.")
 	return "\n".join(lines)
@@ -827,7 +831,7 @@ func _refresh_caravan_status_and_order() -> void:
 
 	if _caravan_status_line:
 		if pending:
-			_caravan_status_line.text = "Караван у причала. Загрузите руду или отпустите порожним."
+			_caravan_status_line.text = "Караван у причала. Загрузите Сердцевину или отпустите порожним."
 		else:
 			if exp_left <= 0:
 				_caravan_status_line.text = "Следующий возврат с острова приведёт караван."
@@ -935,7 +939,7 @@ func _refresh_caravan_order_block(order: Dictionary, caravan_pending: bool) -> v
 
 	_caravan_order_title.text = "Приказ Короны"
 	if _caravan_order_ore_lbl:
-		_caravan_order_ore_lbl.text = "Руда к приказу: %d / %d" % [sent, req]
+		_caravan_order_ore_lbl.text = "Сердцевина к приказу: %d / %d" % [sent, req]
 
 	if _caravan_order_dl_lbl:
 		_caravan_order_dl_lbl.visible = true
@@ -1016,7 +1020,7 @@ func _hire_unit(kind: HireKind) -> void:
 			return
 	var hire_ore_cost := BalanceConfig.get_unit_hire_ore_cost()
 	if not GameplayFacade.try_spend_gold_plus_ore(unit_hire_cost, hire_ore_cost):
-		_show_hire_fail("Недостаточно золота/руды.")
+		_show_hire_fail("Недостаточно золота или Сердцевины.")
 		return
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if not player:
@@ -1096,7 +1100,7 @@ func _refresh_caravan_ui() -> void:
 	_refresh_caravan_status_and_order()
 
 	if ore_lbl:
-		ore_lbl.text = "Руда на складе: %d" % ore_available
+		ore_lbl.text = "Сердцевина на складе: %d" % ore_available
 
 	if send_all_btn:
 		send_all_btn.disabled = not pending or ore_available <= 0

@@ -66,7 +66,7 @@ const NON_STORY_DIALOGUE_IDS: PackedStringArray = [
 @onready var cooldown = $HealCooldown
 ## После возврата с острова: сколько раз по клику можно взять шутку (heal_banter), 3–4 за поход.
 var _expedition_click_jokes_remaining: int = 0
-## После закрытия диалога у костра не автозапускать следующий сюжет по тому же входу — пока игрок не выйдет из heal_area.
+## После закрытия диалога у целителя не автозапускать следующий сюжет по тому же входу — пока игрок не выйдет из heal_area.
 ## Чужие диалоги (причал и т.д.) не должны блокировать первый визит к целителю.
 var _block_zone_story_autostart_until_leave_heal_area: bool = false
 
@@ -100,7 +100,7 @@ func _on_heal_zone_player_exited(body: Node2D) -> void:
 	_block_zone_story_autostart_until_leave_heal_area = false
 
 
-## После любого закрытого диалога: если у костра ещё есть ожидающие сюжетные — запуск подряд; иначе блок до выхода из зоны (как раньше).
+## После любого закрытого диалога: если в зоне целителя ещё есть ожидающие сюжетные — запуск подряд; иначе блок до выхода из зоны (как раньше).
 func _deferred_chain_monk_zone_story_after_dialogue() -> void:
 	if not is_inside_tree():
 		return

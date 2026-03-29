@@ -1,5 +1,5 @@
 extends Area2D
-## Лежащее бревно: пешка в фазе TO_LOG подбегает — коллизия вызывает `try_begin_wood_castle_run`.
+## Лежащее бревно: рабочий в фазе TO_LOG подбегает — коллизия вызывает `try_begin_wood_castle_run`.
 
 
 func _ready() -> void:

@@ -13,7 +13,7 @@ const BUILDING_UPGRADE_STEP := 220
 ## Оружейная: разовые бафы перед походом.
 const ARMORY_SWORD_BUFF_COST := 155
 const ARMORY_SHIELD_BUFF_COST := 155
-## Монастырь/стрельбище: «хардкор» сервисы требуют руду.
+## Церковь/стрельбище: «хардкор» сервисы требуют руду.
 const MONASTERY_REVIVE_GOLD_COST := 190
 const MONASTERY_REVIVE_ORE_COST := 9
 const MONASTERY_VITALITY_GOLD_COST := 125

@@ -22,7 +22,7 @@ const ARMORY_SHIELD_BASE_DAMAGE_FACTOR: float = 0.2
 ## На каждый уровень здания Barracks (0→4): +12.5% к силе временного бафа (заточка / щит).
 const ARMORY_TIER_BUFF_PER_LEVEL: float = 0.125
 
-## Монастырь: ритуал выносливости + благословение стойкости на поход.
+## Церковь (меню здания): ритуал выносливости + благословение стойкости на поход.
 var monastery_vitality_prepared: bool = false
 var monastery_hp_bonus_ratio: float = 0.0
 var monastery_fortitude_prepared: bool = false

@@ -926,7 +926,7 @@ func _process_follow_custom(_delta: float) -> bool:
 			_cancel_base_worker()
 			return false
 	## Не отменять добычу дерева, если find_or_spawn вернул null (все зоны заняты / очередь) — иначе
-	## каждый кадр срабатывал cancel + return false, и пешка уходила в следование за героем («хаотичный» бег).
+	## каждый кадр срабатывал cancel + return false, и рабочий уходил в следование за героем («хаотичный» бег).
 	if _worker_job == WorkerJob.WOOD and _wood_phase == WoodWorkerPhase.CHASE_TREE:
 		var scene_w: Node = get_tree().current_scene
 		if scene_w != null:

@@ -1,5 +1,5 @@
 extends CharacterBody2D
-## Дерево из `wood_zone`: случайная анимация tree_1…tree_4, рубка → dead, на земле бревно с анимацией wood (подбор пешкой).
+## Дерево из `wood_zone`: случайная анимация tree_1…tree_4, рубка → dead, на земле бревно с анимацией wood (подбор рабочим).
 
 const PICKUP_SCRIPT := preload("res://objects/world/wood_floor_pickup.gd")
 

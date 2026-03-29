@@ -81,7 +81,7 @@ func _setup_base_navigation_from_tile_collisions() -> void:
 	if old != null:
 		old.free()
 	var np := NavigationPolygon.new()
-	## Чуть больше радиуса коллайдера пешки (~10) — иначе путь прижимается к углам и застревает.
+	## Чуть больше радиуса коллайдера рабочего (~10) — иначе путь прижимается к углам и застревает.
 	np.agent_radius = 26.0
 	np.cell_size = 1.0
 	np.parsed_geometry_type = NavigationPolygon.PARSED_GEOMETRY_STATIC_COLLIDERS

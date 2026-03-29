@@ -843,7 +843,7 @@ func compute_codex_new_marker_info_with_cur(tree: SceneTree, cur: Dictionary) ->
 	var cur_tl := _codex_int_hash(cur.get("timeline", 0))
 	var ack_sum := _codex_int_hash(ui.get("sum", -1999999999))
 	var ack_tl := _codex_int_hash(ui.get("tl", -1999999999))
-	var tabs: Array = [false, false, false, false, false]
+	var tabs: Array = [false, false, false, false, false, false]
 	if cur_sum != ack_sum:
 		tabs[0] = true
 	for k in cc:

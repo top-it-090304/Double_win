@@ -5,7 +5,7 @@ import struct
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-# Пешка и воин в паке — полосы 192px; копейщик — клетки 320×320 (см. Lancer_Idle 3840→12 кадров).
+# Рабочий и воин в паке — полосы 192px; копейщик — клетки 320×320 (см. Lancer_Idle 3840→12 кадров).
 PAWN_FRAME_W = 192
 LANCER_FRAME_W = 320
 

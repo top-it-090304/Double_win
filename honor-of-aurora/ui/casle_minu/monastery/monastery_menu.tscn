@@ -208,7 +208,7 @@ stretch_mode = 5
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 18
-text = "требует руду"
+text = "требует Сердцевину"
 
 [node name="slot_revive" type="PanelContainer" parent="MonasteryPanel/MainActions/SlotsRow"]
 custom_minimum_size = Vector2(320, 280)
@@ -273,7 +273,7 @@ stretch_mode = 5
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 18
-text = "требует руду"
+text = "требует Сердцевину"
 
 [connection signal="pressed" from="MonasteryPanel/BackBtn" to="." method="_on_back_pressed"]
 [connection signal="pressed" from="MonasteryPanel/MainActions/SlotsRow/slot_vitality/ColumnVitality/BtnBlessVitality" to="." method="_on_bless_vitality_pressed"]
