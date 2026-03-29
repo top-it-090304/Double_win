@@ -27,7 +27,7 @@ const SPEAKER_LABELS := {
 	"narrator": "Повествование",
 	"letter": "Письмо",
 	"veteran": "Бран",
-	"caravan": "Караванщик",
+	"caravan": "Интендант",
 }
 
 const SPEAKER_FACES := {
@@ -205,6 +205,9 @@ func _on_dialogue_started(_sequence: DialogueSequence) -> void:
 
 
 func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void:
+	## До входа в дерево `get_tree()` в Godot 4 даёт ошибку (data.tree null), не null.
+	if not is_inside_tree():
+		return
 	_line_change_epoch += 1
 	var epoch := _line_change_epoch
 	_clear_choice_ui()
@@ -223,6 +226,8 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 		_apply_dialogue_chrome_height(dcl.options.size())
 		_choices_scroll.visible = true
 		_choices_scroll.scroll_vertical = 0
+		if not is_inside_tree():
+			return
 		var tree := get_tree()
 		if tree == null:
 			return
@@ -255,6 +260,8 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 			_choice_buttons.append(btn)
 		_refresh_continue_button()
 		## process_always: таймер срабатывает даже при паузе дерева (диалог с pause_game).
+		if not is_inside_tree():
+			return
 		tree = get_tree()
 		if tree == null:
 			return
@@ -267,6 +274,8 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 		return
 
 	_apply_dialogue_chrome_height(0)
+	if not is_inside_tree():
+		return
 	var tree_nc := get_tree()
 	if tree_nc == null:
 		return

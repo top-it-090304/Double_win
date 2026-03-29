@@ -748,6 +748,7 @@ func handle_location_changed(new_location: Events.LOCATION):
 		await MenuStartTransition.run_exit(overlay)
 		if new_location == Events.LOCATION.BASE:
 			call_deferred("_apply_pending_healer_dialogue_token_on_base")
+			call_deferred("_try_caravan_arrival_dialogue_on_base_ready")
 		return
 	var err := get_tree().change_scene_to_packed(packed as PackedScene)
 	if err != OK:
@@ -766,6 +767,11 @@ func handle_location_changed(new_location: Events.LOCATION):
 	# После загрузки базы монах применяет жетон (см. monk_base).
 	if new_location == Events.LOCATION.BASE:
 		call_deferred("_apply_pending_healer_dialogue_token_on_base")
+		call_deferred("_try_caravan_arrival_dialogue_on_base_ready")
+
+
+func _try_caravan_arrival_dialogue_on_base_ready() -> void:
+	CrownSystem.try_play_caravan_arrival_if_pending()
 
 
 func _apply_pending_healer_dialogue_token_on_base() -> void:

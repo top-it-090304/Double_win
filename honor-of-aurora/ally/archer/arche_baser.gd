@@ -224,7 +224,7 @@ func attack():
 		var arrow = arrow_scene.instantiate()
 		arrow.global_position = global_position + dir * 30
 		arrow.direction = dir
-		arrow.damage = projectile_damage
+		arrow.damage = maxi(1, int(round(float(projectile_damage) * CrownSystem.get_archer_damage_modifier())))
 		get_tree().current_scene.add_child(arrow)
 
 func _on_animation_finished():

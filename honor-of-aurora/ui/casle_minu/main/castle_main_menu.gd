@@ -30,6 +30,9 @@ const _PATH_CARAVAN_SUMMARY := "%s/CaravanSummaryVBox" % _PATH_CARAVAN_VBOX
 const _CARAVAN_DOT_SLOTS_MAX := 12
 
 var _crown_help_layer: CanvasLayer
+var _crown_help_tab_index: int = 0
+var _crown_help_tab_buttons: Array[Button] = []
+var _crown_help_tab_scrolls: Array[ScrollContainer] = []
 var _crown_icon_aspect: AspectRatioContainer
 var _crown_title_icon: TextureRect
 var _crown_title_name_lbl: Label
@@ -393,6 +396,7 @@ func _on_crown_help_btn_pressed() -> void:
 	if _crown_help_layer == null:
 		return
 	_crown_help_layer.show()
+	_set_crown_help_tab(0)
 	_populate_crown_help_panel()
 
 
@@ -524,14 +528,6 @@ func _crown_progress_subline() -> String:
 	return "Отправлено Короне Сердцевины: %d  ·  до следующего титула: %d" % [sent, need]
 
 
-func _crown_effect_subline() -> String:
-	var t: Dictionary = CrownSystem.get_current_title()
-	var mine_b := int(t.get("mine_ore_bonus", 0))
-	if mine_b > 0:
-		return "Шахта при возврате с похода: +%d к Сердцевине" % mine_b
-	return "Шахта: без титульного бонуса (следующие ступени дадут +Сердцевину)"
-
-
 func _on_crown_title_strip_icon_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
@@ -551,14 +547,16 @@ func _refresh_crown_title_strip() -> void:
 		else:
 			_crown_icon_aspect.ratio = 1.0
 	_crown_title_name_lbl.text = CrownSystem.get_current_title_name()
-	var dis := SaveManager.crown_displeasure
-	var dis_s := ""
-	if dis > 0:
-		dis_s = "  ·  немилость Короны: %d" % dis
-	_crown_title_sub_lbl.text = "%s%s\n%s" % [_crown_progress_subline(), dis_s, _crown_effect_subline()]
+	var sub := CrownSystem.get_current_title_flavor()
+	var grat := BalanceConfig.get_patron_title_gratitude_epithet(SaveManager.premium_ore_purchased_total)
+	if not grat.is_empty():
+		sub = "%s\n\n%s" % [sub, grat]
+	_crown_title_sub_lbl.text = sub
 
 
 func _build_crown_help_modal() -> void:
+	_crown_help_tab_buttons.clear()
+	_crown_help_tab_scrolls.clear()
 	_crown_help_layer = CanvasLayer.new()
 	_crown_help_layer.layer = 12
 	_crown_help_layer.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -619,42 +617,452 @@ func _build_crown_help_modal() -> void:
 	header.add_child(ht)
 	header.add_child(close_b)
 	vbox.add_child(header)
-	var scroll := ScrollContainer.new()
-	scroll.name = "Scroll"
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	vbox.add_child(scroll)
-	var scroll_v := VBoxContainer.new()
-	scroll_v.name = "HelpScrollVBox"
-	scroll_v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll_v.add_theme_constant_override("separation", 10)
-	scroll.add_child(scroll_v)
-	var rtl_intro := RichTextLabel.new()
-	rtl_intro.name = "HelpIntro"
-	rtl_intro.bbcode_enabled = true
-	rtl_intro.fit_content = true
-	rtl_intro.scroll_active = false
-	rtl_intro.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	rtl_intro.add_theme_color_override("default_color", Color(0.78, 0.82, 0.9, 0.98))
-	rtl_intro.add_theme_font_size_override("normal_font_size", 16)
-	_apply_dialogue_default_font_to_richtext(rtl_intro)
-	scroll_v.add_child(rtl_intro)
-	var steps_v := VBoxContainer.new()
-	steps_v.name = "HelpSteps"
-	steps_v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	steps_v.add_theme_constant_override("separation", 8)
-	scroll_v.add_child(steps_v)
-	var rtl_footer := RichTextLabel.new()
-	rtl_footer.name = "HelpFooter"
-	rtl_footer.bbcode_enabled = true
-	rtl_footer.fit_content = true
-	rtl_footer.scroll_active = false
-	rtl_footer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	rtl_footer.add_theme_color_override("default_color", Color(0.78, 0.82, 0.9, 0.98))
-	rtl_footer.add_theme_font_size_override("normal_font_size", 16)
-	_apply_dialogue_default_font_to_richtext(rtl_footer)
-	scroll_v.add_child(rtl_footer)
+	var tab_row := HBoxContainer.new()
+	tab_row.name = "TabBar"
+	tab_row.add_theme_constant_override("separation", 8)
+	tab_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var tab_labels := ["Обзор", "Ступени", "Караван"]
+	for i in range(tab_labels.size()):
+		var tb := Button.new()
+		tb.name = "TabBtn%d" % i
+		tb.text = tab_labels[i]
+		tb.focus_mode = Control.FOCUS_NONE
+		tb.custom_minimum_size = Vector2(96, 42)
+		tb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		tb.add_theme_font_size_override("font_size", 17)
+		tb.add_theme_color_override("font_color", Color(0.92, 0.9, 0.84, 1))
+		tb.pressed.connect(_on_crown_help_tab_pressed.bind(i))
+		tab_row.add_child(tb)
+		_crown_help_tab_buttons.append(tb)
+	vbox.add_child(tab_row)
+	var host := Control.new()
+	host.name = "TabContentHost"
+	host.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	host.custom_minimum_size = Vector2(0, 260)
+	vbox.add_child(host)
+	var s0 := _crown_help_add_tab_scroll(host, "OverviewVBox")
+	s0.name = "ScrollOverview"
+	var s1 := _crown_help_add_tab_scroll(host, "TitlesVBox")
+	s1.name = "ScrollTitles"
+	s1.visible = false
+	var s2 := _crown_help_add_tab_scroll(host, "CaravanVBox")
+	s2.name = "ScrollCaravan"
+	s2.visible = false
+	_crown_help_tab_scrolls.append(s0)
+	_crown_help_tab_scrolls.append(s1)
+	_crown_help_tab_scrolls.append(s2)
+	_set_crown_help_tab(0)
+
+
+func _crown_help_add_tab_scroll(host: Control, inner_name: String) -> ScrollContainer:
+	var sc := ScrollContainer.new()
+	sc.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	sc.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sc.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	host.add_child(sc)
+	var inner := VBoxContainer.new()
+	inner.name = inner_name
+	inner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	inner.add_theme_constant_override("separation", 14)
+	sc.add_child(inner)
+	return sc
+
+
+func _crown_help_tab_stylebox(selected: bool) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.set_corner_radius_all(8)
+	sb.content_margin_left = 12
+	sb.content_margin_top = 8
+	sb.content_margin_right = 12
+	sb.content_margin_bottom = 8
+	if selected:
+		sb.bg_color = Color(0.16, 0.18, 0.26, 1)
+		sb.set_border_width_all(2)
+		sb.border_color = Color(0.82, 0.68, 0.36, 0.95)
+	else:
+		sb.bg_color = Color(0.1, 0.11, 0.15, 0.96)
+		sb.set_border_width_all(1)
+		sb.border_color = Color(0.38, 0.42, 0.52, 0.55)
+	return sb
+
+
+func _style_crown_help_tab_button(btn: Button, selected: bool) -> void:
+	var n := _crown_help_tab_stylebox(selected)
+	var h := n.duplicate() as StyleBoxFlat
+	h.bg_color = Color(0.22, 0.24, 0.32, 1)
+	var p := n.duplicate() as StyleBoxFlat
+	p.bg_color = Color(0.08, 0.09, 0.12, 1)
+	btn.add_theme_stylebox_override("normal", n)
+	btn.add_theme_stylebox_override("hover", h)
+	btn.add_theme_stylebox_override("pressed", p)
+
+
+func _set_crown_help_tab(idx: int) -> void:
+	if _crown_help_tab_scrolls.is_empty():
+		return
+	idx = clampi(idx, 0, _crown_help_tab_scrolls.size() - 1)
+	_crown_help_tab_index = idx
+	for i in range(_crown_help_tab_scrolls.size()):
+		_crown_help_tab_scrolls[i].visible = (i == idx)
+	for i in range(_crown_help_tab_buttons.size()):
+		_style_crown_help_tab_button(_crown_help_tab_buttons[i], i == idx)
+
+
+func _on_crown_help_tab_pressed(tab_idx: int) -> void:
+	SoundManager.play_ui_button()
+	_set_crown_help_tab(tab_idx)
+
+
+func _on_crown_help_go_caravan_pressed() -> void:
+	SoundManager.play_ui_button()
+	_open_caravan_select()
+
+
+func _crown_help_short_serdtsevina_bbcode() -> String:
+	return (
+		"[b]Сердцевина[/b] — ресурс островов и шахты; на базе тратится на услуги и найм. "
+		+ "Всё, что вы [color=#9fd4ff]отправите Короне караваном[/color], остаётся в зачёте навсегда: "
+		+ "от этого растёт [color=#e8c97a]титул[/color] и добыча шахты, когда возвращаетесь с острова."
+	)
+
+
+func _crown_title_bonus_lines(t: Dictionary) -> PackedStringArray:
+	var lines: PackedStringArray = []
+	var gold_r := float(t.get("gold_bonus_ratio", 0.0))
+	var mine_b := int(t.get("mine_ore_bonus", 0))
+	var disc := float(t.get("service_discount", 0.0))
+	if gold_r > 0.001:
+		lines.append("+%d%% к золоту в жалованье каравана" % int(round(gold_r * 100.0)))
+	if disc > 0.001:
+		lines.append("Скидка на услуги на базе: %d%%" % int(round(disc * 100.0)))
+	if mine_b > 0:
+		lines.append("Шахта при возврате с острова: +%d Сердцевины" % mine_b)
+	if lines.is_empty():
+		lines.append("Нет бонусов к жалованью, шахте и скидкам — появятся на следующих ступенях.")
+	return lines
+
+
+func _crown_help_title_card_style(current: bool) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.set_corner_radius_all(10)
+	sb.content_margin_left = 14
+	sb.content_margin_top = 12
+	sb.content_margin_right = 14
+	sb.content_margin_bottom = 12
+	if current:
+		sb.bg_color = Color(0.13, 0.15, 0.22, 1)
+		sb.set_border_width_all(2)
+		sb.border_color = Color(0.88, 0.72, 0.38, 0.98)
+	else:
+		sb.bg_color = Color(0.09, 0.1, 0.14, 1)
+		sb.set_border_width_all(1)
+		sb.border_color = Color(0.55, 0.48, 0.32, 0.45)
+	return sb
+
+
+func _make_crown_help_section_title(text: String) -> Label:
+	var l := Label.new()
+	l.text = text
+	l.add_theme_font_size_override("font_size", 20)
+	l.add_theme_color_override("font_color", Color(0.94, 0.9, 0.78, 1))
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	return l
+
+
+func _make_crown_help_body_label(text: String, font_size: int = 15) -> Label:
+	var l := Label.new()
+	l.text = text
+	l.add_theme_font_size_override("font_size", font_size)
+	l.add_theme_color_override("font_color", Color(0.76, 0.8, 0.9, 0.96))
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	return l
+
+
+func _make_crown_help_bullet_label(text: String) -> Label:
+	var l := Label.new()
+	l.text = "•  %s" % text
+	l.add_theme_font_size_override("font_size", 14)
+	l.add_theme_color_override("font_color", Color(0.72, 0.78, 0.88, 0.95))
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	return l
+
+
+func _add_crown_help_progress_block(parent: VBoxContainer) -> void:
+	var sent := SaveManager.ore_sent_to_crown_total
+	var next_th := _next_title_threshold_after(sent)
+	var idx := BalanceConfig.get_crown_title_index_for_ore_sent(sent)
+	var cur_th := 0
+	if idx >= 0 and idx < BalanceConfig.CROWN_TITLES.size():
+		var td: Variant = BalanceConfig.CROWN_TITLES[idx]
+		if td is Dictionary:
+			cur_th = int((td as Dictionary).get("ore_threshold", 0))
+	var wrap := PanelContainer.new()
+	wrap.add_theme_stylebox_override("panel", _crown_help_title_card_style(false))
+	var inner := VBoxContainer.new()
+	inner.add_theme_constant_override("separation", 8)
+	var cap := Label.new()
+	cap.add_theme_font_size_override("font_size", 17)
+	cap.add_theme_color_override("font_color", Color(0.88, 0.82, 0.7, 1))
+	cap.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	cap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var bar := ProgressBar.new()
+	bar.custom_minimum_size = Vector2(0, 22)
+	bar.show_percentage = false
+	var bar_fill := StyleBoxFlat.new()
+	bar_fill.bg_color = Color(0.4, 0.62, 0.88, 1)
+	bar_fill.set_corner_radius_all(5)
+	bar.add_theme_stylebox_override("fill", bar_fill)
+	var bar_bg := StyleBoxFlat.new()
+	bar_bg.bg_color = Color(0.11, 0.12, 0.16, 1)
+	bar_bg.set_corner_radius_all(5)
+	bar.add_theme_stylebox_override("background", bar_bg)
+	var sub := Label.new()
+	sub.add_theme_font_size_override("font_size", 14)
+	sub.add_theme_color_override("font_color", Color(0.7, 0.76, 0.86, 0.92))
+	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sub.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if next_th < 0:
+		cap.text = "Ваш титул"
+		bar.visible = false
+		sub.text = "Вы на высшей ступени. Через караван Короне уже ушло %d ед. Сердцевины." % sent
+	else:
+		var span := maxi(1, next_th - cur_th)
+		var done := clampi(sent - cur_th, 0, span)
+		cap.text = "До следующего титула"
+		bar.min_value = 0.0
+		bar.max_value = float(span)
+		bar.value = float(done)
+		var need := maxi(0, next_th - sent)
+		sub.text = "Короне отдано за всю игру: %d ед. До следующего звания не хватает ещё %d." % [sent, need]
+	inner.add_child(cap)
+	inner.add_child(bar)
+	inner.add_child(sub)
+	wrap.add_child(inner)
+	parent.add_child(wrap)
+
+
+func _build_crown_help_title_card(t: Dictionary, step_i: int, is_current: bool) -> Control:
+	var nm := str(t.get("name", ""))
+	var th := int(t.get("ore_threshold", 0))
+	var art_p := CrownSystem.get_crown_title_art_path_for_index(step_i)
+	var card := PanelContainer.new()
+	card.add_theme_stylebox_override("panel", _crown_help_title_card_style(is_current))
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var outer := MarginContainer.new()
+	outer.add_theme_constant_override("margin_left", 0)
+	outer.add_theme_constant_override("margin_top", 0)
+	outer.add_theme_constant_override("margin_right", 0)
+	outer.add_theme_constant_override("margin_bottom", 0)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 14)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if ResourceLoader.exists(art_p):
+		var chip := _make_crown_help_title_chip(art_p)
+		chip.custom_minimum_size = Vector2(58, 58)
+		row.add_child(chip)
+	var col := VBoxContainer.new()
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	col.add_theme_constant_override("separation", 6)
+	var title_row := HBoxContainer.new()
+	title_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var name_l := Label.new()
+	name_l.text = nm
+	name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_l.add_theme_font_size_override("font_size", 18)
+	name_l.add_theme_color_override("font_color", Color(0.92, 0.82, 0.55, 1))
+	name_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title_row.add_child(name_l)
+	if is_current:
+		var bs := StyleBoxFlat.new()
+		bs.bg_color = Color(0.78, 0.65, 0.35, 0.85)
+		bs.set_corner_radius_all(6)
+		bs.content_margin_left = 8
+		bs.content_margin_top = 4
+		bs.content_margin_right = 8
+		bs.content_margin_bottom = 4
+		var badge_wrap := PanelContainer.new()
+		badge_wrap.add_theme_stylebox_override("panel", bs)
+		var badge := Label.new()
+		badge.text = "Ваш титул"
+		badge.add_theme_font_size_override("font_size", 13)
+		badge.add_theme_color_override("font_color", Color(0.15, 0.12, 0.08, 1))
+		badge_wrap.add_child(badge)
+		title_row.add_child(badge_wrap)
+	col.add_child(title_row)
+	var th_l := _make_crown_help_body_label(
+		"Эта ступень — когда Короне за всю игру ушло не меньше %d ед. Сердцевины караваном." % th, 14
+	)
+	th_l.add_theme_color_override("font_color", Color(0.65, 0.78, 0.95, 0.95))
+	col.add_child(th_l)
+	var bonus_title := Label.new()
+	bonus_title.text = "Бонусы ступени"
+	bonus_title.add_theme_font_size_override("font_size", 13)
+	bonus_title.add_theme_color_override("font_color", Color(0.55, 0.6, 0.7, 0.9))
+	col.add_child(bonus_title)
+	for line in _crown_title_bonus_lines(t):
+		col.add_child(_make_crown_help_bullet_label(line))
+	row.add_child(col)
+	outer.add_child(row)
+	card.add_child(outer)
+	return card
+
+
+func _clear_vbox_children(v: VBoxContainer) -> void:
+	for c in v.get_children():
+		v.remove_child(c)
+		c.free()
+
+
+func _populate_crown_help_overview(vbox: VBoxContainer) -> void:
+	_clear_vbox_children(vbox)
+	var rtl := RichTextLabel.new()
+	rtl.bbcode_enabled = true
+	rtl.fit_content = true
+	rtl.scroll_active = false
+	rtl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_rtl_theme_line(rtl)
+	rtl.text = _crown_help_short_serdtsevina_bbcode()
+	vbox.add_child(rtl)
+	var hint := RichTextLabel.new()
+	hint.bbcode_enabled = true
+	hint.fit_content = true
+	hint.scroll_active = false
+	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_rtl_theme_line(hint)
+	hint.add_theme_font_size_override("normal_font_size", 14)
+	hint.add_theme_color_override("default_color", Color(0.65, 0.72, 0.82, 0.9))
+	hint.text = "Подробнее о ресурсе — «Справка» в кодексе лагеря. Про караван, приказы и походы — вкладка [color=#e8c97a]«Караван»[/color]."
+	vbox.add_child(hint)
+	vbox.add_child(HSeparator.new())
+	_add_crown_help_progress_block(vbox)
+	vbox.add_child(_make_crown_help_section_title("Сейчас"))
+	var cur := CrownSystem.get_current_title()
+	vbox.add_child(_make_crown_help_body_label("Титул: %s" % str(cur.get("name", "")), 16))
+	vbox.add_child(_make_crown_help_body_label(_crown_progress_subline(), 14))
+	var dis := SaveManager.crown_displeasure
+	if dis > 0:
+		var dis_l := RichTextLabel.new()
+		dis_l.bbcode_enabled = true
+		dis_l.fit_content = true
+		dis_l.scroll_active = false
+		dis_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_rtl_theme_line(dis_l)
+		dis_l.text = (
+			"Немилость Короны: [color=#ff9a7a]%d[/color] — меньше золота в жалованье и дороже услуги на базе. Подробности — вкладка «Караван»."
+			% dis
+		)
+		vbox.add_child(dis_l)
+	vbox.add_child(_make_crown_help_section_title("Бонусы вашего титула"))
+	for line in _crown_title_bonus_lines(cur):
+		vbox.add_child(_make_crown_help_bullet_label(line))
+	vbox.add_child(HSeparator.new())
+	vbox.add_child(_make_crown_help_section_title("Как растёт титул"))
+	vbox.add_child(
+		_make_crown_help_body_label(
+			"Каждая отгрузка караваном добавляет к тому, что вы уже отдали Короне за всю игру. Титул смотрит на это накопление, а не на размер одной партии.",
+			15
+		)
+	)
+
+
+func _populate_crown_help_titles(vbox: VBoxContainer) -> void:
+	_clear_vbox_children(vbox)
+	var intro := RichTextLabel.new()
+	intro.bbcode_enabled = true
+	intro.fit_content = true
+	intro.scroll_active = false
+	intro.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_rtl_theme_line(intro)
+	intro.text = (
+		"Ниже — ступени по тому, сколько [color=#9fd4ff]Сердцевины[/color] вы за всю игру отправили Короне караваном, и какие даются бонусы: жалованье, [color=#9fd4ff]шахта[/color] при возврате с острова, скидки на базе. Герб можно нажать."
+	)
+	vbox.add_child(intro)
+	var cur_idx := BalanceConfig.get_crown_title_index_for_ore_sent(SaveManager.ore_sent_to_crown_total)
+	var step_i := 0
+	for t in BalanceConfig.CROWN_TITLES:
+		if t is Dictionary:
+			vbox.add_child(_build_crown_help_title_card(t as Dictionary, step_i, step_i == cur_idx))
+			step_i += 1
+
+
+func _populate_crown_help_caravan_tab(vbox: VBoxContainer) -> void:
+	_clear_vbox_children(vbox)
+	vbox.add_child(_make_crown_help_section_title("Караван и походы"))
+	var rtl0 := RichTextLabel.new()
+	rtl0.bbcode_enabled = true
+	rtl0.fit_content = true
+	rtl0.scroll_active = false
+	rtl0.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_rtl_theme_line(rtl0)
+	rtl0.add_theme_font_size_override("normal_font_size", 15)
+	rtl0.text = (
+		"Пока обоз не ждёт у причала, [b]каждый ваш возврат с острова на базу[/b] приближает день, когда снова приедет [color=#e8c97a]караван Короны[/color]. "
+		+ "Это не часы на столе — ритм задают ваши походы.\n\n"
+		+ "Когда караван стоит в порту, время как будто замирает: ни ждать следующий приезд, ни отсчитывать срок приказа игра не будет, пока вы не отгрузите [color=#9fd4ff]Сердцевину[/color] или не [b]отпустите караван порожним[/b].\n\n"
+		+ "Сколько Корона ждёт от вас сейчас и успеваете ли — сказано прямо на экране [color=#e8c97a]«Караван Короны»[/color] в замке (отдельный слот в меню). "
+		+ "Там же, под [b]«Подробнее о правилах ▼»[/b], — развёрнутый текст. Первое поручение появится после первого приезда каравана."
+	)
+	vbox.add_child(rtl0)
+	vbox.add_child(HSeparator.new())
+	vbox.add_child(_make_crown_help_section_title("Немилость Короны"))
+	var rtl1 := RichTextLabel.new()
+	rtl1.bbcode_enabled = true
+	rtl1.fit_content = true
+	rtl1.scroll_active = false
+	rtl1.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_rtl_theme_line(rtl1)
+	rtl1.text = (
+		"Если к концу отведённого срока приказ по [color=#9fd4ff]Сердцевине[/color] выполнен слишком слабо, Корона остывает к вам: "
+		+ "в жалованье каравана золота меньше, на базе услуги и улучшения дороже. "
+		+ "Обида не бесконечна; щедрая отгрузка после провала может её смягчить."
+	)
+	vbox.add_child(rtl1)
+	var go := Button.new()
+	go.text = "Открыть «Караван Короны»"
+	go.focus_mode = Control.FOCUS_NONE
+	go.custom_minimum_size = Vector2(0, 48)
+	go.add_theme_font_size_override("font_size", 18)
+	go.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var gb := StyleBoxFlat.new()
+	gb.bg_color = Color(0.16, 0.2, 0.28, 1)
+	gb.set_border_width_all(1)
+	gb.border_color = Color(0.55, 0.62, 0.78, 0.75)
+	gb.set_corner_radius_all(10)
+	gb.content_margin_left = 16
+	gb.content_margin_top = 12
+	gb.content_margin_right = 16
+	gb.content_margin_bottom = 12
+	go.add_theme_stylebox_override("normal", gb)
+	var gb_h := gb.duplicate() as StyleBoxFlat
+	gb_h.bg_color = Color(0.22, 0.26, 0.36, 1)
+	go.add_theme_stylebox_override("hover", gb_h)
+	var gb_p := gb.duplicate() as StyleBoxFlat
+	gb_p.bg_color = Color(0.1, 0.12, 0.16, 1)
+	go.add_theme_stylebox_override("pressed", gb_p)
+	go.add_theme_color_override("font_color", Color(0.92, 0.9, 0.84, 1))
+	go.pressed.connect(_on_crown_help_go_caravan_pressed)
+	vbox.add_child(go)
+
+
+func _populate_crown_help_panel() -> void:
+	if _crown_help_layer == null:
+		return
+	for sc in _crown_help_tab_scrolls:
+		sc.scroll_vertical = 0
+	var o := _crown_help_layer.get_node_or_null("Root/Margin/Panel/MarginVBox/TabContentHost/ScrollOverview/OverviewVBox") as VBoxContainer
+	var t := _crown_help_layer.get_node_or_null("Root/Margin/Panel/MarginVBox/TabContentHost/ScrollTitles/TitlesVBox") as VBoxContainer
+	var c := _crown_help_layer.get_node_or_null("Root/Margin/Panel/MarginVBox/TabContentHost/ScrollCaravan/CaravanVBox") as VBoxContainer
+	if o == null or t == null or c == null:
+		return
+	_populate_crown_help_overview(o)
+	_populate_crown_help_titles(t)
+	_populate_crown_help_caravan_tab(c)
+	_set_crown_help_tab(_crown_help_tab_index)
 
 
 func _rtl_theme_line(rtl: RichTextLabel) -> void:
@@ -700,55 +1108,6 @@ func _make_crown_help_title_chip(art_path: String) -> Control:
 				CrownTitlePreview.show_texture_from_path(art_path)
 	)
 	return wrap
-
-
-func _populate_crown_help_panel() -> void:
-	var intro := _crown_help_layer.get_node_or_null("Root/Margin/Panel/MarginVBox/Scroll/HelpScrollVBox/HelpIntro") as RichTextLabel
-	var steps := _crown_help_layer.get_node_or_null("Root/Margin/Panel/MarginVBox/Scroll/HelpScrollVBox/HelpSteps") as VBoxContainer
-	var footer := _crown_help_layer.get_node_or_null("Root/Margin/Panel/MarginVBox/Scroll/HelpScrollVBox/HelpFooter") as RichTextLabel
-	if intro == null or steps == null or footer == null:
-		return
-	var head: PackedStringArray = []
-	head.append(CampCodexDossier.serdtsevina_info_bbcode())
-	head.append("")
-	head.append("[b]Как получить титул[/b]")
-	head.append("Каждая отправка [color=#9fd4ff]Сердцевины[/color] караваном Короны увеличивает ваш [color=#e8c97a]суммарный счёт[/color]. Титул зависит только от этого счёта — не от одной партии.")
-	head.append("")
-	head.append("[b]Ступени[/b] (нажмите на герб, чтобы увеличить)")
-	intro.text = "\n".join(head)
-	for c in steps.get_children():
-		c.queue_free()
-	var step_i := 0
-	for t in BalanceConfig.CROWN_TITLES:
-		if t is Dictionary:
-			var nm := str(t.get("name", ""))
-			var th := int(t.get("ore_threshold", 0))
-			var mb := int(t.get("mine_ore_bonus", 0))
-			var bonus := "шахта +" + str(mb) if mb > 0 else "без бонуса шахты"
-			var art_p := CrownSystem.get_crown_title_art_path_for_index(step_i)
-			var row := HBoxContainer.new()
-			row.add_theme_constant_override("separation", 12)
-			row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			if ResourceLoader.exists(art_p):
-				row.add_child(_make_crown_help_title_chip(art_p))
-			var line := RichTextLabel.new()
-			line.bbcode_enabled = true
-			line.fit_content = true
-			line.scroll_active = false
-			line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			_rtl_theme_line(line)
-			line.text = "· [color=#e8c97a]%s[/color] — с [color=#9fd4ff]%d[/color] ед. Сердцевины всего; %s" % [nm, th, bonus]
-			row.add_child(line)
-			steps.add_child(row)
-			step_i += 1
-	var tail: PackedStringArray = []
-	tail.append("")
-	tail.append("[b]Эффекты в игре[/b]")
-	tail.append("Сейчас титул влияет на добычу [color=#9fd4ff]шахты[/color] при возврате с острова (см. ступени выше).")
-	tail.append("")
-	tail.append("[b]Караван и приказы[/b]")
-	tail.append("Подробности — в разделе «Караван Короны» в замке.")
-	footer.text = "\n".join(tail)
 
 
 func _setup_caravan_panel_nodes() -> void:

@@ -30,8 +30,12 @@ func reset_monastery_menu_state() -> void:
 func _refresh_ui() -> void:
 	var hp_label := get_node_or_null("MonasteryPanel/MainActions/SlotsRow/slot_vitality/ColumnVitality/VitalityDesc") as Label
 	var hp_pct := GameManager.get_monastery_vitality_ratio_preview() * 100.0
+	var heal_mod := CrownSystem.get_heal_modifier()
 	if hp_label:
-		hp_label.text = "+%.0f%% к макс. здоровью героя (поход)" % hp_pct
+		if absf(heal_mod - 1.0) > 0.01:
+			hp_label.text = "+%.0f%% к макс. HP (поход) | Хил целителя: ×%.0f%%" % [hp_pct, heal_mod * 100.0]
+		else:
+			hp_label.text = "+%.0f%% к макс. здоровью героя (поход)" % hp_pct
 
 	var fortitude_desc := get_node_or_null("MonasteryPanel/MainActions/SlotsRow/slot_revive/ColumnRevive/ReviveDesc") as Label
 	if fortitude_desc:

@@ -6,9 +6,9 @@
 
 [sub_resource type="Resource" id="cond"]
 script = ExtResource("2_cond")
-required_flags = Array[String](["intro_base_island_done"])
+required_flags = Array[String]([])
 blocked_flags = Array[String]([])
-min_expedition_return_count = 1
+min_expedition_return_count = -1
 
 [resource]
 script = ExtResource("1_def")

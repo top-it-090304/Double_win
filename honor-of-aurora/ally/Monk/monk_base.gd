@@ -351,6 +351,10 @@ func _collect_wounded_healable_in_zone() -> Array[Node]:
 	return out
 
 
+func _effective_heal() -> int:
+	return maxi(1, int(round(float(heal_amount) * CrownSystem.get_heal_modifier())))
+
+
 func _heal_pulse() -> void:
 	if not can_heal:
 		return
@@ -359,8 +363,9 @@ func _heal_pulse() -> void:
 		return
 	can_heal = false
 	cooldown.start(heal_cooldown)
+	var eff := _effective_heal()
 	for target in targets:
-		GameplayFacade.try_apply_heal(target, heal_amount)
+		GameplayFacade.try_apply_heal(target, eff)
 		if target.has_method("play_heal_effect"):
 			target.play_heal_effect()
 	SoundManager.play_heal()
@@ -374,7 +379,7 @@ func _heal_pulse() -> void:
 func _heal_single(target: Node) -> void:
 	can_heal = false
 	cooldown.start(heal_cooldown)
-	GameplayFacade.try_apply_heal(target, heal_amount)
+	GameplayFacade.try_apply_heal(target, _effective_heal())
 	if target.has_method("play_heal_effect"):
 		target.play_heal_effect()
 	SoundManager.play_heal()

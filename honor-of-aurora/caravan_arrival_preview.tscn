@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3 uid="uid://drd58s6gvm6lu"]
+
+[ext_resource type="Script" uid="uid://c4s7h3ul4acjp" path="res://caravan_arrival_preview.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://cxrosschd3sn8" path="res://ui/dialogue/dialogue_window.tscn" id="2_dlg"]
+
+[node name="CaravanArrivalPreview" type="Node"]
+script = ExtResource("1_script")
+
+[node name="Backdrop" type="CanvasLayer" parent="."]
+layer = -10
+
+[node name="ColorRect" type="ColorRect" parent="Backdrop"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.06, 0.07, 0.09, 1)
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+layer = 30
+
+[node name="DialogueWindow" parent="UILayer" instance=ExtResource("2_dlg")]

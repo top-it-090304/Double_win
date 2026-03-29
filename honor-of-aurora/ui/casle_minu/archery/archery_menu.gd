@@ -32,7 +32,11 @@ func _refresh_ui() -> void:
 	if passive:
 		var hp_passive := GameManager.get_archery_passive_hp_ratio() * 100.0
 		var as_passive := GameManager.get_archery_passive_attack_speed_ratio() * 100.0
-		passive.text = "Пассив от тира: +%.0f%% HP лучников, +%.0f%% к темпу стрельбы." % [hp_passive, as_passive]
+		var dmg_mod := CrownSystem.get_archer_damage_modifier()
+		if absf(dmg_mod - 1.0) > 0.01:
+			passive.text = "Пассив: +%.0f%% HP, +%.0f%% темп. Урон стрел: ×%.0f%%." % [hp_passive, as_passive, dmg_mod * 100.0]
+		else:
+			passive.text = "Пассив от тира: +%.0f%% HP лучников, +%.0f%% к темпу стрельбы." % [hp_passive, as_passive]
 
 	var volley_desc := get_node_or_null("ArcheryPanel/MainActions/SlotsRow/slot_volley/ColumnVolley/VolleyDesc") as Label
 	if volley_desc:

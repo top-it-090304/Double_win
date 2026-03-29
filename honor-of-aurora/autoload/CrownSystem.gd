@@ -3,16 +3,8 @@ extends Node
 ## Autoload — зависит от SaveManager, BalanceConfig, Events, StoryState, GameManager.
 
 
-func _ready() -> void:
-	Events.caravan_arrived.connect(_on_caravan_arrived)
-
-
-func _on_caravan_arrived(_order_index: int) -> void:
-	call_deferred("_try_play_caravan_dialogue")
-
-
-func _try_play_caravan_dialogue() -> void:
-	DialogueRegistry.try_start("caravan_arrival", false)
+## Диалог прибытия запускает GameManager после смены сцены на базу (см. `_try_caravan_arrival_dialogue_on_base_ready`):
+## иначе `call_deferred` с сигнала срабатывает до готовности HUD — `DialogueWindow` вне дерева и `get_tree()` падает.
 
 
 ## ═══════════════════════════════════════════════════════
@@ -60,6 +52,7 @@ func _reset_expedition_tracking() -> void:
 	SaveManager.expedition_ore_collected = 0
 	SaveManager.expedition_wood_collected = 0
 	SaveManager.expedition_meat_collected = 0
+	degrade_armor()
 
 
 ## ═══════════════════════════════════════════════════════
@@ -90,7 +83,8 @@ func try_rest(hero_node: Node) -> bool:
 		max_hp = int(hero_node.get_max_health())
 	elif hero_node.get("max_health") != null:
 		max_hp = int(hero_node.get("max_health"))
-	var heal := BalanceConfig.get_rest_heal_amount(max_hp)
+	var base_heal := BalanceConfig.get_rest_heal_amount(max_hp)
+	var heal := maxi(1, int(round(float(base_heal) * get_rest_modifier())))
 	if hero_node.has_method("heal"):
 		hero_node.heal(heal)
 	elif GameplayFacade.try_apply_heal(hero_node, heal):
@@ -148,6 +142,7 @@ func _arrive_caravan() -> void:
 	_deliver_caravan_supplies()
 	var order_idx := SaveManager.crown_order_index
 	Events.caravan_arrived.emit(order_idx)
+	Events.caravan_pending_changed.emit(true)
 
 
 func _deliver_caravan_supplies() -> void:
@@ -202,6 +197,9 @@ func _apply_order_failure() -> void:
 	SaveManager.crown_displeasure = clampi(
 		SaveManager.crown_displeasure + 1, 0, BalanceConfig.DISPLEASURE_MAX_LEVEL
 	)
+	if SaveManager.crown_favor > 0:
+		SaveManager.crown_favor = 0
+		Events.crown_favor_changed.emit(0)
 	Events.crown_displeasure_changed.emit(SaveManager.crown_displeasure)
 	SaveManager.save_game()
 
@@ -209,6 +207,12 @@ func _apply_order_failure() -> void:
 ## ═══════════════════════════════════════════════════════
 ##  ОТПРАВКА РУДЫ КАРАВАНОМ
 ## ═══════════════════════════════════════════════════════
+
+func try_play_caravan_arrival_if_pending() -> void:
+	if not SaveManager.caravan_pending:
+		return
+	DialogueRegistry.try_start("caravan_arrival", false)
+
 
 func get_current_order_info() -> Dictionary:
 	if SaveManager.crown_order_index <= 0:
@@ -239,6 +243,7 @@ func send_ore_with_caravan(ore_amount: int) -> bool:
 	_update_crown_title()
 	_check_displeasure_recovery(actual)
 	SaveManager.save_game()
+	Events.caravan_pending_changed.emit(false)
 	Events.caravan_dispatched.emit(actual, SaveManager.caravan_sent_count)
 	return true
 
@@ -246,6 +251,7 @@ func send_ore_with_caravan(ore_amount: int) -> bool:
 func dismiss_caravan_empty() -> void:
 	SaveManager.caravan_pending = false
 	SaveManager.save_game()
+	Events.caravan_pending_changed.emit(false)
 
 
 func _check_order_completion() -> void:
@@ -258,16 +264,29 @@ func _check_order_completion() -> void:
 
 
 func _check_displeasure_recovery(ore_sent_now: int) -> void:
-	if SaveManager.crown_displeasure <= 0:
-		return
 	var order := BalanceConfig.get_crown_order(SaveManager.crown_order_index)
 	if order.is_empty():
 		return
 	var required := int(order.get("ore_required", 0))
-	if required > 0 and SaveManager.crown_order_ore_sent >= int(required * 1.2):
-		SaveManager.crown_displeasure = maxi(0, SaveManager.crown_displeasure - 1)
-		SaveManager.crown_orders_failed = maxi(0, SaveManager.crown_orders_failed - 1)
-		Events.crown_displeasure_changed.emit(SaveManager.crown_displeasure)
+	if required <= 0:
+		return
+	var sent := SaveManager.crown_order_ore_sent
+	if SaveManager.crown_displeasure > 0:
+		if sent >= int(required * 1.2):
+			SaveManager.crown_displeasure = maxi(0, SaveManager.crown_displeasure - 1)
+			SaveManager.crown_orders_failed = maxi(0, SaveManager.crown_orders_failed - 1)
+			Events.crown_displeasure_changed.emit(SaveManager.crown_displeasure)
+	elif sent >= required:
+		_try_increase_crown_favor()
+
+
+func _try_increase_crown_favor() -> void:
+	if SaveManager.crown_displeasure > 0:
+		return
+	if SaveManager.crown_favor >= BalanceConfig.CROWN_FAVOR_MAX_LEVEL:
+		return
+	SaveManager.crown_favor = clampi(SaveManager.crown_favor + 1, 0, BalanceConfig.CROWN_FAVOR_MAX_LEVEL)
+	Events.crown_favor_changed.emit(SaveManager.crown_favor)
 
 
 ## ═══════════════════════════════════════════════════════
@@ -280,6 +299,10 @@ func get_current_title() -> Dictionary:
 
 func get_current_title_name() -> String:
 	return str(get_current_title().get("name", "Рекрут Авроры"))
+
+
+func get_current_title_flavor() -> String:
+	return BalanceConfig.pick_crown_title_flavor(get_current_title())
 
 
 ## Арт титула: `res://Asets/титулы/1.png` … `6.png` (номер = индекс в BalanceConfig.CROWN_TITLES + 1).
@@ -321,7 +344,7 @@ func _update_crown_title() -> void:
 
 
 ## ═══════════════════════════════════════════════════════
-##  НЕМИЛОСТЬ — модификаторы для других систем
+##  НЕМИЛОСТЬ / ОДОБРЕНИЕ — модификаторы для других систем
 ## ═══════════════════════════════════════════════════════
 
 func get_gold_reward_crown_mult() -> float:
@@ -334,3 +357,67 @@ func get_building_cost_crown_mult() -> float:
 	var discount := 1.0 - BalanceConfig.get_crown_service_discount(SaveManager.ore_sent_to_crown_total)
 	var penalty := BalanceConfig.get_displeasure_building_cost_mult(SaveManager.crown_displeasure)
 	return maxf(0.5, discount * penalty)
+
+
+func get_crown_favor() -> int:
+	return clampi(SaveManager.crown_favor, 0, BalanceConfig.CROWN_FAVOR_MAX_LEVEL)
+
+
+func get_heal_modifier() -> float:
+	return BalanceConfig.get_supply_heal_mult(SaveManager.crown_displeasure, SaveManager.crown_favor)
+
+
+func get_rest_modifier() -> float:
+	return BalanceConfig.get_supply_rest_mult(SaveManager.crown_displeasure, SaveManager.crown_favor)
+
+
+func get_service_cost_modifier() -> float:
+	return BalanceConfig.get_supply_service_cost_mult(SaveManager.crown_displeasure, SaveManager.crown_favor)
+
+
+func get_archer_damage_modifier() -> float:
+	return BalanceConfig.get_supply_archer_damage_mult(SaveManager.crown_displeasure, SaveManager.crown_favor)
+
+
+## ═══════════════════════════════════════════════════════
+##  ИЗНОС СНАРЯЖЕНИЯ
+## ═══════════════════════════════════════════════════════
+
+
+func get_armor_durability() -> int:
+	return clampi(SaveManager.armor_durability, 0, BalanceConfig.ARMOR_MAX_DURABILITY)
+
+
+func degrade_armor() -> int:
+	var wear := BalanceConfig.ARMOR_WEAR_PER_EXPEDITION
+	SaveManager.armor_durability = maxi(0, SaveManager.armor_durability - wear)
+	Events.armor_durability_changed.emit(SaveManager.armor_durability)
+	SaveManager.save_game()
+	return SaveManager.armor_durability
+
+
+func get_armor_repair_cost() -> Dictionary:
+	var d := SaveManager.crown_displeasure
+	var f := SaveManager.crown_favor
+	return {
+		"gold": BalanceConfig.get_armor_repair_gold_cost(d, f),
+		"ore": BalanceConfig.get_armor_repair_ore_cost(d, f),
+	}
+
+
+func try_repair_armor() -> bool:
+	if SaveManager.armor_durability >= BalanceConfig.ARMOR_MAX_DURABILITY:
+		return false
+	var cost := get_armor_repair_cost()
+	var gold_cost: int = int(cost.get("gold", 0))
+	var ore_cost: int = int(cost.get("ore", 0))
+	if not GameplayFacade.try_spend_gold_plus_ore(gold_cost, ore_cost):
+		return false
+	SaveManager.armor_durability = BalanceConfig.ARMOR_MAX_DURABILITY
+	Events.armor_durability_changed.emit(SaveManager.armor_durability)
+	SaveManager.save_game()
+	return true
+
+
+func get_armor_block_penalty() -> float:
+	return BalanceConfig.get_armor_block_penalty(SaveManager.armor_durability)

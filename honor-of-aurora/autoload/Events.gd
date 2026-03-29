@@ -19,12 +19,18 @@ signal ore_changed(value: int)
 signal premium_ore_pack_purchased(pack_id: String, ore_added: int)
 ## Караван Короны прибыл на базу и ожидает загрузки.
 signal caravan_arrived(order_index: int)
+## `caravan_pending` в сохранении сменился — визуал второго борта у причала и т.п.
+signal caravan_pending_changed(pending: bool)
 ## Караван отправлен с рудой.
 signal caravan_dispatched(ore_sent: int, caravan_count: int)
 ## Титул Короны повышен.
 signal crown_title_changed(new_title_index: int, title_name: String)
 ## Немилость Короны изменилась.
 signal crown_displeasure_changed(level: int)
+## Одобрение Короны изменилось.
+signal crown_favor_changed(level: int)
+## Износ снаряжения изменился.
+signal armor_durability_changed(durability: int)
 ## Шахта выдала руду при возврате с похода.
 signal mine_harvested(ore_amount: int)
 ## Привал на острове: герой исцелён мясом.

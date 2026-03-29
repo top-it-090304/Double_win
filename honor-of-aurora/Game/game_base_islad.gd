@@ -14,6 +14,9 @@ func _ready() -> void:
 	add_to_group("base_sheep_spawner")
 	# Стартовая позиция героя — центр тайла лодки (см. GameManager.get_boat_tile_center_global).
 	super._ready()
+	if not Events.caravan_pending_changed.is_connected(_on_caravan_pending_changed):
+		Events.caravan_pending_changed.connect(_on_caravan_pending_changed)
+	call_deferred("_sync_crown_boat2_visibility")
 	call_deferred("_setup_base_ore_mine_entry_zone")
 	call_deferred("_setup_base_navigation_from_tile_collisions")
 	var tree := get_tree()
@@ -26,9 +29,30 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	if Events.caravan_pending_changed.is_connected(_on_caravan_pending_changed):
+		Events.caravan_pending_changed.disconnect(_on_caravan_pending_changed)
 	var tree := get_tree()
 	if tree and tree.node_added.is_connected(_on_tree_node_added_hide_unit_hp):
 		tree.node_added.disconnect(_on_tree_node_added_hide_unit_hp)
+
+
+func _crown_boat2_layer() -> CanvasItem:
+	var b := find_child("boat2", true, false) as CanvasItem
+	return b
+
+
+func _sync_crown_boat2_visibility() -> void:
+	var layer := _crown_boat2_layer()
+	if layer == null:
+		return
+	layer.visible = SaveManager.caravan_pending
+
+
+func _on_caravan_pending_changed(pending: bool) -> void:
+	var layer := _crown_boat2_layer()
+	if layer == null:
+		return
+	layer.visible = pending
 
 
 func _on_tree_node_added_hide_unit_hp(node: Node) -> void:

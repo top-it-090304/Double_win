@@ -343,7 +343,7 @@ func take_damage(amount: Variant) -> void:
 		if health_component:
 			health_component.heal(-a)
 		return
-	var shield_factor: float = GameManager.armory_shield_damage_factor
+	var shield_factor: float = minf(0.95, GameManager.armory_shield_damage_factor + CrownSystem.get_armor_block_penalty())
 	var final_damage: int = int(a * shield_factor) if state == State.SHIELD else a
 	if state == State.SHIELD:
 		SoundManager.play_shield_block()

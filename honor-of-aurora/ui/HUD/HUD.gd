@@ -14,6 +14,8 @@ extends "res://ui/HUD/game_hud.gd"
 @export var camp_codex_open_button: Button
 
 var _codex_badge: TextureRect
+var _armor_hud_label: Label
+var _supply_hud_label: Label
 
 
 func set_target_location(location: Events.LOCATION) -> void:
@@ -32,8 +34,12 @@ func _on_codex_button_pressed() -> void:
 
 func _ready() -> void:
 	visible = not Engine.is_editor_hint()
+	## @tool: в редакторе автозагрузки — placeholder без методов/сигналов; не трогаем SaveManager, Events, DialogueManager.
+	if Engine.is_editor_hint():
+		return
 	set_process_input(true)
-	teleport_menu.hide()
+	if teleport_menu:
+		teleport_menu.hide()
 	if debug_menu:
 		debug_menu.hide()
 	if camp_codex_open_button:
@@ -42,8 +48,14 @@ func _ready() -> void:
 			camp_codex_open_button.resized.connect(_on_codex_open_button_resized)
 		_setup_codex_badge()
 	Events.location_changed.connect(_on_location_changed_codex_button)
+	Events.location_changed.connect(_on_location_changed_supply_hud)
+	Events.armor_durability_changed.connect(_on_supply_hud_data_changed)
+	Events.crown_displeasure_changed.connect(_on_supply_hud_data_changed)
+	Events.crown_favor_changed.connect(_on_supply_hud_data_changed)
 	_on_location_changed_codex_button(Events.current_location)
 	DialogueManager.dialogue_ended.connect(_on_any_dialogue_ended_for_badge)
+	_build_supply_hud()
+	_refresh_supply_hud()
 
 
 func _setup_codex_badge() -> void:
@@ -73,6 +85,8 @@ func _on_codex_open_button_resized() -> void:
 
 
 func _update_codex_badge() -> void:
+	if Engine.is_editor_hint():
+		return
 	if _codex_badge == null:
 		return
 	_codex_badge.visible = SaveManager.has_unseen_codex_content()
@@ -86,6 +100,70 @@ func _on_location_changed_codex_button(_loc: Events.LOCATION) -> void:
 	if camp_codex_open_button == null:
 		return
 	camp_codex_open_button.visible = Events.current_location != Events.LOCATION.MENU
+
+
+func _build_supply_hud() -> void:
+	var tex_rect := get_node_or_null("TextureRect") as Control
+	if tex_rect == null:
+		return
+
+	_armor_hud_label = Label.new()
+	_armor_hud_label.add_theme_font_size_override("font_size", 18)
+	_armor_hud_label.add_theme_color_override("font_color", Color(0.82, 0.86, 0.92, 0.85))
+	_armor_hud_label.position = Vector2(154, 82)
+	_armor_hud_label.size = Vector2(260, 24)
+	tex_rect.add_child(_armor_hud_label)
+
+	_supply_hud_label = Label.new()
+	_supply_hud_label.add_theme_font_size_override("font_size", 18)
+	_supply_hud_label.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 0.75))
+	_supply_hud_label.position = Vector2(420, 82)
+	_supply_hud_label.size = Vector2(360, 24)
+	tex_rect.add_child(_supply_hud_label)
+
+
+func _refresh_supply_hud() -> void:
+	var on_base := Events.current_location == Events.LOCATION.BASE
+	if _armor_hud_label:
+		_armor_hud_label.visible = on_base
+	if _supply_hud_label:
+		_supply_hud_label.visible = on_base
+	if not on_base:
+		return
+
+	if _armor_hud_label:
+		var dur := CrownSystem.get_armor_durability()
+		var pct := int(round(float(dur) / float(BalanceConfig.ARMOR_MAX_DURABILITY) * 100.0))
+		var c: Color
+		if dur <= BalanceConfig.ARMOR_CRITICAL_THRESHOLD:
+			c = Color(0.95, 0.3, 0.3)
+		elif dur <= BalanceConfig.ARMOR_WORN_THRESHOLD:
+			c = Color(0.95, 0.7, 0.25)
+		else:
+			c = Color(0.55, 0.8, 0.55)
+		_armor_hud_label.add_theme_color_override("font_color", c)
+		_armor_hud_label.text = "Броня: %d%%" % pct
+
+	if _supply_hud_label:
+		var d := SaveManager.crown_displeasure
+		var f := SaveManager.crown_favor
+		if d > 0:
+			_supply_hud_label.add_theme_color_override("font_color", Color(0.9, 0.5, 0.4, 0.85))
+			_supply_hud_label.text = "Немилость %s" % ["I", "II", "III"][clampi(d - 1, 0, 2)]
+		elif f > 0:
+			_supply_hud_label.add_theme_color_override("font_color", Color(0.5, 0.85, 0.6, 0.85))
+			_supply_hud_label.text = "Одобрение %s" % ["I", "II", "III"][clampi(f - 1, 0, 2)]
+		else:
+			_supply_hud_label.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 0.5))
+			_supply_hud_label.text = ""
+
+
+func _on_location_changed_supply_hud(_loc: Events.LOCATION) -> void:
+	_refresh_supply_hud()
+
+
+func _on_supply_hud_data_changed(_value: int) -> void:
+	_refresh_supply_hud()
 
 
 func _suppress_camp_codex_for_other_modal() -> void:
