@@ -85,6 +85,7 @@ func open_for(unit: Node2D) -> void:
 	_stage = 0
 	_show_squad_greeting_stage()
 	SoundManager.play_menu_open()
+	SoundManager.play_dialogue_speaker_blip_for_squad_unit(unit)
 	visible = true
 	get_tree().paused = true
 	MobileVirtualInput.clear_input()
@@ -141,6 +142,7 @@ func _show_hero_orders_stage() -> void:
 	_choices_scroll.visible = true
 	_build_order_choice_buttons()
 	_apply_dialogue_chrome_height(_choices_vbox.get_child_count())
+	SoundManager.play_dialogue_speaker_blip("hero")
 	call_deferred("_deferred_fit_labels")
 
 
@@ -177,11 +179,9 @@ func _squad_speaker_title(u: Node2D) -> String:
 
 func _on_continue_pressed() -> void:
 	if _stage == 0:
-		SoundManager.play_dialogue_advance()
 		_stage = 1
 		_show_hero_orders_stage()
 	elif _stage == 2:
-		SoundManager.play_dialogue_advance()
 		_patrol_banter_available_at = Time.get_ticks_msec() / 1000.0 + PATROL_BANTER_COOLDOWN_SEC
 		_stage = 1
 		_show_hero_orders_stage()
@@ -420,6 +420,7 @@ func _apply_patrol_banter_answer(answer: String) -> void:
 		_name_label.text = "Солдат"
 	_face.visible = true
 	_text_label.text = answer
+	SoundManager.play_dialogue_speaker_blip_for_squad_unit(_context_unit)
 	call_deferred("_deferred_fit_labels")
 
 

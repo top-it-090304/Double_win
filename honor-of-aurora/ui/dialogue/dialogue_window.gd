@@ -212,7 +212,6 @@ func _advance_dialogue_or_page() -> void:
 		_fit_dialogue_text_font()
 		_refresh_continue_button()
 		return
-	SoundManager.play_dialogue_advance()
 	DialogueManager.advance_line()
 
 
@@ -279,6 +278,8 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 			_choices_vbox.add_child(btn)
 			_choice_buttons.append(btn)
 		_refresh_continue_button()
+		if epoch == _line_change_epoch and is_inside_tree():
+			SoundManager.play_dialogue_speaker_blip(line.speaker_id)
 		## process_always: таймер срабатывает даже при паузе дерева (диалог с pause_game).
 		if not is_inside_tree():
 			return
@@ -311,6 +312,8 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 	_text_label.text = _text_pages[0] if not _text_pages.is_empty() else ""
 	_fit_dialogue_text_font()
 	_refresh_continue_button()
+	if epoch == _line_change_epoch and is_inside_tree():
+		SoundManager.play_dialogue_speaker_blip(line.speaker_id)
 
 
 func _clear_choice_ui() -> void:

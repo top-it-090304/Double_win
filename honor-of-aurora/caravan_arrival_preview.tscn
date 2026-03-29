@@ -1,6 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://drd58s6gvm6lu"]
+[gd_scene load_steps=3 format=3 uid="uid://b41uxxsrg5vio"]
 
-[ext_resource type="Script" uid="uid://c4s7h3ul4acjp" path="res://caravan_arrival_preview.gd" id="1_script"]
+[ext_resource type="Script" path="res://caravan_arrival_preview.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://cxrosschd3sn8" path="res://ui/dialogue/dialogue_window.tscn" id="2_dlg"]
 
 [node name="CaravanArrivalPreview" type="Node"]

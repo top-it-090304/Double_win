@@ -24,8 +24,9 @@ const VOL_SHIELD := -8.0
 const VOL_SHIELD_RAISE := -6.0
 const VOL_UI := -36.0
 const VOL_UI_MENU := -40.0
-const VOL_DIALOGUE := -36.0
-const VOL_DIALOGUE_PAGE := -38.0
+## Голосовые блипы в диалоге: громче «сырой» уровень; итог крутит шина Dialogue × SaveManager.volume_dialogue.
+const VOL_DIALOGUE := -14.0
+const VOL_DIALOGUE_PAGE := -18.0
 const VOL_FOOTSTEP := -34.0
 const VOL_REWARD := -24.0
 const VOL_LEVEL_UP := -18.0
@@ -58,6 +59,42 @@ const STREAM_DEATH := preload("res://audio/sfx/death.ogg")
 const STREAM_DIALOGUE_PAGE_TURN := preload("res://audio/sfx/dialogue/page_turn.ogg")
 
 const STREAM_UI_DIALOGUE := preload("res://audio/sfx/ui/dialogue_advance.ogg")
+
+## Короткие «мумбл»-блипы (Kenney / CC0 в LICENSE_SOURCES). Один закреплённый сэмпл на speaker_id / тип юнита — без rand().
+const DIALOGUE_MUMBLE_MALE: Array[AudioStream] = [
+	preload("res://audio/sfx/dialogue/mumble_male_1.ogg"),
+	preload("res://audio/sfx/dialogue/mumble_male_2.ogg"),
+	preload("res://audio/sfx/dialogue/mumble_male_3.ogg"),
+	preload("res://audio/sfx/dialogue/mumble_male_4.ogg"),
+]
+const DIALOGUE_MUMBLE_FEMALE: Array[AudioStream] = [
+	preload("res://audio/sfx/dialogue/mumble_female_1.ogg"),
+	preload("res://audio/sfx/dialogue/mumble_female_2.ogg"),
+	preload("res://audio/sfx/dialogue/mumble_female_3.ogg"),
+	preload("res://audio/sfx/dialogue/mumble_female_4.ogg"),
+]
+const DIALOGUE_MUMBLE_WHISPER: Array[AudioStream] = [
+	preload("res://audio/sfx/dialogue/mumble_whisper_1.ogg"),
+	preload("res://audio/sfx/dialogue/mumble_whisper_2.ogg"),
+	preload("res://audio/sfx/dialogue/mumble_whisper_3.ogg"),
+	preload("res://audio/sfx/dialogue/mumble_whisper_4.ogg"),
+]
+
+## speaker_id из DialogueLine / лора → [индекс в массиве выше, "male"|"female"|"whisper", pitch_scale].
+const _SPEAKER_BLIP := {
+	"hero": [0, &"male", 1.0],
+	"healer": [1, &"male", 0.96],
+	"young_worker": [2, &"male", 1.06],
+	"veteran": [3, &"male", 0.91],
+	"caravan": [0, &"female", 0.98],
+	"narrator": [0, &"whisper", 1.0],
+	"letter": [1, &"whisper", 1.02],
+	## Внутренние id для меню приказов (не speaker_id в ресурсах).
+	"_squad_archer": [1, &"female", 1.0],
+	"_squad_lancer": [2, &"male", 0.97],
+	"_squad_pawn": [2, &"male", 0.89],
+	"_squad_default": [0, &"male", 0.94],
+}
 const STREAM_UI_MENU_OPEN := preload("res://audio/sfx/ui/menu_open.ogg")
 const STREAM_UI_MENU_CLOSE := preload("res://audio/sfx/ui/menu_close.ogg")
 const STREAM_UI_BUTTON := preload("res://audio/sfx/ui/button_soft.ogg")
@@ -420,8 +457,60 @@ func play_death() -> void:
 	_play_sfx(STREAM_DEATH, randf_range(0.97, 1.03), VOL_COMBAT, BUS_SFX)
 
 
+## Блип голоса при появлении реплики (speaker_id из DialogueLine).
+func play_dialogue_speaker_blip(speaker_id: String) -> void:
+	var sid: String = speaker_id.strip_edges().to_lower()
+	var stream: AudioStream = null
+	var pitch: float = 1.0
+	if _SPEAKER_BLIP.has(sid):
+		var spec: Array = _SPEAKER_BLIP[sid]
+		var idx: int = int(spec[0])
+		var kind: StringName = spec[1]
+		pitch = float(spec[2])
+		stream = _dialogue_mumble_at(kind, idx)
+	else:
+		## Неизвестный id — стабильно от строки (не rand), чтобы новые персонажи сразу получали «свой» тембр.
+		var h: int = hash(sid)
+		var u: int = absi(h)
+		stream = DIALOGUE_MUMBLE_MALE[u % DIALOGUE_MUMBLE_MALE.size()]
+		pitch = 0.93 + float((u >> 4) % 7) * 0.02
+	if stream == null:
+		stream = STREAM_UI_DIALOGUE
+		pitch = 1.0
+	_play_sfx(stream, pitch, VOL_DIALOGUE, BUS_DIALOGUE)
+
+
+func _dialogue_mumble_at(kind: StringName, idx: int) -> AudioStream:
+	var a: Array[AudioStream] = DIALOGUE_MUMBLE_MALE
+	if kind == &"female":
+		a = DIALOGUE_MUMBLE_FEMALE
+	elif kind == &"whisper":
+		a = DIALOGUE_MUMBLE_WHISPER
+	if a.is_empty():
+		return null
+	return a[idx % a.size()]
+
+
+## Меню отряда: свой блип на тип юнита (группы ally_* / сюжетный юноша).
+func play_dialogue_speaker_blip_for_squad_unit(unit: Node) -> void:
+	if unit == null or not is_instance_valid(unit):
+		play_dialogue_speaker_blip("hero")
+		return
+	if unit.is_in_group("ally_archer"):
+		play_dialogue_speaker_blip("_squad_archer")
+	elif unit.is_in_group("ally_lancer"):
+		play_dialogue_speaker_blip("_squad_lancer")
+	elif unit.is_in_group("story_youth_companion"):
+		play_dialogue_speaker_blip("young_worker")
+	elif unit.is_in_group("ally_pawn"):
+		play_dialogue_speaker_blip("_squad_pawn")
+	else:
+		play_dialogue_speaker_blip("_squad_default")
+
+
+## Совместимость: раньше — один UI-щелчок с случайным pitch; теперь блип героя (меню отряда вызывает явно).
 func play_dialogue_advance() -> void:
-	_play_sfx(STREAM_UI_DIALOGUE, randf_range(0.98, 1.02), VOL_DIALOGUE, BUS_DIALOGUE)
+	play_dialogue_speaker_blip("hero")
 
 
 func play_dialogue_page_turn() -> void:

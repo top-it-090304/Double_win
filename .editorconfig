@@ -1,4 +1,4 @@
-# https://editorconfig.org — Cursor/VS Code подхватят end_of_line для новых сохранений.
+# https://editorconfig.org — редакторы с поддержкой EditorConfig подхватят end_of_line.
 root = true
 
 [*]
