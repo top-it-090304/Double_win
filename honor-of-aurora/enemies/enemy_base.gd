@@ -528,7 +528,7 @@ func _on_health_damage_applied(amount: int) -> void:
 	show_damage_number(amount)
 	if health_component == null or health_component.current_health <= 0:
 		return
-	if state != State.DEATH and state != State.HIT and anim.sprite_frames.has_animation("hit"):
+	if state != State.DEATH and state != State.HIT and anim.sprite_frames and anim.sprite_frames.has_animation("hit"):
 		if _anim_safety_timer:
 			_anim_safety_timer.stop()
 		state = State.HIT

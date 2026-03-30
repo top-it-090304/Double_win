@@ -310,7 +310,7 @@ func change_state(new_state: State):
 		State.SHIELD:
 			velocity = Vector2.ZERO
 			anim.speed_scale = move_anim_speed_scale
-			if anim.sprite_frames.has_animation("shield"):
+			if anim.sprite_frames and anim.sprite_frames.has_animation("shield"):
 				anim.play("shield")
 			else:
 				back_to_movement()
@@ -480,6 +480,8 @@ func _try_building_menu_instead_of_attack() -> bool:
 
 
 func apply_damage():
+	if attack_area == null or not is_instance_valid(attack_area):
+		return
 	for body in attack_area.get_overlapping_bodies():
 		if body.is_in_group("enemy") or body.is_in_group("base_sheep"):
 			GameplayFacade.try_apply_damage(body, attack_damage)
@@ -595,7 +597,7 @@ func _apply_hero_tier_for_level(hero_level: int) -> void:
 		if state == State.ATTACK:
 			anim.speed_scale = attack_anim_speed_scale
 		elif state == State.SHIELD:
-			if anim.sprite_frames.has_animation("shield"):
+			if anim.sprite_frames and anim.sprite_frames.has_animation("shield"):
 				anim.play("shield")
 			else:
 				back_to_movement()
