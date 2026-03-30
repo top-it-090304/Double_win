@@ -362,7 +362,7 @@ func take_damage(amount: Variant) -> void:
 
 
 func _play_hurt_haptic_safe() -> void:
-	if not SaveManager.haptic_enabled or not is_instance_valid(self):
+	if not SaveManager.haptic_enabled or not is_instance_valid(self) or not is_inside_tree():
 		return
 	Input.vibrate_handheld(32)
 

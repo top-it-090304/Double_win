@@ -69,13 +69,6 @@ offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("1_lihe2")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-root_node = NodePath("../Label")
-libraries = {
-&"": SubResource("AnimationLibrary_q516s")
-}
-autoplay = "float_up"
-
 [node name="Label" type="Label" parent="."]
 layout_mode = 0
 offset_right = 51.0
@@ -85,5 +78,11 @@ theme_override_font_sizes/font_size = 45
 text = "10"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+root_node = NodePath("../Label")
+libraries = {
+&"": SubResource("AnimationLibrary_q516s")
+}
 
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]

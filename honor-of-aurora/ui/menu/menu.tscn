@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://odmcdls13s41"]
+[gd_scene load_steps=8 format=3 uid="uid://odmcdls13s41"]
 
 [ext_resource type="Script" uid="uid://cyuad7uq0huwf" path="res://ui/menu/menu.gd" id="1_trkij"]
 [ext_resource type="Texture2D" uid="uid://b6wip7ayua3kn" path="res://Asets/Unit_pack/UI Elements/UI Elements/Buttons/SmallBlueSquareButton_Regular.png" id="1_v6ljw"]
@@ -7,7 +7,6 @@
 [ext_resource type="Texture2D" uid="uid://dgwuk12s7shin" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_06.png" id="5_67opo"]
 [ext_resource type="Texture2D" uid="uid://c2rqbrhh8kb1w" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_10.png" id="6_k06v0"]
 [ext_resource type="Texture2D" uid="uid://c2sncif5w46no" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_09.png" id="7_pqn8s"]
-[ext_resource type="Texture2D" uid="uid://bqvnolog7img4" path="res://images/Logo/Logo.png" id="8_logo"]
 
 [node name="Menu" type="Control"]
 layout_mode = 3
@@ -17,16 +16,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_trkij")
-
-[node name="GameLogo" type="TextureRect" parent="."]
-layout_mode = 0
-offset_left = 320.0
-offset_top = 24.0
-offset_right = 960.0
-offset_bottom = 204.0
-texture = ExtResource("8_logo")
-expand_mode = 1
-stretch_mode = 5
 
 [node name="continue" type="Button" parent="."]
 self_modulate = Color(0.25098, 1, 0.713726, 1)

@@ -34,7 +34,9 @@ func try_apply_heal(target: Node, amount: int) -> bool:
 
 func _get_damage_numbers_layer(tree: SceneTree) -> CanvasLayer:
 	if _damage_numbers_layer != null and is_instance_valid(_damage_numbers_layer):
-		return _damage_numbers_layer
+		if _damage_numbers_layer.is_inside_tree():
+			return _damage_numbers_layer
+		_damage_numbers_layer = null
 	var ly := CanvasLayer.new()
 	ly.name = "DamageNumbersCanvasLayer"
 	ly.layer = 36
@@ -44,7 +46,7 @@ func _get_damage_numbers_layer(tree: SceneTree) -> CanvasLayer:
 
 
 func spawn_damage_number(parent: Node2D, amount: int, offset: Vector2 = Vector2(-26, -80)) -> void:
-	if parent == null or not is_instance_valid(parent):
+	if parent == null or not is_instance_valid(parent) or not parent.is_inside_tree():
 		return
 	var tree := parent.get_tree()
 	if tree == null:

@@ -64,11 +64,12 @@ func _on_health_changed(current: int, maximum: int) -> void:
 	var mx: int = maxi(maximum, 1)
 	_progress.max_value = float(mx)
 	visible = current > 0
+	if _value_tween:
+		_value_tween.kill()
+		_value_tween = null
 	if not visible:
 		return
 	var target: float = clampf(float(current), 0.0, float(mx))
-	if _value_tween:
-		_value_tween.kill()
 	_value_tween = create_tween()
 	_value_tween.set_ease(Tween.EASE_OUT)
 	_value_tween.set_trans(Tween.TRANS_CUBIC)

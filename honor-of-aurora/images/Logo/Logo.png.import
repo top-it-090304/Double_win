@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bqvnolog7img4"
-path="res://.godot/imported/Logo.png-0b142861f8aebf07d983fa01c0d3bf23.ctex"
+path="res://.godot/imported/Logo.png-5fc52650b36583cdf41e34ede0a8a646.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://images/Logo/Logo.png"
-dest_files=["res://.godot/imported/Logo.png-0b142861f8aebf07d983fa01c0d3bf23.ctex"]
+dest_files=["res://.godot/imported/Logo.png-5fc52650b36583cdf41e34ede0a8a646.ctex"]
 
 [params]
 
