@@ -31,7 +31,8 @@ func _gui_input(event: InputEvent) -> void:
 		var st := event as InputEventScreenTouch
 		if st.pressed:
 			if _touch_id < 0:
-				var local := _event_local_pos(st)
+				## Не вызывать make_input_local: в _gui_input позиция уже локальная (Viewport + ScreenTouch).
+				var local := st.position
 				if _in_circle(local):
 					_touch_id = st.index
 					_dragging = true
@@ -42,8 +43,8 @@ func _gui_input(event: InputEvent) -> void:
 	elif event is InputEventScreenDrag:
 		var sd := event as InputEventScreenDrag
 		if sd.index == _touch_id and _dragging:
-			var local := _event_local_pos(sd)
-			_apply_local(local)
+			## Позиция уже в локальных координатах этого Control (см. Viewport::_gui_* для ScreenDrag).
+			_apply_local(sd.position)
 	elif event is InputEventMouseMotion:
 		var mm := event as InputEventMouseMotion
 		if _dragging and _touch_id == 0 and (mm.button_mask & MOUSE_BUTTON_MASK_LEFT) != 0:
@@ -61,15 +62,6 @@ func _gui_input(event: InputEvent) -> void:
 			else:
 				if _touch_id == 0:
 					_reset_stick()
-
-
-func _event_local_pos(e: InputEvent) -> Vector2:
-	var ev := make_input_local(e)
-	if ev is InputEventScreenTouch:
-		return (ev as InputEventScreenTouch).position
-	if ev is InputEventScreenDrag:
-		return (ev as InputEventScreenDrag).position
-	return Vector2.ZERO
 
 
 func _in_circle(local: Vector2) -> bool:

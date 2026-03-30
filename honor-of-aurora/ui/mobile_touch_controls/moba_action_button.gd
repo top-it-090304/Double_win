@@ -204,6 +204,8 @@ func _try_rally_squad() -> void:
 		return
 	if Events.current_location == Events.LOCATION.MENU:
 		return
+	if Events.current_location == Events.LOCATION.BASE:
+		return
 	GameplayFacade.try_rally_straggler_allies_to_hero()
 
 

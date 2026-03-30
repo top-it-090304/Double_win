@@ -1,14 +1,39 @@
 extends Node
 
 ## SFX и плейлисты: см. audio/LICENSE_SOURCES.txt
-## Фон: папки res://audio/music/playlists/island_01 .. island_05 (случайный порядок внутри папки).
+## Фон: треки island_01..05 — явные preload в _ISLAND_*_TRACKS (случайный порядок внутри тира).
 ## База и меню — всегда island_01. На LVL*N до победы над боссом острова — island_0N; после флага story_island_N_cleared на этом острове — снова island_01.
 ## После story_island_5_cleared — везде island_05 (напряжённо), в т.ч. на базе.
 ## Шины: Music / SFX / UI / Dialogue (создаются в _ensure_audio_buses), громкость — SaveManager + компрессор на SFX.
 
-const PLAYLIST_ROOT := "res://audio/music/playlists"
 const _PLAYLIST_TIER_BASE := 1
 const _PLAYLIST_TIER_FINALE := 5
+
+## Явные preload — чтобы треки точно попали в экспорт (Android и др.): динамический DirAccess + load()
+## по строковым путям не всегда виден сборщику зависимостей, из‑за этого плейлист в релизе бывает пустым.
+const _ISLAND_01_TRACKS: Array[AudioStream] = [
+	preload("res://audio/music/playlists/island_01/bg_02_field_of_dreams_cc0.ogg"),
+	preload("res://audio/music/playlists/island_01/bg_03_grassland_cc0.ogg"),
+	preload("res://audio/music/playlists/island_01/bg_04_town_theme_cc0.ogg"),
+	preload("res://audio/music/playlists/island_01/fantasy_grasslands_cc0.ogg"),
+]
+const _ISLAND_02_TRACKS: Array[AudioStream] = [
+	preload("res://audio/music/playlists/island_02/Battle_cc0_Wolfgang_.ogg"),
+	preload("res://audio/music/playlists/island_02/game_battleground_cc0_Doge.ogg"),
+	preload("res://audio/music/playlists/island_02/treasure_hunter_cc0_TAD.ogg"),
+]
+const _ISLAND_03_TRACKS: Array[AudioStream] = [
+	preload("res://audio/music/playlists/island_03/breves_dies_hominis_cc0_MagdalenKadel.ogg"),
+	preload("res://audio/music/playlists/island_03/cave_theme_b4_cc0_Brandon75689.ogg"),
+]
+const _ISLAND_04_TRACKS: Array[AudioStream] = [
+	preload("res://audio/music/playlists/island_04/Col_Legno_cc0_Vehicle.ogg"),
+	preload("res://audio/music/playlists/island_04/determined_pursuit_loop_cc0_Emma_MA.ogg"),
+]
+const _ISLAND_05_TRACKS: Array[AudioStream] = [
+	preload("res://audio/music/playlists/island_05/bosstheme_WO_low_cc0_Lisboa.ogg"),
+	preload("res://audio/music/playlists/island_05/Epic_Boss_Battle_loop_cc0_SubspaceAudio.ogg"),
+]
 
 const BUS_MUSIC := &"Music"
 const BUS_SFX := &"SFX"
@@ -113,8 +138,6 @@ var _sfx_pool: Array[AudioStreamPlayer] = []
 var _playlist_order: Array[int] = []
 var _playlist_cursor: int = 0
 var _playlist_tier_when_shuffled: int = -1
-## Кэш загруженных AudioStream по тиру (после правок папок в редакторе перезапустите игру или вызовите invalidate).
-var _playlist_stream_cache: Dictionary = {}
 var _prev_location: Events.LOCATION = Events.LOCATION.MENU
 var _music_duck_db: float = 0.0
 
@@ -227,7 +250,6 @@ func _refresh_music_duck() -> void:
 func notify_adventure_music_progress() -> void:
 	var tier := _desired_playlist_tier()
 	if tier != _playlist_tier_when_shuffled:
-		_playlist_stream_cache.clear()
 		_playlist_order.clear()
 		_playlist_cursor = 0
 		_playlist_tier_when_shuffled = -1
@@ -272,43 +294,27 @@ func _desired_playlist_tier() -> int:
 	return island_idx
 
 
-func _load_audio_streams_from_folder(folder_path: String) -> Array[AudioStream]:
-	var out: Array[AudioStream] = []
-	var dir := DirAccess.open(folder_path)
-	if dir == null:
-		return out
-	var err := dir.list_dir_begin()
-	if err != OK:
-		return out
-	var fn := dir.get_next()
-	while fn != "":
-		if dir.current_is_dir() or fn.begins_with("."):
-			fn = dir.get_next()
-			continue
-		var low := fn.to_lower()
-		if not (low.ends_with(".ogg") or low.ends_with(".mp3") or low.ends_with(".wav")):
-			fn = dir.get_next()
-			continue
-		var full_path := folder_path.path_join(fn)
-		if not ResourceLoader.exists(full_path):
-			fn = dir.get_next()
-			continue
-		var res := load(full_path)
-		if res is AudioStream:
-			out.append(res as AudioStream)
-		fn = dir.get_next()
-	dir.list_dir_end()
-	return out
+func _tier_tracks_raw(tier: int) -> Array[AudioStream]:
+	match clampi(tier, 1, 5):
+		1:
+			return _ISLAND_01_TRACKS
+		2:
+			return _ISLAND_02_TRACKS
+		3:
+			return _ISLAND_03_TRACKS
+		4:
+			return _ISLAND_04_TRACKS
+		5:
+			return _ISLAND_05_TRACKS
+		_:
+			return _ISLAND_01_TRACKS
 
 
 func _get_streams_for_tier(tier: int) -> Array[AudioStream]:
-	if _playlist_stream_cache.has(tier):
-		return _playlist_stream_cache[tier] as Array[AudioStream]
-	var path := "%s/island_%02d" % [PLAYLIST_ROOT, tier]
-	var loaded := _load_audio_streams_from_folder(path)
-	if loaded.is_empty() and tier != 1:
-		loaded = _get_streams_for_tier(1)
-	_playlist_stream_cache[tier] = loaded
+	var t := clampi(tier, 1, 5)
+	var loaded := _tier_tracks_raw(t)
+	if loaded.is_empty() and t != 1:
+		return _tier_tracks_raw(1)
 	return loaded
 
 
@@ -332,7 +338,7 @@ func _shuffle_playlist_order() -> void:
 	var streams := _get_streams_for_tier(tier)
 	_playlist_order.clear()
 	if streams.is_empty():
-		push_warning("SoundManager: нет треков в плейлисте тира %d (%s/island_%02d)" % [tier, PLAYLIST_ROOT, tier])
+		push_warning("SoundManager: пустой плейлист тира %d (см. preload-массивы _ISLAND_*_TRACKS)" % tier)
 		_playlist_tier_when_shuffled = -1
 		return
 	for i in range(streams.size()):

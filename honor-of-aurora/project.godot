@@ -54,12 +54,6 @@ shield={
 "events": []
 }
 
-[input_devices]
-
-; true: касания дают синтетические события мыши (ЛКМ) — стандартный UI Godot реагирует как на мышь.
-; false: только ScreenTouch/ScreenDrag; тогда нужны отдельные обработчики (см. TouchScrollHelper и комментарии в диалоге).
-pointing/emulate_mouse_from_touch=true
-
 [layer_names]
 
 2d_physics/layer_1="enemy"

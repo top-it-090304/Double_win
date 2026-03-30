@@ -167,6 +167,9 @@ func try_rally_straggler_allies_to_hero() -> int:
 		return -1
 	if Events.current_location == Events.LOCATION.MENU:
 		return 0
+	## Кнопка «подтянуть отряд» на базе скрыта; вызов с других путей тоже игнорируем.
+	if Events.current_location == Events.LOCATION.BASE:
+		return 0
 	var tree := get_tree()
 	if tree == null or tree.paused:
 		return 0
@@ -198,6 +201,9 @@ func try_rally_straggler_allies_to_hero() -> int:
 			if u.get("stationary_guard"):
 				continue
 			if u.has_method("is_pawn_in_ore_mine") and u.call("is_pawn_in_ore_mine"):
+				continue
+			## Мирон (story_youth_companion) — в отряде только после выбора в диалоге набора.
+			if u.is_in_group("story_youth_companion") and not StoryState.has_flag("worker_youth_recruited"):
 				continue
 			if u.global_position.distance_to(player.global_position) < RALLY_MIN_DISTANCE_FROM_HERO:
 				continue

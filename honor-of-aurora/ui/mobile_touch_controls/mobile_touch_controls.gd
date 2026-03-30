@@ -73,7 +73,8 @@ func _refresh_visibility() -> void:
 	if show:
 		var rally_btn := get_node_or_null("Root/RightCluster/RallyButton") as Control
 		if rally_btn:
-			rally_btn.visible = Events.current_location != Events.LOCATION.MENU
+			var loc := Events.current_location
+			rally_btn.visible = loc != Events.LOCATION.MENU and loc != Events.LOCATION.BASE
 
 
 func _apply_scaled_touch_zone(zone: Control, is_left: bool) -> void:
