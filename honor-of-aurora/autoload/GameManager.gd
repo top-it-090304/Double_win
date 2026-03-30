@@ -1018,15 +1018,20 @@ func add_ore_volatile(amount: int) -> void:
 
 
 func add_exp(amount: int) -> void:
-	var player: Node = _find_player_node_in_current_scene()
-	if player and player.has_method("gain_exp"):
-		player.gain_exp(amount)
+	## Не вызывать gain_exp/level_up в том же стеке, что смерть врага от удара: иначе внутри
+	## animation_finished атаки подменяется sprite_frames героя — нестабильно и краш AnimatedSprite2D (часто на мобильных).
+	call_deferred("_deferred_apply_exp_to_player", amount, true)
 
 
 func add_exp_volatile(amount: int) -> void:
+	call_deferred("_deferred_apply_exp_to_player", amount, false)
+
+
+func _deferred_apply_exp_to_player(amount: int, persist: bool) -> void:
 	var player: Node = _find_player_node_in_current_scene()
-	if player and player.has_method("gain_exp"):
-		player.gain_exp(amount, false)
+	if player == null or not is_instance_valid(player) or not player.has_method("gain_exp"):
+		return
+	player.gain_exp(amount, persist)
 
 
 func _resolve_spawn_position(scene: Node) -> Variant:

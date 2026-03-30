@@ -317,8 +317,9 @@ func change_state(new_state: State):
 
 func _on_anim_finished():
 	if state == State.ATTACK:
-		apply_damage()
+		## Сначала выйти из ATTACK, потом урон/смерть врага — меньше реентерабельности с add_exp (см. GameManager).
 		back_to_movement()
+		apply_damage()
 
 func back_to_movement():
 	state = State.RUN if velocity.length() > 0 else State.IDLE

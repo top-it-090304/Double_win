@@ -584,7 +584,9 @@ func die():
 		if story_island >= 1 and story_island <= 5:
 			GameManager.spawn_boss_ore_sparks_at(global_position, story_island, self)
 
-	$CollisionShape2D.set_deferred("disabled", true)
+	var body_col := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if body_col:
+		body_col.set_deferred("disabled", true)
 	var gold_amt := int(round(float(BalanceConfig.get_gold_reward(enemy_level, is_boss)) * reward_mult))
 	if gold_amt > 0:
 		GameManager.spawn_gold_pickup_at(global_position, gold_amt, self)
