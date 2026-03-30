@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="Honor of Aurora"
+config/icon="res://icons/app_icon.png"
 run/main_scene="uid://b0oiqjmnjpppv"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 
