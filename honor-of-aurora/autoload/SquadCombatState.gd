@@ -25,11 +25,15 @@ func _enemy_threatens_hero_or_squad(enemy: Node) -> bool:
 	var da := enemy.get_node_or_null("DetectionArea") as Area2D
 	if da and da.monitoring:
 		for body in da.get_overlapping_bodies():
+			if body == null or not is_instance_valid(body):
+				continue
 			if _is_hero_or_squad(body):
 				return true
 	var aa := enemy.get_node_or_null("AttackArea") as Area2D
 	if aa and aa.monitoring:
 		for body in aa.get_overlapping_bodies():
+			if body == null or not is_instance_valid(body):
+				continue
 			if _is_hero_or_squad(body):
 				return true
 	if _enemy_chasing_or_attacking_hero_or_squad(enemy):
@@ -38,7 +42,7 @@ func _enemy_threatens_hero_or_squad(enemy: Node) -> bool:
 
 
 func _is_hero_or_squad(body: Node) -> bool:
-	return body != null and (body.is_in_group("player") or body.is_in_group("squad_member"))
+	return body != null and is_instance_valid(body) and (body.is_in_group("player") or body.is_in_group("squad_member"))
 
 
 ## enemy_base.State: CHASE=1, ATTACK=2 — цель герой или отряд.

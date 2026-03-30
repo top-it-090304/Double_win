@@ -396,6 +396,8 @@ func _try_story_priority_instead_of_attack() -> bool:
 	if SquadCombatState.is_engaged():
 		return false
 	for body in attack_area.get_overlapping_bodies():
+		if body == null or not is_instance_valid(body):
+			continue
 		if body.has_method("try_open_priority_story_dialog"):
 			if body.try_open_priority_story_dialog():
 				return true
@@ -408,6 +410,8 @@ func _try_squad_orders_instead_of_attack() -> bool:
 	if SquadCombatState.is_engaged():
 		return false
 	for body in attack_area.get_overlapping_bodies():
+		if body == null or not is_instance_valid(body):
+			continue
 		if body.is_in_group("squad_member"):
 			## Сюжетный рабочий: меню отряда только через `try_open_priority_story_dialog` (после интро).
 			if body.is_in_group("story_youth_companion"):
@@ -483,6 +487,8 @@ func apply_damage():
 	if attack_area == null or not is_instance_valid(attack_area):
 		return
 	for body in attack_area.get_overlapping_bodies():
+		if body == null or not is_instance_valid(body):
+			continue
 		if body.is_in_group("enemy") or body.is_in_group("base_sheep"):
 			GameplayFacade.try_apply_damage(body, attack_damage)
 

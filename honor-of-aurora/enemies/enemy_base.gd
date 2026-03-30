@@ -60,6 +60,8 @@ const _SELECT_TARGET_INTERVAL := 0.25
 
 func _refresh_targets_after_leash() -> void:
 	for body in detection_area.get_overlapping_bodies():
+		if body == null or not is_instance_valid(body):
+			continue
 		if body is Node2D and (body.is_in_group("player") or body.is_in_group("ally")):
 			if potential_targets.find(body) < 0:
 				potential_targets.append(body)
@@ -370,6 +372,8 @@ func _apply_wall_slide_velocity() -> void:
 
 
 func _on_detection_area_entered(body):
+	if body == null or not is_instance_valid(body):
+		return
 	if body is Node2D and (body.is_in_group("player") or body.is_in_group("ally")):
 		potential_targets.append(body)
 		_select_target()
@@ -378,6 +382,8 @@ func _on_detection_area_entered(body):
 
 
 func _on_detection_area_exited(body):
+	if body == null or not is_instance_valid(body):
+		return
 	if body is Node2D:
 		potential_targets.erase(body)
 		if body == target:
@@ -387,6 +393,8 @@ func _on_detection_area_exited(body):
 
 
 func _on_attack_area_entered(body):
+	if body == null or not is_instance_valid(body):
+		return
 	if body == target and can_attack and state not in [State.ATTACK, State.DEATH, State.HIT]:
 		start_attack()
 
@@ -394,6 +402,8 @@ func _on_attack_area_entered(body):
 ## Ближний бой: цель в зоне AttackArea. Переопределить для дальнего боя (шаман).
 func _is_target_in_attack_range() -> bool:
 	if target == null or not is_instance_valid(target):
+		return false
+	if attack_area == null or not is_instance_valid(attack_area):
 		return false
 	return attack_area.overlaps_body(target)
 
@@ -407,18 +417,19 @@ func start_attack():
 	state = State.ATTACK
 	can_attack = false
 	_attack_damage_applied = false
-	if target:
+	if target and is_instance_valid(target):
 		var dir = _dir_toward_target(target.global_position - global_position)
 		last_dir = dir
 		anim.flip_h = dir.x < 0
 	var atk_anim := _get_attack_animation_name()
-	anim.play(atk_anim)
+	if anim and is_instance_valid(anim):
+		anim.play(atk_anim)
 	attack_cooldown_timer.start(attack_cooldown)
 	_start_anim_safety(atk_anim, 0.95)
 
 
 func apply_damage():
-	if target and attack_area.overlaps_body(target):
+	if target and is_instance_valid(target) and attack_area and is_instance_valid(attack_area) and attack_area.overlaps_body(target):
 		var amt: int = attack_damage
 		if target.is_in_group("character_unit") and not target.is_in_group("enemy"):
 			amt = maxi(
@@ -431,6 +442,8 @@ func apply_damage():
 func _on_anim_finished():
 	if _anim_safety_timer:
 		_anim_safety_timer.stop()
+	if anim == null or not is_instance_valid(anim):
+		return
 	var an: StringName = anim.animation
 	if an == &"attack" or an == &"throw":
 		_finish_attack_phase()
@@ -445,20 +458,22 @@ func _finish_attack_phase() -> void:
 		apply_damage()
 		_attack_damage_applied = true
 	_select_target()
-	state = State.CHASE if target and detection_area.overlaps_body(target) else State.PATROL
+	state = State.CHASE if target and is_instance_valid(target) and detection_area and is_instance_valid(detection_area) and detection_area.overlaps_body(target) else State.PATROL
 
 
 func _finish_hit_recovery() -> void:
 	if state != State.HIT:
 		return
 	_select_target()
-	if target:
+	if target and is_instance_valid(target) and attack_area and is_instance_valid(attack_area) and detection_area and is_instance_valid(detection_area):
 		state = State.ATTACK if attack_area.overlaps_body(target) and can_attack else State.CHASE if detection_area.overlaps_body(target) else State.PATROL
 	else:
 		state = State.PATROL
 
 
 func _estimate_anim_duration_seconds(anim_name: StringName) -> float:
+	if anim == null or not is_instance_valid(anim):
+		return 0.75
 	var sf: SpriteFrames = anim.sprite_frames as SpriteFrames
 	if sf == null or not sf.has_animation(anim_name):
 		return 0.75
@@ -479,7 +494,7 @@ func _start_anim_safety(anim_name: StringName, fallback_sec: float) -> void:
 		return
 	_anim_safety_timer.stop()
 	var w := fallback_sec
-	if anim.sprite_frames and anim.sprite_frames.has_animation(anim_name):
+	if anim and is_instance_valid(anim) and anim.sprite_frames and anim.sprite_frames.has_animation(anim_name):
 		w = _estimate_anim_duration_seconds(anim_name)
 	_anim_safety_timer.wait_time = w
 	_anim_safety_timer.start()
@@ -497,6 +512,8 @@ func _on_attack_cooldown_timeout():
 
 
 func update_animation():
+	if anim == null or not is_instance_valid(anim):
+		return
 	if state in [State.PATROL, State.CHASE, State.LEASH, State.RECOVER]:
 		if velocity.length() > 0:
 			anim.play("run")
@@ -589,7 +606,7 @@ func _select_target() -> void:
 	var best: Node2D = null
 	var best_dist := INF
 	for t in potential_targets:
-		if not t:
+		if t == null or not is_instance_valid(t):
 			continue
 		var d := global_position.distance_to(t.global_position)
 		if d < best_dist:

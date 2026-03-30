@@ -27,6 +27,8 @@ func _process(_delta: float) -> void:
 	if tree == null:
 		return
 	for node in tree.get_nodes_in_group(SORT_GROUP):
+		if node == null or not is_instance_valid(node):
+			continue
 		if not (node is Node2D):
 			continue
 		if bool(node.get_meta(META_MANUAL, false)):

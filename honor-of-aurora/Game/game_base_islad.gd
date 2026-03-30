@@ -86,6 +86,8 @@ func _hide_mini_hp_bars_on_all_non_player_units() -> void:
 	if root == null:
 		return
 	for node in tree.get_nodes_in_group("character_unit"):
+		if node == null or not is_instance_valid(node):
+			continue
 		if not root.is_ancestor_of(node):
 			continue
 		if node.is_in_group("player"):

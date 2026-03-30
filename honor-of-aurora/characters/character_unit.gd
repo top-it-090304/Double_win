@@ -148,7 +148,9 @@ func _apply_soft_separation_to_velocity(delta: float) -> void:
 	var push := Vector2.ZERO
 	var my_pos := global_position
 	for other in tree.get_nodes_in_group("character_unit"):
-		if other == self or not (other is Node2D):
+		if other == self or other == null or not is_instance_valid(other):
+			continue
+		if not (other is Node2D):
 			continue
 		var delta_pos := my_pos - (other as Node2D).global_position
 		var dist_sq := delta_pos.length_squared()
