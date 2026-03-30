@@ -3,6 +3,9 @@ extends Node
 
 const DAMAGE_NUMBER_SCENE := preload("res://ui/DamageNumber/damage_number.tscn")
 
+## Всегда отдельный слой: не вешать Control на Node2D (краш GL Compatibility / Android) и не зависеть от наличия HUD.
+var _damage_numbers_layer: CanvasLayer
+
 
 func try_apply_damage(target: Node, amount: int) -> bool:
 	if target == null or not is_instance_valid(target):
@@ -29,6 +32,17 @@ func try_apply_heal(target: Node, amount: int) -> bool:
 	return try_apply_damage(target, -amount)
 
 
+func _get_damage_numbers_layer(tree: SceneTree) -> CanvasLayer:
+	if _damage_numbers_layer != null and is_instance_valid(_damage_numbers_layer):
+		return _damage_numbers_layer
+	var ly := CanvasLayer.new()
+	ly.name = "DamageNumbersCanvasLayer"
+	ly.layer = 36
+	tree.root.add_child(ly)
+	_damage_numbers_layer = ly
+	return ly
+
+
 func spawn_damage_number(parent: Node2D, amount: int, offset: Vector2 = Vector2(-26, -80)) -> void:
 	if parent == null or not is_instance_valid(parent):
 		return
@@ -43,18 +57,12 @@ func spawn_damage_number(parent: Node2D, amount: int, offset: Vector2 = Vector2(
 	if label:
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		label.text = str(amount)
-	## Control как дочерний узел CharacterBody2D/Node2D на GL Compatibility (типичный экспорт Android)
-	## даёт краш при первой отрисовке; держим цифры на CanvasLayer HUD в координатах вьюпорта.
-	var hud: Node = get_hud(tree)
-	if hud != null and is_instance_valid(hud):
-		var canvas_pos: Vector2 = parent.get_global_transform_with_canvas() * offset
-		hud.add_child(dn)
-		dn.set_position(canvas_pos)
-		dn.z_as_relative = false
-		dn.z_index = 400
-	else:
-		parent.add_child(dn)
-		dn.position = offset
+	var canvas_pos: Vector2 = parent.get_global_transform_with_canvas() * offset
+	var layer := _get_damage_numbers_layer(tree)
+	layer.add_child(dn)
+	dn.set_position(canvas_pos)
+	dn.z_as_relative = false
+	dn.z_index = 0
 
 
 func try_spend_gold(amount: int) -> bool:

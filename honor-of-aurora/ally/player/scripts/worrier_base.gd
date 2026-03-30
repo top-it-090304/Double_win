@@ -112,7 +112,7 @@ func _clear_resume_from_death_if_needed() -> void:
 
 func _on_health_component_health_changed(current: int, _maximum: int) -> void:
 	health_changed.emit(current)
-	if health_bar:
+	if health_bar != null and is_instance_valid(health_bar):
 		health_bar.value = current
 		health_bar.max_value = max_health
 
@@ -345,18 +345,26 @@ func take_damage(amount: Variant) -> void:
 			health_component.heal(-a)
 		return
 	var shield_factor: float = minf(0.95, GameManager.armory_shield_damage_factor + CrownSystem.get_armor_block_penalty())
+	shield_factor = clampf(shield_factor, 0.0, 1.0)
 	var final_damage: int = int(a * shield_factor) if state == State.SHIELD else a
 	if state == State.SHIELD:
 		SoundManager.play_shield_block()
 	else:
 		SoundManager.play_player_hurt()
+		## Прямой вызов вибрации из стека урона (физика/анимации врага) на части прошивок Android даёт нативный вылет.
 		if SaveManager.haptic_enabled and final_damage > 0:
 			var osn := OS.get_name()
 			if osn == "Android" or osn == "iOS":
-				Input.vibrate_handheld(32)
+				call_deferred("_play_hurt_haptic_safe")
 	if health_component:
 		health_component.apply_damage(final_damage)
 	show_damage_number(final_damage)
+
+
+func _play_hurt_haptic_safe() -> void:
+	if not SaveManager.haptic_enabled or not is_instance_valid(self):
+		return
+	Input.vibrate_handheld(32)
 
 
 func _handle_death() -> void:
