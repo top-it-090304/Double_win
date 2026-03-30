@@ -32,9 +32,12 @@ var death_resume_pending: bool = false
 ## 1 HP после смерти (телепорт на базу); иначе при загрузке можно поднять HP до max.
 var resume_from_death: bool = false
 
-## Координаты зоны телепорта на базе (см. TeleportZone в Game_base_islad.tscn).
+## Бывшая точка «респавна после смерти» у зоны телепорта — только для миграции старых сохранений.
 const BASE_TELEPORT_RESUME_X := -660.0
 const BASE_TELEPORT_RESUME_Y := 865.0
+## Старт на базе (долка / слой boat) — как default_data и `GameManager.get_boat_tile_center_global`.
+const BASE_DOCK_SPAWN_X := -600.0
+const BASE_DOCK_SPAWN_Y := 750.0
 ## Сюжетные флаги для диалогов и квестов (строковый ключ → bool).
 var story_flags: Dictionary = {}
 ## Зачищенные зоны островов: ключ IslandProgress.zone_save_key(island, zone_id) → true.
@@ -322,12 +325,21 @@ func load_game():
 	if meat_count < _warriors:
 		meat_count = _warriors
 	if not game_data.has("resume_from_death"):
+		var near_old_teleport: bool = (
+			abs(resume_player_position_x - BASE_TELEPORT_RESUME_X) < 2.0
+			and abs(resume_player_position_y - BASE_TELEPORT_RESUME_Y) < 2.0
+		)
+		var near_dock: bool = (
+			abs(resume_player_position_x - BASE_DOCK_SPAWN_X) < 2.0
+			and abs(resume_player_position_y - BASE_DOCK_SPAWN_Y) < 2.0
+		)
 		resume_from_death = (
 			current_health == 1
 			and resume_game_location == int(Events.LOCATION.BASE)
-			and abs(resume_player_position_x - BASE_TELEPORT_RESUME_X) < 2.0
-			and abs(resume_player_position_y - BASE_TELEPORT_RESUME_Y) < 2.0
+			and (near_old_teleport or near_dock)
 		)
+
+	_migrate_base_resume_off_old_teleport_spawn()
 
 	current_level = clampi(int(current_level), 1, BalanceConfig.MAX_HERO_LEVEL)
 	if current_level >= BalanceConfig.MAX_HERO_LEVEL:
@@ -898,11 +910,23 @@ func configure_death_resume_to_base_teleport() -> void:
 	current_health = 1
 	resume_from_death = true
 	resume_game_location = int(Events.LOCATION.BASE)
-	resume_player_position_x = BASE_TELEPORT_RESUME_X
-	resume_player_position_y = BASE_TELEPORT_RESUME_Y
+	resume_player_position_x = BASE_DOCK_SPAWN_X
+	resume_player_position_y = BASE_DOCK_SPAWN_Y
 	apply_resume_position_on_next_scene = true
 	death_resume_pending = true
 	save_game()
+
+
+## Старые сохранения: «Продолжить» ставило героя у зоны телепорта — переносим на долку.
+func _migrate_base_resume_off_old_teleport_spawn() -> void:
+	if resume_game_location != int(Events.LOCATION.BASE):
+		return
+	if abs(resume_player_position_x - BASE_TELEPORT_RESUME_X) > 2.5:
+		return
+	if abs(resume_player_position_y - BASE_TELEPORT_RESUME_Y) > 2.5:
+		return
+	resume_player_position_x = BASE_DOCK_SPAWN_X
+	resume_player_position_y = BASE_DOCK_SPAWN_Y
 
 
 func reset_data():

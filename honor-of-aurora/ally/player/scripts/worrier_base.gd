@@ -356,6 +356,8 @@ func take_damage(amount: Variant) -> void:
 			call_deferred("_play_hurt_haptic_safe")
 	if health_component:
 		health_component.apply_damage(final_damage)
+	if a > 0:
+		CrownSystem.apply_armor_wear_on_hit_taken()
 	show_damage_number(final_damage)
 
 

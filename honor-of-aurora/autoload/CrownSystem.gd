@@ -405,6 +405,20 @@ func degrade_armor() -> int:
 	return SaveManager.armor_durability
 
 
+## Износ брони/щита при ударе по герою (блок или нет — удар по щиту/доспеху).
+func apply_armor_wear_on_hit_taken(wear: int = BalanceConfig.ARMOR_WEAR_PER_HIT_TAKEN) -> void:
+	if wear <= 0:
+		return
+	if SaveManager.armor_durability <= 0:
+		return
+	var new_d: int = maxi(0, SaveManager.armor_durability - wear)
+	if new_d == SaveManager.armor_durability:
+		return
+	SaveManager.armor_durability = new_d
+	Events.armor_durability_changed.emit(SaveManager.armor_durability)
+	SaveManager.request_save_game_deferred()
+
+
 func get_armor_repair_cost() -> Dictionary:
 	var d := SaveManager.crown_displeasure
 	var f := SaveManager.crown_favor

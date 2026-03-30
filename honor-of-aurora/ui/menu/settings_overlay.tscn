@@ -277,9 +277,4 @@ max_value = 100.0
 step = 1.0
 value = 52.0
 
-[node name="HapticCheck" type="CheckBox" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Вибрация при уроне"
-
 [connection signal="pressed" from="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/HeaderRow/Back" to="." method="_on_back_pressed"]

@@ -17,7 +17,6 @@ extends Control
 @onready var _touch_mode: OptionButton = %TouchModeOption
 @onready var _touch_scale: HSlider = %TouchScaleSlider
 @onready var _touch_opacity: HSlider = %TouchOpacitySlider
-@onready var _haptic: CheckBox = %HapticCheck
 
 var _settings_scroll_touch_index: int = -1
 
@@ -46,7 +45,6 @@ func _ready() -> void:
 	_touch_mode.item_selected.connect(_on_touch_mode_selected)
 	_touch_scale.value_changed.connect(_on_touch_scale_changed)
 	_touch_opacity.value_changed.connect(_on_touch_opacity_changed)
-	_haptic.toggled.connect(_on_haptic_toggled)
 
 
 func _fill_difficulty_options() -> void:
@@ -115,7 +113,6 @@ func _load_all_from_save() -> void:
 	_perf_option.set_block_signals(true)
 	_fps_option.set_block_signals(true)
 	_touch_mode.set_block_signals(true)
-	_haptic.set_block_signals(true)
 	_music_slider.value = SaveManager.volume_music * 100.0
 	_sfx_slider.value = SaveManager.volume_sfx * 100.0
 	_ui_slider.value = SaveManager.volume_ui * 100.0
@@ -130,12 +127,10 @@ func _load_all_from_save() -> void:
 	_touch_mode.select(clampi(SaveManager.touch_mode, 0, 2))
 	_touch_scale.value = float(SaveManager.touch_scale_percent)
 	_touch_opacity.value = float(SaveManager.touch_opacity_percent)
-	_haptic.button_pressed = SaveManager.haptic_enabled
 	_difficulty.set_block_signals(false)
 	_perf_option.set_block_signals(false)
 	_fps_option.set_block_signals(false)
 	_touch_mode.set_block_signals(false)
-	_haptic.set_block_signals(false)
 	_block_sliders(false)
 
 
@@ -248,11 +243,6 @@ func _on_touch_opacity_changed(v: float) -> void:
 	get_tree().call_group("touch_controls", "apply_user_touch_settings")
 
 
-func _on_haptic_toggled(pressed: bool) -> void:
-	SaveManager.haptic_enabled = pressed
-	SaveManager.save_game()
-
-
 func _on_back_pressed() -> void:
 	SoundManager.play_ui_button()
 	_settings_scroll_touch_index = -1
@@ -274,7 +264,6 @@ func _settings_scroll_touch_blocks_scroll(global_pos: Vector2) -> bool:
 		_touch_mode,
 		_touch_scale,
 		_touch_opacity,
-		_haptic,
 	]:
 		if c != null and is_instance_valid(c) and c.visible and c.get_global_rect().has_point(global_pos):
 			return true
