@@ -32,14 +32,29 @@ func try_apply_heal(target: Node, amount: int) -> bool:
 func spawn_damage_number(parent: Node2D, amount: int, offset: Vector2 = Vector2(-26, -80)) -> void:
 	if parent == null or not is_instance_valid(parent):
 		return
+	var tree := parent.get_tree()
+	if tree == null:
+		return
 	var dn: Control = DAMAGE_NUMBER_SCENE.instantiate() as Control
 	if dn == null:
 		return
+	dn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var label := dn.get_node_or_null("Label") as Label
 	if label:
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		label.text = str(amount)
-	parent.add_child(dn)
-	dn.position = offset
+	## Control как дочерний узел CharacterBody2D/Node2D на GL Compatibility (типичный экспорт Android)
+	## даёт краш при первой отрисовке; держим цифры на CanvasLayer HUD в координатах вьюпорта.
+	var hud: Node = get_hud(tree)
+	if hud != null and is_instance_valid(hud):
+		var canvas_pos: Vector2 = parent.get_global_transform_with_canvas() * offset
+		hud.add_child(dn)
+		dn.set_position(canvas_pos)
+		dn.z_as_relative = false
+		dn.z_index = 400
+	else:
+		parent.add_child(dn)
+		dn.position = offset
 
 
 func try_spend_gold(amount: int) -> bool:
