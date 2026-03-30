@@ -351,11 +351,9 @@ func take_damage(amount: Variant) -> void:
 		SoundManager.play_shield_block()
 	else:
 		SoundManager.play_player_hurt()
-		## Прямой вызов вибрации из стека урона (физика/анимации врага) на части прошивок Android даёт нативный вылет.
-		if SaveManager.haptic_enabled and final_damage > 0:
-			var osn := OS.get_name()
-			if osn == "Android" or osn == "iOS":
-				call_deferred("_play_hurt_haptic_safe")
+		## Вибрация: на Android Input.vibrate_handheld даёт нативный вылет на части устройств (даже call_deferred).
+		if SaveManager.haptic_enabled and final_damage > 0 and OS.get_name() == "iOS":
+			call_deferred("_play_hurt_haptic_safe")
 	if health_component:
 		health_component.apply_damage(final_damage)
 	show_damage_number(final_damage)
@@ -363,6 +361,8 @@ func take_damage(amount: Variant) -> void:
 
 func _play_hurt_haptic_safe() -> void:
 	if not SaveManager.haptic_enabled or not is_instance_valid(self) or not is_inside_tree():
+		return
+	if OS.get_name() != "iOS":
 		return
 	Input.vibrate_handheld(32)
 
