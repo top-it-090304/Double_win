@@ -48,6 +48,7 @@ func spend_expedition_provisions() -> bool:
 
 
 func _reset_expedition_tracking() -> void:
+	_cancel_rest_regen_if_active()
 	SaveManager.rest_used_this_expedition = 0
 	SaveManager.expedition_ore_collected = 0
 	SaveManager.expedition_wood_collected = 0
@@ -56,13 +57,45 @@ func _reset_expedition_tracking() -> void:
 
 
 ## ═══════════════════════════════════════════════════════
-##  ПРИВАЛ — хил героя за мясо на острове
+##  ПРИВАЛ — хил отряда за мясо на острове (стоимость = герой + лучники + копейщики)
 ## ═══════════════════════════════════════════════════════
 
+var _rest_regen_active: bool = false
+var _rest_regen_rows: Array[Dictionary] = []
+var _rest_regen_elapsed: float = 0.0
+var _rest_heal_vfx_accum: float = 0.0
+
+const _REST_HEAL_VFX_INTERVAL_SEC := 0.85
+
+
+func _ready() -> void:
+	set_process(false)
+
+
+func is_rest_regen_active() -> bool:
+	return _rest_regen_active
+
+
+func _cancel_rest_regen_if_active() -> void:
+	if not _rest_regen_active:
+		return
+	_rest_regen_rows.clear()
+	_rest_regen_active = false
+	_rest_regen_elapsed = 0.0
+	_rest_heal_vfx_accum = 0.0
+	set_process(false)
+
+
+func get_squad_rest_meat_cost() -> int:
+	return maxi(1, 1 + SaveManager.archer_count + SaveManager.lancer_count)
+
+
 func can_rest() -> bool:
+	if _rest_regen_active:
+		return false
 	if SaveManager.rest_used_this_expedition >= BalanceConfig.REST_MAX_PER_EXPEDITION:
 		return false
-	if SaveManager.meat_count < BalanceConfig.REST_MEAT_COST:
+	if SaveManager.meat_count < get_squad_rest_meat_cost():
 		return false
 	return true
 
@@ -71,26 +104,115 @@ func get_rests_remaining() -> int:
 	return maxi(0, BalanceConfig.REST_MAX_PER_EXPEDITION - SaveManager.rest_used_this_expedition)
 
 
-func try_rest(hero_node: Node) -> bool:
+## Один привал: к текущему HP добавляется не больше (REST_HEAL_RATIO×max HP × модификатор Короны).
+## Если недостаёт меньше — всё равно доводим до max_hp (лишний «объём» привала не тратится в пустоту).
+func _build_rest_regen_row(unit: Node) -> Dictionary:
+	var hc := unit.get_node_or_null("HealthComponent")
+	if hc == null:
+		return {}
+	var start_hp := int(hc.current_health)
+	var max_hp := int(hc.max_health)
+	var base_chunk := BalanceConfig.get_rest_heal_amount(max_hp)
+	var heal_cap := maxi(1, int(round(float(base_chunk) * get_rest_modifier())))
+	var target_hp := mini(max_hp, start_hp + heal_cap)
+	return {
+		"node": unit,
+		"start_hp": start_hp,
+		"max_hp": max_hp,
+		"target_hp": target_hp,
+	}
+
+
+## Снимает мясо и плавно доводит HP до target (не выше max_hp).
+func try_squad_rest() -> bool:
 	if not can_rest():
 		return false
-	if hero_node == null or not is_instance_valid(hero_node):
+	var targets := GameplayFacade.collect_squad_rest_heal_targets()
+	if targets.is_empty():
 		return false
-	GameManager.add_meat(-BalanceConfig.REST_MEAT_COST)
+	_rest_regen_rows.clear()
+	for t in targets:
+		var row := _build_rest_regen_row(t)
+		if not row.is_empty():
+			_rest_regen_rows.append(row)
+	if _rest_regen_rows.is_empty():
+		return false
+	var someone_wounded := false
+	for row in _rest_regen_rows:
+		if int(row["start_hp"]) < int(row["max_hp"]):
+			someone_wounded = true
+			break
+	if not someone_wounded:
+		return false
+	var cost := get_squad_rest_meat_cost()
+	GameManager.add_meat(-cost)
 	SaveManager.rest_used_this_expedition += 1
-	var max_hp := 100
-	if hero_node.has_method("get_max_health"):
-		max_hp = int(hero_node.get_max_health())
-	elif hero_node.get("max_health") != null:
-		max_hp = int(hero_node.get("max_health"))
-	var base_heal := BalanceConfig.get_rest_heal_amount(max_hp)
-	var heal := maxi(1, int(round(float(base_heal) * get_rest_modifier())))
-	if hero_node.has_method("heal"):
-		hero_node.heal(heal)
-	elif GameplayFacade.try_apply_heal(hero_node, heal):
-		pass
-	Events.rest_used.emit(heal, get_rests_remaining())
+	_rest_regen_elapsed = 0.0
+	_rest_heal_vfx_accum = 0.0
+	_rest_regen_active = true
+	set_process(true)
+	SoundManager.play_ui_button()
+	_pulse_rest_heal_visuals()
+	SoundManager.play_heal()
 	return true
+
+
+func _pulse_rest_heal_visuals() -> void:
+	for row in _rest_regen_rows:
+		var node: Node = row["node"]
+		if not is_instance_valid(node):
+			continue
+		if node.has_method("play_heal_effect"):
+			node.call("play_heal_effect")
+
+
+func _process(_delta: float) -> void:
+	if not _rest_regen_active:
+		return
+	_rest_regen_elapsed += _delta
+	_rest_heal_vfx_accum += _delta
+	while _rest_heal_vfx_accum >= _REST_HEAL_VFX_INTERVAL_SEC:
+		_rest_heal_vfx_accum -= _REST_HEAL_VFX_INTERVAL_SEC
+		_pulse_rest_heal_visuals()
+	var mod := get_rest_modifier()
+	var dur := BalanceConfig.REST_REGEN_DURATION_SEC / maxf(0.1, mod)
+	var t := _rest_regen_elapsed / dur
+	if t >= 1.0:
+		_finish_rest_regen()
+		return
+	t = minf(1.0, t)
+	for row in _rest_regen_rows:
+		var node: Node = row["node"]
+		if not is_instance_valid(node):
+			continue
+		var hc := node.get_node_or_null("HealthComponent")
+		if hc == null:
+			continue
+		var start_hp: int = int(row["start_hp"])
+		var target_hp: int = int(row["target_hp"])
+		var max_hp: int = int(row["max_hp"])
+		var new_hp := int(round(lerpf(float(start_hp), float(target_hp), t)))
+		hc.set_current_health(clampi(new_hp, 0, max_hp))
+
+
+func _finish_rest_regen() -> void:
+	var total_heal := 0
+	for row in _rest_regen_rows:
+		var node: Node = row["node"]
+		if not is_instance_valid(node):
+			continue
+		var hc := node.get_node_or_null("HealthComponent")
+		if hc == null:
+			continue
+		var start_hp: int = int(row["start_hp"])
+		var target_hp: int = int(row["target_hp"])
+		var max_hp: int = int(row["max_hp"])
+		hc.set_current_health(clampi(target_hp, 0, max_hp))
+		total_heal += maxi(0, hc.current_health - start_hp)
+	_rest_regen_rows.clear()
+	_rest_regen_active = false
+	set_process(false)
+	Events.rest_used.emit(total_heal, get_rests_remaining())
 
 
 ## ═══════════════════════════════════════════════════════

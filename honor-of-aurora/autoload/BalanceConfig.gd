@@ -81,10 +81,12 @@ const MINE_MAX_PAWN_BONUS := 3
 const EXPEDITION_BASE_MEAT_COST := 2
 const EXPEDITION_MEAT_PER_WARRIOR := 1
 
-## ─── Привал: хил героя за мясо на острове ───
+## ─── Привал: за раз восстанавливается не больше REST_HEAL_RATIO×max HP (×модификатор Короны в CrownSystem).
+## До полного HP за один привал — только если этот объём покрывает недостающее HP.
 const REST_HEAL_RATIO := 0.30
 const REST_MAX_PER_EXPEDITION := 2
-const REST_MEAT_COST := 1
+## Длительность анимации восстановления (сек.); модификатор снабжения ускоряет.
+const REST_REGEN_DURATION_SEC := 4.0
 
 ## ─── Караван Короны ───
 const CARAVAN_EXPEDITION_INTERVAL := 3

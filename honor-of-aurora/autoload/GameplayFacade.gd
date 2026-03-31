@@ -260,3 +260,39 @@ func try_rally_straggler_allies_to_hero() -> int:
 
 func get_rally_allies_cooldown_remaining() -> float:
 	return _rally_allies_cooldown
+
+
+## Цели привала на острове: герой + лучники/копейщики/пешие, в отряде и живые.
+func collect_squad_rest_heal_targets() -> Array[Node]:
+	var out: Array[Node] = []
+	var tree := get_tree()
+	if tree == null or tree.paused:
+		return out
+	for p in tree.get_nodes_in_group("player"):
+		if not is_instance_valid(p) or not (p is Node):
+			continue
+		if not can_receive_monk_heal(p):
+			continue
+		if p.has_method("is_alive") and not p.call("is_alive"):
+			continue
+		out.append(p)
+		break
+	var groups: Array[StringName] = [&"ally_archer", &"ally_lancer", &"ally_pawn"]
+	for gn: StringName in groups:
+		for n in tree.get_nodes_in_group(gn):
+			if not is_instance_valid(n) or not (n is Node):
+				continue
+			if not can_receive_monk_heal(n):
+				continue
+			if n.has_method("is_alive") and not n.call("is_alive"):
+				continue
+			if n is CharacterBody2D:
+				var u := n as CharacterBody2D
+				if u.has_method("is_pawn_in_ore_mine") and u.call("is_pawn_in_ore_mine"):
+					continue
+			if n.is_in_group("story_youth_companion") and not StoryState.has_flag("worker_youth_recruited"):
+				continue
+			if n in out:
+				continue
+			out.append(n)
+	return out

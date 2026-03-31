@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://cmobiletouch001"]
+[gd_scene load_steps=7 format=3 uid="uid://cmobiletouch001"]
 
 [ext_resource type="Script" path="res://ui/mobile_touch_controls/mobile_touch_controls.gd" id="1_mc"]
 [ext_resource type="Script" path="res://ui/mobile_touch_controls/virtual_joystick.gd" id="2_vj"]
 [ext_resource type="Script" path="res://ui/mobile_touch_controls/moba_action_button.gd" id="3_mb"]
 [ext_resource type="Script" path="res://ui/mobile_touch_controls/shield_moba_action_button.gd" id="4_sh"]
 [ext_resource type="Script" path="res://ui/mobile_touch_controls/rally_moba_action_button.gd" id="5_rl"]
+[ext_resource type="Script" path="res://ui/mobile_touch_controls/rest_moba_action_button.gd" id="6_rest"]
 
 [node name="MobileTouchControls" type="Control"]
 layout_mode = 3
@@ -25,6 +26,21 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="RestCampButton" type="Control" parent="Root"]
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 100.0
+offset_top = -344.0
+offset_right = 176.0
+offset_bottom = -260.0
+mouse_filter = 0
+modulate = Color(1, 1, 1, 0.96)
+script = ExtResource("6_rest")
 
 [node name="VirtualJoystick" type="Control" parent="Root"]
 layout_mode = 1

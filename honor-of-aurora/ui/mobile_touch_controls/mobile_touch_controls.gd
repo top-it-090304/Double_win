@@ -26,8 +26,11 @@ func _connect_touch_zone_resize_signals() -> void:
 		return
 	var vj := root.get_node_or_null("VirtualJoystick") as Control
 	var rc := root.get_node_or_null("RightCluster") as Control
+	var rest := root.get_node_or_null("RestCampButton") as Control
 	if vj:
 		vj.resized.connect(_on_touch_zone_resized.bind(vj, true))
+	if rest:
+		rest.resized.connect(_on_touch_zone_resized.bind(rest, true))
 	if rc:
 		rc.resized.connect(_on_touch_zone_resized.bind(rc, false))
 
@@ -71,10 +74,16 @@ func _refresh_visibility() -> void:
 	visible = show
 	MobileVirtualInput.set_controls_visible(show)
 	if show:
+		var loc := Events.current_location
+		var on_island: bool = loc != Events.LOCATION.MENU and loc != Events.LOCATION.BASE
 		var rally_btn := get_node_or_null("Root/RightCluster/RallyButton") as Control
 		if rally_btn:
-			var loc := Events.current_location
-			rally_btn.visible = loc != Events.LOCATION.MENU and loc != Events.LOCATION.BASE
+			rally_btn.visible = on_island
+		var rest_btn := get_node_or_null("Root/RestCampButton") as Control
+		if rest_btn:
+			rest_btn.visible = on_island
+			if on_island:
+				rest_btn.process_mode = Node.PROCESS_MODE_INHERIT if CrownSystem.can_rest() else Node.PROCESS_MODE_DISABLED
 
 
 func _apply_scaled_touch_zone(zone: Control, is_left: bool) -> void:
@@ -99,8 +108,11 @@ func apply_user_touch_settings() -> void:
 	root.modulate.a = float(SaveManager.touch_opacity_percent) / 100.0
 	var vj := root.get_node_or_null("VirtualJoystick") as Control
 	var rc := root.get_node_or_null("RightCluster") as Control
+	var rest := root.get_node_or_null("RestCampButton") as Control
 	if vj:
 		_apply_scaled_touch_zone(vj, true)
+	if rest:
+		_apply_scaled_touch_zone(rest, true)
 	if rc:
 		_apply_scaled_touch_zone(rc, false)
 

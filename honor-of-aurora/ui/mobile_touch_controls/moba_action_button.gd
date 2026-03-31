@@ -4,17 +4,19 @@ class_name MobaActionButton
 ## Control + явная обработка ScreenTouch — параллельно со стиком (несколько касаний).
 ## Button + emulate_mouse_from_touch даёт один виртуальный курсор и блокирует второй палец.
 
-enum BtnKind { ATTACK, SHIELD, RALLY }
+enum BtnKind { ATTACK, SHIELD, RALLY, REST }
 
 @export var kind: BtnKind = BtnKind.ATTACK
 
 const TEX_ATTACK := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_05.png")
 const TEX_SHIELD := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_06.png")
 const TEX_RALLY := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Cursors/Cursor_04.png")
+const TEX_REST := preload("res://Asets/Environment/Resources/Resources/M_Idle.png")
 
 const SZ_ATTACK := Vector2(100, 100)
 const SZ_SHIELD := Vector2(76, 76)
 const SZ_RALLY := Vector2(60, 60)
+const SZ_REST := Vector2(76, 76)
 
 ## Палитра: насыщенный коралл и лёд (щит/«чит») — заметнее на экране. (Литералы Color — const; from_hsv в const недопустим.)
 const ACCENT_ATTACK := Color(1.0, 0.21, 0.26, 1.0)
@@ -23,6 +25,8 @@ const BASE_INNER_ATTACK := Color(0.2, 0.07, 0.09, 1.0)
 const BASE_INNER_SHIELD := Color(0.04, 0.12, 0.26, 1.0)
 const ACCENT_RALLY := Color(0.95, 0.72, 0.22, 1.0)
 const BASE_INNER_RALLY := Color(0.16, 0.11, 0.04, 1.0)
+const ACCENT_REST := Color(0.76, 0.56, 0.24, 1.0)
+const BASE_INNER_REST := Color(0.12, 0.1, 0.06, 1.0)
 
 var _hovered: bool = false
 ## Индексы касаний, начавшиеся на этой кнопке (для щита и визуала).
@@ -38,6 +42,8 @@ func _ready() -> void:
 		sz = SZ_ATTACK
 	elif kind == BtnKind.RALLY:
 		sz = SZ_RALLY
+	elif kind == BtnKind.REST:
+		sz = SZ_REST
 	custom_minimum_size = sz
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
@@ -85,7 +91,7 @@ func _is_interaction_disabled() -> bool:
 ## Атака и сбор: ScreenTouch через _input (как у щита), иначе после set_input_as_handled() у щита
 ## событие может не дойти до _gui_input соседней кнопки.
 func _input(event: InputEvent) -> void:
-	if _is_interaction_disabled() or (kind != BtnKind.ATTACK and kind != BtnKind.RALLY):
+	if _is_interaction_disabled() or (kind != BtnKind.ATTACK and kind != BtnKind.RALLY and kind != BtnKind.REST):
 		return
 	if not (event is InputEventScreenTouch):
 		return
@@ -98,8 +104,10 @@ func _input(event: InputEvent) -> void:
 		_touch_indices[st.index] = true
 		if kind == BtnKind.ATTACK:
 			MobileVirtualInput.queue_attack()
-		else:
+		elif kind == BtnKind.RALLY:
 			_try_rally_squad()
+		else:
+			_try_rest_camp()
 		queue_redraw()
 		get_viewport().set_input_as_handled()
 		return
@@ -125,6 +133,8 @@ func _gui_input(event: InputEvent) -> void:
 				MobileVirtualInput.queue_attack()
 			elif kind == BtnKind.RALLY:
 				_try_rally_squad()
+			elif kind == BtnKind.REST:
+				_try_rest_camp()
 			else:
 				_sync_shield_state()
 			queue_redraw()
@@ -144,6 +154,8 @@ func _accent_color() -> Color:
 		return ACCENT_ATTACK
 	if kind == BtnKind.RALLY:
 		return ACCENT_RALLY
+	if kind == BtnKind.REST:
+		return ACCENT_REST
 	return ACCENT_SHIELD
 
 
@@ -153,6 +165,8 @@ func _inner_fill() -> Color:
 		base = BASE_INNER_ATTACK
 	elif kind == BtnKind.RALLY:
 		base = BASE_INNER_RALLY
+	elif kind == BtnKind.REST:
+		base = BASE_INNER_REST
 	if _is_interaction_disabled():
 		return base.darkened(0.35)
 	if _is_visual_pressed():
@@ -196,6 +210,8 @@ func _draw() -> void:
 		tex = TEX_ATTACK
 	elif kind == BtnKind.RALLY:
 		tex = TEX_RALLY
+	elif kind == BtnKind.REST:
+		tex = TEX_REST
 	_draw_icon_texture(tex)
 
 
@@ -209,10 +225,22 @@ func _try_rally_squad() -> void:
 	GameplayFacade.try_rally_straggler_allies_to_hero()
 
 
+func _try_rest_camp() -> void:
+	if DialogueManager.is_active() or ChestLootUi.is_chest_popup_open():
+		return
+	if Events.current_location == Events.LOCATION.MENU:
+		return
+	if Events.current_location == Events.LOCATION.BASE:
+		return
+	CrownSystem.try_squad_rest()
+
+
 func _draw_icon_texture(tex: Texture2D) -> void:
 	if tex == null:
 		return
 	var pad := 12.0
+	if kind == BtnKind.REST:
+		pad = 2.0
 	var max_w := size.x - pad * 2.0
 	var max_h := size.y - pad * 2.0
 	var tw := float(tex.get_width())

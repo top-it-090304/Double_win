@@ -6,6 +6,10 @@ class_name CampCodexGlossary
 const HUD_ORE_ICON := "res://Asets/Руда/1.png"
 ## Как у кнопки «Книга лагеря» в правом верхнем углу HUD: `ui/HUD/canvas_layer.tscn` → CodexOpenButton.
 const HUD_CODEX_OPEN_ICON := "res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_11.png"
+## Кнопка привала: `ui/mobile_touch_controls/moba_action_button.gd` (BtnKind.REST) — иконка мяса.
+const HUD_REST_CAMP_ICON := "res://Asets/Environment/Resources/Resources/M_Idle.png"
+## Кнопка «подтянуть отряд»: `rally_moba_action_button.gd` — Cursor_04.
+const HUD_RALLY_ICON := "res://Asets/Unit_pack/UI Elements/UI Elements/Cursors/Cursor_04.png"
 
 
 static func get_sections() -> Array:
@@ -36,6 +40,23 @@ static func get_sections() -> Array:
 					"icon": "res://Asets/Environment/Resources/Resources/W_Idle.png",
 					"body":
 					"Строительный ресурс с островов. Уходит на улучшения зданий на базе — без брёвен казарма, замок, церковь и стрельбище не поднимутся в силе.",
+				},
+			],
+		},
+		{
+			"heading": "Управление в походе",
+			"entries": [
+				{
+					"title": "Привал",
+					"icon": HUD_REST_CAMP_ICON,
+					"body":
+					"Круглая кнопка слева над джойстиком, на ней — иконка мяса. На острове тратит провизию: столько мяса, сколько в отряде людей с учётом героя, лучников и копейщиков. Восстанавливает здоровье вам и союзникам в пределах одного привала; за поход доступно ограниченное число отдыхов. Немилость и одобрение Короны меняют, какую долю запаса HP вы получаете. В меню и на базе кнопка не используется.",
+				},
+				{
+					"title": "Подтянуть отряд",
+					"icon": HUD_RALLY_ICON,
+					"body":
+					"Круглая кнопка справа над кнопкой атаки (стрелка к центру). Подтягивает отставших союзников ближе к герою — чтобы вывести их из узких мест и застреваний. После использования действует перезарядка. На базе кнопка скрыта: приказ актуален на островах.",
 				},
 			],
 		},
