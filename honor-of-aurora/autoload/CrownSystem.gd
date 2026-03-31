@@ -93,7 +93,7 @@ func get_squad_rest_meat_cost() -> int:
 func can_rest() -> bool:
 	if _rest_regen_active:
 		return false
-	if SaveManager.rest_used_this_expedition >= BalanceConfig.REST_MAX_PER_EXPEDITION:
+	if SaveManager.rest_used_this_expedition >= BalanceConfig.get_rest_max_per_expedition():
 		return false
 	if SaveManager.meat_count < get_squad_rest_meat_cost():
 		return false
@@ -101,7 +101,7 @@ func can_rest() -> bool:
 
 
 func get_rests_remaining() -> int:
-	return maxi(0, BalanceConfig.REST_MAX_PER_EXPEDITION - SaveManager.rest_used_this_expedition)
+	return maxi(0, BalanceConfig.get_rest_max_per_expedition() - SaveManager.rest_used_this_expedition)
 
 
 ## Один привал: к текущему HP добавляется не больше (REST_HEAL_RATIO×max HP × модификатор Короны).
@@ -220,15 +220,15 @@ func _finish_rest_regen() -> void:
 ## ═══════════════════════════════════════════════════════
 
 func can_collect_expedition_ore() -> bool:
-	return SaveManager.expedition_ore_collected < BalanceConfig.MAX_ORE_PER_EXPEDITION
+	return SaveManager.expedition_ore_collected < BalanceConfig.get_max_ore_per_expedition()
 
 
 func can_collect_expedition_wood() -> bool:
-	return SaveManager.expedition_wood_collected < BalanceConfig.MAX_WOOD_PER_EXPEDITION
+	return SaveManager.expedition_wood_collected < BalanceConfig.get_max_wood_per_expedition()
 
 
 func can_collect_expedition_meat() -> bool:
-	return SaveManager.expedition_meat_collected < BalanceConfig.MAX_MEAT_PER_EXPEDITION
+	return SaveManager.expedition_meat_collected < BalanceConfig.get_max_meat_per_expedition()
 
 
 func track_expedition_ore(amount: int) -> void:
@@ -495,19 +495,19 @@ func get_crown_favor() -> int:
 
 
 func get_heal_modifier() -> float:
-	return BalanceConfig.get_supply_heal_mult(SaveManager.crown_displeasure, SaveManager.crown_favor)
+	return BalanceConfig.get_supply_heal_mult(SaveManager.crown_displeasure, SaveManager.crown_favor) * DifficultyConfig.get_supply_effect_mult()
 
 
 func get_rest_modifier() -> float:
-	return BalanceConfig.get_supply_rest_mult(SaveManager.crown_displeasure, SaveManager.crown_favor)
+	return BalanceConfig.get_supply_rest_mult(SaveManager.crown_displeasure, SaveManager.crown_favor) * DifficultyConfig.get_supply_effect_mult()
 
 
 func get_service_cost_modifier() -> float:
-	return BalanceConfig.get_supply_service_cost_mult(SaveManager.crown_displeasure, SaveManager.crown_favor)
+	return BalanceConfig.get_supply_service_cost_mult(SaveManager.crown_displeasure, SaveManager.crown_favor) * DifficultyConfig.get_service_cost_mult()
 
 
 func get_archer_damage_modifier() -> float:
-	return BalanceConfig.get_supply_archer_damage_mult(SaveManager.crown_displeasure, SaveManager.crown_favor)
+	return BalanceConfig.get_supply_archer_damage_mult(SaveManager.crown_displeasure, SaveManager.crown_favor) * DifficultyConfig.get_archer_damage_mult()
 
 
 ## ═══════════════════════════════════════════════════════
@@ -520,7 +520,7 @@ func get_armor_durability() -> int:
 
 
 func degrade_armor() -> int:
-	var wear := BalanceConfig.ARMOR_WEAR_PER_EXPEDITION
+	var wear := int(round(float(BalanceConfig.ARMOR_WEAR_PER_EXPEDITION) * DifficultyConfig.get_armor_wear_mult()))
 	SaveManager.armor_durability = maxi(0, SaveManager.armor_durability - wear)
 	Events.armor_durability_changed.emit(SaveManager.armor_durability)
 	SaveManager.save_game()
@@ -529,11 +529,12 @@ func degrade_armor() -> int:
 
 ## Износ брони/щита при ударе по герою (блок или нет — удар по щиту/доспеху).
 func apply_armor_wear_on_hit_taken(wear: int = BalanceConfig.ARMOR_WEAR_PER_HIT_TAKEN) -> void:
-	if wear <= 0:
+	var w := int(round(float(wear) * DifficultyConfig.get_armor_wear_mult()))
+	if w <= 0:
 		return
 	if SaveManager.armor_durability <= 0:
 		return
-	var new_d: int = maxi(0, SaveManager.armor_durability - wear)
+	var new_d: int = maxi(0, SaveManager.armor_durability - w)
 	if new_d == SaveManager.armor_durability:
 		return
 	SaveManager.armor_durability = new_d

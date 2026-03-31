@@ -28,19 +28,19 @@ const BUILDING_UPGRADE_ORE_STEP := 2
 
 ## Множитель награды за босса (к группе BOSS).
 const BOSS_GOLD_MULT := 3.05
-const BOSS_EXP_MULT := 2.35
+const BOSS_EXP_MULT := 2.05
 
 ## Рост HP/урона врага по enemy_level (остров): заметная ступень между островами.
-const ENEMY_STAT_PER_LEVEL := 1.17
+const ENEMY_STAT_PER_LEVEL := 1.185
 
 ## Чем выше разница (уровень врага − уровень героя), тем сильнее режется урон по врагу.
-const UNDERLEVEL_DAMAGE_PER_GAP := 0.12
-const UNDERLEVEL_DAMAGE_FLOOR := 0.55
+const UNDERLEVEL_DAMAGE_PER_GAP := 0.13
+const UNDERLEVEL_DAMAGE_FLOOR := 0.50
 const UNDERLEVEL_DAMAGE_BONUS_CAP := 1.15
 
-## Порог опыта до следующего уровня: число «эквивалентных» убийств врага своего уровня (L=L).
-## Ориентир ~1 ч игры на уровень при среднем темпе ~1.5–2 убийства/мин в бою (без спидрана).
-## Точная длительность зависит от исследования и сложности — калибруйте TARGET_KILLS_PER_LEVEL при плейтестах.
+## Порог опыта до следующего уровня: `get_exp_to_next_level` = (EXP_REWARD_BASE + EXP_PER_ENEMY_LEVEL × L) × TARGET_KILLS × множитель сложности.
+## То есть при убийстве врага своего уровня нужно ~TARGET_KILLS таких убийств (без боссов и бонусов за андерлевел).
+## Плейтест: в debug-сборке при аппе печатается `[Balance] Level up | kills since last level: N`.
 const TARGET_KILLS_PER_LEVEL := 24
 
 ## Золото за убийство: линейная часть + степенная (элита/боссы дают заметно больше).
@@ -50,14 +50,14 @@ const GOLD_REWARD_POW := 1.22
 const GOLD_REWARD_SCALE := 3.5
 
 ## Опыт за убийство: масштаб от уровня врага и бонус/штраф за разницу с героем.
-const EXP_REWARD_BASE := 11
-const EXP_PER_ENEMY_LEVEL := 8
+const EXP_REWARD_BASE := 9
+const EXP_PER_ENEMY_LEVEL := 7
 ## Герой выше врага: XP *= pow(база, H−L). На врагах 1 ур. после 2→3 качаться почти бессмысленно.
 const EXP_OVERLEVEL_FARM_BASE := 0.84
 const EXP_UNDERLEVEL_BONUS := 0.46
 ## Враг выше героя: урон по герою *= pow(база, gap) — на чужом острове без уровня «мнут».
-const ENEMY_DAMAGE_VS_LOWER_HERO_PER_GAP := 1.10
-const ENEMY_DAMAGE_VS_LOWER_HERO_CAP := 1.45
+const ENEMY_DAMAGE_VS_LOWER_HERO_PER_GAP := 1.115
+const ENEMY_DAMAGE_VS_LOWER_HERO_CAP := 1.52
 
 ## Руда как универсальная валюта.
 const ORE_TO_GOLD_RATE := 42
@@ -84,6 +84,7 @@ const EXPEDITION_MEAT_PER_WARRIOR := 1
 ## ─── Привал: за раз восстанавливается не больше REST_HEAL_RATIO×max HP (×модификатор Короны в CrownSystem).
 ## До полного HP за один привал — только если этот объём покрывает недостающее HP.
 const REST_HEAL_RATIO := 0.30
+## Базовое значение для ориентира; фактический лимит — `get_rest_max_per_expedition()` (DifficultyConfig).
 const REST_MAX_PER_EXPEDITION := 2
 ## Длительность анимации восстановления (сек.); модификатор снабжения ускоряет.
 const REST_REGEN_DURATION_SEC := 4.0
@@ -251,6 +252,15 @@ func _economy_mult() -> float:
 	return DifficultyConfig.get_economy_cost_mult()
 
 
+## Найм, здания, провизия похода — только экономика. Услуги базы — см. `_service_price_mult()`.
+func _service_price_mult() -> float:
+	return _economy_mult() * DifficultyConfig.get_service_cost_mult()
+
+
+func get_rest_max_per_expedition() -> int:
+	return DifficultyConfig.get_rest_max_per_expedition()
+
+
 func get_unit_hire_cost() -> int:
 	return maxi(1, int(round(float(UNIT_HIRE_COST) * _economy_mult())))
 
@@ -278,52 +288,53 @@ func _crown_service_mult() -> float:
 
 
 func get_armory_sword_buff_cost() -> int:
-	return maxi(1, int(round(float(ARMORY_SWORD_BUFF_COST) * _economy_mult() * _crown_service_mult())))
+	return maxi(1, int(round(float(ARMORY_SWORD_BUFF_COST) * _service_price_mult() * _crown_service_mult())))
 
 
 func get_armory_shield_buff_cost() -> int:
-	return maxi(1, int(round(float(ARMORY_SHIELD_BUFF_COST) * _economy_mult() * _crown_service_mult())))
+	return maxi(1, int(round(float(ARMORY_SHIELD_BUFF_COST) * _service_price_mult() * _crown_service_mult())))
 
 
 func get_monastery_revive_gold_cost() -> int:
-	return maxi(1, int(round(float(MONASTERY_REVIVE_GOLD_COST) * _economy_mult() * _crown_service_mult())))
+	return maxi(1, int(round(float(MONASTERY_REVIVE_GOLD_COST) * _service_price_mult() * _crown_service_mult())))
 
 
 func get_monastery_revive_ore_cost() -> int:
-	return maxi(1, int(round(float(MONASTERY_REVIVE_ORE_COST) * _economy_mult())))
+	return maxi(1, int(round(float(MONASTERY_REVIVE_ORE_COST) * _service_price_mult())))
 
 
 func get_monastery_vitality_gold_cost() -> int:
-	return maxi(1, int(round(float(MONASTERY_VITALITY_GOLD_COST) * _economy_mult() * _crown_service_mult())))
+	return maxi(1, int(round(float(MONASTERY_VITALITY_GOLD_COST) * _service_price_mult() * _crown_service_mult())))
 
 
 func get_monastery_vitality_ore_cost() -> int:
-	return maxi(1, int(round(float(MONASTERY_VITALITY_ORE_COST) * _economy_mult())))
+	return maxi(1, int(round(float(MONASTERY_VITALITY_ORE_COST) * _service_price_mult())))
 
 
 func get_archery_volley_gold_cost() -> int:
-	return maxi(1, int(round(float(ARCHERY_VOLLEY_GOLD_COST) * _economy_mult() * _crown_service_mult())))
+	return maxi(1, int(round(float(ARCHERY_VOLLEY_GOLD_COST) * _service_price_mult() * _crown_service_mult())))
 
 
 func get_archery_volley_ore_cost() -> int:
-	return maxi(1, int(round(float(ARCHERY_VOLLEY_ORE_COST) * _economy_mult())))
+	return maxi(1, int(round(float(ARCHERY_VOLLEY_ORE_COST) * _service_price_mult())))
 
 
 func get_archery_guard_gold_cost() -> int:
-	return maxi(1, int(round(float(ARCHERY_GUARD_GOLD_COST) * _economy_mult() * _crown_service_mult())))
+	return maxi(1, int(round(float(ARCHERY_GUARD_GOLD_COST) * _service_price_mult() * _crown_service_mult())))
 
 
 func get_archery_guard_ore_cost() -> int:
-	return maxi(1, int(round(float(ARCHERY_GUARD_ORE_COST) * _economy_mult())))
+	return maxi(1, int(round(float(ARCHERY_GUARD_ORE_COST) * _service_price_mult())))
 
 
 func get_exp_to_next_level(hero_level: int) -> int:
 	var L := clampi(hero_level, 1, MAX_HERO_LEVEL)
 	if L >= MAX_HERO_LEVEL:
 		return 0
-	var v := 120.0 + 35.0 * float(L) + 12.0 * float(L * L)
+	var base_xp_same_level := float(EXP_REWARD_BASE + EXP_PER_ENEMY_LEVEL * L)
+	var v := base_xp_same_level * float(TARGET_KILLS_PER_LEVEL)
 	v *= DifficultyConfig.get_exp_to_next_level_mult()
-	return maxi(120, int(round(v)))
+	return maxi(1, int(round(v)))
 
 
 func get_enemy_stat_multiplier(enemy_level: int) -> float:
@@ -341,12 +352,14 @@ func get_incoming_damage_factor_vs_enemy(enemy_level: int) -> float:
 
 
 ## Урон врага по герою/союзникам: если враг выше уровнем — заметно больнее (идти на остров без уровня опасно).
+## Множитель сложности `enemy_damage_to_player_mult` применяется и при gap=0.
 func get_enemy_outgoing_damage_vs_hero(enemy_level: int) -> float:
 	var hero_lv := clampi(SaveManager.current_level, 1, MAX_HERO_LEVEL)
 	var gap := clampi(enemy_level - hero_lv, 0, 12)
-	if gap <= 0:
-		return 1.0
-	return minf(ENEMY_DAMAGE_VS_LOWER_HERO_CAP, pow(ENEMY_DAMAGE_VS_LOWER_HERO_PER_GAP, float(gap)))
+	var base := 1.0
+	if gap > 0:
+		base = minf(ENEMY_DAMAGE_VS_LOWER_HERO_CAP, pow(ENEMY_DAMAGE_VS_LOWER_HERO_PER_GAP, float(gap)))
+	return base * DifficultyConfig.get_enemy_damage_to_player_mult()
 
 
 func get_gold_reward(enemy_level: int, is_boss: bool) -> int:
@@ -408,7 +421,9 @@ func get_premium_ore_pack(pack_id: String) -> Dictionary:
 func get_mine_ore_per_return(mine_tier: int, pawns_on_base: int, title_mine_bonus: int) -> int:
 	var from_tier := MINE_BASE_ORE_PER_RETURN + MINE_ORE_PER_TIER * clampi(mine_tier, 0, 4)
 	var from_pawns := MINE_ORE_PER_PAWN_ON_BASE * clampi(pawns_on_base, 0, MINE_MAX_PAWN_BONUS)
-	return maxi(1, from_tier + from_pawns + maxi(0, title_mine_bonus))
+	var raw := from_tier + from_pawns + maxi(0, title_mine_bonus)
+	var v := int(round(float(raw) * DifficultyConfig.get_mine_yield_mult()))
+	return maxi(1, v)
 
 
 ## ─── Провизия ───
@@ -418,7 +433,8 @@ func get_expedition_meat_cost(warrior_count: int) -> int:
 
 
 func get_rest_heal_amount(max_health: int) -> int:
-	return maxi(1, int(round(float(max_health) * REST_HEAL_RATIO)))
+	var r := float(max_health) * REST_HEAL_RATIO * DifficultyConfig.get_rest_heal_ratio_mult()
+	return maxi(1, int(round(r)))
 
 
 ## ─── Караван ───
@@ -434,7 +450,10 @@ func get_caravan_supply_meat() -> int:
 func get_crown_order(order_index: int) -> Dictionary:
 	for o in CROWN_ORDERS:
 		if o is Dictionary and int(o.get("index", -1)) == order_index:
-			return (o as Dictionary).duplicate()
+			var d := (o as Dictionary).duplicate()
+			var base_ore := int(d.get("ore_required", 0))
+			d["ore_required"] = maxi(1, int(round(float(base_ore) * DifficultyConfig.get_crown_ore_required_mult())))
+			return d
 	return {}
 
 
@@ -583,7 +602,7 @@ func get_armor_repair_gold_cost(displeasure: int, favor: int) -> int:
 		m += ARMOR_REPAIR_COST_PER_DISPLEASURE * float(clampi(displeasure, 0, DISPLEASURE_MAX_LEVEL))
 	elif favor > 0:
 		m -= ARMOR_REPAIR_DISCOUNT_PER_FAVOR * float(clampi(favor, 0, CROWN_FAVOR_MAX_LEVEL))
-	return maxi(1, int(round(float(ARMOR_REPAIR_GOLD_COST) * maxf(0.5, m) * _economy_mult())))
+	return maxi(1, int(round(float(ARMOR_REPAIR_GOLD_COST) * maxf(0.5, m) * _service_price_mult())))
 
 
 func get_armor_repair_ore_cost(displeasure: int, favor: int) -> int:
@@ -592,4 +611,16 @@ func get_armor_repair_ore_cost(displeasure: int, favor: int) -> int:
 		m += ARMOR_REPAIR_COST_PER_DISPLEASURE * float(clampi(displeasure, 0, DISPLEASURE_MAX_LEVEL)) * 0.5
 	elif favor > 0:
 		m -= ARMOR_REPAIR_DISCOUNT_PER_FAVOR * float(clampi(favor, 0, CROWN_FAVOR_MAX_LEVEL)) * 0.5
-	return maxi(0, int(round(float(ARMOR_REPAIR_ORE_COST) * maxf(0.5, m) * _economy_mult())))
+	return maxi(0, int(round(float(ARMOR_REPAIR_ORE_COST) * maxf(0.5, m) * _service_price_mult())))
+
+
+func get_max_ore_per_expedition() -> int:
+	return maxi(1, int(round(float(MAX_ORE_PER_EXPEDITION) * DifficultyConfig.get_expedition_carry_cap_mult())))
+
+
+func get_max_wood_per_expedition() -> int:
+	return maxi(1, int(round(float(MAX_WOOD_PER_EXPEDITION) * DifficultyConfig.get_expedition_carry_cap_mult())))
+
+
+func get_max_meat_per_expedition() -> int:
+	return maxi(1, int(round(float(MAX_MEAT_PER_EXPEDITION) * DifficultyConfig.get_expedition_carry_cap_mult())))

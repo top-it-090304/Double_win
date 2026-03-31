@@ -55,6 +55,9 @@ var _expedition_start_archer_count: int = 0
 var _expedition_start_lancer_count: int = 0
 var _expedition_start_pawn_count: int = 0
 
+## Плейтест (только debug): убийства врагов с последнего аппа уровня.
+var playtest_kills_since_level_up: int = 0
+
 
 ## Уровень оружейной на базе (0 = чёрная текстура … 4 = жёлтая). Влияет только на величину временных бафов.
 func get_armory_building_tier() -> int:
@@ -1015,6 +1018,22 @@ func add_ore(amount: int) -> void:
 func add_ore_volatile(amount: int) -> void:
 	SaveManager.ore_count = maxi(0, SaveManager.ore_count + amount)
 	Events.ore_changed.emit(SaveManager.ore_count)
+
+
+func register_enemy_kill_for_playtest() -> void:
+	playtest_kills_since_level_up += 1
+
+
+func playtest_report_level_up(levels_gained: int) -> void:
+	if not OS.is_debug_build() or levels_gained <= 0:
+		return
+	var k := playtest_kills_since_level_up
+	playtest_kills_since_level_up = 0
+	if levels_gained == 1:
+		print("[Balance] Level up | kills since last level: ", k)
+	else:
+		var per := float(k) / float(levels_gained)
+		print("[Balance] Level up x", levels_gained, " | kills in batch: ", k, " (~", snappedf(per, 0.1), " per level)")
 
 
 func add_exp(amount: int) -> void:

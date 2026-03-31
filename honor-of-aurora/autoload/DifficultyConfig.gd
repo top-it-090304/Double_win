@@ -20,43 +20,93 @@ const KEY_EXP_TO_NEXT_LEVEL_MULT := "exp_to_next_level_mult"
 const KEY_ECONOMY_COST_MULT := "economy_cost_mult"
 ## Множитель к фактору урона по врагу выше уровня героя (>1 — легче пробивать «красных»).
 const KEY_VS_HIGHER_ENEMY_DAMAGE_MULT := "vs_higher_enemy_damage_mult"
+## Сколько привалов на острове за поход (мясо + лимит использований).
+const KEY_REST_MAX_PER_EXPEDITION := "rest_max_per_expedition"
+## Множитель износа брони за поход и за удар.
+const KEY_ARMOR_WEAR_MULT := "armor_wear_mult"
+## Услуги базы (монастырь, оружейная, стрельбище, ремонт брони) — на базе экономики пресета.
+const KEY_SERVICE_COST_MULT := "service_cost_mult"
+## Руда в приказах Короны (ore_required).
+const KEY_CROWN_ORE_REQUIRED_MULT := "crown_ore_required_mult"
+## Итоговый урон врагов по герою/союзникам (и при gap=0).
+const KEY_ENEMY_DAMAGE_TO_PLAYER_MULT := "enemy_damage_to_player_mult"
+## Доля HP за один привал (остров).
+const KEY_REST_HEAL_RATIO_MULT := "rest_heal_ratio_mult"
+## Добыча шахты при возврате с похода.
+const KEY_MINE_YIELD_MULT := "mine_yield_mult"
+## Лимиты руды/дерева/мяса с одного острова.
+const KEY_EXPEDITION_CARRY_CAP_MULT := "expedition_carry_cap_mult"
+## Модификаторы привала/лечения от немилости/одобрения Короны (ещё слой сложности).
+const KEY_SUPPLY_EFFECT_MULT := "supply_effect_mult"
+## Урон лучников от снабжения Короны (см. CrownSystem.get_archer_damage_modifier).
+const KEY_ARCHER_DAMAGE_MULT := "archer_damage_mult"
 
 const _PRESETS: Array[Dictionary] = [
 	{
 		KEY_ID: Id.EASY,
 		KEY_KEY: "easy",
 		KEY_DISPLAY_NAME: "Лёгкий",
-		KEY_DESCRIPTION: "Враги слабее, прокачка и золото чуть щедрее, база дешевле, проще пробивать врагов выше уровня. Всё ещё медленный темп по сравнению с аркадой.",
+		KEY_DESCRIPTION: "Враги слабее и бьют мягче; больше привалов и лечения на отдыхе; дешевле услуги, мягче приказы Короны; броня дольше держится; шахта и лимиты добычи щедрее.",
 		KEY_ENEMY_STAT_MULT: 0.86,
 		KEY_GOLD_REWARD_MULT: 1.12,
 		KEY_EXP_REWARD_MULT: 1.1,
 		KEY_EXP_TO_NEXT_LEVEL_MULT: 0.78,
 		KEY_ECONOMY_COST_MULT: 0.9,
 		KEY_VS_HIGHER_ENEMY_DAMAGE_MULT: 1.38,
+		KEY_REST_MAX_PER_EXPEDITION: 3,
+		KEY_ARMOR_WEAR_MULT: 0.78,
+		KEY_SERVICE_COST_MULT: 0.88,
+		KEY_CROWN_ORE_REQUIRED_MULT: 0.85,
+		KEY_ENEMY_DAMAGE_TO_PLAYER_MULT: 0.85,
+		KEY_REST_HEAL_RATIO_MULT: 1.12,
+		KEY_MINE_YIELD_MULT: 1.06,
+		KEY_EXPEDITION_CARRY_CAP_MULT: 1.08,
+		KEY_SUPPLY_EFFECT_MULT: 1.06,
+		KEY_ARCHER_DAMAGE_MULT: 1.05,
 	},
 	{
 		KEY_ID: Id.NORMAL,
 		KEY_KEY: "normal",
 		KEY_DISPLAY_NAME: "Нормальный",
-		KEY_DESCRIPTION: "Ориентир: около часа активной игры на уровень героя; золото и апгрейды требуют планирования.",
+		KEY_DESCRIPTION: "Базовый баланс: 2 привала за поход, нормальный износ брони, услуги по прайсу экономики, приказы Короны как в таблице, урон врагов и отдых без доп. модификаторов.",
 		KEY_ENEMY_STAT_MULT: 1.0,
-		KEY_GOLD_REWARD_MULT: 1.0,
-		KEY_EXP_REWARD_MULT: 1.0,
-		KEY_EXP_TO_NEXT_LEVEL_MULT: 1.0,
+		KEY_GOLD_REWARD_MULT: 0.95,
+		KEY_EXP_REWARD_MULT: 0.95,
+		KEY_EXP_TO_NEXT_LEVEL_MULT: 1.08,
 		KEY_ECONOMY_COST_MULT: 1.0,
 		KEY_VS_HIGHER_ENEMY_DAMAGE_MULT: 1.0,
+		KEY_REST_MAX_PER_EXPEDITION: 2,
+		KEY_ARMOR_WEAR_MULT: 1.0,
+		KEY_SERVICE_COST_MULT: 1.0,
+		KEY_CROWN_ORE_REQUIRED_MULT: 1.0,
+		KEY_ENEMY_DAMAGE_TO_PLAYER_MULT: 1.0,
+		KEY_REST_HEAL_RATIO_MULT: 1.0,
+		KEY_MINE_YIELD_MULT: 1.0,
+		KEY_EXPEDITION_CARRY_CAP_MULT: 1.0,
+		KEY_SUPPLY_EFFECT_MULT: 1.0,
+		KEY_ARCHER_DAMAGE_MULT: 1.0,
 	},
 	{
 		KEY_ID: Id.HARD,
 		KEY_KEY: "hard",
 		KEY_DISPLAY_NAME: "Сложный",
-		KEY_DESCRIPTION: "Сильнее враги, заметно меньше золота и опыта, дороже найм и здания, жёстче штраф за врагов выше уровня. Для максимального вовлечения без «лут-лапши».",
+		KEY_DESCRIPTION: "Враги сильнее и больнее; один привал за поход; броня стирается быстрее; услуги и приказы Короны жёстче; меньше хила за отдых; шахта и лимиты добычи суровее; снабжение Короны слабее.",
 		KEY_ENEMY_STAT_MULT: 1.16,
 		KEY_GOLD_REWARD_MULT: 0.76,
 		KEY_EXP_REWARD_MULT: 0.84,
 		KEY_EXP_TO_NEXT_LEVEL_MULT: 1.18,
 		KEY_ECONOMY_COST_MULT: 1.12,
 		KEY_VS_HIGHER_ENEMY_DAMAGE_MULT: 0.74,
+		KEY_REST_MAX_PER_EXPEDITION: 1,
+		KEY_ARMOR_WEAR_MULT: 1.28,
+		KEY_SERVICE_COST_MULT: 1.12,
+		KEY_CROWN_ORE_REQUIRED_MULT: 1.15,
+		KEY_ENEMY_DAMAGE_TO_PLAYER_MULT: 1.12,
+		KEY_REST_HEAL_RATIO_MULT: 0.85,
+		KEY_MINE_YIELD_MULT: 0.92,
+		KEY_EXPEDITION_CARRY_CAP_MULT: 0.88,
+		KEY_SUPPLY_EFFECT_MULT: 0.88,
+		KEY_ARCHER_DAMAGE_MULT: 0.92,
 	},
 ]
 
@@ -123,3 +173,53 @@ func get_economy_cost_mult() -> float:
 
 func get_vs_higher_enemy_damage_mult() -> float:
 	return _float(get_active_preset(), KEY_VS_HIGHER_ENEMY_DAMAGE_MULT, 1.0)
+
+
+func _int(preset: Dictionary, key: StringName, fallback: int) -> int:
+	if preset.has(key):
+		var v = preset[key]
+		if v is int:
+			return int(v)
+		if v is float:
+			return int(round(v))
+	return fallback
+
+
+func get_rest_max_per_expedition() -> int:
+	return clampi(_int(get_active_preset(), KEY_REST_MAX_PER_EXPEDITION, 2), 1, 5)
+
+
+func get_armor_wear_mult() -> float:
+	return _float(get_active_preset(), KEY_ARMOR_WEAR_MULT, 1.0)
+
+
+func get_service_cost_mult() -> float:
+	return _float(get_active_preset(), KEY_SERVICE_COST_MULT, 1.0)
+
+
+func get_crown_ore_required_mult() -> float:
+	return _float(get_active_preset(), KEY_CROWN_ORE_REQUIRED_MULT, 1.0)
+
+
+func get_enemy_damage_to_player_mult() -> float:
+	return _float(get_active_preset(), KEY_ENEMY_DAMAGE_TO_PLAYER_MULT, 1.0)
+
+
+func get_rest_heal_ratio_mult() -> float:
+	return _float(get_active_preset(), KEY_REST_HEAL_RATIO_MULT, 1.0)
+
+
+func get_mine_yield_mult() -> float:
+	return _float(get_active_preset(), KEY_MINE_YIELD_MULT, 1.0)
+
+
+func get_expedition_carry_cap_mult() -> float:
+	return _float(get_active_preset(), KEY_EXPEDITION_CARRY_CAP_MULT, 1.0)
+
+
+func get_supply_effect_mult() -> float:
+	return _float(get_active_preset(), KEY_SUPPLY_EFFECT_MULT, 1.0)
+
+
+func get_archer_damage_mult() -> float:
+	return _float(get_active_preset(), KEY_ARCHER_DAMAGE_MULT, 1.0)

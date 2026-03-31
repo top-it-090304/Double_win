@@ -562,13 +562,18 @@ func gain_exp(amount: int, persist: bool = true):
 		_suppress_health_save = true
 	exp += amount
 
+	var levels_gained := 0
 	while level < BalanceConfig.MAX_HERO_LEVEL:
 		var need: int = get_exp_to_next_level()
 		if need <= 0 or exp < need:
 			break
 		exp -= need
 		level += 1
+		levels_gained += 1
 		level_up(persist)
+
+	if levels_gained > 0:
+		GameManager.playtest_report_level_up(levels_gained)
 
 	if level >= BalanceConfig.MAX_HERO_LEVEL:
 		exp = 0

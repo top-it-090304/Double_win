@@ -567,6 +567,7 @@ func die():
 
 	if not is_in_group("BOSS"):
 		SoundManager.play_death()
+	GameManager.register_enemy_kill_for_playtest()
 	var hero_lv: int = SaveManager.current_level
 	var is_boss := is_in_group("BOSS")
 	var xp_reward := int(round(float(BalanceConfig.get_exp_reward(enemy_level, hero_lv, is_boss)) * reward_mult))

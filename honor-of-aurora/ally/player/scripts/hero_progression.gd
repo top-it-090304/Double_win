@@ -60,8 +60,8 @@ static func get_tier_for_level(level: int) -> HeroTierData:
 	t.move_anim_speed_scale = src.move_anim_speed_scale
 	if level > 1:
 		var extra := level - 1
-		var m_hp := 1.0 + 0.095 * float(extra)
-		var m_dmg := 1.0 + 0.075 * float(extra)
+		var m_hp := 1.0 + 0.080 * float(extra)
+		var m_dmg := 1.0 + 0.062 * float(extra)
 		t.max_health = int(round(float(t.max_health) * m_hp))
 		t.attack_damage = int(round(float(t.attack_damage) * m_dmg))
 		t.speed = t.speed * (1.0 + 0.004 * float(extra))
