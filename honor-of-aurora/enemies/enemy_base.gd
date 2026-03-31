@@ -146,7 +146,8 @@ func _ready() -> void:
 
 
 func _setup_nav_agent() -> void:
-	if not use_navigation:
+	## Босс: только прямое движение к цели — NavigationAgent2D даёт джиттер и боковой увод.
+	if not use_navigation or is_in_group(&"BOSS"):
 		return
 	_nav_agent = NavigationAgent2D.new()
 	_nav_agent.path_desired_distance = 22.0
@@ -210,8 +211,12 @@ func _physics_process(delta):
 				_refresh_targets_after_leash()
 			else:
 				var want_home := _dir_toward_target(to_home)
-				last_dir = _steer_with_wall_probes(want_home, home_position)
-				velocity = last_dir * speed * 0.95
+				if is_in_group(&"BOSS"):
+					last_dir = want_home
+					velocity = last_dir * speed * 0.95
+				else:
+					last_dir = _steer_with_wall_probes(want_home, home_position)
+					velocity = last_dir * speed * 0.95
 
 		State.RECOVER:
 			_recover_time -= delta
@@ -223,21 +228,25 @@ func _physics_process(delta):
 		State.ATTACK, State.HIT, State.DEATH:
 			velocity = Vector2.ZERO
 
-	_apply_soft_separation_to_velocity(delta)
+	## Босс в погоне: без soft-sep (иначе радиальное отталкивание даёт лево/вправо вместо прямо к герою).
+	if not (is_in_group(&"BOSS") and state == State.CHASE):
+		_apply_soft_separation_to_velocity(delta)
 	move_and_slide()
 
 	if use_navigation and _nav_agent and is_instance_valid(_nav_agent):
 		_nav_agent.velocity = velocity
 
+	## Босс в погоне: без скольжения вдоль стены — оно уводит вбок от прямой к цели.
 	if state in [State.CHASE, State.LEASH] and is_on_wall():
-		_apply_wall_slide_velocity()
-		move_and_slide()
+		if not (is_in_group(&"BOSS") and state == State.CHASE):
+			_apply_wall_slide_velocity()
+			move_and_slide()
 
 	if state == State.CHASE and target and is_instance_valid(target):
 		var moved_distance := previous_position.distance_to(global_position)
 		if _is_target_in_attack_range():
 			_stuck_frames = 0
-		elif moved_distance < 0.55:
+		elif not is_in_group(&"BOSS") and moved_distance < 0.55:
 			_stuck_frames += 1
 			if _stuck_frames >= _STUCK_THRESHOLD_FRAMES and get_slide_collision_count() > 0:
 				var c := get_slide_collision(0)
@@ -255,7 +264,7 @@ func _physics_process(delta):
 
 		var to_target := target.global_position - global_position
 		var min_distance := attack_radius * 0.4
-		if to_target.length() < min_distance and not _is_target_in_attack_range():
+		if not is_in_group(&"BOSS") and to_target.length() < min_distance and not _is_target_in_attack_range():
 			var push_dir := _away_from_target(to_target)
 			if push_dir.length() > _SEP_EPS:
 				velocity = push_dir * speed * 0.35
@@ -268,14 +277,21 @@ func _physics_process(delta):
 func _apply_chase_velocity() -> void:
 	if target == null or not is_instance_valid(target):
 		return
-	var toward := target.global_position - global_position
+	## Босс: только вектор к герою — без навигации, лучей и «умного» обхода.
+	if is_in_group(&"BOSS"):
+		var toward := target.global_position - global_position
+		last_dir = _dir_toward_target(toward)
+		velocity = last_dir * speed
+		return
+
+	var toward := _snap_axis_aligned_2d(target.global_position - global_position)
 	var base_dir := _dir_toward_target(toward)
 
 	if use_navigation and _nav_agent:
 		_nav_agent.target_position = target.global_position
 		if not _nav_agent.is_navigation_finished():
 			var next_pos := _nav_agent.get_next_path_position()
-			var seg := next_pos - global_position
+			var seg := _snap_axis_aligned_2d(next_pos - global_position)
 			if seg.length() >= 14.0:
 				var nav_dir := seg.normalized()
 				if not _wall_ray_blocked(nav_dir):
@@ -289,7 +305,7 @@ func _apply_chase_velocity() -> void:
 				base_dir = seg.normalized()
 		else:
 			var next_pos2 := _nav_agent.get_next_path_position()
-			var seg2 := next_pos2 - global_position
+			var seg2 := _snap_axis_aligned_2d(next_pos2 - global_position)
 			if seg2.length() >= _SEP_EPS:
 				base_dir = seg2.normalized()
 
@@ -301,7 +317,7 @@ func _steer_with_wall_probes(desired_dir: Vector2, goal_global: Vector2) -> Vect
 	if desired_dir.length() < _SEP_EPS:
 		desired_dir = Vector2.RIGHT
 	desired_dir = desired_dir.normalized()
-	var to_goal := goal_global - global_position
+	var to_goal := _snap_axis_aligned_2d(goal_global - global_position)
 	var goal_hint := to_goal.normalized() if to_goal.length() > _SEP_EPS else desired_dir
 	var space := get_world_2d().direct_space_state
 	var my_rid := get_rid()
@@ -355,9 +371,9 @@ func _apply_wall_slide_velocity() -> void:
 	var n: Vector2 = get_slide_collision(0).get_normal()
 	var goal_dir := Vector2.ZERO
 	if state == State.CHASE and target and is_instance_valid(target):
-		goal_dir = target.global_position - global_position
+		goal_dir = _snap_axis_aligned_2d(target.global_position - global_position)
 	elif state == State.LEASH:
-		goal_dir = home_position - global_position
+		goal_dir = _snap_axis_aligned_2d(home_position - global_position)
 	if goal_dir.length() < _SEP_EPS:
 		return
 	goal_dir = goal_dir.normalized()

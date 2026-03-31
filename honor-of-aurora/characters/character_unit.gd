@@ -196,6 +196,19 @@ func _soft_sep_body_radius(node: Node2D) -> float:
 	return r
 
 
+## Убирает шум по «почти нулевой» оси (float, навигация), чтобы не дрожал знак и направление не флипалось кадр за кадром.
+func _snap_axis_aligned_2d(v: Vector2) -> Vector2:
+	if v.length_squared() < 1e-12:
+		return v
+	var ax := absf(v.x)
+	var ay := absf(v.y)
+	if ax < ay * 0.08 and ay > 1e-6:
+		return Vector2(0.0, v.y)
+	if ay < ax * 0.08 and ax > 1e-6:
+		return Vector2(v.x, 0.0)
+	return v
+
+
 func _apply_soft_separation_to_velocity(delta: float) -> void:
 	if not unit_soft_separation_enabled:
 		return
@@ -266,7 +279,7 @@ func _apply_boss_radius_separation(delta: float, tree: SceneTree) -> void:
 		var other_r := _soft_sep_body_radius(other_n)
 		var min_dist := my_r + other_r + BOSS_SOFT_SEP_PADDING_PX
 		var min_dist_sq := min_dist * min_dist
-		var delta_pos := my_pos - other_n.global_position
+		var delta_pos := _snap_axis_aligned_2d(my_pos - other_n.global_position)
 		var dist_sq := delta_pos.length_squared()
 		if dist_sq >= min_dist_sq:
 			continue
