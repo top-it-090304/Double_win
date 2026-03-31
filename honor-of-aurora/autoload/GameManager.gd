@@ -681,6 +681,10 @@ func handle_location_changed(new_location: Events.LOCATION):
 	## а DialogueManager остаётся с активным диалогом — _player_input_frozen() блокирует движение навсегда.
 	if DialogueManager.is_active():
 		DialogueManager.end_dialogue()
+	## Телепорт/меню зданий/squad_orders и т.д. ставят get_tree().paused = true без DialogueManager;
+	## при смене сцены (смерть → меню → продолжить) hide_* не вызывается — пауза остаётся, герой не обрабатывается.
+	## Сюжет юноши: paused=true перед диалогом смерти — при уходе со сцены до конца реплики то же самое.
+	get_tree().paused = false
 	if new_location == Events.LOCATION.MENU:
 		PostFinaleWorld.reset_state_for_main_menu()
 	var prev_location := Events.current_location
