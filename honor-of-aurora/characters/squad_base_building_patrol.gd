@@ -11,6 +11,10 @@ static func collect_shuffled_zone_nodes(tree: SceneTree) -> Array[Node2D]:
 	for n in tree.get_nodes_in_group(GROUP_PATROL_ZONE):
 		if not is_instance_valid(n) or not (n is Node2D):
 			continue
+		## Только зоны (Area2D и т.д.): не юниты — иначе случайно в группе окажется лучник/спутник
+		## с недосягаемой для коллизии целью.
+		if n is CharacterBody2D:
+			continue
 		nodes.append(n as Node2D)
 	if nodes.size() < 2:
 		return nodes
@@ -80,9 +84,14 @@ static func velocity_toward_goal_worker_like(
 	var spd: float = speed * patrol_speed_scale
 	if follow_use_navigation and follow_nav != null:
 		var vn: Variant = follow_nav.get_velocity_or_null(unit, goal_global, spd, delta)
-		if vn != null and vn is Vector2:
-			var fv: Vector2 = vn as Vector2
-			if fv.length_squared() > 1.0:
-				return fv
+		if vn == null:
+			## Пустой путь на сетке: прямой steer к цели упирается в стену и дрожит вместе с wall_slide.
+			## Если регион есть — ждём repath / смену цели (см. patrol_no_move у лучника/спутников).
+			if follow_nav.has_navigation_region():
+				return Vector2.ZERO
 			return SquadWorkerLikeSteering.steer_direction(unit, goal_global, spd) * spd
+		var fv: Vector2 = vn as Vector2
+		if fv.length_squared() > 1.0:
+			return fv
+		return SquadWorkerLikeSteering.steer_direction(unit, goal_global, spd) * spd
 	return SquadWorkerLikeSteering.steer_direction(unit, goal_global, spd) * spd

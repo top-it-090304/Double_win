@@ -193,12 +193,14 @@ func _physics_process(delta: float) -> void:
 		State.ATTACK:
 			velocity = Vector2.ZERO
 
-	_apply_soft_separation_to_velocity(delta)
+	if not (SquadOrders.mode == SquadOrders.Mode.PATROL and state == State.FOLLOW):
+		_apply_soft_separation_to_velocity(delta)
 	var v_sq_before_move := velocity.length_squared()
 	var pos_before_move := global_position
+	var vel_before_move := velocity
 	move_and_slide()
 	if state == State.FOLLOW:
-		_sync_follow_movement_animation()
+		_sync_follow_movement_animation(vel_before_move)
 		if SquadOrders.mode == SquadOrders.Mode.PATROL and not (Events.current_location != Events.LOCATION.BASE and is_in_group("ally_pawn")):
 			if v_sq_before_move > 100.0 and global_position.distance_to(pos_before_move) < 0.45:
 				_patrol_no_move_frames += 1
@@ -244,8 +246,6 @@ func _process_follow(_delta: float) -> void:
 		if Events.current_location != Events.LOCATION.BASE and is_in_group("ally_pawn"):
 			pass
 		else:
-			if Events.current_location != Events.LOCATION.BASE:
-				_follow_nav.clear()
 			_process_base_patrol(_delta)
 			_apply_follow_wall_slide_if_needed()
 			return
@@ -421,12 +421,9 @@ func _get_base_patrol_velocity_adventure_ring() -> Vector2:
 			_patrol_stuck_frames = 0
 	else:
 		_patrol_stuck_frames = 0
-	var spd := speed * patrol_speed_scale
-	var dir := SquadWorkerLikeSteering.steer_direction(self, _patrol_goal, spd)
-	if dir.length_squared() < 1e-8:
-		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
-		dir = SquadWorkerLikeSteering.steer_direction(self, _patrol_goal, spd)
-	return dir * spd
+	return SquadBaseBuildingPatrol.velocity_toward_goal_worker_like(
+		self, _follow_nav, _patrol_goal, speed, patrol_speed_scale, follow_use_navigation, delta
+	)
 
 
 func _process_base_patrol_adventure_ring() -> void:
@@ -462,19 +459,26 @@ func _apply_follow_wall_slide_if_needed() -> void:
 		SquadWorkerLikeSteering.apply_wall_slide_toward(self, player.global_position, speed)
 
 
-func _sync_follow_movement_animation() -> void:
+func _sync_follow_movement_animation(vel_for_face: Vector2) -> void:
 	if sprite == null or state != State.FOLLOW:
 		return
+	## run/idle — по фактической скорости после move_and_slide (не бежать на месте у стены).
+	## Разворот спрайта — по намерению до скольжения + запас к горизонтали к герою (скольжение часто даёт vx≈0).
 	if velocity.length() > 0.1:
-		_face_velocity(velocity)
+		_face_velocity(vel_for_face)
 		_play_run()
 	else:
 		_play_idle()
 
 
 func _face_velocity(v: Vector2) -> void:
-	if sprite and absf(v.x) > 0.05:
-		sprite.flip_h = v.x < 0.0
+	if sprite == null:
+		return
+	var hx: float = v.x
+	if absf(hx) < 0.08 and player != null and is_instance_valid(player):
+		hx = player.global_position.x - global_position.x
+	if absf(hx) > 0.05:
+		sprite.flip_h = hx < 0.0
 
 
 func _nearest_enemy_in_attack_area() -> Node2D:

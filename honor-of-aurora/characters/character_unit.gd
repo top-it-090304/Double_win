@@ -13,12 +13,19 @@ const _WorldMiniHpBar := preload("res://ui/hp_bar/world_mini_hp_bar.gd")
 @export_range(8.0, 120.0, 1.0) var unit_soft_separation_distance: float = 28.0
 @export_range(0.0, 2.0, 0.01) var unit_soft_separation_strength: float = 0.42
 
+## Отталкивание от босса (группа BOSS): сильнее отряда, целевой зазор ≈ сумма радиусов + padding.
+const BOSS_SOFT_SEP_PADDING_PX := 26.0
+const BOSS_SOFT_SEP_STRENGTH := 4.2
+const BOSS_SOFT_SEP_SPEED_REF_MIN := 180.0
+
 var health_component: Node
 
 
 func _ready() -> void:
 	## Плавное положение между шагами физики (важно при 30 Hz physics и 60 Hz экрана).
 	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_ON
+	## Чуть больше дефолта — меньше «проталкивания» в коллизию при тесном контакте с боссом.
+	safe_margin = maxf(safe_margin, 0.12)
 	add_to_group("character_unit")
 	add_to_group("y_sortable")
 	_ensure_health_component()
@@ -192,10 +199,14 @@ func _soft_sep_body_radius(node: Node2D) -> float:
 func _apply_soft_separation_to_velocity(delta: float) -> void:
 	if not unit_soft_separation_enabled:
 		return
-	if unit_soft_separation_distance <= 0.0 or unit_soft_separation_strength <= 0.0:
-		return
 	var tree := get_tree()
 	if tree == null:
+		return
+	## Сначала: жёсткое разведение с боссом (и для врагов — иначе залипание у крупного коллайдера).
+	_apply_boss_radius_separation(delta, tree)
+	if is_in_group("enemy"):
+		return
+	if unit_soft_separation_distance <= 0.0 or unit_soft_separation_strength <= 0.0:
 		return
 	if tree.get_node_count_in_group(&"character_unit") < 2:
 		return
@@ -206,6 +217,11 @@ func _apply_soft_separation_to_velocity(delta: float) -> void:
 		if other == self or other == null or not is_instance_valid(other):
 			continue
 		if not (other is Node2D):
+			continue
+		var other_node := other as Node
+		## Между врагом и не-врагом — только коллизия CharacterBody2D. Дополнительное отталкивание
+		## суммируется с разрешением контактов и при боссах/толпе даёт взаимное гашение и «залипание».
+		if is_in_group("enemy") != other_node.is_in_group("enemy"):
 			continue
 		var other_n := other as Node2D
 		var min_dist := maxf(unit_soft_separation_distance, my_r + _soft_sep_body_radius(other_n))
@@ -226,3 +242,42 @@ func _apply_soft_separation_to_velocity(delta: float) -> void:
 		return
 	var speed_ref := maxf(80.0, velocity.length())
 	velocity += push.normalized() * speed_ref * unit_soft_separation_strength * delta
+
+
+func _apply_boss_radius_separation(delta: float, tree: SceneTree) -> void:
+	if tree.get_node_count_in_group(&"character_unit") < 2:
+		return
+	var self_boss := is_in_group("BOSS")
+	var my_pos := global_position
+	var my_r := _soft_sep_body_radius(self)
+	var push := Vector2.ZERO
+	for other in tree.get_nodes_in_group("character_unit"):
+		if other == self or other == null or not is_instance_valid(other):
+			continue
+		if not (other is Node2D):
+			continue
+		var other_node := other as Node
+		var other_boss := other_node.is_in_group("BOSS")
+		if not self_boss and not other_boss:
+			continue
+		if self_boss and other_boss:
+			continue
+		var other_n := other as Node2D
+		var other_r := _soft_sep_body_radius(other_n)
+		var min_dist := my_r + other_r + BOSS_SOFT_SEP_PADDING_PX
+		var min_dist_sq := min_dist * min_dist
+		var delta_pos := my_pos - other_n.global_position
+		var dist_sq := delta_pos.length_squared()
+		if dist_sq >= min_dist_sq:
+			continue
+		if dist_sq < 1e-8:
+			var seed := int(get_instance_id()) ^ int(other_n.get_instance_id())
+			delta_pos = Vector2.RIGHT.rotated(float(seed % 997) * TAU / 997.0) * 0.02
+			dist_sq = delta_pos.length_squared()
+		var inv_dist := 1.0 / sqrt(dist_sq)
+		var weight := 1.0 - (1.0 / (inv_dist * min_dist))
+		push += delta_pos * (inv_dist * weight)
+	if push.length_squared() < 1e-6:
+		return
+	var speed_ref := maxf(BOSS_SOFT_SEP_SPEED_REF_MIN, velocity.length())
+	velocity += push.normalized() * speed_ref * BOSS_SOFT_SEP_STRENGTH * delta

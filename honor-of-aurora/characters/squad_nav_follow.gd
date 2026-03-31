@@ -11,6 +11,11 @@ var _idx: int = 0
 var _repath_cd: float = 0.0
 var nav_layers: int = 1
 var _last_goal: Vector2 = Vector2.ZERO
+var _nav_region_available: bool = false
+
+
+func has_navigation_region() -> bool:
+	return _nav_region_available
 
 
 func clear() -> void:
@@ -23,20 +28,24 @@ func clear() -> void:
 func sync_nav_layers_from_scene(unit: Node2D) -> void:
 	if unit == null or not is_instance_valid(unit) or not unit.is_inside_tree():
 		nav_layers = 1
+		_nav_region_available = false
 		return
 	var tree: SceneTree = unit.get_tree()
 	if tree == null:
 		nav_layers = 1
+		_nav_region_available = false
 		return
 	var scene: Node = tree.current_scene
 	if scene == null:
 		nav_layers = 1
+		_nav_region_available = false
 		return
+	_nav_region_available = false
+	nav_layers = 1
 	var nr := scene.find_child("IslandNavigationRegion", true, false)
 	if nr is NavigationRegion2D:
 		nav_layers = (nr as NavigationRegion2D).navigation_layers
-	else:
-		nav_layers = 1
+		_nav_region_available = true
 
 
 func get_velocity_or_null(

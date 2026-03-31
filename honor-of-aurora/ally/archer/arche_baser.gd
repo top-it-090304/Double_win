@@ -290,27 +290,42 @@ func _stationary_guard_skip_move_and_slide() -> bool:
 
 
 ## После wall-slide и soft separation — иначе «run» при почти нулевой итоговой скорости.
-func _sync_follow_or_flee_movement_animation() -> void:
+## Разворот — по vel до move_and_slide (после скольжения velocity часто «не туда» по горизонтали).
+## run только при реальном смещении за кадр — иначе упор в стену/разведение даёт velocity, но не шаг.
+func _sync_follow_or_flee_movement_animation(vel_for_face: Vector2, pos_before_move: Vector2) -> void:
 	if sprite == null:
 		return
+	var moved := global_position.distance_to(pos_before_move)
+	var visually_moving := moved > 0.055
 	if state == State.FOLLOW:
 		if stationary_guard:
 			return
-		if velocity.length() > 0.1:
+		if visually_moving and velocity.length() > 0.08:
 			if sprite.animation != "run":
 				sprite.play("run")
-			sprite.flip_h = velocity.x < 0
+			_apply_archer_face_horizontal(vel_for_face)
 		else:
 			if sprite.animation != "idle":
 				sprite.play("idle")
 	elif state == State.FLEE:
-		if velocity.length() > 0.1:
+		if visually_moving and velocity.length() > 0.08:
 			if sprite.animation != "run":
 				sprite.play("run")
-			sprite.flip_h = velocity.x < 0
+			_apply_archer_face_horizontal(vel_for_face)
 		else:
 			if sprite.animation != "idle":
 				sprite.play("idle")
+
+
+func _apply_archer_face_horizontal(vel_for_face: Vector2) -> void:
+	var hx: float = vel_for_face.x
+	if absf(hx) < 0.08:
+		if state == State.FLEE and flee_target != Vector2.ZERO:
+			hx = flee_target.x - global_position.x
+		elif player != null and is_instance_valid(player):
+			hx = player.global_position.x - global_position.x
+	if absf(hx) > 0.05:
+		sprite.flip_h = hx < 0.0
 
 
 func _physics_process(delta: float) -> void:
@@ -363,17 +378,20 @@ func _physics_process(delta: float) -> void:
 	## Стационарные стражи: без мягкого разведения — иначе игрок/спутники в радиусе ~28px
 	## «выталкивают» лучника с башни каждый кадр (`character_unit._apply_soft_separation_to_velocity`).
 	## В SHOOT не разводим: иначе velocity ≠ 0 и `attack()` / таймер выстрела не срабатывают.
+	## В PATROL отряд не разводим — иначе лучники толкают друг друга у стен/узких мест и «дрожат» на месте.
 	if state != State.SHOOT and (not stationary_guard or state == State.FLEE):
-		_apply_soft_separation_to_velocity(delta)
+		if not (SquadOrders.mode == SquadOrders.Mode.PATROL and state == State.FOLLOW):
+			_apply_soft_separation_to_velocity(delta)
 	var v_sq_before_move := velocity.length_squared()
 	var pos_before_move := global_position
+	var vel_before_slide := velocity
 	## При velocity≈0 `move_and_slide()` всё равно разрешает пересечения с коллизией земли/стен и
 	## сдвигает CharacterBody2D — позиция из сцены «уползает». Стационарный страж без бега не зовём.
 	if not _stationary_guard_skip_move_and_slide():
 		move_and_slide()
 	## Анимация после скольжения: иначе «run» при упоре в стену (намерение ≠ фактическое движение).
 	if state == State.FOLLOW or state == State.FLEE:
-		_sync_follow_or_flee_movement_animation()
+		_sync_follow_or_flee_movement_animation(vel_before_slide, pos_before_move)
 	if state == State.FOLLOW and SquadOrders.mode == SquadOrders.Mode.PATROL and not stationary_guard:
 		if v_sq_before_move > 100.0 and global_position.distance_to(pos_before_move) < 0.45:
 			_patrol_no_move_frames += 1
@@ -406,9 +424,7 @@ func _get_follow_velocity() -> Vector2:
 		_follow_nav.clear()
 		return Vector2.ZERO
 	if SquadOrders.mode == SquadOrders.Mode.PATROL:
-		## На базе патруль идёт по нав-сетке к зданиям — не сбрасываем путь каждый кадр.
-		if Events.current_location != Events.LOCATION.BASE:
-			_follow_nav.clear()
+		## На базе и на островах — IslandNavigationRegion; не сбрасываем путь при смене «база/остров».
 		return _get_base_patrol_velocity()
 	if not player:
 		_follow_nav.clear()
@@ -606,12 +622,9 @@ func _get_base_patrol_velocity_adventure_ring() -> Vector2:
 			_patrol_stuck_frames = 0
 	else:
 		_patrol_stuck_frames = 0
-	var spd := speed * patrol_speed_scale
-	var dir := SquadWorkerLikeSteering.steer_direction(self, _patrol_goal, spd)
-	if dir.length_squared() < 1e-8:
-		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
-		dir = SquadWorkerLikeSteering.steer_direction(self, _patrol_goal, spd)
-	return dir * spd
+	return SquadBaseBuildingPatrol.velocity_toward_goal_worker_like(
+		self, _follow_nav, _patrol_goal, speed, patrol_speed_scale, follow_use_navigation, delta
+	)
 
 func _start_shooting_if_needed() -> void:
 	if state != State.SHOOT:
