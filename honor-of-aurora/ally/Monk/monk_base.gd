@@ -6,6 +6,16 @@ var state = State.IDLE
 var target_player = null
 var can_heal = true
 
+## Движение как у рабочих: нав-сетка + SquadWorkerLikeSteering; без гонки — возврат на стартовую точку.
+var _follow_nav: SquadNavFollow = SquadNavFollow.new()
+var _sync_nav_attempts: int = 0
+var _home_spawn: Vector2 = Vector2.ZERO
+var _home_spawn_ready: bool = false
+
+@export var follow_use_navigation: bool = true
+@export_range(0.15, 1.0, 0.01) var patrol_speed_scale: float = 0.62
+@export var home_return_reach_distance: float = 36.0
+
 @export var speed = 150.0
 @export var heal_amount = 50
 @export var heal_cooldown = 3.0
@@ -73,16 +83,57 @@ var _block_zone_story_autostart_until_leave_heal_area: bool = false
 
 func _ready() -> void:
 	super._ready()
+	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
+	max_slides = 6
 	process_priority = -10
 	add_to_group("healer")
 	DialogueManager.dialogue_ended.connect(_on_dialogue_ended_zone_flags)
 	detection.body_entered.connect(_on_detection)
+	detection.body_exited.connect(_on_detection_exited)
 	heal_area.body_entered.connect(_on_heal_area)
 	heal_area.body_entered.connect(_on_heal_zone_enter_for_story_dialogue)
 	heal_area.body_exited.connect(_on_heal_zone_player_exited)
 	cooldown.timeout.connect(_on_cooldown)
 	cooldown.one_shot = true
+	if not Events.location_changed.is_connected(_on_location_changed_sync_nav):
+		Events.location_changed.connect(_on_location_changed_sync_nav)
+	call_deferred("_capture_home_spawn")
+	call_deferred("_sync_follow_nav_layers_from_scene")
 	call_deferred("_try_story_dialogue_if_player_starts_in_zone", false)
+
+
+func _exit_tree() -> void:
+	if Events.location_changed.is_connected(_on_location_changed_sync_nav):
+		Events.location_changed.disconnect(_on_location_changed_sync_nav)
+	if detection != null and detection.body_exited.is_connected(_on_detection_exited):
+		detection.body_exited.disconnect(_on_detection_exited)
+
+
+func _capture_home_spawn() -> void:
+	if not is_inside_tree():
+		return
+	_home_spawn = global_position
+	_home_spawn_ready = true
+
+
+func _on_location_changed_sync_nav(_loc: Events.LOCATION) -> void:
+	_follow_nav.clear()
+	call_deferred("_sync_follow_nav_layers_from_scene")
+
+
+func _sync_follow_nav_layers_from_scene() -> void:
+	if not is_inside_tree():
+		if _sync_nav_attempts < 8:
+			_sync_nav_attempts += 1
+			call_deferred("_sync_follow_nav_layers_from_scene")
+		return
+	_sync_nav_attempts = 0
+	_follow_nav.sync_nav_layers_from_scene(self)
+
+
+func _on_detection_exited(body: Node2D) -> void:
+	if GameplayFacade.is_player_body(body):
+		target_player = null
 
 
 func _is_story_dialogue_id(d_id: String) -> bool:
@@ -122,42 +173,70 @@ func _deferred_chain_monk_zone_story_after_dialogue() -> void:
 		_block_zone_story_autostart_until_leave_heal_area = true
 
 
-func _physics_process(delta):
+func _is_player_wounded_for_heal(node: Node) -> bool:
+	if node.is_in_group("character_unit") and node.has_method("is_health_full"):
+		return not node.is_health_full()
+	if node.has_method("is_health_full"):
+		return not node.is_health_full()
+	if "health" in node and "max_health" in node:
+		return node.health < node.max_health
+	return false
+
+
+func _player_needs_heal_chase() -> bool:
+	if Events.current_location != Events.LOCATION.BASE:
+		return false
+	if target_player == null or not is_instance_valid(target_player):
+		return false
+	if heal_area.overlaps_body(target_player):
+		return false
+	return _is_player_wounded_for_heal(target_player)
+
+
+func _physics_process(delta: float) -> void:
 	if state == State.HEAL:
 		return
-		
-	if target_player and is_instance_valid(target_player):
-		var should_move = true
-		var in_heal_zone = heal_area.overlaps_body(target_player)
-		
-		var health_full := false
-		if target_player.is_in_group("character_unit") and target_player.has_method("is_health_full"):
-			health_full = target_player.is_health_full()
-		elif target_player.has_method("is_health_full"):
-			health_full = target_player.is_health_full()
-		elif "health" in target_player and "max_health" in target_player:
-			health_full = target_player.health >= target_player.max_health
-		
-		if in_heal_zone or health_full:
-			should_move = false
-		
-		if should_move:
-			var dir = global_position.direction_to(target_player.global_position)
-			velocity = dir * speed
-			move_and_slide()
-			state = State.RUN if velocity.length() > 0 else State.IDLE
-		else:
-			velocity = Vector2.ZERO
-			state = State.IDLE
 
+	if Events.current_location != Events.LOCATION.BASE:
+		velocity = Vector2.ZERO
+		state = State.IDLE
+		move_and_slide()
+		update_animation()
+		return
+
+	var moving := false
+	if _player_needs_heal_chase():
+		var goal: Vector2 = target_player.global_position
+		velocity = SquadBaseBuildingPatrol.velocity_toward_goal_worker_like(
+			self, _follow_nav, goal, speed, patrol_speed_scale, follow_use_navigation, delta
+		)
+		if velocity.length_squared() > 4.0:
+			SquadWorkerLikeSteering.apply_wall_slide_toward(self, goal, speed * patrol_speed_scale)
+		moving = velocity.length_squared() > 1.0
+		state = State.RUN if moving else State.IDLE
+	elif not _collect_wounded_healable_in_zone().is_empty():
+		velocity = Vector2.ZERO
+		state = State.IDLE
+		_follow_nav.clear()
+	elif _home_spawn_ready and global_position.distance_to(_home_spawn) > home_return_reach_distance:
+		velocity = SquadBaseBuildingPatrol.velocity_toward_goal_worker_like(
+			self, _follow_nav, _home_spawn, speed, patrol_speed_scale, follow_use_navigation, delta
+		)
+		if velocity.length_squared() > 4.0:
+			SquadWorkerLikeSteering.apply_wall_slide_toward(self, _home_spawn, speed * patrol_speed_scale)
+		moving = velocity.length_squared() > 1.0
+		state = State.RUN if moving else State.IDLE
 	else:
 		velocity = Vector2.ZERO
 		state = State.IDLE
+		_follow_nav.clear()
 
-	# Герой, союзники в отряде: один «пульс» на кулдаун на всех раненых в зоне.
+	_apply_soft_separation_to_velocity(delta)
+	move_and_slide()
+
 	if can_heal and not _collect_wounded_healable_in_zone().is_empty():
 		_heal_pulse()
-	
+
 	update_animation()
 
 func update_animation():

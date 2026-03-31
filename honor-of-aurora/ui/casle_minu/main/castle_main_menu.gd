@@ -1867,8 +1867,15 @@ func _hire_unit(kind: HireKind) -> void:
 			_show_hire_fail("Нужен запас мяса: добывайте на базе овец, чтобы увеличить лимит лучников и копейщиков.")
 			return
 	var hire_ore_cost := BalanceConfig.get_unit_hire_ore_cost()
-	if not GameplayFacade.try_spend_gold_plus_ore(unit_hire_cost, hire_ore_cost):
-		_show_hire_fail("Недостаточно золота или Сердцевины.")
+	if not GameplayFacade.try_spend_gold_plus_ore_strict(unit_hire_cost, hire_ore_cost):
+		var msg := "Недостаточно средств."
+		if SaveManager.gold < unit_hire_cost and SaveManager.ore_count < hire_ore_cost:
+			msg = "Недостаточно золота и Сердцевины."
+		elif SaveManager.gold < unit_hire_cost:
+			msg = "Недостаточно золота."
+		elif SaveManager.ore_count < hire_ore_cost:
+			msg = "Недостаточно Сердцевины."
+		_show_hire_fail(msg)
 		return
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if not player:

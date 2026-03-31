@@ -146,6 +146,25 @@ func try_spend_gold_plus_ore(gold_amount: int, ore_amount: int) -> bool:
 	return true
 
 
+## Золото и руда отдельно: без конвертации нехватки золота в Сердцевину (например найм в замке).
+func can_afford_gold_plus_ore_strict(gold_amount: int, ore_amount: int) -> bool:
+	gold_amount = maxi(0, gold_amount)
+	ore_amount = maxi(0, ore_amount)
+	return SaveManager.gold >= gold_amount and SaveManager.ore_count >= ore_amount
+
+
+func try_spend_gold_plus_ore_strict(gold_amount: int, ore_amount: int) -> bool:
+	if not can_afford_gold_plus_ore_strict(gold_amount, ore_amount):
+		return false
+	gold_amount = maxi(0, gold_amount)
+	ore_amount = maxi(0, ore_amount)
+	if gold_amount > 0:
+		GameManager.add_gold(-gold_amount)
+	if ore_amount > 0:
+		GameManager.add_ore(-ore_amount)
+	return true
+
+
 ## Успешная оплата IAP/SDK и дебаг-кнопка «Купить» в лавке должны вызывать **только** этот метод —
 ## тогда руда, счётчики, флаги патрона и сохранение совпадают с «реальной» покупкой.
 func purchase_premium_ore_pack(pack_id: String) -> bool:
