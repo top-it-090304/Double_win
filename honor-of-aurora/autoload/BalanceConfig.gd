@@ -90,17 +90,21 @@ const REST_MAX_PER_EXPEDITION := 2
 const REST_REGEN_DURATION_SEC := 4.0
 
 ## ─── Караван Короны ───
+## Шаг графика: караван прибывает, когда оставшийся срок приказа (единый счётчик) кратен этому числу, включая 0.
 const CARAVAN_EXPEDITION_INTERVAL := 3
+## Fallback для `deadline_expeditions` в данных приказа; кратен CARAVAN_EXPEDITION_INTERVAL (один счётчик с рейсом).
+const DEFAULT_CROWN_ORDER_DEADLINE_EXPEDITIONS := CARAVAN_EXPEDITION_INTERVAL
 const CARAVAN_SUPPLY_GOLD_BASE := 40
 const CARAVAN_SUPPLY_MEAT_BASE := 2
 
 ## ─── Приказы Короны (масштабируются по сюжету) ───
+## `deadline_expeditions` — длина того же единого счётчика возвратов (SaveManager.crown_returns_remaining), кратна CARAVAN_EXPEDITION_INTERVAL.
 const CROWN_ORDERS := [
-	{"index": 1, "ore_required": 15, "deadline_expeditions": 4, "letter": "Первая партия. Маяк на Северном мысе гаснет. Казна ждёт."},
-	{"index": 2, "ore_required": 25, "deadline_expeditions": 4, "letter": "Совет требует ускорить. Торговцы жалуются на тёмные проливы."},
-	{"index": 3, "ore_required": 40, "deadline_expeditions": 5, "letter": "Казначей прислал инспектора. Покажи ему шахту — и результаты."},
-	{"index": 4, "ore_required": 60, "deadline_expeditions": 5, "letter": "Король лично ждёт отчёт. Не разочаруй Корону."},
-	{"index": 5, "ore_required": 80, "deadline_expeditions": 6, "letter": "Последний маяк. Если он погаснет — виноват будешь ты."},
+	{"index": 1, "ore_required": 15, "deadline_expeditions": 3, "letter": "Первая партия. Маяк на Северном мысе гаснет. Казна ждёт."},
+	{"index": 2, "ore_required": 25, "deadline_expeditions": 6, "letter": "Совет требует ускорить. Торговцы жалуются на тёмные проливы."},
+	{"index": 3, "ore_required": 40, "deadline_expeditions": 6, "letter": "Казначей прислал инспектора. Покажи ему шахту — и результаты."},
+	{"index": 4, "ore_required": 60, "deadline_expeditions": 9, "letter": "Король лично ждёт отчёт. Не разочаруй Корону."},
+	{"index": 5, "ore_required": 80, "deadline_expeditions": 9, "letter": "Последний маяк. Если он погаснет — виноват будешь ты."},
 ]
 
 ## ─── Титулы Короны (по суммарной руде, отправленной Короне) ───

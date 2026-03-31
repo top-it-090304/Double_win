@@ -248,18 +248,68 @@ func track_expedition_meat(amount: int) -> void:
 ## ═══════════════════════════════════════════════════════
 
 func tick_caravan_on_expedition_return() -> void:
+	## Один счётчик `crown_returns_remaining`: и срок приказа, и моменты прибытия каравана (кратно CARAVAN_EXPEDITION_INTERVAL, включая 0).
+	## Пока срок истёк, но караван конца срока ещё не отправлен — счётчик не трогаем (ждём отгрузки).
+	if SaveManager.crown_deadline_expired_awaiting_dispatch and SaveManager.crown_order_index > 0:
+		SaveManager.save_game()
+		return
+
+	var interval := BalanceConfig.CARAVAN_EXPEDITION_INTERVAL
+	var rem_before := SaveManager.crown_returns_remaining
+	if SaveManager.crown_returns_remaining > 0:
+		SaveManager.crown_returns_remaining -= 1
+	var rem := SaveManager.crown_returns_remaining
+	var just_hit_zero := rem_before > 0 and rem == 0
+
+	if SaveManager.crown_order_index <= 0:
+		if rem == 0:
+			_try_arrive_caravan()
+		SaveManager.save_game()
+		return
+
+	if rem % interval == 0:
+		## Не вызывать повторное «прибытие» на каждом возврате, пока rem=0 и срок уже закрыт ожиданием отгрузки.
+		var skip_repeat_arrival_at_zero := rem == 0 and not just_hit_zero and SaveManager.crown_order_index > 0
+		if not skip_repeat_arrival_at_zero:
+			_try_arrive_caravan()
+	if just_hit_zero:
+		SaveManager.crown_deadline_expired_awaiting_dispatch = true
+	SaveManager.save_game()
+
+
+## Сколько завершённых возвратов до следующего прибытия каравана (для UI). До первого приказа — то же, что до первого рейса.
+func get_returns_until_next_caravan() -> int:
+	var interval := BalanceConfig.CARAVAN_EXPEDITION_INTERVAL
+	var rem := maxi(0, SaveManager.crown_returns_remaining)
+	if rem <= 0:
+		return 0
+	if SaveManager.crown_order_index <= 0:
+		return rem
+	var m := rem % interval
+	if m == 0:
+		return interval
+	return m
+
+
+func _try_arrive_caravan() -> void:
+	if SaveManager.caravan_pending:
+		SaveManager.caravan_arrival_queued += 1
+		return
+	_arrive_caravan()
+
+
+func _process_caravan_arrival_queue() -> void:
 	if SaveManager.caravan_pending:
 		return
-	SaveManager.expeditions_until_caravan -= 1
-	if SaveManager.expeditions_until_caravan <= 0:
-		_arrive_caravan()
-	_tick_crown_order_deadline()
+	if SaveManager.caravan_arrival_queued <= 0:
+		return
+	SaveManager.caravan_arrival_queued -= 1
+	_arrive_caravan()
 	SaveManager.save_game()
 
 
 func _arrive_caravan() -> void:
 	SaveManager.caravan_pending = true
-	SaveManager.expeditions_until_caravan = BalanceConfig.CARAVAN_EXPEDITION_INTERVAL
 	_advance_crown_order_if_needed()
 	_deliver_caravan_supplies()
 	var order_idx := SaveManager.crown_order_index
@@ -278,15 +328,11 @@ func _deliver_caravan_supplies() -> void:
 
 
 func _advance_crown_order_if_needed() -> void:
+	## Следующий приказ после истечения срока выдаётся в `_resolve_crown_order_on_caravan_dispatch` (после отъезда рейса конца срока).
+	## Здесь — только выдача самого первого приказа после старта.
 	if SaveManager.crown_order_index <= 0:
 		_issue_next_crown_order()
 		return
-	var order := BalanceConfig.get_crown_order(SaveManager.crown_order_index)
-	if order.is_empty():
-		return
-	var required := int(order.get("ore_required", 0))
-	if SaveManager.crown_order_ore_sent >= required:
-		_issue_next_crown_order()
 
 
 func _issue_next_crown_order() -> void:
@@ -296,22 +342,36 @@ func _issue_next_crown_order() -> void:
 		return
 	SaveManager.crown_order_index = next_idx
 	SaveManager.crown_order_ore_sent = 0
-	SaveManager.crown_order_deadline_remaining = int(order.get("deadline_expeditions", 4))
+	SaveManager.crown_returns_remaining = int(order.get("deadline_expeditions", BalanceConfig.DEFAULT_CROWN_ORDER_DEADLINE_EXPEDITIONS))
 	SaveManager.save_game()
 
 
-func _tick_crown_order_deadline() -> void:
-	if SaveManager.crown_order_index <= 0:
+## Вызывается только из `_resolve_crown_order_on_caravan_dispatch` и при миграции/редком рассинхроне.
+func _on_crown_order_deadline_expired() -> void:
+	_resolve_crown_order_expiry_logic()
+
+
+func _resolve_crown_order_expiry_logic() -> void:
+	var order := BalanceConfig.get_crown_order(SaveManager.crown_order_index)
+	if order.is_empty():
 		return
-	if SaveManager.crown_order_deadline_remaining > 0:
-		SaveManager.crown_order_deadline_remaining -= 1
-	if SaveManager.crown_order_deadline_remaining <= 0:
-		var order := BalanceConfig.get_crown_order(SaveManager.crown_order_index)
-		if order.is_empty():
-			return
-		var required := int(order.get("ore_required", 0))
-		if SaveManager.crown_order_ore_sent < int(required * 0.5):
-			_apply_order_failure()
+	var required := int(order.get("ore_required", 0))
+	var sent := SaveManager.crown_order_ore_sent
+	var dl_default := int(order.get("deadline_expeditions", BalanceConfig.DEFAULT_CROWN_ORDER_DEADLINE_EXPEDITIONS))
+	if sent >= required:
+		_issue_next_crown_order()
+		return
+	if sent < int(required * 0.5):
+		_apply_order_failure()
+	SaveManager.crown_returns_remaining = dl_default
+	SaveManager.save_game()
+
+
+func _resolve_crown_order_on_caravan_dispatch() -> void:
+	if not SaveManager.crown_deadline_expired_awaiting_dispatch:
+		return
+	SaveManager.crown_deadline_expired_awaiting_dispatch = false
+	_resolve_crown_order_expiry_logic()
 
 
 func _apply_order_failure() -> void:
@@ -343,7 +403,8 @@ func get_current_order_info() -> Dictionary:
 	if order.is_empty():
 		return {}
 	order["ore_sent"] = SaveManager.crown_order_ore_sent
-	order["deadline_remaining"] = SaveManager.crown_order_deadline_remaining
+	order["deadline_remaining"] = SaveManager.crown_returns_remaining
+	order["deadline_expired_awaiting_dispatch"] = SaveManager.crown_deadline_expired_awaiting_dispatch
 	order["displeasure"] = SaveManager.crown_displeasure
 	return order
 
@@ -361,28 +422,22 @@ func send_ore_with_caravan(ore_amount: int) -> bool:
 	SaveManager.ore_sent_to_crown_total += actual
 	SaveManager.caravan_pending = false
 	SaveManager.caravan_sent_count += 1
-	_check_order_completion()
 	_update_crown_title()
 	_check_displeasure_recovery(actual)
-	SaveManager.save_game()
 	Events.caravan_pending_changed.emit(false)
 	Events.caravan_dispatched.emit(actual, SaveManager.caravan_sent_count)
+	_resolve_crown_order_on_caravan_dispatch()
+	_process_caravan_arrival_queue()
+	SaveManager.save_game()
 	return true
 
 
 func dismiss_caravan_empty() -> void:
 	SaveManager.caravan_pending = false
-	SaveManager.save_game()
 	Events.caravan_pending_changed.emit(false)
-
-
-func _check_order_completion() -> void:
-	var order := BalanceConfig.get_crown_order(SaveManager.crown_order_index)
-	if order.is_empty():
-		return
-	var required := int(order.get("ore_required", 0))
-	if SaveManager.crown_order_ore_sent >= required:
-		SaveManager.crown_order_deadline_remaining = 0
+	_resolve_crown_order_on_caravan_dispatch()
+	_process_caravan_arrival_queue()
+	SaveManager.save_game()
 
 
 func _check_displeasure_recovery(ore_sent_now: int) -> void:

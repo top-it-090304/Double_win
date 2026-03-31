@@ -251,7 +251,7 @@ func reset_camp_codex_state() -> void:
 	_scroll_dossier_top()
 
 
-func prepare_on_open() -> void:
+func prepare_on_open(focus_help_entry_title: String = "") -> void:
 	_codex_block_click_marks = true
 	_codex_marker_info = SaveManager.compute_codex_new_marker_info(get_tree())
 	_refresh_archive_list()
@@ -260,13 +260,73 @@ func prepare_on_open() -> void:
 	_refresh_timeline()
 	_refresh_items()
 	_apply_codex_tab_markers()
-	if _main_tabs:
-		_main_tabs.current_tab = 0
-		_codex_prev_tab = 0
-	_scroll_dossier_top()
-	_scroll_character_story_top()
-	SaveManager.mark_codex_opened(get_tree())
-	call_deferred("_codex_finish_open_setup")
+	if focus_help_entry_title.is_empty():
+		if _main_tabs:
+			_main_tabs.current_tab = 0
+			_codex_prev_tab = 0
+		_scroll_dossier_top()
+		_scroll_character_story_top()
+		SaveManager.mark_codex_opened(get_tree())
+		call_deferred("_codex_finish_open_setup")
+	else:
+		_scroll_dossier_top()
+		_scroll_character_story_top()
+		SaveManager.mark_codex_opened(get_tree())
+		call_deferred("_codex_open_help_tab_and_scroll", focus_help_entry_title)
+
+
+func _codex_open_help_tab_and_scroll(entry_title: String) -> void:
+	if _main_tabs == null or _help_tab == null:
+		call_deferred("_codex_finish_open_setup")
+		return
+	var idx := -1
+	for i in range(_main_tabs.get_tab_count()):
+		if _main_tabs.get_tab_control(i) == _help_tab:
+			idx = i
+			break
+	if idx < 0:
+		idx = maxi(0, _main_tabs.get_tab_count() - 1)
+	_main_tabs.current_tab = idx
+	_codex_prev_tab = idx
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_scroll_help_entry_into_view(entry_title)
+	_codex_finish_open_setup()
+
+
+func _scroll_help_entry_into_view(entry_title: String) -> void:
+	if _help_tab == null:
+		return
+	var scroll := _help_tab.get_child(0) as ScrollContainer
+	if scroll == null:
+		return
+	var pad := scroll.get_child(0) as MarginContainer
+	if pad == null:
+		return
+	var vbox := pad.get_child(0) as VBoxContainer
+	if vbox == null:
+		return
+	for child in vbox.get_children():
+		if child is PanelContainer:
+			var t := _extract_help_card_title(child as PanelContainer)
+			if t == entry_title:
+				scroll.ensure_control_visible(child as Control)
+				return
+
+
+func _extract_help_card_title(card: PanelContainer) -> String:
+	var row := card.get_child(0) as HBoxContainer
+	if row == null:
+		return ""
+	if row.get_child_count() < 2:
+		return ""
+	var col := row.get_child(1) as VBoxContainer
+	if col == null:
+		return ""
+	var lbl := col.get_child(0) as Label
+	if lbl == null:
+		return ""
+	return lbl.text
 
 
 func _codex_finish_open_setup() -> void:

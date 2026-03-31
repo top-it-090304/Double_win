@@ -7,6 +7,11 @@ func has_flag(key: String) -> bool:
 	return bool(SaveManager.story_flags.get(key, false))
 
 
+## Без сохранения — вызывающий обязан вызвать `SaveManager.save_game()` (например пакетная выдача наград).
+func write_flag(key: String, value: Variant = true) -> void:
+	SaveManager.story_flags[key] = value
+
+
 func set_flag(key: String, value: Variant = true) -> void:
 	SaveManager.story_flags[key] = value
 	SaveManager.save_game()

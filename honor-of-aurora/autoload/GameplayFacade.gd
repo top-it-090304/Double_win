@@ -146,6 +146,8 @@ func try_spend_gold_plus_ore(gold_amount: int, ore_amount: int) -> bool:
 	return true
 
 
+## Успешная оплата IAP/SDK и дебаг-кнопка «Купить» в лавке должны вызывать **только** этот метод —
+## тогда руда, счётчики, флаги патрона и сохранение совпадают с «реальной» покупкой.
 func purchase_premium_ore_pack(pack_id: String) -> bool:
 	return GameManager.purchase_premium_ore_pack(pack_id)
 

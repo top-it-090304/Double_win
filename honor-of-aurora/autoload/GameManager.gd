@@ -306,7 +306,8 @@ func purchase_premium_ore_pack(pack_id: String) -> bool:
 	var ore_amount := maxi(0, int(pack.get("ore", 0))) + maxi(0, int(pack.get("bonus_ore", 0)))
 	if ore_amount <= 0:
 		return false
-	add_ore(ore_amount)
+	## `add_ore` пишет сейв до обновления premium_* — для покупки нужна одна атомарная запись.
+	add_ore_volatile(ore_amount)
 	SaveManager.premium_ore_purchased_total += ore_amount
 	SaveManager.premium_ore_purchase_count += 1
 	_check_patron_tier_unlock()
@@ -316,18 +317,26 @@ func purchase_premium_ore_pack(pack_id: String) -> bool:
 
 
 func _check_patron_tier_unlock() -> void:
-	var tier := BalanceConfig.get_patron_tier_for_purchased(SaveManager.premium_ore_purchased_total)
-	if tier.is_empty():
-		return
-	var reward_id := str(tier.get("reward", ""))
-	if reward_id == "thank_letter" and not StoryState.has_flag("patron_thank_letter"):
-		StoryState.set_flag("patron_thank_letter", true)
-	elif reward_id == "title_frame" and not StoryState.has_flag("patron_title_frame"):
-		StoryState.set_flag("patron_title_frame", true)
-	elif reward_id == "chronicle_name" and not StoryState.has_flag("patron_chronicle_name"):
-		StoryState.set_flag("patron_chronicle_name", true)
-	elif reward_id == "chest_note" and not StoryState.has_flag("patron_chest_note"):
-		StoryState.set_flag("patron_chest_note", true)
+	var total := SaveManager.premium_ore_purchased_total
+	for t in BalanceConfig.PATRON_TIERS:
+		if not (t is Dictionary):
+			continue
+		if total < int(t.get("ore_threshold", 0)):
+			continue
+		var reward_id := str(t.get("reward", ""))
+		match reward_id:
+			"thank_letter":
+				if not StoryState.has_flag("patron_thank_letter"):
+					StoryState.write_flag("patron_thank_letter", true)
+			"title_frame":
+				if not StoryState.has_flag("patron_title_frame"):
+					StoryState.write_flag("patron_title_frame", true)
+			"chronicle_name":
+				if not StoryState.has_flag("patron_chronicle_name"):
+					StoryState.write_flag("patron_chronicle_name", true)
+			"chest_note":
+				if not StoryState.has_flag("patron_chest_note"):
+					StoryState.write_flag("patron_chest_note", true)
 
 
 func _capture_expedition_start_snapshot() -> void:
@@ -712,8 +721,7 @@ func handle_location_changed(new_location: Events.LOCATION):
 
 	if prev_location == Events.LOCATION.BASE and Events.is_adventure_location(new_location):
 		## Караван у причала нельзя увезти на остров. Если борт ещё ждёт загрузки, при отплытии
-		## паромщик отпускает его порожним — как «Отпустить порожним» в замке. Иначе
-		## `caravan_pending` блокирует тики каравана/срока приказа при возвратах и возможны
+		## паромщик отпускает его порожним — как «Отпустить порожним» в замке. Иначе возможны
 		## рассинхроны после прерванного диалога прибытия или быстрой смены сцены.
 		if SaveManager.caravan_pending:
 			CrownSystem.dismiss_caravan_empty()

@@ -91,16 +91,18 @@ var ore_sent_to_crown_total: int = 0
 var crown_order_index: int = 0
 ## Руда, уже отправленная по текущему приказу.
 var crown_order_ore_sent: int = 0
-## Экспедиций осталось до дедлайна текущего приказа (0 = просрочен / нет приказа).
-var crown_order_deadline_remaining: int = 0
+## Единый счётчик завершённых возвратов с острова: до конца срока приказа и до следующего прибытия каравана (в одной фазе).
+var crown_returns_remaining: int = 3
+## Если караван уже у причала, а по графику должен прибыть ещё один — очередь (обрабатывается после отъезда).
+var caravan_arrival_queued: int = 0
+## Срок по счётчику истёк (0 возвратов), но исход приказа и новый приказ фиксируются только после отправки/отпуска каравана этого рейса.
+var crown_deadline_expired_awaiting_dispatch: bool = false
 ## Количество просроченных приказов подряд (для расчёта немилости).
 var crown_orders_failed: int = 0
 ## Уровень немилости Короны (0–3).
 var crown_displeasure: int = 0
 ## Индекс текущего титула (0–5).
 var crown_title_index: int = 0
-## Экспедиций до следующего каравана.
-var expeditions_until_caravan: int = 3
 ## Караван ожидает на базе (игрок ещё не загрузил).
 var caravan_pending: bool = false
 ## Сколько раз отправлял караван.
@@ -127,7 +129,7 @@ const _CODEX_SNAP_MIGRATED_KEY := "_codex_snap_v1_migrated"
 const _CODEX_UI_KEY := "_codex_ui"
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
-const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "opened_chest_ids", "chest_rolled_tiers", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "performance_mode", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus", "premium_ore_purchased_total", "premium_ore_purchase_count", "ore_sent_to_crown_total", "crown_order_index", "crown_order_ore_sent", "crown_order_deadline_remaining", "crown_orders_failed", "crown_displeasure", "crown_title_index", "expeditions_until_caravan", "caravan_pending", "caravan_sent_count", "crown_favor", "armor_durability"]
+const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "opened_chest_ids", "chest_rolled_tiers", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "max_fps", "performance_mode", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus", "premium_ore_purchased_total", "premium_ore_purchase_count", "ore_sent_to_crown_total", "crown_order_index", "crown_order_ore_sent", "crown_returns_remaining", "caravan_arrival_queued", "crown_deadline_expired_awaiting_dispatch", "crown_orders_failed", "crown_displeasure", "crown_title_index", "caravan_pending", "caravan_sent_count", "crown_favor", "armor_durability"]
 const default_data := {
 	"gold" : 10,
 	"meat_count" : 0,
@@ -176,16 +178,41 @@ const default_data := {
 	"ore_sent_to_crown_total" : 0,
 	"crown_order_index" : 0,
 	"crown_order_ore_sent" : 0,
-	"crown_order_deadline_remaining" : 0,
+	"crown_returns_remaining" : 3,
+	"caravan_arrival_queued" : 0,
+	"crown_deadline_expired_awaiting_dispatch" : false,
 	"crown_orders_failed" : 0,
 	"crown_displeasure" : 0,
 	"crown_title_index" : 0,
-	"expeditions_until_caravan" : 3,
 	"caravan_pending" : false,
 	"caravan_sent_count" : 0,
 	"crown_favor" : 0,
 	"armor_durability" : 100,
 }
+
+
+func _migrate_crown_returns_counter(game_data: Dictionary) -> void:
+	if game_data.has("crown_returns_remaining"):
+		return
+	var legacy_deadline := 0
+	if game_data.has("crown_order_deadline_remaining"):
+		legacy_deadline = maxi(0, int(game_data["crown_order_deadline_remaining"]))
+	var legacy_exp := BalanceConfig.CARAVAN_EXPEDITION_INTERVAL
+	if game_data.has("expeditions_until_caravan"):
+		legacy_exp = maxi(0, int(game_data["expeditions_until_caravan"]))
+	if crown_order_index > 0:
+		crown_returns_remaining = legacy_deadline
+	else:
+		crown_returns_remaining = legacy_exp if legacy_exp > 0 else BalanceConfig.CARAVAN_EXPEDITION_INTERVAL
+	caravan_arrival_queued = 0
+
+
+func _migrate_crown_deadline_awaiting_flag(game_data: Dictionary) -> void:
+	if game_data.has("crown_deadline_expired_awaiting_dispatch"):
+		crown_deadline_expired_awaiting_dispatch = bool(crown_deadline_expired_awaiting_dispatch)
+		return
+	## Старые сохранения: срок 0 при активном приказе — ждём отгрузки рейса конца срока.
+	crown_deadline_expired_awaiting_dispatch = crown_order_index > 0 and crown_returns_remaining <= 0
 
 
 func load_game():
@@ -251,6 +278,9 @@ func load_game():
 
 	building_levels = _normalize_building_levels(building_levels)
 
+	_migrate_crown_returns_counter(game_data)
+	_migrate_crown_deadline_awaiting_flag(game_data)
+
 	_migrate_story_island_flags_from_legacy_boss_kill()
 	_migrate_truth_choice_flags()
 	_migrate_worker_youth_refused_to_base_worker()
@@ -284,16 +314,12 @@ func load_game():
 		crown_order_index = 0
 	if not game_data.has("crown_order_ore_sent"):
 		crown_order_ore_sent = 0
-	if not game_data.has("crown_order_deadline_remaining"):
-		crown_order_deadline_remaining = 0
 	if not game_data.has("crown_orders_failed"):
 		crown_orders_failed = 0
 	if not game_data.has("crown_displeasure"):
 		crown_displeasure = 0
 	if not game_data.has("crown_title_index"):
 		crown_title_index = 0
-	if not game_data.has("expeditions_until_caravan"):
-		expeditions_until_caravan = BalanceConfig.CARAVAN_EXPEDITION_INTERVAL
 	if not game_data.has("caravan_pending"):
 		caravan_pending = false
 	if not game_data.has("caravan_sent_count"):
@@ -309,11 +335,11 @@ func load_game():
 	ore_sent_to_crown_total = maxi(0, int(ore_sent_to_crown_total))
 	crown_order_index = clampi(int(crown_order_index), 0, 5)
 	crown_order_ore_sent = maxi(0, int(crown_order_ore_sent))
-	crown_order_deadline_remaining = maxi(0, int(crown_order_deadline_remaining))
+	crown_returns_remaining = maxi(0, int(crown_returns_remaining))
+	caravan_arrival_queued = maxi(0, int(caravan_arrival_queued))
 	crown_orders_failed = maxi(0, int(crown_orders_failed))
 	crown_displeasure = clampi(int(crown_displeasure), 0, BalanceConfig.DISPLEASURE_MAX_LEVEL)
 	crown_title_index = clampi(int(crown_title_index), 0, BalanceConfig.CROWN_TITLES.size() - 1)
-	expeditions_until_caravan = maxi(0, int(expeditions_until_caravan))
 	caravan_sent_count = maxi(0, int(caravan_sent_count))
 	if not game_data.has("crown_favor"):
 		crown_favor = 0

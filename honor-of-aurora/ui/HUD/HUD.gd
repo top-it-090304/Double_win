@@ -437,6 +437,37 @@ func show_camp_codex_menu() -> void:
 	get_tree().paused = true
 
 
+## Открывает кодекс лагеря на вкладке «Справка» и прокручивает к карточке с указанным заголовком (как в CampCodexGlossary).
+func show_camp_codex_menu_at_help_entry(entry_title: String) -> void:
+	if DialogueManager.is_active():
+		return
+	if ChestLootUi.is_chest_popup_open():
+		return
+	SoundManager.play_menu_open()
+	if debug_menu and debug_menu.visible:
+		hide_debug_menu()
+	if squad_orders_menu and squad_orders_menu.visible and squad_orders_menu.has_method("close"):
+		squad_orders_menu.close()
+	if teleport_menu and teleport_menu.visible:
+		hide_teleport_menu()
+	if castle_menu:
+		castle_menu.hide()
+	if barracks_menu:
+		barracks_menu.hide()
+	if monastery_menu:
+		monastery_menu.hide()
+	if archery_menu:
+		archery_menu.hide()
+	if payshop_menu:
+		payshop_menu.hide()
+	if camp_codex_panel == null:
+		return
+	if camp_codex_panel.has_method("prepare_on_open"):
+		camp_codex_panel.prepare_on_open(entry_title)
+	camp_codex_panel.visible = true
+	get_tree().paused = true
+
+
 func hide_camp_codex_menu() -> void:
 	SoundManager.play_menu_close()
 	if camp_codex_panel == null:
