@@ -83,7 +83,7 @@ func _refresh_visibility() -> void:
 		if rest_btn:
 			rest_btn.visible = on_island
 			if on_island:
-				rest_btn.process_mode = Node.PROCESS_MODE_INHERIT if CrownSystem.can_rest() else Node.PROCESS_MODE_DISABLED
+				rest_btn.process_mode = Node.PROCESS_MODE_INHERIT if CrownSystem.should_rest_button_be_interactive() else Node.PROCESS_MODE_DISABLED
 
 
 func _apply_scaled_touch_zone(zone: Control, is_left: bool) -> void:

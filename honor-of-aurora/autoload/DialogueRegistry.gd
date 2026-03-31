@@ -138,7 +138,7 @@ func _on_dialogue_ended(sequence: DialogueSequence) -> void:
 	if sequence.id == "veteran_story_4":
 		VeteranArcherStoryDialogue.grant_ending_flag_after_finale()
 	PostFinaleWorld.dialogue_maybe_trigger_ending(sequence.id)
-	if sequence.id in ["heal_banter", "healer_idle_fallback", "monk_interact_hub", "veteran_archer_banter", "veteran_archer_hub"]:
+	if sequence.id in ["heal_banter", "healer_idle_fallback", "monk_interact_hub", "veteran_archer_banter", "veteran_archer_hub", "rest_quota_exhausted"]:
 		sequence.lines.clear()
 	call_deferred("_flush_pending_dialogue_queue")
 

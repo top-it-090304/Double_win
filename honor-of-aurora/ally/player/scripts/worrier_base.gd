@@ -344,6 +344,10 @@ func take_damage(amount: Variant) -> void:
 		if health_component:
 			health_component.heal(-a)
 		return
+	if a > 0:
+		var brk: float = BalanceConfig.get_armor_broken_incoming_damage_mult(CrownSystem.get_armor_durability())
+		if brk > 1.0:
+			a = maxi(1, int(round(float(a) * brk)))
 	var shield_factor: float = minf(0.95, GameManager.armory_shield_damage_factor + CrownSystem.get_armor_block_penalty())
 	shield_factor = clampf(shield_factor, 0.0, 1.0)
 	var final_damage: int = int(a * shield_factor) if state == State.SHIELD else a

@@ -20,6 +20,11 @@ enum State { FOLLOW, ATTACK, DEAD }
 @export var patrol_wall_stuck_frames: int = 12
 ## Доля от `speed` при патрулировании (медленнее обычного бега за героем).
 @export_range(0.15, 1.0, 0.01) var patrol_speed_scale: float = 0.62
+## Как у лучника: путь по нав-сетке острова + локальный обход стен (без этого копейщик режет прямую и уходит с суши/в коллизии).
+@export var follow_use_navigation: bool = true
+
+var _follow_nav: SquadNavFollow = SquadNavFollow.new()
+var _follow_nav_layer_sync_attempts: int = 0
 
 var state: State = State.FOLLOW
 var player: Node2D = null
@@ -65,11 +70,15 @@ func _ready() -> void:
 	_base_attack_damage = attack_damage
 	apply_building_progression_from_manager()
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
+	max_slides = 6
 	if sprite:
 		sprite.animation_finished.connect(_on_sprite_animation_finished)
 	_play_idle()
 	player = get_tree().get_first_node_in_group("player") as Node2D
 	call_deferred("_capture_base_patrol_spawn_after_placed")
+	call_deferred("_sync_follow_nav_layers_from_scene")
+	if not Events.location_changed.is_connected(_on_events_location_changed_resync_follow_nav):
+		Events.location_changed.connect(_on_events_location_changed_resync_follow_nav)
 
 
 func _capture_base_patrol_spawn_after_placed() -> void:
@@ -78,8 +87,26 @@ func _capture_base_patrol_spawn_after_placed() -> void:
 
 
 func squad_rally_after_reposition() -> void:
+	if _follow_nav:
+		_follow_nav.clear()
 	if state == State.ATTACK:
 		state = State.FOLLOW
+
+
+func _on_events_location_changed_resync_follow_nav(_loc: Events.LOCATION) -> void:
+	call_deferred("_sync_follow_nav_layers_from_scene")
+
+
+func _sync_follow_nav_layers_from_scene() -> void:
+	if not is_instance_valid(self) or _follow_nav == null:
+		return
+	if not is_inside_tree():
+		if _follow_nav_layer_sync_attempts < 8:
+			_follow_nav_layer_sync_attempts += 1
+			call_deferred("_sync_follow_nav_layers_from_scene")
+		return
+	_follow_nav_layer_sync_attempts = 0
+	_follow_nav.sync_nav_layers_from_scene(self)
 
 
 func apply_building_progression_from_manager() -> void:
@@ -180,24 +207,17 @@ func _process_follow(_delta: float) -> void:
 			pass
 		else:
 			_process_base_patrol(_delta)
+			_apply_follow_wall_slide_if_needed()
 			return
 
 	if not player:
+		_follow_nav.clear()
 		velocity = Vector2.ZERO
 		_play_idle()
 		return
 
-	var dist := global_position.distance_to(player.global_position)
-	if dist > follow_distance:
-		velocity = global_position.direction_to(player.global_position) * speed
-		_face_velocity(velocity)
-		_play_run()
-	elif dist < follow_stop_distance:
-		velocity = Vector2.ZERO
-		_play_idle()
-	else:
-		velocity = Vector2.ZERO
-		_play_idle()
+	_sync_follow_player_velocity()
+	_apply_follow_wall_slide_if_needed()
 
 
 ## Рабочий (pawn): шахта, «сбор» на острове. По умолчанию — обычное следование.
@@ -233,16 +253,57 @@ func _process_base_patrol(delta: float) -> void:
 			_patrol_stuck_frames = 0
 	else:
 		_patrol_stuck_frames = 0
-	var dir := global_position.direction_to(_patrol_goal)
+	var spd := speed * patrol_speed_scale
+	var dir := SquadWorkerLikeSteering.steer_direction(self, _patrol_goal, spd)
 	if dir.length_squared() < 1e-8:
 		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
-		dir = global_position.direction_to(_patrol_goal)
-	velocity = dir * speed * patrol_speed_scale
+		dir = SquadWorkerLikeSteering.steer_direction(self, _patrol_goal, spd)
+	velocity = dir * spd
 	_face_velocity(velocity)
 	if velocity.length() > 0.1:
 		_play_run()
 	else:
 		_play_idle()
+
+
+func _sync_follow_player_velocity() -> void:
+	var dist := global_position.distance_to(player.global_position)
+	if dist <= follow_distance:
+		_follow_nav.clear()
+	if dist > follow_distance:
+		if follow_use_navigation and _follow_nav:
+			var dlt: float = get_physics_process_delta_time()
+			var vn: Variant = _follow_nav.get_velocity_or_null(self, player.global_position, speed, dlt)
+			if vn != null and vn is Vector2:
+				var fv: Vector2 = vn as Vector2
+				if fv.length_squared() > 1.0:
+					velocity = fv
+					_face_velocity(velocity)
+					_play_run()
+					return
+				velocity = SquadWorkerLikeSteering.steer_direction(self, player.global_position, speed) * speed
+				_face_velocity(velocity)
+				_play_run()
+				return
+		velocity = SquadWorkerLikeSteering.steer_direction(self, player.global_position, speed) * speed
+		_face_velocity(velocity)
+		_play_run()
+		return
+	if dist < follow_stop_distance:
+		velocity = Vector2.ZERO
+		_play_idle()
+	else:
+		velocity = Vector2.ZERO
+		_play_idle()
+
+
+func _apply_follow_wall_slide_if_needed() -> void:
+	if velocity.length_squared() <= 4.0:
+		return
+	if SquadOrders.mode == SquadOrders.Mode.PATROL:
+		SquadWorkerLikeSteering.apply_wall_slide_toward(self, _patrol_goal, speed * patrol_speed_scale)
+	elif SquadOrders.mode == SquadOrders.Mode.COMBAT and player and is_instance_valid(player):
+		SquadWorkerLikeSteering.apply_wall_slide_toward(self, player.global_position, speed)
 
 
 func _face_velocity(v: Vector2) -> void:

@@ -66,6 +66,7 @@ var _rest_regen_elapsed: float = 0.0
 var _rest_heal_vfx_accum: float = 0.0
 
 const _REST_HEAL_VFX_INTERVAL_SEC := 0.85
+const _REST_QUOTA_EXHAUSTED_SEQ := preload("res://dialogue/rest_quota_exhausted.tres")
 
 
 func _ready() -> void:
@@ -93,6 +94,9 @@ func get_squad_rest_meat_cost() -> int:
 func can_rest() -> bool:
 	if _rest_regen_active:
 		return false
+	## В зоне врага (обнаружение / атака / преследование) — привал недоступен (см. SquadCombatState).
+	if SquadCombatState.is_engaged():
+		return false
 	if SaveManager.rest_used_this_expedition >= BalanceConfig.get_rest_max_per_expedition():
 		return false
 	if SaveManager.meat_count < get_squad_rest_meat_cost():
@@ -102,6 +106,35 @@ func can_rest() -> bool:
 
 func get_rests_remaining() -> int:
 	return maxi(0, BalanceConfig.get_rest_max_per_expedition() - SaveManager.rest_used_this_expedition)
+
+
+## Лимит привалов на этот поход уже выбран (не путать с нехваткой мяса или полным HP).
+func is_rest_blocked_by_quota() -> bool:
+	if _rest_regen_active:
+		return false
+	return SaveManager.rest_used_this_expedition >= BalanceConfig.get_rest_max_per_expedition()
+
+
+## Кнопка привала на острове: при исчерпанном лимите — нажатие открывает реплику; в бою кнопка неактивна.
+func should_rest_button_be_interactive() -> bool:
+	if SquadCombatState.is_engaged():
+		return false
+	return can_rest() or is_rest_blocked_by_quota()
+
+
+## Окно с репликой рыцаря, если игрок жмёт привал при исчерпанном лимите.
+func try_start_rest_quota_exhausted_dialogue() -> bool:
+	if SquadCombatState.is_engaged():
+		return false
+	if not is_rest_blocked_by_quota():
+		return false
+	if DialogueManager.is_active():
+		return false
+	var seq: DialogueSequence = _REST_QUOTA_EXHAUSTED_SEQ as DialogueSequence
+	if seq == null:
+		return false
+	seq.ensure_lines_ready()
+	return DialogueManager.start_dialogue(seq, false)
 
 
 ## Один привал: к текущему HP добавляется не больше (REST_HEAL_RATIO×max HP × модификатор Короны).

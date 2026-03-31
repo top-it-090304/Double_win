@@ -12,10 +12,10 @@ offset_bottom = 72.0
 
 [node name="TextureRect" type="TextureRect" parent="."]
 layout_mode = 0
-offset_left = -52.0
-offset_top = -74.0
-offset_right = 131.0
-offset_bottom = 108.0
+offset_left = -36.0
+offset_top = -58.0
+offset_right = 114.0
+offset_bottom = 92.0
 texture = ExtResource("1_icon")
 expand_mode = 1
 stretch_mode = 5

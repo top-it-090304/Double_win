@@ -132,6 +132,26 @@ func get_y_sort_bottom_y() -> float:
 	return global_position.y + _cached_y_sort_offset
 
 
+func _soft_sep_body_radius(node: Node2D) -> float:
+	## Кэш на узле: радиус основного CollisionShape2D (круг/капсула/прямоугольник).
+	if not is_instance_valid(node):
+		return 14.0
+	if node.has_meta("_soft_sep_radius"):
+		return float(node.get_meta("_soft_sep_radius"))
+	var r := 14.0
+	var cs := node.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if cs != null and cs.shape is CircleShape2D:
+		r = (cs.shape as CircleShape2D).radius
+	elif cs != null and cs.shape is CapsuleShape2D:
+		var cap := cs.shape as CapsuleShape2D
+		r = maxf(cap.radius, cap.height * 0.5 + cap.radius)
+	elif cs != null and cs.shape is RectangleShape2D:
+		var s := (cs.shape as RectangleShape2D).size
+		r = maxf(s.x, s.y) * 0.5
+	node.set_meta("_soft_sep_radius", r)
+	return r
+
+
 func _apply_soft_separation_to_velocity(delta: float) -> void:
 	if not unit_soft_separation_enabled:
 		return
@@ -142,19 +162,25 @@ func _apply_soft_separation_to_velocity(delta: float) -> void:
 		return
 	if tree.get_node_count_in_group(&"character_unit") < 2:
 		return
-	var min_dist := unit_soft_separation_distance
-	var min_dist_sq := min_dist * min_dist
-	var inv_min_dist := 1.0 / min_dist
 	var push := Vector2.ZERO
 	var my_pos := global_position
+	var my_r := _soft_sep_body_radius(self)
 	for other in tree.get_nodes_in_group("character_unit"):
 		if other == self or other == null or not is_instance_valid(other):
 			continue
 		if not (other is Node2D):
 			continue
-		var delta_pos := my_pos - (other as Node2D).global_position
+		var other_n := other as Node2D
+		var min_dist := maxf(unit_soft_separation_distance, my_r + _soft_sep_body_radius(other_n))
+		var min_dist_sq := min_dist * min_dist
+		var delta_pos := my_pos - other_n.global_position
 		var dist_sq := delta_pos.length_squared()
-		if dist_sq >= min_dist_sq or dist_sq < 1e-6:
+		## Полное совпадение центров: без искусственного направления сила = 0 и «залипание».
+		if dist_sq < 1e-8:
+			var seed := int(get_instance_id()) ^ int(other_n.get_instance_id())
+			delta_pos = Vector2.RIGHT.rotated(float(seed % 997) * TAU / 997.0) * 0.02
+			dist_sq = delta_pos.length_squared()
+		if dist_sq >= min_dist_sq:
 			continue
 		var inv_dist := 1.0 / sqrt(dist_sq)
 		var weight := 1.0 - (1.0 / (inv_dist * min_dist))

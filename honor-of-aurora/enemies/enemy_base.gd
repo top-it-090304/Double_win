@@ -531,7 +531,8 @@ func _apply_enemy_balance_stats() -> void:
 	if not is_instance_valid(self):
 		return
 	var mult := BalanceConfig.get_enemy_stat_multiplier(enemy_level)
-	health = maxi(1, int(round(float(health) * mult)))
+	var hp_mult := BalanceConfig.get_enemy_hp_global_mult()
+	health = maxi(1, int(round(float(health) * mult * hp_mult)))
 	attack_damage = maxi(1, int(round(float(attack_damage) * mult)))
 	if health_component:
 		health_component.set_max_and_current(health)

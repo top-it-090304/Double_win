@@ -85,7 +85,7 @@ const EXPEDITION_MEAT_PER_WARRIOR := 1
 ## До полного HP за один привал — только если этот объём покрывает недостающее HP.
 const REST_HEAL_RATIO := 0.30
 ## Базовое значение для ориентира; фактический лимит — `get_rest_max_per_expedition()` (DifficultyConfig).
-const REST_MAX_PER_EXPEDITION := 2
+const REST_MAX_PER_EXPEDITION := 3
 ## Длительность анимации восстановления (сек.); модификатор снабжения ускоряет.
 const REST_REGEN_DURATION_SEC := 4.0
 
@@ -204,6 +204,8 @@ const ARMOR_CRITICAL_THRESHOLD := 25
 ## Штраф к блоку: добавляется к shield_damage_factor (больше урона проходит в блоке).
 const ARMOR_WORN_BLOCK_PENALTY := 0.06
 const ARMOR_CRITICAL_BLOCK_PENALTY := 0.14
+## При прочности 0 входящий урон от врагов к герою (после базовой формулы врага) умножается на это значение.
+const ARMOR_BROKEN_INCOMING_DAMAGE_MULT := 2.0
 ## Немилость/одобрение влияют на стоимость ремонта.
 const ARMOR_REPAIR_COST_PER_DISPLEASURE := 0.35
 const ARMOR_REPAIR_DISCOUNT_PER_FAVOR := 0.10
@@ -344,6 +346,11 @@ func get_exp_to_next_level(hero_level: int) -> int:
 func get_enemy_stat_multiplier(enemy_level: int) -> float:
 	var L := clampi(enemy_level, 1, 99)
 	return pow(ENEMY_STAT_PER_LEVEL, float(L - 1)) * DifficultyConfig.get_enemy_stat_mult()
+
+
+## Множитель макс. HP всех врагов (после базы сцены и get_enemy_stat_multiplier); задаётся пресетом сложности.
+func get_enemy_hp_global_mult() -> float:
+	return DifficultyConfig.get_enemy_hp_global_mult()
 
 
 ## Урон по врагу от героя/союзников: если враг выше уровнем — сильный штраф (считаем уровень героя из сохранения).
@@ -598,6 +605,12 @@ func get_armor_block_penalty(durability: int) -> float:
 	if d <= ARMOR_WORN_THRESHOLD:
 		return ARMOR_WORN_BLOCK_PENALTY
 	return 0.0
+
+
+func get_armor_broken_incoming_damage_mult(durability: int) -> float:
+	if clampi(durability, 0, ARMOR_MAX_DURABILITY) <= 0:
+		return ARMOR_BROKEN_INCOMING_DAMAGE_MULT
+	return 1.0
 
 
 func get_armor_repair_gold_cost(displeasure: int, favor: int) -> int:

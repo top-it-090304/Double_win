@@ -232,7 +232,9 @@ func _try_rest_camp() -> void:
 		return
 	if Events.current_location == Events.LOCATION.BASE:
 		return
-	CrownSystem.try_squad_rest()
+	if CrownSystem.try_squad_rest():
+		return
+	CrownSystem.try_start_rest_quota_exhausted_dialogue()
 
 
 func _draw_icon_texture(tex: Texture2D) -> void:
@@ -240,7 +242,7 @@ func _draw_icon_texture(tex: Texture2D) -> void:
 		return
 	var pad := 12.0
 	if kind == BtnKind.REST:
-		pad = 2.0
+		pad = 0.0
 	var max_w := size.x - pad * 2.0
 	var max_h := size.y - pad * 2.0
 	var tw := float(tex.get_width())
@@ -248,6 +250,8 @@ func _draw_icon_texture(tex: Texture2D) -> void:
 	if tw <= 0.0 or th <= 0.0:
 		return
 	var sc := minf(max_w / tw, max_h / th)
+	if kind == BtnKind.REST:
+		sc *= 1.06
 	var w := tw * sc
 	var h := th * sc
 	var pos := Vector2((size.x - w) * 0.5, (size.y - h) * 0.5)
