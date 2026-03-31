@@ -13,7 +13,9 @@ config_version=5
 config/name="Honor of Aurora"
 run/main_scene="uid://b0oiqjmnjpppv"
 config/features=PackedStringArray("4.4", "GL Compatibility")
-config/icon="res://icons/app_icon.png"
+boot_splash/bg_color=Color(0, 0, 0, 1)
+boot_splash/image="res://images/Logo/Logo.png"
+config/icon="res://images/Logo/Logo.png"
 
 [autoload]
 

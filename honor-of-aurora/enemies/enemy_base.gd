@@ -440,14 +440,18 @@ func apply_damage():
 
 
 func _on_anim_finished():
-	if _anim_safety_timer:
-		_anim_safety_timer.stop()
 	if anim == null or not is_instance_valid(anim):
 		return
 	var an: StringName = anim.animation
+	## Нельзя останавливать _anim_safety_timer на каждом animation_finished: любой «чужой»
+	## клип (idle/run с loop=false, гонка движка) гасит таймер и оставляет врага в ATTACK/HIT навсегда.
 	if an == &"attack" or an == &"throw":
+		if _anim_safety_timer and state == State.ATTACK:
+			_anim_safety_timer.stop()
 		_finish_attack_phase()
 	elif an == &"hit":
+		if _anim_safety_timer and state == State.HIT:
+			_anim_safety_timer.stop()
 		_finish_hit_recovery()
 
 
