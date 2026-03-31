@@ -925,20 +925,17 @@ position = Vector2(-1117, -746)
 position = Vector2(1253, 13)
 
 [node name="WorldChest" parent="." instance=ExtResource("48_7m01x")]
-visible = false
 position = Vector2(-2536, -385)
 scale = Vector2(-1, 1)
 chest_save_id = "isl1_ruins_a"
 auto_roll_loot_tier = true
 
 [node name="WorldChest2" parent="." instance=ExtResource("48_7m01x")]
-visible = false
 position = Vector2(-987, -849)
 chest_save_id = "isl1_ruins_b"
 auto_roll_loot_tier = true
 
 [node name="WorldChest3" parent="." instance=ExtResource("48_7m01x")]
-visible = false
 position = Vector2(338, -375)
 chest_save_id = "isl1_ruins_c"
 auto_roll_loot_tier = true

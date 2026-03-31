@@ -643,6 +643,39 @@ func _get_location_scene(loc: Events.LOCATION) -> Variant:
 	_location_scene_cache[loc] = scene
 	return scene
 
+
+## Сюжетный доступ к телепорту на остров 5 (отказ от цепочки / финал / повтор после зачистки).
+func can_access_last_island_lv5() -> bool:
+	if StoryState.has_flag("hero_chose_refuse_chain"):
+		return false
+	if StoryState.has_flag("hero_chose_finish_chain") and StoryState.has_flag("truth_and_choice_done"):
+		return true
+	if StoryState.has_flag("story_island_5_cleared"):
+		return true
+	return false
+
+
+## Разрешён ли телепорт на локацию из меню (последовательное открытие островов после боссов; база всегда).
+func can_teleport_to_location(loc: Events.LOCATION) -> bool:
+	match loc:
+		Events.LOCATION.BASE:
+			return true
+		Events.LOCATION.LVL1:
+			return true
+		Events.LOCATION.LVL2:
+			return StoryState.has_flag("story_island_1_cleared")
+		Events.LOCATION.LVL3:
+			return StoryState.has_flag("story_island_2_cleared")
+		Events.LOCATION.LVL4:
+			return StoryState.has_flag("story_island_3_cleared")
+		Events.LOCATION.LVL5:
+			if not StoryState.has_flag("story_island_4_cleared"):
+				return false
+			return can_access_last_island_lv5()
+		_:
+			return true
+
+
 func handle_location_changed(new_location: Events.LOCATION):
 	## DialogueWindow живёт в HUD текущей сцены; при change_scene корутины await ломаются (data.tree null),
 	## а DialogueManager остаётся с активным диалогом — _player_input_frozen() блокирует движение навсегда.

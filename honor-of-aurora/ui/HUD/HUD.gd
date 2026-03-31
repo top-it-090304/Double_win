@@ -237,6 +237,10 @@ func hide_teleport_menu():
 
 
 func teleport_to(location: Events.LOCATION):
+	if location == Events.current_location:
+		return
+	if not GameManager.can_teleport_to_location(location):
+		return
 	if teleport_menu.visible:
 		hide_teleport_menu()
 	else:
