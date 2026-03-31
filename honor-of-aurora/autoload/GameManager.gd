@@ -995,6 +995,15 @@ func get_max_warriors_allowed() -> int:
 	return maxi(0, SaveManager.meat_count)
 
 
+## Текущий размер отряда (сохранённые слоты + живой сюжетный юноша на базе, не в походе).
+func get_squad_member_count() -> int:
+	var n: int = SaveManager.archer_count + SaveManager.lancer_count + SaveManager.pawn_count
+	if not StoryState.has_flag("worker_youth_dead"):
+		if StoryState.has_flag("worker_youth_recruited") or StoryState.has_flag("worker_youth_works_on_base"):
+			n += 1
+	return n
+
+
 func add_meat(amount: int) -> void:
 	SaveManager.meat_count = maxi(0, SaveManager.meat_count + amount)
 	Events.meat_changed.emit(SaveManager.meat_count)

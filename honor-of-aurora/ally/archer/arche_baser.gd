@@ -23,8 +23,8 @@ extends "res://characters/ally_unit.gd"
 @export var patrol_wall_stuck_frames: int = 12
 @export_range(0.15, 1.0, 0.01) var patrol_speed_scale: float = 0.62
 @export var follow_use_navigation: bool = true
-## Стрелять только если лучник в пределах этого расстояния от героя (страж на башне не ограничен).
-@export var max_distance_from_hero_for_combat: float = 280.0
+## Дистанция до героя, в пределах которой разрешена стрельба по врагам. 0 = без ограничения (страж на башне не ограничен).
+@export var max_distance_from_hero_for_combat: float = 0.0
 
 var enemies_in_range : Array = []
 var facing_right := true
@@ -45,6 +45,11 @@ var _patrol_goal: Vector2 = Vector2.ZERO
 var _patrol_has_goal: bool = false
 var _patrol_segment_time: float = 0.0
 var _patrol_stuck_frames: int = 0
+var _patrol_no_move_frames: int = 0
+## Патруль по зданиям базы (только LOCATION.BASE): порядок точек и индекс текущей цели.
+var _base_patrol_zone_nodes: Array[Node2D] = []
+var _base_patrol_zone_idx: int = 0
+var _base_building_patrol_leash_escape: bool = false
 ## Приказ идти к монаху (только лучник, база).
 var _order_to_healer: bool = false
 var _base_attack_cooldown: float = 3.0
@@ -53,6 +58,8 @@ var _base_speed: float = 160.0
 var _base_projectile_damage: int = 10
 var _follow_nav: SquadNavFollow = SquadNavFollow.new()
 var _follow_nav_layer_sync_attempts: int = 0
+## Один активный цикл выстрела (async `attack()`), иначе несколько `await` → залп стрел.
+var _attack_shot_in_progress: bool = false
 
 func _ready() -> void:
 	super._ready()
@@ -69,6 +76,7 @@ func _ready() -> void:
 	
 	attack_timer = Timer.new()
 	attack_timer.wait_time = attack_cooldown
+	attack_timer.one_shot = true
 	attack_timer.timeout.connect(_on_attack_timer_timeout)
 	add_child(attack_timer)
 	
@@ -110,7 +118,15 @@ func apply_archery_modifiers_from_manager() -> void:
 
 
 func _on_events_location_changed_resync_follow_nav(_loc: Events.LOCATION) -> void:
+	_reset_base_building_patrol_state()
 	call_deferred("_sync_follow_nav_layers_from_scene")
+
+
+func _reset_base_building_patrol_state() -> void:
+	_base_patrol_zone_nodes.clear()
+	_base_patrol_zone_idx = 0
+	_base_building_patrol_leash_escape = false
+	_patrol_has_goal = false
 
 
 func _sync_follow_nav_layers_from_scene() -> void:
@@ -189,36 +205,57 @@ func _on_enemy_exited(body):
 		enemies_in_range.erase(body)
 		_refresh_state()
 
-func _on_attack_timer_timeout():
-	if state == State.SHOOT and velocity.length() <= 0.1:
-		call_deferred("attack")
-
-func attack():
+func _on_attack_timer_timeout() -> void:
 	if state != State.SHOOT:
 		return
-	if velocity.length() > 0.1:
-		return
-	
-	var target
+	attack()
+
+
+func _get_first_enemy_target() -> Node2D:
 	for enemy in enemies_in_range:
 		if is_instance_valid(enemy):
-			target = enemy
-			break
-	if not target:
+			return enemy as Node2D
+	return null
+
+
+func _sync_sprite_facing_to_nearest_enemy() -> void:
+	if sprite == null:
+		return
+	var target := _get_first_enemy_target()
+	if target == null:
+		return
+	var dx := target.global_position.x - global_position.x
+	if absf(dx) < 0.5:
+		return
+	if dx > 0.0:
+		facing_right = true
+		sprite.flip_h = false
+	else:
+		facing_right = false
+		sprite.flip_h = true
+
+
+func attack() -> void:
+	if _attack_shot_in_progress:
+		return
+	if state != State.SHOOT:
+		return
+	
+	var target := _get_first_enemy_target()
+	if target == null:
 		enemies_in_range.clear()
 		return
 	
-	var dir = (target.global_position - global_position).normalized()
-	
-	if dir.x > 0 and not facing_right:
-		facing_right = true
-		sprite.flip_h = false
-	elif dir.x < 0 and facing_right:
-		facing_right = false
-		sprite.flip_h = true
+	_attack_shot_in_progress = true
+	_sync_sprite_facing_to_nearest_enemy()
+	var dir := (target.global_position - global_position).normalized()
 	
 	sprite.play("attack")
 	await get_tree().create_timer(0.6).timeout
+	
+	if state != State.SHOOT:
+		_attack_shot_in_progress = false
+		return
 	
 	if arrow_scene:
 		var arrow = arrow_scene.instantiate()
@@ -226,6 +263,12 @@ func attack():
 		arrow.direction = dir
 		arrow.damage = maxi(1, int(round(float(projectile_damage) * CrownSystem.get_archer_damage_modifier())))
 		get_tree().current_scene.add_child(arrow)
+	
+	_attack_shot_in_progress = false
+	if state == State.SHOOT and not enemies_in_range.is_empty():
+		attack_timer.start()
+	else:
+		attack_timer.stop()
 
 func _on_animation_finished():
 	if sprite.animation == "attack":
@@ -244,6 +287,30 @@ func _stationary_guard_skip_move_and_slide() -> bool:
 	if not stationary_guard or state == State.FLEE:
 		return false
 	return velocity.length_squared() < 0.01
+
+
+## После wall-slide и soft separation — иначе «run» при почти нулевой итоговой скорости.
+func _sync_follow_or_flee_movement_animation() -> void:
+	if sprite == null:
+		return
+	if state == State.FOLLOW:
+		if stationary_guard:
+			return
+		if velocity.length() > 0.1:
+			if sprite.animation != "run":
+				sprite.play("run")
+			sprite.flip_h = velocity.x < 0
+		else:
+			if sprite.animation != "idle":
+				sprite.play("idle")
+	elif state == State.FLEE:
+		if velocity.length() > 0.1:
+			if sprite.animation != "run":
+				sprite.play("run")
+			sprite.flip_h = velocity.x < 0
+		else:
+			if sprite.animation != "idle":
+				sprite.play("idle")
 
 
 func _physics_process(delta: float) -> void:
@@ -269,13 +336,7 @@ func _physics_process(delta: float) -> void:
 	match state:
 		State.FOLLOW:
 			velocity = _get_follow_velocity()
-			if velocity.length() > 0.1:
-				if sprite.animation != "run":
-					sprite.play("run")
-				sprite.flip_h = velocity.x < 0
-			else:
-				if sprite.animation != "idle":
-					sprite.play("idle")
+			## Скольжение у стены — после желаемой скорости, до разведения и анимации (иначе run при почти нулевой фактической скорости).
 			if not stationary_guard and velocity.length_squared() > 4.0:
 				if SquadOrders.mode == SquadOrders.Mode.PATROL:
 					SquadWorkerLikeSteering.apply_wall_slide_toward(self, _patrol_goal, speed * patrol_speed_scale)
@@ -284,6 +345,7 @@ func _physics_process(delta: float) -> void:
 		
 		State.SHOOT:
 			velocity = Vector2.ZERO
+			_sync_sprite_facing_to_nearest_enemy()
 			# После attack имя анимации остаётся "attack", пока не запустят другую — проверяем is_playing().
 			if not (sprite.animation == "attack" and sprite.is_playing()):
 				if sprite.animation != "idle":
@@ -293,21 +355,43 @@ func _physics_process(delta: float) -> void:
 		State.FLEE:
 			var dir = global_position.direction_to(flee_target)
 			velocity = dir * speed * flee_speed_multiplier
-			if sprite.animation != "run":
-				sprite.play("run")
-			sprite.flip_h = velocity.x < 0
-			
 			if global_position.distance_to(flee_target) <= 12.0:
 				velocity = Vector2.ZERO
+				## Иначе `_refresh_state()` сразу выходит: `state == FLEE` → лучник навсегда в побеге и не стреляет.
+				state = State.FOLLOW
 				_refresh_state()
 	## Стационарные стражи: без мягкого разведения — иначе игрок/спутники в радиусе ~28px
 	## «выталкивают» лучника с башни каждый кадр (`character_unit._apply_soft_separation_to_velocity`).
-	if not stationary_guard or state == State.FLEE:
+	## В SHOOT не разводим: иначе velocity ≠ 0 и `attack()` / таймер выстрела не срабатывают.
+	if state != State.SHOOT and (not stationary_guard or state == State.FLEE):
 		_apply_soft_separation_to_velocity(delta)
+	var v_sq_before_move := velocity.length_squared()
+	var pos_before_move := global_position
 	## При velocity≈0 `move_and_slide()` всё равно разрешает пересечения с коллизией земли/стен и
 	## сдвигает CharacterBody2D — позиция из сцены «уползает». Стационарный страж без бега не зовём.
 	if not _stationary_guard_skip_move_and_slide():
 		move_and_slide()
+	## Анимация после скольжения: иначе «run» при упоре в стену (намерение ≠ фактическое движение).
+	if state == State.FOLLOW or state == State.FLEE:
+		_sync_follow_or_flee_movement_animation()
+	if state == State.FOLLOW and SquadOrders.mode == SquadOrders.Mode.PATROL and not stationary_guard:
+		if v_sq_before_move > 100.0 and global_position.distance_to(pos_before_move) < 0.45:
+			_patrol_no_move_frames += 1
+			if _patrol_no_move_frames >= 22:
+				_follow_nav.clear()
+				if Events.current_location == Events.LOCATION.BASE and _base_patrol_zone_nodes.size() >= 2:
+					_advance_base_patrol_zone_to_next()
+					if _patrol_has_goal and _base_patrol_zone_nodes.size() >= 2:
+						var zn: Node2D = _base_patrol_zone_nodes[_base_patrol_zone_idx]
+						if is_instance_valid(zn):
+							_patrol_goal = zn.global_position
+				else:
+					_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
+				_patrol_segment_time = 0.0
+				_patrol_stuck_frames = 0
+				_patrol_no_move_frames = 0
+		elif global_position.distance_to(pos_before_move) >= 0.45:
+			_patrol_no_move_frames = 0
 	
 	if state == State.FOLLOW or state == State.SHOOT:
 		_refresh_state()
@@ -322,7 +406,9 @@ func _get_follow_velocity() -> Vector2:
 		_follow_nav.clear()
 		return Vector2.ZERO
 	if SquadOrders.mode == SquadOrders.Mode.PATROL:
-		_follow_nav.clear()
+		## На базе патруль идёт по нав-сетке к зданиям — не сбрасываем путь каждый кадр.
+		if Events.current_location != Events.LOCATION.BASE:
+			_follow_nav.clear()
 		return _get_base_patrol_velocity()
 	if not player:
 		_follow_nav.clear()
@@ -367,6 +453,132 @@ func _get_healer_trek_velocity() -> Vector2:
 
 
 func _get_base_patrol_velocity() -> Vector2:
+	if Events.current_location == Events.LOCATION.BASE:
+		return _get_base_patrol_velocity_base_zones()
+	return _get_base_patrol_velocity_adventure_ring()
+
+
+func _advance_base_patrol_zone_to_next() -> void:
+	var tree := get_tree()
+	_base_patrol_zone_idx += 1
+	if _base_patrol_zone_idx >= _base_patrol_zone_nodes.size():
+		_base_patrol_zone_idx = 0
+		if tree:
+			_base_patrol_zone_nodes = SquadBaseBuildingPatrol.collect_shuffled_zone_nodes(tree)
+		if _base_patrol_zone_nodes.size() < 2:
+			_patrol_has_goal = false
+			return
+	_follow_nav.clear()
+	_patrol_segment_time = 0.0
+	_patrol_stuck_frames = 0
+
+
+func _resolve_patrol_goal_node() -> Node2D:
+	if _base_patrol_zone_nodes.is_empty():
+		return null
+	var i := clampi(_base_patrol_zone_idx, 0, _base_patrol_zone_nodes.size() - 1)
+	var goal_node: Node2D = _base_patrol_zone_nodes[i]
+	if is_instance_valid(goal_node):
+		return goal_node
+	return null
+
+
+func _get_base_patrol_velocity_base_zones() -> Vector2:
+	var delta := get_physics_process_delta_time()
+	var tree := get_tree()
+	if tree == null:
+		return _get_base_patrol_velocity_adventure_ring()
+	if _base_patrol_zone_nodes.size() < 2:
+		_base_patrol_zone_nodes = SquadBaseBuildingPatrol.collect_shuffled_zone_nodes(tree)
+		_base_patrol_zone_idx = 0
+	if _base_patrol_zone_nodes.size() < 2:
+		return _get_base_patrol_velocity_adventure_ring()
+	if _base_building_patrol_leash_escape:
+		if global_position.distance_to(_base_patrol_spawn) <= base_patrol_leash_radius * 0.88:
+			_base_building_patrol_leash_escape = false
+	elif global_position.distance_to(_base_patrol_spawn) > base_patrol_leash_radius * 0.94:
+		_base_building_patrol_leash_escape = true
+		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius * 0.42)
+		_patrol_segment_time = 0.0
+		_patrol_stuck_frames = 0
+		return SquadBaseBuildingPatrol.velocity_toward_goal_worker_like(
+			self, _follow_nav, _patrol_goal, speed, patrol_speed_scale, follow_use_navigation, delta
+		)
+	if not _patrol_has_goal:
+		_patrol_has_goal = true
+		_patrol_segment_time = 0.0
+		_base_patrol_zone_idx = clampi(_base_patrol_zone_idx, 0, _base_patrol_zone_nodes.size() - 1)
+	_patrol_segment_time += delta
+	var goal_node: Node2D = _resolve_patrol_goal_node()
+	if goal_node == null:
+		_base_patrol_zone_nodes = SquadBaseBuildingPatrol.collect_shuffled_zone_nodes(tree)
+		if _base_patrol_zone_nodes.size() < 2:
+			_patrol_has_goal = false
+			return _get_base_patrol_velocity_adventure_ring()
+		_base_patrol_zone_idx = clampi(_base_patrol_zone_idx, 0, _base_patrol_zone_nodes.size() - 1)
+		goal_node = _resolve_patrol_goal_node()
+		if goal_node == null:
+			_patrol_has_goal = false
+			return _get_base_patrol_velocity_adventure_ring()
+	_patrol_goal = goal_node.global_position
+	if SquadBaseBuildingPatrol.zone_goal_reached(self, goal_node):
+		_advance_base_patrol_zone_to_next()
+		if not _patrol_has_goal:
+			return _get_base_patrol_velocity_adventure_ring()
+		goal_node = _resolve_patrol_goal_node()
+		if goal_node == null:
+			_patrol_has_goal = false
+			return _get_base_patrol_velocity_adventure_ring()
+		_patrol_goal = goal_node.global_position
+	elif _patrol_segment_time >= patrol_max_segment_time:
+		_advance_base_patrol_zone_to_next()
+		if not _patrol_has_goal:
+			return _get_base_patrol_velocity_adventure_ring()
+		goal_node = _resolve_patrol_goal_node()
+		if goal_node == null:
+			_patrol_has_goal = false
+			return _get_base_patrol_velocity_adventure_ring()
+		_patrol_goal = goal_node.global_position
+	if is_on_wall():
+		_patrol_stuck_frames += 1
+		if _patrol_stuck_frames >= patrol_wall_stuck_frames:
+			_advance_base_patrol_zone_to_next()
+			if not _patrol_has_goal:
+				return _get_base_patrol_velocity_adventure_ring()
+			_patrol_stuck_frames = 0
+			goal_node = _resolve_patrol_goal_node()
+			if goal_node == null:
+				_patrol_has_goal = false
+				return _get_base_patrol_velocity_adventure_ring()
+			_patrol_goal = goal_node.global_position
+	else:
+		_patrol_stuck_frames = 0
+	if not _patrol_has_goal:
+		return _get_base_patrol_velocity_adventure_ring()
+	goal_node = _resolve_patrol_goal_node()
+	if goal_node == null:
+		_patrol_has_goal = false
+		return _get_base_patrol_velocity_adventure_ring()
+	_patrol_goal = goal_node.global_position
+	var vn := SquadBaseBuildingPatrol.velocity_toward_goal_worker_like(
+		self, _follow_nav, _patrol_goal, speed, patrol_speed_scale, follow_use_navigation, delta
+	)
+	if vn.length_squared() < 1.0:
+		_advance_base_patrol_zone_to_next()
+		if not _patrol_has_goal:
+			return _get_base_patrol_velocity_adventure_ring()
+		goal_node = _resolve_patrol_goal_node()
+		if goal_node == null:
+			_patrol_has_goal = false
+			return _get_base_patrol_velocity_adventure_ring()
+		_patrol_goal = goal_node.global_position
+		return SquadBaseBuildingPatrol.velocity_toward_goal_worker_like(
+			self, _follow_nav, _patrol_goal, speed, patrol_speed_scale, follow_use_navigation, delta
+		)
+	return vn
+
+
+func _get_base_patrol_velocity_adventure_ring() -> Vector2:
 	var delta := get_physics_process_delta_time()
 	if not _patrol_has_goal:
 		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
@@ -407,11 +619,13 @@ func _start_shooting_if_needed() -> void:
 	if enemies_in_range.is_empty():
 		attack_timer.stop()
 		return
+	if _attack_shot_in_progress:
+		return
 	if attack_timer.is_stopped():
-		attack_timer.start()
-		call_deferred("attack")
+		attack()
 
 func squad_rally_after_reposition() -> void:
+	_reset_base_building_patrol_state()
 	if _follow_nav:
 		_follow_nav.clear()
 	if state == State.SHOOT:
@@ -427,6 +641,8 @@ func _archer_close_enough_to_hero_for_combat() -> bool:
 		return true
 	if player == null or not is_instance_valid(player):
 		return false
+	if max_distance_from_hero_for_combat <= 0.0:
+		return true
 	return global_position.distance_to(player.global_position) <= max_distance_from_hero_for_combat
 
 

@@ -8,6 +8,8 @@ const MAX_HERO_LEVEL := 20
 ## Найм любого типа юнита в замке (база; на сложности умножается в get_unit_hire_cost).
 const UNIT_HIRE_COST := 260
 const UNIT_HIRE_ORE_COST := 1
+## Лучники + копейщики + рудокопы + сюжетный юноша (если в лагере/отряде), не считая героя.
+const MAX_SQUAD_MEMBERS := 6
 ## Базовый шаг апгрейда здания (итог: step * (tier + 1) в building_template).
 const BUILDING_UPGRADE_STEP := 220
 ## Оружейная: разовые бафы перед походом.

@@ -35,8 +35,14 @@ var _patrol_goal: Vector2 = Vector2.ZERO
 var _patrol_has_goal: bool = false
 var _patrol_segment_time: float = 0.0
 var _patrol_stuck_frames: int = 0
+var _patrol_no_move_frames: int = 0
+var _base_patrol_zone_nodes: Array[Node2D] = []
+var _base_patrol_zone_idx: int = 0
+var _base_building_patrol_leash_escape: bool = false
 ## Направление удара (к цели) для расчёта точки острия в мировых координатах.
 var _attack_hit_dir: Vector2 = Vector2.RIGHT
+## Цель текущего замаха (чтобы «острие» не уходило дальше цели — иначе промах по intersect_shape у близкой овцы/врага).
+var _melee_attack_target: Node2D = null
 
 @onready var sprite: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
 @onready var attack_area: Area2D = get_node_or_null("AttackArea") as Area2D
@@ -87,13 +93,22 @@ func _capture_base_patrol_spawn_after_placed() -> void:
 
 
 func squad_rally_after_reposition() -> void:
+	_reset_base_building_patrol_state()
 	if _follow_nav:
 		_follow_nav.clear()
 	if state == State.ATTACK:
 		state = State.FOLLOW
 
 
+func _reset_base_building_patrol_state() -> void:
+	_base_patrol_zone_nodes.clear()
+	_base_patrol_zone_idx = 0
+	_base_building_patrol_leash_escape = false
+	_patrol_has_goal = false
+
+
 func _on_events_location_changed_resync_follow_nav(_loc: Events.LOCATION) -> void:
+	_reset_base_building_patrol_state()
 	call_deferred("_sync_follow_nav_layers_from_scene")
 
 
@@ -179,7 +194,29 @@ func _physics_process(delta: float) -> void:
 			velocity = Vector2.ZERO
 
 	_apply_soft_separation_to_velocity(delta)
+	var v_sq_before_move := velocity.length_squared()
+	var pos_before_move := global_position
 	move_and_slide()
+	if state == State.FOLLOW:
+		_sync_follow_movement_animation()
+		if SquadOrders.mode == SquadOrders.Mode.PATROL and not (Events.current_location != Events.LOCATION.BASE and is_in_group("ally_pawn")):
+			if v_sq_before_move > 100.0 and global_position.distance_to(pos_before_move) < 0.45:
+				_patrol_no_move_frames += 1
+				if _patrol_no_move_frames >= 22:
+					_follow_nav.clear()
+					if Events.current_location == Events.LOCATION.BASE and _base_patrol_zone_nodes.size() >= 2:
+						_advance_base_patrol_zone_to_next()
+						if _patrol_has_goal and _base_patrol_zone_nodes.size() >= 2:
+							var zn: Node2D = _base_patrol_zone_nodes[_base_patrol_zone_idx]
+							if is_instance_valid(zn):
+								_patrol_goal = zn.global_position
+					else:
+						_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
+					_patrol_segment_time = 0.0
+					_patrol_stuck_frames = 0
+					_patrol_no_move_frames = 0
+			elif global_position.distance_to(pos_before_move) >= 0.45:
+				_patrol_no_move_frames = 0
 
 
 func _process_follow(_delta: float) -> void:
@@ -196,6 +233,7 @@ func _process_follow(_delta: float) -> void:
 		return
 
 	if SquadOrders.mode == SquadOrders.Mode.HOLD:
+		_follow_nav.clear()
 		velocity = Vector2.ZERO
 		_play_idle()
 		return
@@ -206,6 +244,8 @@ func _process_follow(_delta: float) -> void:
 		if Events.current_location != Events.LOCATION.BASE and is_in_group("ally_pawn"):
 			pass
 		else:
+			if Events.current_location != Events.LOCATION.BASE:
+				_follow_nav.clear()
 			_process_base_patrol(_delta)
 			_apply_follow_wall_slide_if_needed()
 			return
@@ -225,14 +265,142 @@ func _process_follow_custom(_delta: float) -> bool:
 	return false
 
 
-func _process_base_patrol(delta: float) -> void:
+func _process_base_patrol(_delta: float) -> void:
+	if Events.current_location == Events.LOCATION.BASE:
+		velocity = _compute_base_patrol_velocity_base_zones()
+	else:
+		_process_base_patrol_adventure_ring()
+
+
+func _advance_base_patrol_zone_to_next() -> void:
+	var tree := get_tree()
+	_base_patrol_zone_idx += 1
+	if _base_patrol_zone_idx >= _base_patrol_zone_nodes.size():
+		_base_patrol_zone_idx = 0
+		if tree:
+			_base_patrol_zone_nodes = SquadBaseBuildingPatrol.collect_shuffled_zone_nodes(tree)
+		if _base_patrol_zone_nodes.size() < 2:
+			_patrol_has_goal = false
+			return
+	if _follow_nav:
+		_follow_nav.clear()
+	_patrol_segment_time = 0.0
+	_patrol_stuck_frames = 0
+
+
+func _resolve_patrol_goal_node() -> Node2D:
+	if _base_patrol_zone_nodes.is_empty():
+		return null
+	var i := clampi(_base_patrol_zone_idx, 0, _base_patrol_zone_nodes.size() - 1)
+	var goal_node: Node2D = _base_patrol_zone_nodes[i]
+	if is_instance_valid(goal_node):
+		return goal_node
+	return null
+
+
+func _compute_base_patrol_velocity_base_zones() -> Vector2:
+	var delta := get_physics_process_delta_time()
+	var tree := get_tree()
+	if tree == null:
+		return _get_base_patrol_velocity_adventure_ring()
+	if _base_patrol_zone_nodes.size() < 2:
+		_base_patrol_zone_nodes = SquadBaseBuildingPatrol.collect_shuffled_zone_nodes(tree)
+		_base_patrol_zone_idx = 0
+	if _base_patrol_zone_nodes.size() < 2:
+		return _get_base_patrol_velocity_adventure_ring()
+	if _base_building_patrol_leash_escape:
+		if global_position.distance_to(_base_patrol_spawn) <= base_patrol_leash_radius * 0.88:
+			_base_building_patrol_leash_escape = false
+	elif global_position.distance_to(_base_patrol_spawn) > base_patrol_leash_radius * 0.94:
+		_base_building_patrol_leash_escape = true
+		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius * 0.42)
+		_patrol_segment_time = 0.0
+		_patrol_stuck_frames = 0
+		return SquadBaseBuildingPatrol.velocity_toward_goal_worker_like(
+			self, _follow_nav, _patrol_goal, speed, patrol_speed_scale, follow_use_navigation, delta
+		)
+	if not _patrol_has_goal:
+		_patrol_has_goal = true
+		_patrol_segment_time = 0.0
+		_base_patrol_zone_idx = clampi(_base_patrol_zone_idx, 0, _base_patrol_zone_nodes.size() - 1)
+	_patrol_segment_time += delta
+	var goal_node: Node2D = _resolve_patrol_goal_node()
+	if goal_node == null:
+		_base_patrol_zone_nodes = SquadBaseBuildingPatrol.collect_shuffled_zone_nodes(tree)
+		if _base_patrol_zone_nodes.size() < 2:
+			_patrol_has_goal = false
+			return _get_base_patrol_velocity_adventure_ring()
+		_base_patrol_zone_idx = clampi(_base_patrol_zone_idx, 0, _base_patrol_zone_nodes.size() - 1)
+		goal_node = _resolve_patrol_goal_node()
+		if goal_node == null:
+			_patrol_has_goal = false
+			return _get_base_patrol_velocity_adventure_ring()
+	_patrol_goal = goal_node.global_position
+	if SquadBaseBuildingPatrol.zone_goal_reached(self, goal_node):
+		_advance_base_patrol_zone_to_next()
+		if not _patrol_has_goal:
+			return _get_base_patrol_velocity_adventure_ring()
+		goal_node = _resolve_patrol_goal_node()
+		if goal_node == null:
+			_patrol_has_goal = false
+			return _get_base_patrol_velocity_adventure_ring()
+		_patrol_goal = goal_node.global_position
+	elif _patrol_segment_time >= patrol_max_segment_time:
+		_advance_base_patrol_zone_to_next()
+		if not _patrol_has_goal:
+			return _get_base_patrol_velocity_adventure_ring()
+		goal_node = _resolve_patrol_goal_node()
+		if goal_node == null:
+			_patrol_has_goal = false
+			return _get_base_patrol_velocity_adventure_ring()
+		_patrol_goal = goal_node.global_position
+	if is_on_wall():
+		_patrol_stuck_frames += 1
+		if _patrol_stuck_frames >= patrol_wall_stuck_frames:
+			_advance_base_patrol_zone_to_next()
+			if not _patrol_has_goal:
+				return _get_base_patrol_velocity_adventure_ring()
+			_patrol_stuck_frames = 0
+			goal_node = _resolve_patrol_goal_node()
+			if goal_node == null:
+				_patrol_has_goal = false
+				return _get_base_patrol_velocity_adventure_ring()
+			_patrol_goal = goal_node.global_position
+	else:
+		_patrol_stuck_frames = 0
+	if not _patrol_has_goal:
+		return _get_base_patrol_velocity_adventure_ring()
+	goal_node = _resolve_patrol_goal_node()
+	if goal_node == null:
+		_patrol_has_goal = false
+		return _get_base_patrol_velocity_adventure_ring()
+	_patrol_goal = goal_node.global_position
+	var vn := SquadBaseBuildingPatrol.velocity_toward_goal_worker_like(
+		self, _follow_nav, _patrol_goal, speed, patrol_speed_scale, follow_use_navigation, delta
+	)
+	if vn.length_squared() < 1.0:
+		_advance_base_patrol_zone_to_next()
+		if not _patrol_has_goal:
+			return _get_base_patrol_velocity_adventure_ring()
+		goal_node = _resolve_patrol_goal_node()
+		if goal_node == null:
+			_patrol_has_goal = false
+			return _get_base_patrol_velocity_adventure_ring()
+		_patrol_goal = goal_node.global_position
+		return SquadBaseBuildingPatrol.velocity_toward_goal_worker_like(
+			self, _follow_nav, _patrol_goal, speed, patrol_speed_scale, follow_use_navigation, delta
+		)
+	return vn
+
+
+func _get_base_patrol_velocity_adventure_ring() -> Vector2:
+	var delta := get_physics_process_delta_time()
 	if not _patrol_has_goal:
 		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
 		_patrol_has_goal = true
 		_patrol_segment_time = 0.0
 	_patrol_segment_time += delta
-	var to_spawn := global_position.distance_to(_base_patrol_spawn)
-	if to_spawn > base_patrol_leash_radius * 0.94:
+	if global_position.distance_to(_base_patrol_spawn) > base_patrol_leash_radius * 0.94:
 		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius * 0.42)
 		_patrol_segment_time = 0.0
 		_patrol_stuck_frames = 0
@@ -258,12 +426,11 @@ func _process_base_patrol(delta: float) -> void:
 	if dir.length_squared() < 1e-8:
 		_patrol_goal = SquadPatrol.pick_waypoint(_base_patrol_spawn, base_patrol_leash_radius)
 		dir = SquadWorkerLikeSteering.steer_direction(self, _patrol_goal, spd)
-	velocity = dir * spd
-	_face_velocity(velocity)
-	if velocity.length() > 0.1:
-		_play_run()
-	else:
-		_play_idle()
+	return dir * spd
+
+
+func _process_base_patrol_adventure_ring() -> void:
+	velocity = _get_base_patrol_velocity_adventure_ring()
 
 
 func _sync_follow_player_velocity() -> void:
@@ -278,23 +445,12 @@ func _sync_follow_player_velocity() -> void:
 				var fv: Vector2 = vn as Vector2
 				if fv.length_squared() > 1.0:
 					velocity = fv
-					_face_velocity(velocity)
-					_play_run()
 					return
 				velocity = SquadWorkerLikeSteering.steer_direction(self, player.global_position, speed) * speed
-				_face_velocity(velocity)
-				_play_run()
 				return
 		velocity = SquadWorkerLikeSteering.steer_direction(self, player.global_position, speed) * speed
-		_face_velocity(velocity)
-		_play_run()
 		return
-	if dist < follow_stop_distance:
-		velocity = Vector2.ZERO
-		_play_idle()
-	else:
-		velocity = Vector2.ZERO
-		_play_idle()
+	velocity = Vector2.ZERO
 
 
 func _apply_follow_wall_slide_if_needed() -> void:
@@ -304,6 +460,16 @@ func _apply_follow_wall_slide_if_needed() -> void:
 		SquadWorkerLikeSteering.apply_wall_slide_toward(self, _patrol_goal, speed * patrol_speed_scale)
 	elif SquadOrders.mode == SquadOrders.Mode.COMBAT and player and is_instance_valid(player):
 		SquadWorkerLikeSteering.apply_wall_slide_toward(self, player.global_position, speed)
+
+
+func _sync_follow_movement_animation() -> void:
+	if sprite == null or state != State.FOLLOW:
+		return
+	if velocity.length() > 0.1:
+		_face_velocity(velocity)
+		_play_run()
+	else:
+		_play_idle()
 
 
 func _face_velocity(v: Vector2) -> void:
@@ -343,6 +509,7 @@ func _nearest_base_sheep_in_attack_area() -> Node2D:
 
 func _start_attack(target: Node2D) -> void:
 	state = State.ATTACK
+	_melee_attack_target = target
 	velocity = Vector2.ZERO
 	_attack_cd = attack_cooldown
 	var dir := target.global_position - global_position
@@ -368,7 +535,24 @@ func _on_sprite_animation_finished() -> void:
 
 
 func _apply_melee_damage() -> void:
-	var tip := global_position + _attack_hit_dir * _get_melee_hit_reach()
+	var reach := _get_melee_hit_reach()
+	var dir := _attack_hit_dir
+	if dir.length_squared() < 1e-8:
+		dir = Vector2.RIGHT
+	var ref_target: Node2D = _melee_attack_target
+	if ref_target == null or not is_instance_valid(ref_target):
+		ref_target = _nearest_base_sheep_in_attack_area()
+		if ref_target == null:
+			ref_target = _nearest_enemy_in_attack_area()
+	if ref_target != null and is_instance_valid(ref_target):
+		var to_t: Vector2 = ref_target.global_position - global_position
+		var d: float = to_t.length()
+		if d > 0.01:
+			dir = to_t / d
+			## Полный reach оставляет круг удара за целью при малой дистанции — коллизия овцы не попадает в intersect_shape.
+			reach = minf(reach, maxf(d, 20.0))
+	var tip := global_position + dir * reach
+	_melee_attack_target = null
 	var space := get_world_2d().direct_space_state
 	var circle := CircleShape2D.new()
 	circle.radius = _get_melee_hit_radius()

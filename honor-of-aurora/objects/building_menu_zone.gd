@@ -7,6 +7,7 @@ enum MenuKind { CASTLE, BARRACKS, MONASTERY, ARCHERY, PAYSHOP }
 
 func _ready() -> void:
 	add_to_group("building_menu_zone")
+	add_to_group("base_patrol_zone")
 	if menu_kind == MenuKind.CASTLE:
 		add_to_group("base_ore_castle_dropoff")
 

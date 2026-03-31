@@ -2,6 +2,7 @@ extends Area2D
 
 
 func _ready() -> void:
+	add_to_group("base_patrol_zone")
 	body_entered.connect(_on_body_entered)
 	call_deferred("_check_overlapping")
 

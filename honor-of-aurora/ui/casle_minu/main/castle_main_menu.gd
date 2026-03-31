@@ -1859,6 +1859,9 @@ func _hire_unit(kind: HireKind) -> void:
 	var scene := _resolve_scene_for_hire(kind)
 	if not scene:
 		return
+	if GameManager.get_squad_member_count() >= BalanceConfig.MAX_SQUAD_MEMBERS:
+		_show_hire_fail("Отряд переполнен. Максимум %d бойцов." % BalanceConfig.MAX_SQUAD_MEMBERS)
+		return
 	if kind == HireKind.ARCHER or kind == HireKind.LANCER:
 		if SaveManager.archer_count + SaveManager.lancer_count >= GameManager.get_max_warriors_allowed():
 			_show_hire_fail("Нужен запас мяса: добывайте на базе овец, чтобы увеличить лимит лучников и копейщиков.")
@@ -1892,7 +1895,7 @@ func _hire_unit(kind: HireKind) -> void:
 	unit.global_position = positions[0]
 	unit.add_to_group("squad_member")
 	SaveManager.save_game()
-	_close_hire_select()
+	_refresh_hire_buy_ui()
 
 
 ## ═══════════════════════════════════════════════════════

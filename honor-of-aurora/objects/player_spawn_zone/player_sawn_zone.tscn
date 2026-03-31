@@ -3,7 +3,8 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_pqfea"]
 radius = 45.0111
 
-[node name="player_sawn_zone" type="Area2D"]
+[node name="player_sawn_zone" type="Area2D" groups=["base_patrol_zone"]]
+collision_mask = 10
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_pqfea")

@@ -4,6 +4,7 @@ extends Area2D
 var player_inside = false  # Флаг, чтобы не вызывать много раз
 
 func _ready():
+	add_to_group("base_patrol_zone")
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 	# Ждем один кадр, чтобы сцена полностью загрузилась

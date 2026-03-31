@@ -23,8 +23,45 @@ func _ready() -> void:
 	add_to_group("y_sortable")
 	_ensure_health_component()
 	if show_mini_hp_bar:
-		_setup_mini_hp_bar()
+		var cb := Callable(self, "_on_events_location_changed_mini_hp")
+		if not Events.location_changed.is_connected(cb):
+			Events.location_changed.connect(cb)
+		call_deferred("_sync_mini_hp_bar_visibility")
 	call_deferred("_cache_y_sort_offset")
+
+
+func _exit_tree() -> void:
+	var cb := Callable(self, "_on_events_location_changed_mini_hp")
+	if Events.location_changed.is_connected(cb):
+		Events.location_changed.disconnect(cb)
+
+
+func _on_events_location_changed_mini_hp(_loc: Events.LOCATION) -> void:
+	_sync_mini_hp_bar_visibility()
+
+
+func _sync_mini_hp_bar_visibility() -> void:
+	if not show_mini_hp_bar:
+		return
+	if Events.current_location == Events.LOCATION.BASE:
+		_remove_mini_hp_bar_if_any()
+		return
+	if _has_mini_hp_bar_child():
+		return
+	_setup_mini_hp_bar()
+
+
+func _has_mini_hp_bar_child() -> bool:
+	for c in get_children():
+		if c is Control and c.get_script() == _WorldMiniHpBar:
+			return true
+	return false
+
+
+func _remove_mini_hp_bar_if_any() -> void:
+	for c in get_children():
+		if c is Control and c.get_script() == _WorldMiniHpBar:
+			c.queue_free()
 
 
 func _setup_mini_hp_bar() -> void:
