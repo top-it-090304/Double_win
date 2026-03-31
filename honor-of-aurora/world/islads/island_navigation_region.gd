@@ -14,6 +14,12 @@ var _default_outline: PackedVector2Array = PackedVector2Array([
 ])
 
 
+## Замена устаревшего `NavigationPolygon.make_polygons_from_outlines()` (Godot 4.4+).
+func _bake_navigation_polygon_from_outlines(np: NavigationPolygon) -> void:
+	var sg := NavigationMeshSourceGeometryData2D.new()
+	NavigationServer2D.bake_from_source_geometry_data(np, sg)
+
+
 func _is_game_base_island_scene() -> bool:
 	var scene := get_tree().current_scene
 	if scene == null:
@@ -36,7 +42,7 @@ func _ready() -> void:
 		_apply_outline(_default_outline)
 		return
 	if navigation_polygon.get_polygon_count() == 0 and navigation_polygon.get_outline_count() > 0:
-		navigation_polygon.make_polygons_from_outlines()
+		_bake_navigation_polygon_from_outlines(navigation_polygon)
 	if navigation_polygon.get_polygon_count() == 0:
 		if navigation_polygon.get_outline_count() == 0:
 			_apply_outline(_default_outline)
@@ -71,7 +77,7 @@ func _apply_preset_from_arrays(outlines: Array) -> void:
 	for o in outlines:
 		if o is PackedVector2Array and (o as PackedVector2Array).size() >= 3:
 			np.add_outline(o)
-	np.make_polygons_from_outlines()
+	_bake_navigation_polygon_from_outlines(np)
 	if np.get_polygon_count() > 0:
 		navigation_polygon = np
 		call_deferred("_sync_navigation_map_cell_size")
@@ -80,7 +86,7 @@ func _apply_preset_from_arrays(outlines: Array) -> void:
 		var np2 := NavigationPolygon.new()
 		_configure_new_navigation_polygon(np2)
 		np2.add_outline(outlines[0])
-		np2.make_polygons_from_outlines()
+		_bake_navigation_polygon_from_outlines(np2)
 		if np2.get_polygon_count() > 0:
 			navigation_polygon = np2
 			call_deferred("_sync_navigation_map_cell_size")
@@ -96,6 +102,6 @@ func _apply_outline(outline: PackedVector2Array) -> void:
 	var np := NavigationPolygon.new()
 	_configure_new_navigation_polygon(np)
 	np.add_outline(outline)
-	np.make_polygons_from_outlines()
+	_bake_navigation_polygon_from_outlines(np)
 	navigation_polygon = np
 	call_deferred("_sync_navigation_map_cell_size")
