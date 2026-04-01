@@ -41,7 +41,8 @@ const STORY_DIALOGUE_IDS: PackedStringArray = [
 	"monk_youth_death_reaction",
 	"youth_postmortem_letter_1",
 	"youth_postmortem_letter_2",
-	"youth_letter_sent",
+	"youth_letter_caravan_reminder",
+	"youth_letter_healer_prompt",
 	"monk_story_1",
 	"monk_story_2",
 	"monk_story_3",
@@ -50,6 +51,19 @@ const STORY_DIALOGUE_IDS: PackedStringArray = [
 	"monk_story_5",
 	"monk_letter_2",
 	"monk_story_6",
+]
+
+## Письма матери после смерти Мирона: не автостарт по жетону возвращения с острова — только погоня после каравана + вход в зону хила.
+const MIRON_CARAVAN_MAIL_STORY_IDS: PackedStringArray = [
+	"youth_postmortem_letter_1",
+	"youth_postmortem_letter_2",
+	"youth_letter_caravan_reminder",
+	"youth_letter_healer_prompt",
+]
+## Не цеплять автоматически после другого сюжета в зоне — письмо Мирона у причала; беседа у целителя — отдельно.
+const NO_AUTO_CHAIN_STORY_IDS: PackedStringArray = [
+	"youth_letter_healer_prompt",
+	"youth_letter_caravan_reminder",
 ]
 
 const NON_STORY_DIALOGUE_IDS: PackedStringArray = [
@@ -116,7 +130,9 @@ func _capture_home_spawn() -> void:
 	_home_spawn_ready = true
 
 
-func _on_location_changed_sync_nav(_loc: Events.LOCATION) -> void:
+func _on_location_changed_sync_nav(loc: Events.LOCATION) -> void:
+	if loc != Events.LOCATION.BASE:
+		Events.clear_miron_mail_chase_state()
 	_follow_nav.clear()
 	call_deferred("_sync_follow_nav_layers_from_scene")
 
@@ -141,6 +157,8 @@ func _is_story_dialogue_id(d_id: String) -> bool:
 
 
 func _on_dialogue_ended_zone_flags(sequence: DialogueSequence) -> void:
+	_try_activate_miron_mail_chase_after_caravan(sequence)
+	_arm_youth_letter_caravan_reminder_if_eligible(sequence)
 	_handle_monk_hub_deferred(sequence)
 	call_deferred("_deferred_chain_monk_zone_story_after_dialogue")
 
@@ -167,7 +185,7 @@ func _deferred_chain_monk_zone_story_after_dialogue() -> void:
 		and is_instance_valid(player)
 		and bool(heal_area.overlaps_body(player))
 	)
-	if in_heal and _attempt_start_zone_story_dialogue(true):
+	if in_heal and _attempt_start_zone_story_dialogue(true, NO_AUTO_CHAIN_STORY_IDS):
 		return
 	if in_heal:
 		_block_zone_story_autostart_until_leave_heal_area = true
@@ -205,7 +223,18 @@ func _physics_process(delta: float) -> void:
 		return
 
 	var moving := false
-	if _player_needs_heal_chase():
+	if _monk_needs_miron_mail_chase():
+		var p_miron := get_tree().get_first_node_in_group("player") as Node2D
+		if p_miron != null and is_instance_valid(p_miron):
+			var goal_m: Vector2 = p_miron.global_position
+			velocity = SquadBaseBuildingPatrol.velocity_toward_goal_worker_like(
+				self, _follow_nav, goal_m, speed, patrol_speed_scale, follow_use_navigation, delta
+			)
+			if velocity.length_squared() > 4.0:
+				SquadWorkerLikeSteering.apply_wall_slide_toward(self, goal_m, speed * patrol_speed_scale)
+			moving = velocity.length_squared() > 1.0
+			state = State.RUN if moving else State.IDLE
+	elif _player_needs_heal_chase():
 		var goal: Vector2 = target_player.global_position
 		velocity = SquadBaseBuildingPatrol.velocity_toward_goal_worker_like(
 			self, _follow_nav, goal, speed, patrol_speed_scale, follow_use_navigation, delta
@@ -258,7 +287,7 @@ func apply_pending_healer_dialogue_token() -> void:
 		return
 	_expedition_click_jokes_remaining = randi_range(3, 4)
 	Events.pending_healer_dialogue_after_expedition = false
-	call_deferred("_try_story_dialogue_if_player_starts_in_zone", true)
+	call_deferred("_try_expedition_story_skip_miron_mail")
 
 
 func _heal_zone_dialogue_ids_resolved() -> PackedStringArray:
@@ -269,15 +298,26 @@ func _heal_zone_dialogue_ids_resolved() -> PackedStringArray:
 	return PackedStringArray()
 
 
-func _pick_story_dialogue_id() -> String:
+func _pick_miron_caravan_mail_id() -> String:
+	for d_id in MIRON_CARAVAN_MAIL_STORY_IDS:
+		if DialogueRegistry.can_play(d_id):
+			return d_id
+	return ""
+
+
+func _pick_story_dialogue_id(exclude_ids: PackedStringArray = PackedStringArray()) -> String:
 	if not heal_zone_dialogue_ids.is_empty() or not heal_zone_dialogue_id.is_empty():
 		for d_id in _heal_zone_dialogue_ids_resolved():
 			if not _is_story_dialogue_id(d_id):
+				continue
+			if not exclude_ids.is_empty() and d_id in exclude_ids:
 				continue
 			if DialogueRegistry.can_play(d_id):
 				return d_id
 		return ""
 	for d_id in STORY_DIALOGUE_IDS:
+		if not exclude_ids.is_empty() and d_id in exclude_ids:
+			continue
 		if DialogueRegistry.can_play(d_id):
 			return d_id
 	return ""
@@ -301,7 +341,9 @@ func _pick_non_story_dialogue_id() -> String:
 	return ""
 
 
-func _attempt_start_zone_story_dialogue(ignore_zone_block: bool = false) -> bool:
+func _attempt_start_zone_story_dialogue(
+	ignore_zone_block: bool = false, exclude_ids: PackedStringArray = PackedStringArray()
+) -> bool:
 	if PostFinaleWorld.is_ending_cinematic_active():
 		return false
 	if Events.current_location != Events.LOCATION.BASE:
@@ -310,7 +352,7 @@ func _attempt_start_zone_story_dialogue(ignore_zone_block: bool = false) -> bool
 		return false
 	if not ignore_zone_block and _block_zone_story_autostart_until_leave_heal_area:
 		return false
-	var d_id := _pick_story_dialogue_id()
+	var d_id := _pick_story_dialogue_id(exclude_ids)
 	if d_id.is_empty() or not DialogueRegistry.can_play(d_id):
 		return false
 	return DialogueRegistry.try_start(d_id)
@@ -390,6 +432,13 @@ func _try_healer_interact_from_player_close() -> bool:
 func _on_heal_zone_enter_for_story_dialogue(body: Node2D) -> void:
 	if not GameplayFacade.is_player_body(body):
 		return
+	if Events.monk_miron_mail_chase_pending:
+		var mid := _pick_miron_caravan_mail_id()
+		if mid.is_empty():
+			Events.monk_miron_mail_chase_pending = false
+		elif not DialogueManager.is_active() and DialogueRegistry.try_start(mid):
+			Events.monk_miron_mail_chase_pending = false
+			return
 	_attempt_start_zone_story_dialogue(false)
 
 
@@ -400,6 +449,65 @@ func _try_story_dialogue_if_player_starts_in_zone(ignore_zone_block: bool = fals
 		if GameplayFacade.is_player_body(body):
 			_attempt_start_zone_story_dialogue(ignore_zone_block)
 			break
+
+
+func _try_expedition_story_skip_miron_mail() -> void:
+	if DialogueManager.is_active():
+		return
+	for body in heal_area.get_overlapping_bodies():
+		if GameplayFacade.is_player_body(body):
+			_attempt_start_zone_story_dialogue(true, MIRON_CARAVAN_MAIL_STORY_IDS)
+			break
+
+
+func _try_activate_miron_mail_chase_after_caravan(sequence: DialogueSequence) -> void:
+	if sequence == null or sequence.id != "caravan_arrival":
+		return
+	if not Events.monk_miron_mail_chase_defer:
+		return
+	Events.monk_miron_mail_chase_defer = false
+	if not StoryState.has_flag("worker_youth_dead"):
+		return
+	var mid := _pick_miron_caravan_mail_id()
+	if mid.is_empty():
+		return
+	Events.monk_miron_mail_chase_pending = true
+
+
+func _arm_youth_letter_caravan_reminder_if_eligible(sequence: DialogueSequence) -> void:
+	if sequence == null or sequence.id != "caravan_arrival":
+		return
+	if not StoryState.has_flag("worker_youth_dead"):
+		return
+	if StoryState.has_flag("youth_letter_sent_done"):
+		return
+	if not StoryState.has_flag("youth_letter_send_deferred"):
+		return
+	if not StoryState.has_flag("youth_letter_healer_prompt_done"):
+		return
+	if not StoryState.has_flag("youth_postmortem_1_done") or not StoryState.has_flag("youth_belongings_found"):
+		return
+	if SaveManager.expedition_return_count < 3:
+		return
+	StoryState.set_flag("youth_letter_reminder_pending", true)
+
+
+func _monk_needs_miron_mail_chase() -> bool:
+	if not Events.monk_miron_mail_chase_pending:
+		return false
+	if Events.current_location != Events.LOCATION.BASE:
+		return false
+	if DialogueManager.is_active():
+		return false
+	if _pick_miron_caravan_mail_id().is_empty():
+		Events.monk_miron_mail_chase_pending = false
+		return false
+	var player_mc := get_tree().get_first_node_in_group("player") as Node2D
+	if player_mc == null or not is_instance_valid(player_mc):
+		return false
+	if heal_area.overlaps_body(player_mc):
+		return false
+	return true
 
 
 func _on_heal_area(_body: Node2D) -> void:

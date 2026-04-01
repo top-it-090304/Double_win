@@ -377,6 +377,7 @@ func _arrive_caravan() -> void:
 	var order_idx := SaveManager.crown_order_index
 	Events.caravan_arrived.emit(order_idx)
 	Events.caravan_pending_changed.emit(true)
+	Events.arm_miron_mail_chase_defer_if_eligible()
 
 
 func _deliver_caravan_supplies() -> void:
@@ -488,6 +489,7 @@ func send_ore_with_caravan(ore_amount: int) -> bool:
 	_check_displeasure_recovery(actual, skip_order_favor)
 	Events.caravan_pending_changed.emit(false)
 	Events.caravan_dispatched.emit(actual, SaveManager.caravan_sent_count)
+	Events.on_caravan_no_longer_pending()
 	_resolve_crown_order_on_caravan_dispatch()
 	_process_caravan_arrival_queue()
 	SaveManager.save_game()
@@ -497,6 +499,7 @@ func send_ore_with_caravan(ore_amount: int) -> bool:
 func dismiss_caravan_empty() -> void:
 	SaveManager.caravan_pending = false
 	Events.caravan_pending_changed.emit(false)
+	Events.on_caravan_no_longer_pending()
 	_resolve_crown_order_on_caravan_dispatch()
 	_process_caravan_arrival_queue()
 	SaveManager.save_game()

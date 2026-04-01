@@ -8,6 +8,11 @@ var current_location: LOCATION = LOCATION.BASE
 ## Устанавливается при телепорте на базу с острова; забирает монах (см. GameManager / monk_base).
 var pending_healer_dialogue_after_expedition: bool = false
 
+## Прибыл караван и есть посмертная почта Мирона — ждём конца диалога `caravan_arrival`, затем монах идёт к герою.
+var monk_miron_mail_chase_defer: bool = false
+## Монах движется к герою, пока тот не войдёт в зону хила (там стартует постмортем-письмо).
+var monk_miron_mail_chase_pending: bool = false
+
 ## Игрок ушёл в главное меню с острова (LVL*), не через базу — при «Продолжить» на базу нужен жетон диалога.
 var was_on_adventure_before_menu: bool = false
 
@@ -55,3 +60,33 @@ func is_adventure_location(loc: LOCATION) -> bool:
 
 func sync_story_state_from_save() -> void:
 	was_on_adventure_before_menu = SaveManager.was_on_adventure_before_menu
+
+
+## Вызывается из CrownSystem при фактическом прибытии каравана (не из UI замка).
+func arm_miron_mail_chase_defer_if_eligible() -> void:
+	if not StoryState.has_flag("worker_youth_dead"):
+		return
+	if not DialogueRegistry.can_play("youth_postmortem_letter_1") and not DialogueRegistry.can_play(
+		"youth_postmortem_letter_2"
+	):
+		return
+	monk_miron_mail_chase_defer = true
+
+
+func clear_miron_mail_chase_state() -> void:
+	monk_miron_mail_chase_defer = false
+	monk_miron_mail_chase_pending = false
+
+
+## Караван ушёл с причала (руда или порожняком): если диалог прибытия не отыгрался, всё равно включить погоню с письмом.
+func on_caravan_no_longer_pending() -> void:
+	if not monk_miron_mail_chase_defer:
+		return
+	monk_miron_mail_chase_defer = false
+	if not StoryState.has_flag("worker_youth_dead"):
+		return
+	if not DialogueRegistry.can_play("youth_postmortem_letter_1") and not DialogueRegistry.can_play(
+		"youth_postmortem_letter_2"
+	):
+		return
+	monk_miron_mail_chase_pending = true

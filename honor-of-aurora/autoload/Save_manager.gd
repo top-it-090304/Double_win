@@ -288,6 +288,7 @@ func load_game():
 	_migrate_truth_choice_flags()
 	_migrate_worker_youth_refused_to_base_worker()
 	_migrate_worker_youth_prompt_anchor()
+	_migrate_youth_letter_healer_prompt_legacy()
 	if not game_data.has("difficulty_id"):
 		difficulty_id = 1
 	difficulty_id = clampi(int(difficulty_id), 0, 2)
@@ -445,6 +446,21 @@ func _migrate_worker_youth_prompt_anchor() -> void:
 	if story_flags.has("worker_youth_last_prompt_expedition_return"):
 		return
 	story_flags["worker_youth_last_prompt_expedition_return"] = expedition_return_count
+	save_game()
+
+
+## Письмо Мирона: до этой версии отправка шла без беседы «у целителя» — помечаем, чтобы причал остался доступен.
+func _migrate_youth_letter_healer_prompt_legacy() -> void:
+	if bool(story_flags.get("_youth_letter_prompt_mig_v1", false)):
+		return
+	story_flags["_youth_letter_prompt_mig_v1"] = true
+	if (
+		not story_flags.get("youth_letter_sent_done", false)
+		and story_flags.get("youth_postmortem_1_done", false)
+		and story_flags.get("youth_belongings_found", false)
+		and not story_flags.get("youth_letter_healer_prompt_done", false)
+	):
+		story_flags["youth_letter_healer_prompt_done"] = true
 	save_game()
 
 

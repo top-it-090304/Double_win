@@ -27,6 +27,8 @@ extends Resource
 ## Сколько раз герой вернулся на базу с острова (SaveManager.expedition_return_count).
 @export var min_expedition_return_count: int = -1
 @export var max_expedition_return_count: int = -1
+## Если true — диалог только пока у причала ждёт караван Короны (`SaveManager.caravan_pending`).
+@export var require_caravan_pending: bool = false
 @export var use_location_filter: bool = false
 @export var location: Events.LOCATION = Events.LOCATION.BASE
 
@@ -65,6 +67,8 @@ func is_satisfied() -> bool:
 	if min_expedition_return_count >= 0 and SaveManager.expedition_return_count < min_expedition_return_count:
 		return false
 	if max_expedition_return_count >= 0 and SaveManager.expedition_return_count > max_expedition_return_count:
+		return false
+	if require_caravan_pending and not SaveManager.caravan_pending:
 		return false
 	if use_location_filter and Events.current_location != location:
 		return false

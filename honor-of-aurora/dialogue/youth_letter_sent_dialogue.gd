@@ -11,6 +11,12 @@ func ensure_lines_ready() -> void:
 	var knew_letter2: bool = StoryState.has_flag("youth_letter_2_done")
 	var has_belongings: bool = StoryState.has_flag("youth_belongings_found")
 
+	lines.append(
+		_plain(
+			"narrator",
+			"Ты у причала — там же, где сходишь на берег после островов. Казённый борт стоит у пирса; целитель молча ждёт сбоку — не вмешиваться, а свидетельствовать."
+		)
+	)
 	lines.append(_plain("healer", "Караванщик отплывает на рассвете. На материк. Мимо порта, где живёт его мать."))
 	lines.append(_plain("healer", "Если хочешь отправить — сейчас."))
 

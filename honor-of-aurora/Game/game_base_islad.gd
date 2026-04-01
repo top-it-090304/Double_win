@@ -4,6 +4,7 @@ extends "res://Game/game_level_spawn_layer.gd"
 
 const _WorldMiniHpBarScript := preload("res://ui/hp_bar/world_mini_hp_bar.gd")
 const _BASE_SHEEP_SCENE := preload("res://ally/sheep/base_sheep.tscn")
+const _YOUTH_DOCK_ZONE_SCRIPT := preload("res://objects/YouthLetterDockZone/youth_letter_dock_zone.gd")
 
 ## Один респавн на подбор мяса; при «pending» без второго call_deferred — не терять запрос.
 var _base_sheep_spawn_pending: bool = false
@@ -18,6 +19,7 @@ func _ready() -> void:
 		Events.caravan_pending_changed.connect(_on_caravan_pending_changed)
 	call_deferred("_sync_crown_boat2_visibility")
 	call_deferred("_setup_base_ore_mine_entry_zone")
+	call_deferred("_setup_youth_letter_dock_zone")
 	call_deferred("_setup_base_navigation_from_tile_collisions")
 	var tree := get_tree()
 	tree.node_added.connect(_on_tree_node_added_hide_unit_hp)
@@ -137,6 +139,37 @@ func _setup_base_navigation_from_tile_collisions() -> void:
 	nav.navigation_polygon = np
 	add_child(nav)
 	call_deferred("_sync_nav_map_cell_size", np.cell_size)
+
+
+func _setup_youth_letter_dock_zone() -> void:
+	if find_child("YouthLetterDockZone", true, false) != null:
+		return
+	var boat_gpos: Vector2 = GameManager.get_boat_tile_center_global(self)
+	if boat_gpos == Vector2.ZERO:
+		boat_gpos = Vector2(SaveManager.BASE_DOCK_SPAWN_X, SaveManager.BASE_DOCK_SPAWN_Y)
+	## Герой спавнится у лодки, но игрок часто стоит у SquadSpawnZone (другая точка на карте) —
+	## старый круг r=108 не пересекался с прямоугольником отряда, окно письма не открывалось.
+	var squad_rect: Rect2 = GameManager.get_squad_spawn_zone_global_rect(self)
+	var center: Vector2 = boat_gpos
+	var radius: float = 108.0
+	if squad_rect.size.x > 1.0 and squad_rect.size.y > 1.0:
+		var min_x: float = mini(boat_gpos.x, squad_rect.position.x)
+		var max_x: float = maxi(boat_gpos.x, squad_rect.position.x + squad_rect.size.x)
+		var min_y: float = mini(boat_gpos.y, squad_rect.position.y)
+		var max_y: float = maxi(boat_gpos.y, squad_rect.position.y + squad_rect.size.y)
+		center = Vector2((min_x + max_x) * 0.5, (min_y + max_y) * 0.5)
+		var half_diag: float = Vector2(max_x - center.x, max_y - center.y).length()
+		radius = maxf(108.0, half_diag + 32.0)
+	var zone := Area2D.new()
+	zone.name = "YouthLetterDockZone"
+	zone.set_script(_YOUTH_DOCK_ZONE_SCRIPT)
+	add_child(zone)
+	zone.global_position = center
+	var cs := CollisionShape2D.new()
+	var circ := CircleShape2D.new()
+	circ.radius = radius
+	cs.shape = circ
+	zone.add_child(cs)
 
 
 func _setup_base_ore_mine_entry_zone() -> void:

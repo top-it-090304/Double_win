@@ -9,7 +9,12 @@ func ensure_lines_ready() -> void:
 	var knew_letter1: bool = StoryState.has_flag("youth_letter_1_done")
 	var knew_letter2: bool = StoryState.has_flag("youth_letter_2_done")
 
-	lines.append(_plain("narrator", "Целитель ждёт у причала. В руках — конверт."))
+	lines.append(
+		_plain(
+			"narrator",
+			"Письмо сошло с казённого борта вместе с мешками: целитель забрал конверт у причала и пошёл искать тебя по лагерю — не у воды ждать, пока случай сам подскажет. Нашёл. В руках всё ещё тот же конверт."
+		)
+	)
 	lines.append(_plain("healer", "Пришло по почте. На его имя."))
 
 	if not knew_letter1:

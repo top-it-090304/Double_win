@@ -2,18 +2,17 @@
 
 [ext_resource type="Script" path="res://dialogue/dialogue_definition.gd" id="1_def"]
 [ext_resource type="Script" path="res://dialogue/dialogue_conditions.gd" id="2_cond"]
-[ext_resource type="Resource" path="res://dialogue/youth_letter_sent.tres" id="3_seq"]
+[ext_resource type="Resource" path="res://dialogue/youth_letter_caravan_reminder.tres" id="3_seq"]
 
 [sub_resource type="Resource" id="cond"]
 script = ExtResource("2_cond")
-required_flags = Array[String](["youth_letter_healer_prompt_done", "youth_postmortem_1_done", "youth_belongings_found"])
+required_flags = Array[String](["worker_youth_dead", "youth_letter_send_deferred", "youth_letter_reminder_pending", "youth_postmortem_1_done", "youth_belongings_found"])
 blocked_flags = Array[String](["youth_letter_sent_done"])
 min_expedition_return_count = 3
-require_caravan_pending = true
 
 [resource]
 script = ExtResource("1_def")
-id = "youth_letter_sent"
+id = "youth_letter_caravan_reminder"
 sequence = ExtResource("3_seq")
 conditions = SubResource("cond")
-grant_flags_on_complete = Array[String](["youth_letter_sent_done"])
+grant_flags_on_complete = Array[String]([])

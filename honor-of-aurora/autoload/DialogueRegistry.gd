@@ -57,6 +57,8 @@ const DEFINITION_PATHS: PackedStringArray = [
 	"res://dialogue/definitions/monk_youth_death_reaction_def.tres",
 	"res://dialogue/definitions/youth_postmortem_letter_1_def.tres",
 	"res://dialogue/definitions/youth_postmortem_letter_2_def.tres",
+	"res://dialogue/definitions/youth_letter_healer_prompt_def.tres",
+	"res://dialogue/definitions/youth_letter_caravan_reminder_def.tres",
 	"res://dialogue/definitions/youth_letter_sent_def.tres",
 	"res://dialogue/definitions/caravan_arrival_def.tres",
 ]
@@ -133,6 +135,11 @@ func _on_dialogue_ended(sequence: DialogueSequence) -> void:
 		return
 	for flag in def.grant_flags_on_complete:
 		StoryState.set_flag(flag, true)
+	if sequence.id == "youth_letter_caravan_reminder":
+		StoryState.clear_flag("youth_letter_reminder_pending")
+	if sequence.id == "youth_letter_sent":
+		StoryState.clear_flag("youth_letter_send_deferred")
+		StoryState.clear_flag("youth_letter_reminder_pending")
 	if sequence.id == "monk_story_6":
 		MonkInteractiveDialogue.grant_ending_flag_after_finale()
 	if sequence.id == "veteran_story_4":
