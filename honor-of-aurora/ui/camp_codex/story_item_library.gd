@@ -5,6 +5,20 @@ class_name StoryItemLibrary
 ## icon — путь к текстуре (пустая строка → заглушка на основе icon_color/icon_char).
 
 
+static func _crown_patent_story_item(tier: int, item_id: String, display_name: String) -> Dictionary:
+	return {
+		"id": item_id,
+		"name": display_name,
+		"flag": "crown_patent_letter_%d" % tier,
+		"icon": "",
+		"icon_color": Color(0.72, 0.62, 0.42),
+		"icon_char": "✉",
+		"is_letter": true,
+		"brief": "Заверенная грамота о новом титуле",
+		"description": BalanceConfig.build_crown_patent_letter_plain_text(tier),
+	}
+
+
 static func get_all_items() -> Array[Dictionary]:
 	return [
 		{
@@ -141,6 +155,11 @@ static func get_all_items() -> Array[Dictionary]:
 			"brief": "Рисунок на обороте письма",
 			"description": "На обратной стороне последнего письма — кривой рисунок. Кораблик с парусом, волны, солнце. Подпись: «Нике. От братика с острова».\n\nОна нарисовала ему кораблик — он нарисовал ей. Два рисунка, два берега. Ни один не дойдёт до адресата вовремя.\n\nОн не вложил рисунок в конверт. Может, не успел. Может, боялся, что мать поймёт.",
 		},
+		_crown_patent_story_item(1, "crown_patent_letter_scout", "Грамота: Разведчик Архипелага"),
+		_crown_patent_story_item(2, "crown_patent_letter_guardian", "Грамота: Страж Маяков"),
+		_crown_patent_story_item(3, "crown_patent_letter_knight", "Грамота: Рыцарь Сердцевины"),
+		_crown_patent_story_item(4, "crown_patent_letter_keeper", "Грамота: Хранитель Авроры"),
+		_crown_patent_story_item(5, "crown_patent_letter_hero", "Грамота: Герой Короны"),
 	]
 
 

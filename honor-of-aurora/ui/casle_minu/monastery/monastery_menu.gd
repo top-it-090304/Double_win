@@ -54,10 +54,8 @@ func _refresh_ui() -> void:
 	var can_fortitude := (not GameManager.monastery_fortitude_prepared) and GameplayFacade.can_afford_gold_plus_ore(cost_f_gold, cost_f_ore)
 	var btn_v := get_node_or_null("MonasteryPanel/MainActions/SlotsRow/slot_vitality/ColumnVitality/BtnBlessVitality") as Button
 	var btn_f := get_node_or_null("MonasteryPanel/MainActions/SlotsRow/slot_revive/ColumnRevive/BtnReviveFallen") as Button
-	if btn_v:
-		btn_v.disabled = not can_vitality
-	if btn_f:
-		btn_f.disabled = not can_fortitude
+	PaidServiceButtonAppearance.set_interactive(btn_v, can_vitality)
+	PaidServiceButtonAppearance.set_interactive(btn_f, can_fortitude)
 
 
 func _set_cost_button(path: String, gold_cost: int, ore_cost: int) -> void:

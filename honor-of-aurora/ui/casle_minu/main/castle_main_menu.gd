@@ -108,6 +108,34 @@ func _ready() -> void:
 		Events.caravan_pending_changed.connect(_on_caravan_pending_changed_ui)
 	if not visibility_changed.is_connected(_on_castle_root_visibility_changed):
 		visibility_changed.connect(_on_castle_root_visibility_changed)
+	if not Events.gold_changed.is_connected(_on_castle_shop_resources_changed):
+		Events.gold_changed.connect(_on_castle_shop_resources_changed)
+	if not Events.wood_changed.is_connected(_on_castle_shop_resources_changed):
+		Events.wood_changed.connect(_on_castle_shop_resources_changed)
+	if not Events.ore_changed.is_connected(_on_castle_shop_resources_changed):
+		Events.ore_changed.connect(_on_castle_shop_resources_changed)
+	if not Events.meat_changed.is_connected(_on_castle_shop_resources_changed):
+		Events.meat_changed.connect(_on_castle_shop_resources_changed)
+
+
+func _exit_tree() -> void:
+	if Events.gold_changed.is_connected(_on_castle_shop_resources_changed):
+		Events.gold_changed.disconnect(_on_castle_shop_resources_changed)
+	if Events.wood_changed.is_connected(_on_castle_shop_resources_changed):
+		Events.wood_changed.disconnect(_on_castle_shop_resources_changed)
+	if Events.ore_changed.is_connected(_on_castle_shop_resources_changed):
+		Events.ore_changed.disconnect(_on_castle_shop_resources_changed)
+	if Events.meat_changed.is_connected(_on_castle_shop_resources_changed):
+		Events.meat_changed.disconnect(_on_castle_shop_resources_changed)
+
+
+func _on_castle_shop_resources_changed(_value: int) -> void:
+	if not visible:
+		return
+	_refresh_hire_buy_ui()
+	var upgrade := get_node_or_null("UpgradeSelectPanel") as Control
+	if upgrade != null and upgrade.visible:
+		_refresh_upgrade_building_buttons()
 
 
 func _on_castle_root_visibility_changed() -> void:
@@ -118,6 +146,10 @@ func _on_castle_root_visibility_changed() -> void:
 		return
 	_refresh_crown_title_strip()
 	_refresh_caravan_slot_badge()
+	_refresh_hire_buy_ui()
+	var upgrade := get_node_or_null("UpgradeSelectPanel") as Control
+	if upgrade != null and upgrade.visible:
+		_refresh_upgrade_building_buttons()
 
 
 func _on_caravan_pending_changed_ui(_pending: bool) -> void:
@@ -170,11 +202,13 @@ func _refresh_hire_buy_ui() -> void:
 	var price_lbl := get_node_or_null("%s/HirePriceLabel" % _PATH_HIRE_VBOX) as Label
 	if price_lbl:
 		price_lbl.text = "Все типы: %d зол. и %d Сердцевины" % [unit_hire_cost, ore_cost]
-	for path in [
-		"%s/HireSlotsRow/slot_archer/ColumnArcher/BuyArcher" % _PATH_HIRE_VBOX,
-		"%s/HireSlotsRow/slot_lancer/ColumnLancer/BuyLancer" % _PATH_HIRE_VBOX,
-		"%s/HireSlotsRow/slot_pawn/ColumnPawn/BuyPawn" % _PATH_HIRE_VBOX,
+	for path_kind in [
+		["%s/HireSlotsRow/slot_archer/ColumnArcher/BuyArcher" % _PATH_HIRE_VBOX, HireKind.ARCHER],
+		["%s/HireSlotsRow/slot_lancer/ColumnLancer/BuyLancer" % _PATH_HIRE_VBOX, HireKind.LANCER],
+		["%s/HireSlotsRow/slot_pawn/ColumnPawn/BuyPawn" % _PATH_HIRE_VBOX, HireKind.PAWN],
 	]:
+		var path: String = path_kind[0]
+		var kind: HireKind = path_kind[1]
 		var b := get_node_or_null(path) as Button
 		if b:
 			b.text = ""
@@ -184,6 +218,8 @@ func _refresh_hire_buy_ui() -> void:
 			gl.text = str(unit_hire_cost)
 		if ol:
 			ol.text = str(ore_cost)
+		if b:
+			PaidServiceButtonAppearance.set_interactive(b, _can_hire_kind(kind))
 
 
 func try_close_crown_mood_effects_modal() -> bool:
@@ -282,13 +318,12 @@ func _refresh_upgrade_building_buttons() -> void:
 		if btn == null:
 			continue
 		if b_tier >= 4:
-			btn.disabled = true
 			btn.icon = null
 			btn.text = "Максимум"
 			if cost_row:
 				cost_row.visible = false
+			PaidServiceButtonAppearance.set_interactive(btn, false)
 			continue
-		btn.disabled = false
 		btn.icon = null
 		btn.text = ""
 		if cost_row:
@@ -302,6 +337,8 @@ func _refresh_upgrade_building_buttons() -> void:
 			wood_lbl.text = "%d" % wood_cost
 		if ore_lbl:
 			ore_lbl.text = "%d" % ore_cost
+		var can_upgrade := GameplayFacade.can_afford_building_upgrade(gold_cost, wood_cost, ore_cost)
+		PaidServiceButtonAppearance.set_interactive(btn, can_upgrade)
 
 
 func _building_preview_texture(building_type: String) -> Texture2D:
@@ -720,15 +757,20 @@ func _format_crown_mood_effects_bbcode() -> String:
 	var out: PackedStringArray = []
 	if d > 0:
 		out.append("[b][color=#e8a090]Немилость · уровень %d[/color][/b]\n" % d)
-		var g_m := BalanceConfig.get_displeasure_gold_mult(d)
+		var g_m := BalanceConfig.get_crown_caravan_gold_mult(d, 0)
 		out.append(
-			"• Жалованье каравана, золото: [color=#ffaaaa]%d%%[/color] от суммы без штрафа\n"
+			"• Жалованье каравана (настроение): [color=#ffaaaa]%d%%[/color] к базовой сумме; бонус титула умножается сверху\n"
 			% int(round(g_m * 100.0))
 		)
-		var b_m := BalanceConfig.get_displeasure_building_cost_mult(d)
+		var b_m := BalanceConfig.get_crown_building_cost_mult(d, 0)
 		out.append(
-			"• Улучшения зданий: [color=#ffaaaa]+%d%%[/color] к стоимости\n"
+			"• Улучшения зданий (настроение): [color=#ffaaaa]+%d%%[/color] к золоту, дереву и руде; скидка титула — отдельно\n"
 			% int(round((b_m - 1.0) * 100.0))
+		)
+		var hi_m := BalanceConfig.get_crown_hire_cost_mult(d, 0)
+		out.append(
+			"• Найм в казарме: [color=#ffaaaa]+%d%%[/color] к золоту и руде\n"
+			% int(round((hi_m - 1.0) * 100.0))
 		)
 		var h_m := BalanceConfig.get_supply_heal_mult(d, 0)
 		out.append(
@@ -766,8 +808,20 @@ func _format_crown_mood_effects_bbcode() -> String:
 			out.append("• Ремонт снаряжения: дороже при немилости\n")
 	elif f > 0:
 		out.append("[b][color=#7ed4a8]Одобрение · уровень %d[/color][/b]\n" % f)
+		var g_f := BalanceConfig.get_crown_caravan_gold_mult(0, f)
 		out.append(
-			"• Жалование каравана: [color=#a8e8c8]без бонуса одобрения[/color]; влияют только титул и немилость\n"
+			"• Жалованье каравана (настроение): [color=#a8e8c8]+%d%%[/color] к базовой сумме; бонус титула умножается сверху\n"
+			% int(round((g_f - 1.0) * 100.0))
+		)
+		var b_f := BalanceConfig.get_crown_building_cost_mult(0, f)
+		out.append(
+			"• Улучшения зданий (настроение): [color=#a8e8c8]−%d%%[/color] к золоту, дереву и руде (с титулом — суммируется)\n"
+			% int(round((1.0 - b_f) * 100.0))
+		)
+		var hi_f := BalanceConfig.get_crown_hire_cost_mult(0, f)
+		out.append(
+			"• Найм в казарме: [color=#a8e8c8]−%d%%[/color] к золоту и руде\n"
+			% int(round((1.0 - hi_f) * 100.0))
 		)
 		var h_mf := BalanceConfig.get_supply_heal_mult(0, f)
 		out.append(
@@ -804,13 +858,13 @@ func _format_crown_mood_effects_bbcode() -> String:
 	else:
 		out.append("[b][color=#d4c49a]Стандартные отношения[/color][/b]\n")
 		out.append(
-			"• Немилость и одобрение [color=#b8c4d8]не меняют[/color] множители снабжения и услуг.\n"
+			"• Без немилости и одобрения цены найма и улучшений зданий — базовые (× сложность); услуги и ремонт — без королевской надбавки.\n"
 		)
 		out.append(
-			"• Жалование каравана по-прежнему зависит от [color=#b8c4d8]титула[/color] и отсутствия немилости.\n"
+			"• Жалованье каравана: [color=#b8c4d8]титул[/color] увеличивает золото; одобрение или немилость сдвигают базу ещё сильнее.\n"
 		)
 		out.append(
-			"\n[i]Приказы Короны, выполняемые караваном, повышают одобрение; срывы сроков — немилость.[/i]"
+			"\n[i]Выполняйте приказы караваном — растёт одобрение (дешевле всё перечисленное и щедрее жалованье). Срыв сроков — немилость. Сила эффекта зависит от уровня сложности.[/i]"
 		)
 	return "".join(out)
 
@@ -1083,24 +1137,12 @@ func _crown_help_short_serdtsevina_bbcode() -> String:
 	return (
 		"[b]Сердцевина[/b] — ресурс островов и шахты; на базе тратится на услуги и найм. "
 		+ "Всё, что вы [color=#9fd4ff]отправите Короне караваном[/color], остаётся в зачёте навсегда: "
-		+ "от этого растёт [color=#e8c97a]титул[/color] и добыча шахты, когда возвращаетесь с острова."
+		+ "от этого растёт [color=#e8c97a]титул[/color] — жалованье, лимит вывоза Сердцевины с острова и скидки в замке."
 	)
 
 
 func _crown_title_bonus_lines(t: Dictionary) -> PackedStringArray:
-	var lines: PackedStringArray = []
-	var gold_r := float(t.get("gold_bonus_ratio", 0.0))
-	var mine_b := int(t.get("mine_ore_bonus", 0))
-	var disc := float(t.get("service_discount", 0.0))
-	if gold_r > 0.001:
-		lines.append("+%d%% к золоту в жалованье каравана" % int(round(gold_r * 100.0)))
-	if disc > 0.001:
-		lines.append("Скидка на услуги на базе: %d%%" % int(round(disc * 100.0)))
-	if mine_b > 0:
-		lines.append("Шахта при возврате с острова: +%d Сердцевины" % mine_b)
-	if lines.is_empty():
-		lines.append("Нет бонусов к жалованью, шахте и скидкам — появятся на следующих ступенях.")
-	return lines
+	return BalanceConfig.crown_title_bonus_summary_lines(t)
 
 
 func _crown_help_title_card_style(current: bool) -> StyleBoxFlat:
@@ -1304,6 +1346,7 @@ func _populate_crown_help_overview(vbox: VBoxContainer) -> void:
 	vbox.add_child(_make_crown_help_body_label("Титул: %s" % str(cur.get("name", "")), 16))
 	vbox.add_child(_make_crown_help_body_label(_crown_progress_subline(), 14))
 	var dis := SaveManager.crown_displeasure
+	var fav_h := SaveManager.crown_favor
 	if dis > 0:
 		var dis_l := RichTextLabel.new()
 		dis_l.bbcode_enabled = true
@@ -1312,10 +1355,22 @@ func _populate_crown_help_overview(vbox: VBoxContainer) -> void:
 		dis_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_rtl_theme_line(dis_l)
 		dis_l.text = (
-			"Немилость Короны: [color=#ff9a7a]%d[/color] — меньше золота в жалованье и дороже услуги на базе. Подробности — вкладка «Караван»."
+			"Немилость Короны: [color=#ff9a7a]%d[/color] — меньше золота в жалованье, дороже найм, здания и услуги. Плашка настроения вверху или вкладка «Караван»."
 			% dis
 		)
 		vbox.add_child(dis_l)
+	elif fav_h > 0:
+		var fav_l := RichTextLabel.new()
+		fav_l.bbcode_enabled = true
+		fav_l.fit_content = true
+		fav_l.scroll_active = false
+		fav_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_rtl_theme_line(fav_l)
+		fav_l.text = (
+			"Одобрение Короны: [color=#7ed4a8]%d[/color] — больше золота в жалованье, дешевле найм, здания и услуги. Выполняйте приказы караваном."
+			% fav_h
+		)
+		vbox.add_child(fav_l)
 	vbox.add_child(_make_crown_help_section_title("Бонусы вашего титула"))
 	for line in _crown_title_bonus_lines(cur):
 		vbox.add_child(_make_crown_help_bullet_label(line))
@@ -1338,7 +1393,7 @@ func _populate_crown_help_titles(vbox: VBoxContainer) -> void:
 	intro.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_rtl_theme_line(intro)
 	intro.text = (
-		"Ниже — ступени по тому, сколько [color=#9fd4ff]Сердцевины[/color] вы за всю игру отправили Короне караваном, и какие даются бонусы: жалованье, [color=#9fd4ff]шахта[/color] при возврате с острова, скидки на базе. Герб можно нажать."
+		"Ниже — ступени по тому, сколько [color=#9fd4ff]Сердцевины[/color] вы за всю игру отправили Короне караваном, и какие даются бонусы: жалованье, лимит вывоза руды с острова за поход, скидки на улучшения зданий. Герб можно нажать."
 	)
 	vbox.add_child(intro)
 	var cur_idx := BalanceConfig.get_crown_title_index_for_ore_sent(SaveManager.ore_sent_to_crown_total)
@@ -1603,7 +1658,12 @@ func _caravan_rules_bbcode() -> String:
 		"[b]Смена приказа[/b]: по окончании срока текущего поручения, если норма выполнена — поступает [color=#9fd4ff]следующий[/color] приказ в цепочке; если нет — повторяется [color=#9fd4ff]то же[/color] поручение с той же нормой и новым сроком (уже отгруженное в зачёт приказу сохраняется)."
 	)
 	lines.append("")
-	lines.append("[b]Немилость[/b]: меньше золота в жалованье при прибытии каравана.")
+	lines.append(
+		"[b]Немилость[/b]: меньше золота в жалованье, дороже найм, улучшения зданий и услуги на базе (сила зависит от сложности)."
+	)
+	lines.append(
+		"[b]Одобрение[/b]: наоборот — щедрее жалованье и ниже цены; растёт за своевременные отгрузки по приказу (пока нет немилости)."
+	)
 	return "\n".join(lines)
 
 
@@ -1656,16 +1716,19 @@ func _refresh_caravan_status_and_order() -> void:
 	var g_base := BalanceConfig.get_caravan_supply_gold()
 	var m := BalanceConfig.get_caravan_supply_meat()
 	var dis := SaveManager.crown_displeasure
-	var g_show := int(round(float(g_base) * BalanceConfig.get_displeasure_gold_mult(dis)))
+	var fav := SaveManager.crown_favor
+	var g_show := int(round(float(g_base) * CrownSystem.get_gold_reward_crown_mult()))
 	if _caravan_reward_gold:
 		_caravan_reward_gold.text = "+%d зол." % g_show
 	if _caravan_reward_meat:
 		_caravan_reward_meat.text = "+%d мяса" % m
 	if _caravan_reward_extra:
 		if dis > 0:
-			_caravan_reward_extra.text = "Немилость %d — штраф к золоту в жалованье." % dis
+			_caravan_reward_extra.text = "Немилость %d — меньше золота; титул и сложность тоже влияют на сумму." % dis
+		elif fav > 0:
+			_caravan_reward_extra.text = "Одобрение %d — бонус к золоту жалованья (и титул умножает)." % fav
 		else:
-			_caravan_reward_extra.text = ""
+			_caravan_reward_extra.text = "Титул Короны увеличивает жалованье; одобрение или немилость сдвигают выплату сильнее."
 
 	if _caravan_totals_line:
 		var sent_total := SaveManager.ore_sent_to_crown_total
@@ -1847,6 +1910,16 @@ func _resolve_scene_for_hire(kind: HireKind) -> PackedScene:
 		HireKind.PAWN:
 			return _resolve_pawn_scene()
 	return null
+
+
+func _can_hire_kind(kind: HireKind) -> bool:
+	if GameManager.get_squad_member_count() >= BalanceConfig.MAX_SQUAD_MEMBERS:
+		return false
+	if kind == HireKind.ARCHER or kind == HireKind.LANCER:
+		if SaveManager.archer_count + SaveManager.lancer_count >= GameManager.get_max_warriors_allowed():
+			return false
+	var hire_ore_cost := BalanceConfig.get_unit_hire_ore_cost()
+	return GameplayFacade.can_afford_gold_plus_ore_strict(unit_hire_cost, hire_ore_cost)
 
 
 func _show_hire_fail(msg: String) -> void:

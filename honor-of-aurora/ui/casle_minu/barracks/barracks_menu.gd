@@ -126,10 +126,8 @@ func _refresh_buttons() -> void:
 
 	var can_sword := (SaveManager.gold >= sword_cost or GameplayFacade.can_afford_gold_plus_ore(sword_cost, 0)) and not GameManager.armory_sword_prepared
 	var can_shield := (SaveManager.gold >= shield_cost or GameplayFacade.can_afford_gold_plus_ore(shield_cost, 0)) and not GameManager.armory_shield_prepared
-	if sword:
-		sword.disabled = not can_sword
-	if shield:
-		shield.disabled = not can_shield
+	PaidServiceButtonAppearance.set_interactive(sword, can_sword)
+	PaidServiceButtonAppearance.set_interactive(shield, can_shield)
 
 	_refresh_armor_repair_section()
 	_refresh_supply_status()

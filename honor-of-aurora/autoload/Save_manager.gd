@@ -340,6 +340,7 @@ func load_game():
 	crown_orders_failed = maxi(0, int(crown_orders_failed))
 	crown_displeasure = clampi(int(crown_displeasure), 0, BalanceConfig.DISPLEASURE_MAX_LEVEL)
 	crown_title_index = clampi(int(crown_title_index), 0, BalanceConfig.CROWN_TITLES.size() - 1)
+	_migrate_crown_patent_letter_flags()
 	caravan_sent_count = maxi(0, int(caravan_sent_count))
 	if not game_data.has("crown_favor"):
 		crown_favor = 0
@@ -423,6 +424,15 @@ func _migrate_worker_youth_refused_to_base_worker() -> void:
 	story_flags.erase("worker_youth_refused")
 	story_flags["worker_youth_works_on_base"] = true
 	save_game()
+
+
+## Грамоты титулов в кодексе «Предметы»: для старых сохранений с уже полученным титулом.
+func _migrate_crown_patent_letter_flags() -> void:
+	var max_tier := mini(crown_title_index, BalanceConfig.CROWN_TITLES.size() - 1)
+	for tier in range(1, max_tier + 1):
+		if not BalanceConfig.crown_title_tier_has_patent(tier):
+			continue
+		story_flags["crown_patent_letter_%d" % tier] = true
 
 
 ## Интро уже пройдено, но якоря для периодических просьб не было — выставляем текущий счётчик походов.

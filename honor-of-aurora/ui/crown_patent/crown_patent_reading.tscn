@@ -1,0 +1,143 @@
+[gd_scene load_steps=4 format=3 uid="uid://crownpatentread01"]
+
+[ext_resource type="Script" path="res://ui/crown_patent/crown_patent_reading.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxPanel"]
+bg_color = Color(0.12, 0.1, 0.08, 0.97)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.72, 0.58, 0.32, 0.85)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 8
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFace"]
+bg_color = Color(0.06, 0.06, 0.08, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.5, 0.45, 0.35, 0.75)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="CrownPatentReading" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+process_mode = 3
+script = ExtResource("1_script")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 48
+
+[node name="Dim" type="ColorRect" parent="CanvasLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.02, 0.03, 0.06, 0.72)
+
+[node name="Center" type="CenterContainer" parent="CanvasLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Panel" type="PanelContainer" parent="CanvasLayer/Center"]
+custom_minimum_size = Vector2(520, 380)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxPanel")
+
+[node name="Margin" type="MarginContainer" parent="CanvasLayer/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="CanvasLayer/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HeaderRow" type="HBoxContainer" parent="CanvasLayer/Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="FaceFrame" type="PanelContainer" parent="CanvasLayer/Center/Panel/Margin/VBox/HeaderRow"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFace")
+
+[node name="KnightFace" type="TextureRect" parent="CanvasLayer/Center/Panel/Margin/VBox/HeaderRow/FaceFrame"]
+unique_name_in_owner = true
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HeaderText" type="VBoxContainer" parent="CanvasLayer/Center/Panel/Margin/VBox/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="KnightCaption" type="Label" parent="CanvasLayer/Center/Panel/Margin/VBox/HeaderRow/HeaderText"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.82, 0.92, 1)
+theme_override_font_sizes/font_size = 15
+text = "Рыцарь Короны"
+
+[node name="TitleLabel" type="Label" parent="CanvasLayer/Center/Panel/Margin/VBox/HeaderRow/HeaderText"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.93, 0.84, 0.55, 1)
+theme_override_font_sizes/font_size = 22
+text = "Звание"
+autowrap_mode = 3
+
+[node name="DocLabel" type="Label" parent="CanvasLayer/Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.52, 0.48, 0.95)
+theme_override_font_sizes/font_size = 13
+text = "Грамота Короны (прокрутите текст)"
+
+[node name="BodyScroll" type="ScrollContainer" parent="CanvasLayer/Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 220)
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
+
+[node name="BodyRichText" type="RichTextLabel" parent="CanvasLayer/Center/Panel/Margin/VBox/BodyScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 3
+custom_minimum_size = Vector2(460, 0)
+theme_override_colors/default_color = Color(0.88, 0.9, 0.94, 1)
+theme_override_font_sizes/normal_font_size = 16
+
+[node name="CloseButton" type="Button" parent="CanvasLayer/Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Сложить грамоту"

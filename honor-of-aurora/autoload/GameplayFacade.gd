@@ -153,6 +153,23 @@ func can_afford_gold_plus_ore_strict(gold_amount: int, ore_amount: int) -> bool:
 	return SaveManager.gold >= gold_amount and SaveManager.ore_count >= ore_amount
 
 
+## Апгрейд здания: как в `building_template.upgrade_building` — золото+руда (руда покрывает нехватку золота), затем дерево+руда.
+func can_afford_building_upgrade(gold_cost: int, wood_cost: int, ore_cost: int) -> bool:
+	gold_cost = maxi(0, gold_cost)
+	wood_cost = maxi(0, wood_cost)
+	ore_cost = maxi(0, ore_cost)
+	if not can_afford_gold_plus_ore(gold_cost, ore_cost):
+		return false
+	var gold_shortage := maxi(0, gold_cost - SaveManager.gold)
+	var ore_for_gold := BalanceConfig.get_ore_needed_for_gold(gold_shortage)
+	var ore_remaining := SaveManager.ore_count - ore_cost - ore_for_gold
+	if ore_remaining < 0:
+		return false
+	var wood_shortage := maxi(0, wood_cost - SaveManager.wood_count)
+	var ore_for_wood := BalanceConfig.get_ore_needed_for_wood(wood_shortage)
+	return ore_remaining >= ore_for_wood
+
+
 func try_spend_gold_plus_ore_strict(gold_amount: int, ore_amount: int) -> bool:
 	if not can_afford_gold_plus_ore_strict(gold_amount, ore_amount):
 		return false

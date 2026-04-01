@@ -609,10 +609,19 @@ func level_up(persist: bool = true):
 func _apply_hero_tier_for_level(hero_level: int) -> void:
 	var tier := HeroProgression.get_tier_for_level(hero_level)
 	anim.sprite_frames = tier.sprite_frames
-	speed = tier.speed + SaveManager.hero_speed_bonus
-	max_health = tier.max_health + SaveManager.hero_max_health_bonus
+	speed = (
+		tier.speed
+		+ SaveManager.hero_speed_bonus
+		+ BalanceConfig.get_crown_combat_speed_bonus(SaveManager.ore_sent_to_crown_total)
+	)
+	max_health = (
+		tier.max_health
+		+ SaveManager.hero_max_health_bonus
+		+ BalanceConfig.get_crown_combat_hp_bonus(SaveManager.ore_sent_to_crown_total)
+	)
 	max_health = int(round(float(max_health) * GameManager.get_monastery_hp_multiplier()))
-	attack_damage = tier.attack_damage + GameManager.armory_attack_bonus
+	var crown_dmg := BalanceConfig.get_crown_combat_hero_damage_mult(SaveManager.ore_sent_to_crown_total)
+	attack_damage = maxi(1, int(round(float(tier.attack_damage + GameManager.armory_attack_bonus) * crown_dmg)))
 	attack_anim_speed_scale = tier.attack_anim_speed_scale
 	move_anim_speed_scale = tier.move_anim_speed_scale
 	if health_component:

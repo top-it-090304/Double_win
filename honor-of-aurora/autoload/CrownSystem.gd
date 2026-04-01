@@ -17,8 +17,7 @@ func get_mine_tier() -> int:
 
 func harvest_mine_on_expedition_return() -> int:
 	var pawns_on_base := SaveManager.pawn_count
-	var title_bonus := BalanceConfig.get_crown_mine_ore_bonus(SaveManager.ore_sent_to_crown_total)
-	var ore := BalanceConfig.get_mine_ore_per_return(get_mine_tier(), pawns_on_base, title_bonus)
+	var ore := BalanceConfig.get_mine_ore_per_return(get_mine_tier(), pawns_on_base)
 	if ore > 0:
 		GameManager.add_ore(ore)
 		Events.mine_harvested.emit(ore)
@@ -71,6 +70,36 @@ const _REST_QUOTA_EXHAUSTED_SEQ := preload("res://dialogue/rest_quota_exhausted.
 
 func _ready() -> void:
 	set_process(false)
+	if not DialogueManager.dialogue_ended.is_connected(_on_dialogue_ended_maybe_patent_queue):
+		DialogueManager.dialogue_ended.connect(_on_dialogue_ended_maybe_patent_queue)
+
+
+## Очередь грамот при повышении титула (за одну отгрузку можно перескочить несколько порогов).
+var _patent_dialogue_tier_queue: Array[int] = []
+
+
+func _enqueue_crown_title_patents(from_exclusive: int, to_inclusive: int) -> void:
+	for i in range(from_exclusive + 1, to_inclusive + 1):
+		if i >= 1:
+			_patent_dialogue_tier_queue.append(i)
+
+
+func _try_start_next_crown_patent_dialogue() -> void:
+	if _patent_dialogue_tier_queue.is_empty():
+		return
+	if DialogueManager.is_active():
+		return
+	var tier := int(_patent_dialogue_tier_queue.pop_front())
+	if not CrownPatentReadingLayer.try_show_for_title_index(tier, Callable(self, "_on_crown_patent_reading_closed")):
+		_patent_dialogue_tier_queue.push_front(tier)
+
+
+func _on_crown_patent_reading_closed() -> void:
+	call_deferred("_try_start_next_crown_patent_dialogue")
+
+
+func _on_dialogue_ended_maybe_patent_queue(_sequence: DialogueSequence) -> void:
+	call_deferred("_try_start_next_crown_patent_dialogue")
 
 
 func is_rest_regen_active() -> bool:
@@ -353,7 +382,7 @@ func _arrive_caravan() -> void:
 func _deliver_caravan_supplies() -> void:
 	var gold := BalanceConfig.get_caravan_supply_gold()
 	var meat := BalanceConfig.get_caravan_supply_meat()
-	gold = int(round(float(gold) * BalanceConfig.get_displeasure_gold_mult(SaveManager.crown_displeasure)))
+	gold = int(round(float(gold) * get_gold_reward_crown_mult()))
 	if gold > 0:
 		GameManager.add_gold(gold)
 	if meat > 0:
@@ -455,8 +484,8 @@ func send_ore_with_caravan(ore_amount: int) -> bool:
 	SaveManager.ore_sent_to_crown_total += actual
 	SaveManager.caravan_pending = false
 	SaveManager.caravan_sent_count += 1
-	_update_crown_title()
-	_check_displeasure_recovery(actual)
+	var skip_order_favor := _update_crown_title()
+	_check_displeasure_recovery(actual, skip_order_favor)
 	Events.caravan_pending_changed.emit(false)
 	Events.caravan_dispatched.emit(actual, SaveManager.caravan_sent_count)
 	_resolve_crown_order_on_caravan_dispatch()
@@ -473,7 +502,7 @@ func dismiss_caravan_empty() -> void:
 	SaveManager.save_game()
 
 
-func _check_displeasure_recovery(ore_sent_now: int) -> void:
+func _check_displeasure_recovery(ore_sent_now: int, skip_favor_from_order: bool = false) -> void:
 	var order := BalanceConfig.get_crown_order(SaveManager.crown_order_index)
 	if order.is_empty():
 		return
@@ -486,7 +515,7 @@ func _check_displeasure_recovery(ore_sent_now: int) -> void:
 			SaveManager.crown_displeasure = maxi(0, SaveManager.crown_displeasure - 1)
 			SaveManager.crown_orders_failed = maxi(0, SaveManager.crown_orders_failed - 1)
 			Events.crown_displeasure_changed.emit(SaveManager.crown_displeasure)
-	elif sent >= required:
+	elif sent >= required and not skip_favor_from_order:
 		_try_increase_crown_favor()
 
 
@@ -553,13 +582,36 @@ func _load_crown_title_texture_at_path(path: String) -> Texture2D:
 	return tex
 
 
-func _update_crown_title() -> void:
+## Ступень одобрения за новый титул; false — снята немилость или уже макс. одобрения.
+func _apply_crown_mood_on_title_promotion() -> bool:
+	## Новый титул: снять немилость целиком или, если её не было, дать ступень одобрения.
+	if SaveManager.crown_displeasure > 0:
+		var cleared: int = SaveManager.crown_displeasure
+		SaveManager.crown_displeasure = 0
+		SaveManager.crown_orders_failed = maxi(0, SaveManager.crown_orders_failed - cleared)
+		Events.crown_displeasure_changed.emit(0)
+		return false
+	if SaveManager.crown_favor >= BalanceConfig.CROWN_FAVOR_MAX_LEVEL:
+		return false
+	SaveManager.crown_favor = clampi(SaveManager.crown_favor + 1, 0, BalanceConfig.CROWN_FAVOR_MAX_LEVEL)
+	Events.crown_favor_changed.emit(SaveManager.crown_favor)
+	return true
+
+
+## true — в этом кадре за титул уже выдали одобрение (чтобы не дублировать с приказом в той же отгрузке).
+func _update_crown_title() -> bool:
 	var new_idx := BalanceConfig.get_crown_title_index_for_ore_sent(SaveManager.ore_sent_to_crown_total)
 	if new_idx > SaveManager.crown_title_index:
+		var prev_idx := SaveManager.crown_title_index
 		SaveManager.crown_title_index = new_idx
+		var favor_from_title := _apply_crown_mood_on_title_promotion()
 		var title: Dictionary = BalanceConfig.CROWN_TITLES[new_idx]
 		Events.crown_title_changed.emit(new_idx, str(title.get("name", "")))
+		_enqueue_crown_title_patents(prev_idx, new_idx)
+		call_deferred("_try_start_next_crown_patent_dialogue")
 		SaveManager.save_game()
+		return favor_from_title
+	return false
 
 
 ## ═══════════════════════════════════════════════════════
@@ -568,14 +620,14 @@ func _update_crown_title() -> void:
 
 func get_gold_reward_crown_mult() -> float:
 	var title_bonus := 1.0 + BalanceConfig.get_crown_gold_bonus_ratio(SaveManager.ore_sent_to_crown_total)
-	var displeasure_mult := BalanceConfig.get_displeasure_gold_mult(SaveManager.crown_displeasure)
-	return title_bonus * displeasure_mult
+	var mood := BalanceConfig.get_crown_caravan_gold_mult(SaveManager.crown_displeasure, SaveManager.crown_favor)
+	return title_bonus * mood
 
 
 func get_building_cost_crown_mult() -> float:
 	var discount := 1.0 - BalanceConfig.get_crown_service_discount(SaveManager.ore_sent_to_crown_total)
-	var penalty := BalanceConfig.get_displeasure_building_cost_mult(SaveManager.crown_displeasure)
-	return maxf(0.5, discount * penalty)
+	var mood := BalanceConfig.get_crown_building_cost_mult(SaveManager.crown_displeasure, SaveManager.crown_favor)
+	return maxf(0.48, discount * mood)
 
 
 func get_crown_favor() -> int:

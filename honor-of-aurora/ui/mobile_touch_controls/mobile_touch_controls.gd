@@ -5,6 +5,10 @@ extends Control
 
 @export var force_show_in_editor: bool = false
 
+## Исходные offset’ы RestCampButton из сцены (сохраняем до любых сдвигов).
+var _rest_offset_base: Vector4 = Vector4.ZERO
+var _rest_offsets_cached: bool = false
+
 func _ready() -> void:
 	add_to_group("touch_controls")
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -37,6 +41,8 @@ func _connect_touch_zone_resize_signals() -> void:
 
 func _on_touch_zone_resized(zone: Control, is_left: bool) -> void:
 	_apply_scaled_touch_zone(zone, is_left)
+	if zone and (zone.name == "VirtualJoystick" or zone.name == "RestCampButton"):
+		_reposition_rest_above_joystick()
 
 
 func _on_viewport_size_changed() -> void:
@@ -104,6 +110,7 @@ func apply_user_touch_settings() -> void:
 	var root := get_node_or_null("Root") as Control
 	if root == null:
 		return
+	_cache_rest_offsets_from_scene_if_needed(root)
 	root.scale = Vector2.ONE
 	root.modulate.a = float(SaveManager.touch_opacity_percent) / 100.0
 	var vj := root.get_node_or_null("VirtualJoystick") as Control
@@ -115,6 +122,41 @@ func apply_user_touch_settings() -> void:
 		_apply_scaled_touch_zone(rest, true)
 	if rc:
 		_apply_scaled_touch_zone(rc, false)
+	_reposition_rest_above_joystick()
+
+
+func _cache_rest_offsets_from_scene_if_needed(root: Control) -> void:
+	if _rest_offsets_cached:
+		return
+	var rest := root.get_node_or_null("RestCampButton") as Control
+	if rest == null:
+		return
+	_rest_offset_base = Vector4(
+		rest.offset_left, rest.offset_top, rest.offset_right, rest.offset_bottom
+	)
+	_rest_offsets_cached = true
+
+
+## Джойстик масштабируется от нижнего левого угла и растёт вверх; отступы привала в сцене
+## рассчитаны на 100%% — без сдвига при s>1 крест наезжает на кнопку привала.
+func _reposition_rest_above_joystick() -> void:
+	if not _rest_offsets_cached:
+		return
+	var root := get_node_or_null("Root") as Control
+	if root == null:
+		return
+	var vj := root.get_node_or_null("VirtualJoystick") as Control
+	var rest := root.get_node_or_null("RestCampButton") as Control
+	if vj == null or rest == null:
+		return
+	if vj.size.y < 1.0:
+		return
+	var s := float(SaveManager.touch_scale_percent) / 100.0
+	var dy := (s - 1.0) * vj.size.y
+	rest.offset_left = _rest_offset_base.x
+	rest.offset_top = _rest_offset_base.y - dy
+	rest.offset_right = _rest_offset_base.z
+	rest.offset_bottom = _rest_offset_base.w - dy
 
 
 func _should_show_touch_ui() -> bool:

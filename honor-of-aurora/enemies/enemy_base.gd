@@ -120,6 +120,9 @@ func _away_from_target(delta_pos: Vector2) -> Vector2:
 
 func _ready() -> void:
 	super._ready()
+	if is_in_group(&"BOSS"):
+		## Выше, чем у игрока/союзников (дефолт 1.0): при тесном контакте move_and_slide не сдвигает босса.
+		collision_priority = 10.0
 	detection_shape.shape.radius = detection_radius
 	attack_shape.shape.radius = attack_radius
 

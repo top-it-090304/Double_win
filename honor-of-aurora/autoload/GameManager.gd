@@ -358,7 +358,15 @@ func _ready() -> void:
 	SaveManager.load_game()
 	Events.sync_story_state_from_save()
 	Events.location_changed.connect(handle_location_changed)
+	if not Events.crown_title_changed.is_connected(_on_crown_title_changed_refresh_hero_stats):
+		Events.crown_title_changed.connect(_on_crown_title_changed_refresh_hero_stats)
 	_ensure_pc_input_map()
+
+
+func _on_crown_title_changed_refresh_hero_stats(_idx: int, _title_name: String) -> void:
+	var p := current_scene_player
+	if p != null and p.has_method("apply_hero_stat_bonuses_from_save"):
+		p.apply_hero_stat_bonuses_from_save()
 
 
 func _ensure_pc_input_map() -> void:

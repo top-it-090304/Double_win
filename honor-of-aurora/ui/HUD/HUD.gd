@@ -125,7 +125,8 @@ func _refresh_armor_hud() -> void:
 		elif dur <= BalanceConfig.ARMOR_WORN_THRESHOLD:
 			c = Color(0.95, 0.7, 0.25)
 		else:
-			c = Color(0.55, 0.8, 0.55)
+			## Светлый стальной (не зелёный): на типичном тёмном HUD зелёный 0.55/0.8/0.55 почти теряется.
+			c = Color(0.82, 0.9, 0.98)
 		_armor_hud_label.add_theme_color_override("font_color", c)
 		_armor_hud_label.text = "%d%%" % pct
 

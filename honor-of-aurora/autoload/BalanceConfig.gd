@@ -113,7 +113,13 @@ const CROWN_ORDERS := [
 const CROWN_TITLES := [
 	{
 		"id": "recruit", "name": "Рекрут Авроры", "ore_threshold": 0,
-		"gold_bonus_ratio": 0.0, "mine_ore_bonus": 0, "service_discount": 0.0,
+		"gold_bonus_ratio": 0.0, "expedition_ore_carry_bonus": 0, "service_discount": 0.0,
+		"combat_hp_bonus": 0,
+		"combat_incoming_damage_mult": 1.0,
+		"combat_hero_damage_mult": 1.0,
+		"combat_speed_bonus": 0.0,
+		"exp_bonus_ratio": 0.0,
+		"combat_vs_higher_enemy_mult": 1.0,
 		"flavors": [
 			"Указ сослал тебя на цепь островов Аврора. Пока в реестре — строка, не герб: честь здесь начинается с отгрузки, не с печати.",
 			"В реестре ты обещание руды: Корона ждёт поставку, зал тебя ещё не зовёт.",
@@ -123,75 +129,159 @@ const CROWN_TITLES := [
 	},
 	{
 		"id": "scout", "name": "Разведчик Архипелага", "ore_threshold": 30,
-		"gold_bonus_ratio": 0.05, "mine_ore_bonus": 0, "service_discount": 0.0,
+		"gold_bonus_ratio": 0.12, "expedition_ore_carry_bonus": 1, "service_discount": 0.0,
+		"combat_hp_bonus": 12,
+		"combat_incoming_damage_mult": 0.988,
+		"combat_hero_damage_mult": 1.028,
+		"combat_speed_bonus": 5.0,
+		"exp_bonus_ratio": 0.05,
+		"combat_vs_higher_enemy_mult": 1.035,
 		"flavors": [
 			"Архипелаг перестал быть в отчёте пустым квадратом: казначей видит партии и имя.",
 			"Столица называет твоё имя там, где считают партии — не только потери.",
 			"Надежда отчёта сбылась: тебя выделяют среди расхода экспедиции.",
 			"Имя в открытой графе: для казны архипелаг перестал быть пустым полем.",
 		],
+		"patent_lines": [
+			"Во имя Короны. Настоящей грамотой канцелярия удостоверяет: вы возведены в звание «Разведчик Архипелага» — за то, что Сердцевина с ваших рейсов стала делом учёта, а не слухом.",
+			"Жалованье каравана с сего дня исчисляется по повышенной норме: казна не щедрит напрасно — она платит за имя, которое уже значит что-то в открытых графах.",
+			"Со склада королевской сбруи выдан комплект по списку доверенных лиц: клинок и доспех с печатью мастерской Короны. По ним ведётся ваша карточка: крепче тело, вернее шаг, удар метче, рана от чужого железа — на долю легче, чем у рядового в ведомости.",
+			"Прилагается распоряжение на дополнительную единицу Сердцевины к вывозу за поход — не привилегия, а первая грамота доверия к вашим мешкам.",
+			"Назначены уставные занятия: опыт с поля боя заносится в реестр полнее. Против врага, чей ранг в их списках выше вашего, устав разведчика дозволяет держать удар без лишних оков — ибо разведка не терпит церемоний, когда цена ошибки — маяк на материке.",
+		],
+		"patent_hero_line": "Бумага с печатью… и сбруя по списку. Значит, Корона больше не шепчет обо мне — она считает вслух.",
 	},
 	{
 		"id": "guardian", "name": "Страж Маяков", "ore_threshold": 100,
-		"gold_bonus_ratio": 0.05, "mine_ore_bonus": 1, "service_discount": 0.0,
+		"gold_bonus_ratio": 0.16, "expedition_ore_carry_bonus": 2, "service_discount": 0.0,
+		"combat_hp_bonus": 24,
+		"combat_incoming_damage_mult": 0.975,
+		"combat_hero_damage_mult": 1.045,
+		"combat_speed_bonus": 8.0,
+		"exp_bonus_ratio": 0.075,
+		"combat_vs_higher_enemy_mult": 1.065,
 		"flavors": [
 			"Без Сердцевины с островов маяки на материке гаснут. Страж в списках Короны — звено между жилой и огнём.",
 			"От тебя зависит свет чужих маяков: государство держит тебя в живой цепи снабжения.",
 			"Ты держишь дыхание торговых путей; без тебя гаснет не только огонь в лагере.",
 			"Твоя руда кормит маяки материка — в графах Короны ты уже часть цепи света.",
 		],
+		"patent_lines": [
+			"Во имя Короны. Канцелярия возводит вас в звание «Страж Маяков»: цепь Сердцевины с Авроры держит огни большой земли — и двор впервые пишет ваше имя рядом с этой обязанностью, не в примечании.",
+			"Жалованье каравана увеличено вновь: казна платит за то, что маяки не гаснут в ваших отчётах.",
+			"С казённой кузницы — второй ступенью усиленный комплект: пластины плотнее, клинок тяжелее, шаг увереннее, удар глубже, раны чужие — слабее на весах интенданта. Таков дар не чести, а должности: стражу положено пережить дорогу домой.",
+			"Грамота на вывоз: к лимиту Сердцевины за поход прибавлено две единицы — двор доверяет не только мечу, но и мешкам.",
+			"Инструкторы короны продлевают уставные уроки: опыт с побед заносится щедрее. Против старшего по рангу врага удар ваш законен сильнее — ибо страж маяков не обязан биться как наёмник; он обязан победить.",
+		],
+		"patent_hero_line": "Маяки на материке не знают моего лица — зато знают мою руду. Теперь об этом сказано и в столице.",
 	},
 	{
 		"id": "knight", "name": "Рыцарь Сердцевины", "ore_threshold": 240,
-		"gold_bonus_ratio": 0.05, "mine_ore_bonus": 1, "service_discount": 0.10,
+		"gold_bonus_ratio": 0.22, "expedition_ore_carry_bonus": 3, "service_discount": 0.20,
+		"combat_hp_bonus": 38,
+		"combat_incoming_damage_mult": 0.96,
+		"combat_hero_damage_mult": 1.062,
+		"combat_speed_bonus": 11.0,
+		"exp_bonus_ratio": 0.10,
+		"combat_vs_higher_enemy_mult": 1.095,
 		"flavors": [
 			"В зале — звонко; в гавани то же звание значит отгрузку, о которой двор помнит дольше, чем тост.",
 			"Двор слышит звание; казна доверяет отгрузку уже тебе, не анониму.",
 			"Государство связывает с тобой честь и казну — одно имя на двух языках.",
 			"«Рыцарь Сердцевины» звучит при дворе; его проверяют мешки, от которых живут маяки.",
 		],
+		"patent_lines": [
+			"Во имя Короны. Сей грамота возводит вас в звание «Рыцарь Сердцевины»: не бал для зала — обязанность перед жилой, от которой живёт материк.",
+			"Жалованье каравана повышено по новой статье; к тому же канцелярия дарует тариф на укрепление лагеря: доля золота и руды на улучшения зданий снижена — как вассалу, на котором держится цепь поставок.",
+			"С королевской мастерской — полный рыцарский комплект: доспех и оружие, по которым двор не стыдится назвать вас при дворе и на поле. Отсюда прибавка к живучести, к удару, к шагу; входящий урон в учёте слабее; опыт с побед полнее; против врага выше ранга — удар не режут уставом, ибо рыцарь Сердцевины служит не частному контракту, а короне.",
+			"К лимиту вывоза Сердцевины за поход прибавлено три единицы: казна доверяет мешки так же, как меч.",
+		],
+		"patent_hero_line": "Рыцарь в грамоте — и рыцарь в сбруе. Теперь слова из столицы совпадают с тем, что на мне висит.",
 	},
 	{
 		"id": "keeper", "name": "Хранитель Авроры", "ore_threshold": 500,
-		"gold_bonus_ratio": 0.08, "mine_ore_bonus": 2, "service_discount": 0.10,
+		"gold_bonus_ratio": 0.30, "expedition_ore_carry_bonus": 4, "service_discount": 0.26,
+		"combat_hp_bonus": 55,
+		"combat_incoming_damage_mult": 0.942,
+		"combat_hero_damage_mult": 1.082,
+		"combat_speed_bonus": 14.0,
+		"exp_bonus_ratio": 0.125,
+		"combat_vs_higher_enemy_mult": 1.125,
 		"flavors": [
 			"Аврора в книгах одна; хранитель в этом имени — не придворная должность, а привязка к этой воде и этой жиле.",
 			"При советах шепчут твоё имя рядом с Авророй — как об опоре моря царства.",
 			"Редкий статус: тебя знают как того, у кого «ключ» к Сердцевине цепи Авроры.",
 			"Имя прибито к архипелагу: в столице его не спутают с сотней придворных гербов.",
 		],
+		"patent_lines": [
+			"Во имя Короны. Канцелярия и совет единогласно возводят вас в звание «Хранитель Авроры»: имя, которое в летописях стоит рядом с цепью островов, а не в приложении к ней.",
+			"Жалованье каравана — по высшей статье для архипелага; тариф на укрепление лагеря ещё смягчён: двор не жалеет камня и золота на того, кто держит Аврору в живых графах.",
+			"С сокровенного склада — комплект хранителя: клинок и латы, которым завидуют придворные капитаны. Живучесть, шаг, удар и стойкость перед чужим железом приведены к норме «опора цепи»; опыт с поля боя в реестре ценится выше; удар по врагу, чей ранг выше, не режут — хранитель не спорит с врагом о чести, он закрывает воду царства.",
+			"Четыре дополнительные единицы Сердцевины к вывозу за поход: не награда — признание того, что без ваших мешков архипелаг перестаёт быть стратегией и становится воспоминанием.",
+		],
+		"patent_hero_line": "Хранитель — это уже не должность из приказа. Это то, как меня назовут, когда Аврора останется на карте.",
 	},
 	{
 		"id": "hero", "name": "Герой Короны", "ore_threshold": 1000,
-		"gold_bonus_ratio": 0.10, "mine_ore_bonus": 2, "service_discount": 0.15,
+		"gold_bonus_ratio": 0.42, "expedition_ore_carry_bonus": 5, "service_discount": 0.34,
+		"combat_hp_bonus": 75,
+		"combat_incoming_damage_mult": 0.92,
+		"combat_hero_damage_mult": 1.105,
+		"combat_speed_bonus": 18.0,
+		"exp_bonus_ratio": 0.15,
+		"combat_vs_higher_enemy_mult": 1.155,
 		"flavors": [
 			"Корона возвела тебя в герои перед материком: летопись и совет, печать на почёте — в реестре экспедиции равных нет.",
 			"Летопись и совет: материк произносит твоё имя с почтением; выше этой ступени в реестре никого.",
 			"Имя уходит за пределы базы: надежда короны стала летописью, тебя помнят при дворе.",
 			"Печать на грамоте, речь при советах: ты не подрядчик на день — память царства на века.",
 		],
+		"patent_lines": [
+			"Во имя Короны. Сей патент — венец гражданской и военной хроники: вы наречены «Героем Короны». Выше звания в реестре экспедиций на Аврору нет; ниже — только память о тех, кто не дожил до этой строки.",
+			"Жалованье каравана исчисляется по норме, какую двор устанавливает для имени, которое произносят при советах без префикса «некто». Тариф на укрепление лагеря — самый мягкий из дозволенных законом: царство не считает затрат на ваш берег расточительством.",
+			"С тайного арсенала — комплект, о котором мастера расписываются в придворных книгах: то, что носит только тот, чья смерть стоила бы дороже, чем цена металла. Живучесть, шаг, удар, стойкость перед вражьим железом и доля опыта с побед доведены до потолка устава; удар по врагу выше ранга — по праву героя, а не по снисхождению интенданта.",
+			"Пять единиц Сердцевины сверх прежнего лимита на поход: казна говорит прямо — без ваших мешков о стратегии можно не беседовать.",
+			"Сохраните сию грамоту. Печать, подпись канцелярии и помета летописца — одно и то же для будущих читателей.",
+		],
+		"patent_hero_line": "Герой Короны… Слова, которые раньше были в чужих песнях. Теперь они в моём свёртке — и на моих плечах.",
 	},
 ]
 
 ## ─── Немилость Короны (дебафы за невыполнение приказов) ───
-const DISPLEASURE_GOLD_PENALTY := 0.15
-const DISPLEASURE_BUILDING_COST_PENALTY := 0.20
 const DISPLEASURE_MAX_LEVEL := 3
+## Жалованье каравана (без титула): шаг за уровень немилости, × `DifficultyConfig.crown_wallet_penalty_strength`.
+const CROWN_CARAVAN_GOLD_MOOD_MIN := 0.30
+const CROWN_CARAVAN_GOLD_MOOD_MAX := 1.42
+const DISPLEASURE_GOLD_PER_LEVEL := 0.26
+## Одобрение к жалованью (при отсутствии немилости).
+const FAVOR_GOLD_PER_LEVEL := 0.10
+## Здания: надбавка к золоту/дереву/руде за уровень немилости; скидка за одобрение.
+const DISPLEASURE_BUILDING_COST_PER_LEVEL := 0.16
+const FAVOR_BUILDING_DISCOUNT_PER_LEVEL := 0.078
+const CROWN_BUILDING_COST_MULT_MIN := 0.76
+## Найм: дороже при немилости, дешевле при одобрении.
+const DISPLEASURE_HIRE_SURCHARGE_PER_LEVEL := 0.15
+const FAVOR_HIRE_DISCOUNT_PER_LEVEL := 0.062
+const CROWN_HIRE_MULT_MIN := 0.78
 
 ## ─── Одобрение Короны (бонусы за стабильное выполнение приказов) ───
 const CROWN_FAVOR_MAX_LEVEL := 3
+## Пол для комбинированного «урон по герою» (титул × одобрение).
+const CROWN_COMBAT_INCOMING_MULT_MIN := 0.78
+## Доп. смягчение урона по герою за уровень одобрения (при отсутствии немилости в бою не проверяем — множитель всё равно нейтрален при favor 0).
+const CROWN_FAVOR_INCOMING_REDUCTION_PER_LEVEL := 0.012
 
 ## ─── Модификаторы снабжения: влияние немилости/одобрения на геймплей ───
-## Немилость: штрафы к исцелению, привалу, стоимости услуг, урону лучников.
-const SUPPLY_HEAL_PENALTY_PER_DISPLEASURE := 0.12
-const SUPPLY_REST_PENALTY_PER_DISPLEASURE := 0.10
-const SUPPLY_SERVICE_COST_PER_DISPLEASURE := 0.15
-const SUPPLY_ARCHER_DAMAGE_PER_DISPLEASURE := 0.06
+## Немилость: штрафы к исцелению, привалу, стоимости услуг, урону лучников (× сила сложности).
+const SUPPLY_HEAL_PENALTY_PER_DISPLEASURE := 0.14
+const SUPPLY_REST_PENALTY_PER_DISPLEASURE := 0.12
+const SUPPLY_SERVICE_COST_PER_DISPLEASURE := 0.28
+const SUPPLY_ARCHER_DAMAGE_PER_DISPLEASURE := 0.07
 ## Одобрение: бонусы (зеркальные, но слабее — награда мягче кнута).
-const SUPPLY_HEAL_BONUS_PER_FAVOR := 0.08
-const SUPPLY_REST_BONUS_PER_FAVOR := 0.08
-const SUPPLY_SERVICE_DISCOUNT_PER_FAVOR := 0.05
-const SUPPLY_ARCHER_DAMAGE_PER_FAVOR := 0.05
+const SUPPLY_HEAL_BONUS_PER_FAVOR := 0.09
+const SUPPLY_REST_BONUS_PER_FAVOR := 0.09
+const SUPPLY_SERVICE_DISCOUNT_PER_FAVOR := 0.15
+const SUPPLY_ARCHER_DAMAGE_PER_FAVOR := 0.06
 
 ## ─── Износ снаряжения (броня) ───
 const ARMOR_MAX_DURABILITY := 100
@@ -209,8 +299,8 @@ const ARMOR_CRITICAL_BLOCK_PENALTY := 0.14
 ## При прочности 0 входящий урон от врагов к герою (после базовой формулы врага) умножается на это значение.
 const ARMOR_BROKEN_INCOMING_DAMAGE_MULT := 2.0
 ## Немилость/одобрение влияют на стоимость ремонта.
-const ARMOR_REPAIR_COST_PER_DISPLEASURE := 0.35
-const ARMOR_REPAIR_DISCOUNT_PER_FAVOR := 0.10
+const ARMOR_REPAIR_COST_PER_DISPLEASURE := 0.48
+const ARMOR_REPAIR_DISCOUNT_PER_FAVOR := 0.13
 
 ## ─── Ресурсный cap за один поход (анти-фарм) ───
 const MAX_ORE_PER_EXPEDITION := 6
@@ -260,6 +350,51 @@ func _economy_mult() -> float:
 	return DifficultyConfig.get_economy_cost_mult()
 
 
+func _crown_wallet_penalty_w() -> float:
+	return DifficultyConfig.get_crown_wallet_penalty_strength()
+
+
+func _crown_wallet_favor_w() -> float:
+	return DifficultyConfig.get_crown_wallet_favor_strength()
+
+
+## Множитель к золоту каравана от немилости/одобрения (без бонуса титула).
+func get_crown_caravan_gold_mult(displeasure: int, favor: int) -> float:
+	var d := clampi(displeasure, 0, DISPLEASURE_MAX_LEVEL)
+	var f := clampi(favor, 0, CROWN_FAVOR_MAX_LEVEL)
+	if d > 0:
+		var cut := DISPLEASURE_GOLD_PER_LEVEL * float(d) * _crown_wallet_penalty_w()
+		return maxf(CROWN_CARAVAN_GOLD_MOOD_MIN, 1.0 - cut)
+	if f > 0:
+		var add := FAVOR_GOLD_PER_LEVEL * float(f) * _crown_wallet_favor_w()
+		return minf(CROWN_CARAVAN_GOLD_MOOD_MAX, 1.0 + add)
+	return 1.0
+
+
+## Золото, дерево и руда за шаг улучшения здания.
+func get_crown_building_cost_mult(displeasure: int, favor: int) -> float:
+	var d := clampi(displeasure, 0, DISPLEASURE_MAX_LEVEL)
+	var f := clampi(favor, 0, CROWN_FAVOR_MAX_LEVEL)
+	if d > 0:
+		return 1.0 + DISPLEASURE_BUILDING_COST_PER_LEVEL * float(d) * _crown_wallet_penalty_w()
+	if f > 0:
+		var disc := FAVOR_BUILDING_DISCOUNT_PER_LEVEL * float(f) * _crown_wallet_favor_w()
+		return maxf(CROWN_BUILDING_COST_MULT_MIN, 1.0 - disc)
+	return 1.0
+
+
+## Найм юнита: золото и руда.
+func get_crown_hire_cost_mult(displeasure: int, favor: int) -> float:
+	var d := clampi(displeasure, 0, DISPLEASURE_MAX_LEVEL)
+	var f := clampi(favor, 0, CROWN_FAVOR_MAX_LEVEL)
+	if d > 0:
+		return 1.0 + DISPLEASURE_HIRE_SURCHARGE_PER_LEVEL * float(d) * _crown_wallet_penalty_w()
+	if f > 0:
+		var disc := FAVOR_HIRE_DISCOUNT_PER_LEVEL * float(f) * _crown_wallet_favor_w()
+		return maxf(CROWN_HIRE_MULT_MIN, 1.0 - disc)
+	return 1.0
+
+
 ## Найм, здания, провизия похода — только экономика. Услуги базы — см. `_service_price_mult()`.
 func _service_price_mult() -> float:
 	return _economy_mult() * DifficultyConfig.get_service_cost_mult()
@@ -270,25 +405,28 @@ func get_rest_max_per_expedition() -> int:
 
 
 func get_unit_hire_cost() -> int:
-	return maxi(1, int(round(float(UNIT_HIRE_COST) * _economy_mult())))
+	var crown := get_crown_hire_cost_mult(SaveManager.crown_displeasure, SaveManager.crown_favor)
+	return maxi(1, int(round(float(UNIT_HIRE_COST) * _economy_mult() * crown)))
 
 
 func get_unit_hire_ore_cost() -> int:
-	return maxi(0, int(round(float(UNIT_HIRE_ORE_COST) * _economy_mult())))
+	var crown := get_crown_hire_cost_mult(SaveManager.crown_displeasure, SaveManager.crown_favor)
+	return maxi(0, int(round(float(UNIT_HIRE_ORE_COST) * _economy_mult() * crown)))
 
 
 func get_building_upgrade_step() -> int:
-	return maxi(1, int(round(float(BUILDING_UPGRADE_STEP) * _economy_mult())))
+	## Титул (скидка) + немилость/одобрение — см. CrownSystem.get_building_cost_crown_mult().
+	return maxi(1, int(round(float(BUILDING_UPGRADE_STEP) * _economy_mult() * CrownSystem.get_building_cost_crown_mult())))
 
 
 func get_building_upgrade_wood_cost(tier_before_upgrade: int) -> int:
 	var t: int = clampi(tier_before_upgrade, 0, 10)
-	return maxi(0, int(round(float(BUILDING_UPGRADE_WOOD_STEP) * float(t + 1) * _economy_mult())))
+	return maxi(0, int(round(float(BUILDING_UPGRADE_WOOD_STEP) * float(t + 1) * _economy_mult() * CrownSystem.get_building_cost_crown_mult())))
 
 
 func get_building_upgrade_ore_cost(tier_before_upgrade: int) -> int:
 	var t: int = clampi(tier_before_upgrade, 0, 10)
-	return maxi(0, int(round(float(BUILDING_UPGRADE_ORE_STEP) * float(t + 1) * _economy_mult())))
+	return maxi(0, int(round(float(BUILDING_UPGRADE_ORE_STEP) * float(t + 1) * _economy_mult() * CrownSystem.get_building_cost_crown_mult())))
 
 
 func _crown_service_mult() -> float:
@@ -361,6 +499,7 @@ func get_incoming_damage_factor_vs_enemy(enemy_level: int) -> float:
 	var gap := enemy_level - hero_lv
 	var f := 1.0 - UNDERLEVEL_DAMAGE_PER_GAP * float(gap)
 	f *= DifficultyConfig.get_vs_higher_enemy_damage_mult()
+	f *= get_crown_vs_higher_enemy_damage_mult(SaveManager.ore_sent_to_crown_total)
 	return clampf(f, UNDERLEVEL_DAMAGE_FLOOR, UNDERLEVEL_DAMAGE_BONUS_CAP)
 
 
@@ -372,7 +511,11 @@ func get_enemy_outgoing_damage_vs_hero(enemy_level: int) -> float:
 	var base := 1.0
 	if gap > 0:
 		base = minf(ENEMY_DAMAGE_VS_LOWER_HERO_CAP, pow(ENEMY_DAMAGE_VS_LOWER_HERO_PER_GAP, float(gap)))
-	return base * DifficultyConfig.get_enemy_damage_to_player_mult()
+	return (
+		base
+		* DifficultyConfig.get_enemy_damage_to_player_mult()
+		* get_crown_combat_incoming_damage_taken_mult()
+	)
 
 
 func get_gold_reward(enemy_level: int, is_boss: bool) -> int:
@@ -399,6 +542,7 @@ func get_exp_reward(enemy_level: int, hero_level: int, is_boss: bool) -> int:
 	if is_boss:
 		xp = int(round(float(xp) * BOSS_EXP_MULT))
 	xp = int(round(float(xp) * DifficultyConfig.get_exp_reward_mult()))
+	xp = int(round(float(xp) * (1.0 + get_crown_exp_bonus_ratio(SaveManager.ore_sent_to_crown_total))))
 	return maxi(1, xp)
 
 
@@ -431,10 +575,10 @@ func get_premium_ore_pack(pack_id: String) -> Dictionary:
 
 ## ─── Шахта ───
 
-func get_mine_ore_per_return(mine_tier: int, pawns_on_base: int, title_mine_bonus: int) -> int:
+func get_mine_ore_per_return(mine_tier: int, pawns_on_base: int) -> int:
 	var from_tier := MINE_BASE_ORE_PER_RETURN + MINE_ORE_PER_TIER * clampi(mine_tier, 0, 4)
 	var from_pawns := MINE_ORE_PER_PAWN_ON_BASE * clampi(pawns_on_base, 0, MINE_MAX_PAWN_BONUS)
-	var raw := from_tier + from_pawns + maxi(0, title_mine_bonus)
+	var raw := from_tier + from_pawns
 	var v := int(round(float(raw) * DifficultyConfig.get_mine_yield_mult()))
 	return maxi(1, v)
 
@@ -504,6 +648,78 @@ func pick_crown_title_flavor(title: Dictionary) -> String:
 	return "Служба Короне на архипелаге."
 
 
+func crown_title_tier_has_patent(tier: int) -> bool:
+	if tier < 1 or tier >= CROWN_TITLES.size():
+		return false
+	var raw: Variant = CROWN_TITLES[tier].get("patent_lines", null)
+	return raw is Array and not (raw as Array).is_empty()
+
+
+## Текст грамоты для кодекса «Предметы» (совпадает по содержанию с окном грамоты).
+func build_crown_patent_letter_plain_text(tier: int) -> String:
+	if not crown_title_tier_has_patent(tier):
+		return ""
+	var t: Dictionary = CROWN_TITLES[tier]
+	var parts: PackedStringArray = []
+	var raw: Variant = t.get("patent_lines", null)
+	if raw is Array:
+		for p in raw as Array:
+			var s := str(p).strip_edges()
+			if not s.is_empty():
+				parts.append(s)
+	var hero := str(t.get("patent_hero_line", "")).strip_edges()
+	var body := "\n\n".join(parts)
+	var out := (
+		"Милорд, вот что канцелярия заверила под печатью. Читайте без спешки — сургуч не любит суеты.\n\n"
+		+ "───────────────\n\n"
+		+ body
+	)
+	if not hero.is_empty():
+		out += "\n\n— %s" % hero
+	var bonus_lines := crown_title_bonus_summary_lines(t)
+	if not bonus_lines.is_empty():
+		out += "\n\n───────────────\n\nУставные льготы по титулу:\n"
+		for bl in bonus_lines:
+			out += "\n• %s" % bl
+	return out
+
+
+## Краткий перечень игровых бонусов титула (замок, грамота, кодекс).
+func crown_title_bonus_summary_lines(title: Dictionary) -> PackedStringArray:
+	var lines: PackedStringArray = []
+	var gold_r := float(title.get("gold_bonus_ratio", 0.0))
+	var ore_cap := int(title.get("expedition_ore_carry_bonus", 0))
+	var disc := float(title.get("service_discount", 0.0))
+	var chp := int(title.get("combat_hp_bonus", 0))
+	var cin := float(title.get("combat_incoming_damage_mult", 1.0))
+	var cdmg := float(title.get("combat_hero_damage_mult", 1.0))
+	var cspd := float(title.get("combat_speed_bonus", 0.0))
+	var xpr := float(title.get("exp_bonus_ratio", 0.0))
+	var cvh := float(title.get("combat_vs_higher_enemy_mult", 1.0))
+	if gold_r > 0.001:
+		lines.append("+%d%% к золоту в жалованье каравана" % int(round(gold_r * 100.0)))
+	if disc > 0.001:
+		lines.append("Скидка на улучшения зданий: %d%%" % int(round(disc * 100.0)))
+	if ore_cap > 0:
+		lines.append("Лимит Сердцевины с одного похода на остров: +%d (грамота Короны на вывоз)" % ore_cap)
+	if chp > 0:
+		lines.append("Бой: +%d к макс. здоровью героя" % chp)
+	if cin < 0.999:
+		var pct := int(round((1.0 - cin) * 100.0))
+		lines.append("Бой: на %d%% меньше урона от врагов (ещё чуть меньше при одобрении Короны)" % pct)
+	if cdmg > 1.001:
+		lines.append("Бой: +%d%% к урону героя в ближнем бою" % int(round((cdmg - 1.0) * 100.0)))
+	if cspd > 0.5:
+		lines.append("Бой: +%d к скорости передвижения" % int(round(cspd)))
+	if xpr > 0.001:
+		lines.append("+%d%% к опыту за убийства" % int(round(xpr * 100.0)))
+	if cvh > 1.001:
+		lines.append("Бой: сильнее удар по врагам выше вашего уровня (+%d%% к множителю)" % int(round((cvh - 1.0) * 100.0)))
+	if lines.is_empty():
+		lines.append("Нет бонусов к жалованью, лимиту вывоза и скидкам — появятся на следующих ступенях.")
+	return lines
+
+
 func get_crown_gold_bonus_ratio(ore_sent_total: int) -> float:
 	return float(get_crown_title_for_ore_sent(ore_sent_total).get("gold_bonus_ratio", 0.0))
 
@@ -512,22 +728,58 @@ func get_crown_service_discount(ore_sent_total: int) -> float:
 	return float(get_crown_title_for_ore_sent(ore_sent_total).get("service_discount", 0.0))
 
 
-func get_crown_mine_ore_bonus(ore_sent_total: int) -> int:
-	return int(get_crown_title_for_ore_sent(ore_sent_total).get("mine_ore_bonus", 0))
+## Сколько ещё Сердцевины можно унесть с острова за один поход (сверх капа сложности).
+func get_crown_expedition_ore_carry_bonus(ore_sent_total: int) -> int:
+	return maxi(0, int(get_crown_title_for_ore_sent(ore_sent_total).get("expedition_ore_carry_bonus", 0)))
 
 
-## ─── Немилость ───
+## ─── Титул: упрощение боя (герой) ───
+
+func get_crown_combat_hp_bonus(ore_sent_total: int) -> int:
+	return maxi(0, int(get_crown_title_for_ore_sent(ore_sent_total).get("combat_hp_bonus", 0)))
+
+
+func get_crown_title_incoming_damage_base_mult(ore_sent_total: int) -> float:
+	return clampf(
+		float(get_crown_title_for_ore_sent(ore_sent_total).get("combat_incoming_damage_mult", 1.0)),
+		CROWN_COMBAT_INCOMING_MULT_MIN,
+		1.0
+	)
+
+
+## Итоговый множитель урона по герою от атак врагов: титул + лёгкий бонус одобрения.
+func get_crown_combat_incoming_damage_taken_mult() -> float:
+	var base := get_crown_title_incoming_damage_base_mult(SaveManager.ore_sent_to_crown_total)
+	var fav := clampi(SaveManager.crown_favor, 0, CROWN_FAVOR_MAX_LEVEL)
+	var from_favor := 1.0 - CROWN_FAVOR_INCOMING_REDUCTION_PER_LEVEL * float(fav)
+	return maxf(CROWN_COMBAT_INCOMING_MULT_MIN, base * from_favor)
+
+
+func get_crown_combat_hero_damage_mult(ore_sent_total: int) -> float:
+	return clampf(float(get_crown_title_for_ore_sent(ore_sent_total).get("combat_hero_damage_mult", 1.0)), 1.0, 1.3)
+
+
+func get_crown_combat_speed_bonus(ore_sent_total: int) -> float:
+	return maxf(0.0, float(get_crown_title_for_ore_sent(ore_sent_total).get("combat_speed_bonus", 0.0)))
+
+
+func get_crown_exp_bonus_ratio(ore_sent_total: int) -> float:
+	return maxf(0.0, float(get_crown_title_for_ore_sent(ore_sent_total).get("exp_bonus_ratio", 0.0)))
+
+
+## Урон героя по врагу выше уровнем (множитель к фактору из get_incoming_damage_factor_vs_enemy).
+func get_crown_vs_higher_enemy_damage_mult(ore_sent_total: int) -> float:
+	return clampf(float(get_crown_title_for_ore_sent(ore_sent_total).get("combat_vs_higher_enemy_mult", 1.0)), 1.0, 1.22)
+
+
+## ─── Немилость (совместимость UI: только штраф, без одобрения) ───
 
 func get_displeasure_gold_mult(displeasure_level: int) -> float:
-	if displeasure_level <= 0:
-		return 1.0
-	return maxf(0.5, 1.0 - DISPLEASURE_GOLD_PENALTY * float(clampi(displeasure_level, 0, DISPLEASURE_MAX_LEVEL)))
+	return get_crown_caravan_gold_mult(displeasure_level, 0)
 
 
 func get_displeasure_building_cost_mult(displeasure_level: int) -> float:
-	if displeasure_level <= 0:
-		return 1.0
-	return 1.0 + DISPLEASURE_BUILDING_COST_PENALTY * float(clampi(displeasure_level, 0, DISPLEASURE_MAX_LEVEL))
+	return get_crown_building_cost_mult(displeasure_level, 0)
 
 
 ## ─── Patron (донат) ───
@@ -563,38 +815,46 @@ func get_patron_title_gratitude_epithet(ore_purchased_total: int) -> String:
 
 func get_supply_heal_mult(displeasure: int, favor: int) -> float:
 	var m := 1.0
-	if displeasure > 0:
-		m -= SUPPLY_HEAL_PENALTY_PER_DISPLEASURE * float(clampi(displeasure, 0, DISPLEASURE_MAX_LEVEL))
-	elif favor > 0:
-		m += SUPPLY_HEAL_BONUS_PER_FAVOR * float(clampi(favor, 0, CROWN_FAVOR_MAX_LEVEL))
-	return clampf(m, 0.4, 1.5)
+	var d := clampi(displeasure, 0, DISPLEASURE_MAX_LEVEL)
+	var f := clampi(favor, 0, CROWN_FAVOR_MAX_LEVEL)
+	if d > 0:
+		m -= SUPPLY_HEAL_PENALTY_PER_DISPLEASURE * float(d) * _crown_wallet_penalty_w()
+	elif f > 0:
+		m += SUPPLY_HEAL_BONUS_PER_FAVOR * float(f) * _crown_wallet_favor_w()
+	return clampf(m, 0.32, 1.58)
 
 
 func get_supply_rest_mult(displeasure: int, favor: int) -> float:
 	var m := 1.0
-	if displeasure > 0:
-		m -= SUPPLY_REST_PENALTY_PER_DISPLEASURE * float(clampi(displeasure, 0, DISPLEASURE_MAX_LEVEL))
-	elif favor > 0:
-		m += SUPPLY_REST_BONUS_PER_FAVOR * float(clampi(favor, 0, CROWN_FAVOR_MAX_LEVEL))
-	return clampf(m, 0.4, 1.5)
+	var d := clampi(displeasure, 0, DISPLEASURE_MAX_LEVEL)
+	var f := clampi(favor, 0, CROWN_FAVOR_MAX_LEVEL)
+	if d > 0:
+		m -= SUPPLY_REST_PENALTY_PER_DISPLEASURE * float(d) * _crown_wallet_penalty_w()
+	elif f > 0:
+		m += SUPPLY_REST_BONUS_PER_FAVOR * float(f) * _crown_wallet_favor_w()
+	return clampf(m, 0.32, 1.58)
 
 
 func get_supply_service_cost_mult(displeasure: int, favor: int) -> float:
 	var m := 1.0
-	if displeasure > 0:
-		m += SUPPLY_SERVICE_COST_PER_DISPLEASURE * float(clampi(displeasure, 0, DISPLEASURE_MAX_LEVEL))
-	elif favor > 0:
-		m -= SUPPLY_SERVICE_DISCOUNT_PER_FAVOR * float(clampi(favor, 0, CROWN_FAVOR_MAX_LEVEL))
-	return maxf(0.7, m)
+	var d := clampi(displeasure, 0, DISPLEASURE_MAX_LEVEL)
+	var f := clampi(favor, 0, CROWN_FAVOR_MAX_LEVEL)
+	if d > 0:
+		m += SUPPLY_SERVICE_COST_PER_DISPLEASURE * float(d) * _crown_wallet_penalty_w()
+	elif f > 0:
+		m -= SUPPLY_SERVICE_DISCOUNT_PER_FAVOR * float(f) * _crown_wallet_favor_w()
+	return maxf(0.55, m)
 
 
 func get_supply_archer_damage_mult(displeasure: int, favor: int) -> float:
 	var m := 1.0
-	if displeasure > 0:
-		m -= SUPPLY_ARCHER_DAMAGE_PER_DISPLEASURE * float(clampi(displeasure, 0, DISPLEASURE_MAX_LEVEL))
-	elif favor > 0:
-		m += SUPPLY_ARCHER_DAMAGE_PER_FAVOR * float(clampi(favor, 0, CROWN_FAVOR_MAX_LEVEL))
-	return clampf(m, 0.7, 1.3)
+	var d := clampi(displeasure, 0, DISPLEASURE_MAX_LEVEL)
+	var f := clampi(favor, 0, CROWN_FAVOR_MAX_LEVEL)
+	if d > 0:
+		m -= SUPPLY_ARCHER_DAMAGE_PER_DISPLEASURE * float(d) * _crown_wallet_penalty_w()
+	elif f > 0:
+		m += SUPPLY_ARCHER_DAMAGE_PER_FAVOR * float(f) * _crown_wallet_favor_w()
+	return clampf(m, 0.65, 1.35)
 
 
 ## ─── Износ снаряжения ───
@@ -617,24 +877,29 @@ func get_armor_broken_incoming_damage_mult(durability: int) -> float:
 
 func get_armor_repair_gold_cost(displeasure: int, favor: int) -> int:
 	var m := 1.0
-	if displeasure > 0:
-		m += ARMOR_REPAIR_COST_PER_DISPLEASURE * float(clampi(displeasure, 0, DISPLEASURE_MAX_LEVEL))
-	elif favor > 0:
-		m -= ARMOR_REPAIR_DISCOUNT_PER_FAVOR * float(clampi(favor, 0, CROWN_FAVOR_MAX_LEVEL))
-	return maxi(1, int(round(float(ARMOR_REPAIR_GOLD_COST) * maxf(0.5, m) * _service_price_mult())))
+	var d := clampi(displeasure, 0, DISPLEASURE_MAX_LEVEL)
+	var f := clampi(favor, 0, CROWN_FAVOR_MAX_LEVEL)
+	if d > 0:
+		m += ARMOR_REPAIR_COST_PER_DISPLEASURE * float(d) * _crown_wallet_penalty_w()
+	elif f > 0:
+		m -= ARMOR_REPAIR_DISCOUNT_PER_FAVOR * float(f) * _crown_wallet_favor_w()
+	return maxi(1, int(round(float(ARMOR_REPAIR_GOLD_COST) * maxf(0.45, m) * _service_price_mult())))
 
 
 func get_armor_repair_ore_cost(displeasure: int, favor: int) -> int:
 	var m := 1.0
-	if displeasure > 0:
-		m += ARMOR_REPAIR_COST_PER_DISPLEASURE * float(clampi(displeasure, 0, DISPLEASURE_MAX_LEVEL)) * 0.5
-	elif favor > 0:
-		m -= ARMOR_REPAIR_DISCOUNT_PER_FAVOR * float(clampi(favor, 0, CROWN_FAVOR_MAX_LEVEL)) * 0.5
-	return maxi(0, int(round(float(ARMOR_REPAIR_ORE_COST) * maxf(0.5, m) * _service_price_mult())))
+	var d := clampi(displeasure, 0, DISPLEASURE_MAX_LEVEL)
+	var f := clampi(favor, 0, CROWN_FAVOR_MAX_LEVEL)
+	if d > 0:
+		m += ARMOR_REPAIR_COST_PER_DISPLEASURE * float(d) * _crown_wallet_penalty_w() * 0.5
+	elif f > 0:
+		m -= ARMOR_REPAIR_DISCOUNT_PER_FAVOR * float(f) * _crown_wallet_favor_w() * 0.5
+	return maxi(0, int(round(float(ARMOR_REPAIR_ORE_COST) * maxf(0.45, m) * _service_price_mult())))
 
 
 func get_max_ore_per_expedition() -> int:
-	return maxi(1, int(round(float(MAX_ORE_PER_EXPEDITION) * DifficultyConfig.get_expedition_carry_cap_mult())))
+	var base := maxi(1, int(round(float(MAX_ORE_PER_EXPEDITION) * DifficultyConfig.get_expedition_carry_cap_mult())))
+	return base + get_crown_expedition_ore_carry_bonus(SaveManager.ore_sent_to_crown_total)
 
 
 func get_max_wood_per_expedition() -> int:

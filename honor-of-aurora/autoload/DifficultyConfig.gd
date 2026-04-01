@@ -38,6 +38,10 @@ const KEY_MINE_YIELD_MULT := "mine_yield_mult"
 const KEY_EXPEDITION_CARRY_CAP_MULT := "expedition_carry_cap_mult"
 ## Модификаторы привала/лечения от немилости/одобрения Короны (ещё слой сложности).
 const KEY_SUPPLY_EFFECT_MULT := "supply_effect_mult"
+## Насколько сильнее немилость бьёт по золоту, найму, зданиям и услугам (1.0 = норма).
+const KEY_CROWN_WALLET_PENALTY_STRENGTH := "crown_wallet_penalty_strength"
+## Насколько сильнее одобрение снижает цены и поднимает жалованье (1.0 = норма).
+const KEY_CROWN_WALLET_FAVOR_STRENGTH := "crown_wallet_favor_strength"
 ## Урон лучников от снабжения Короны (см. CrownSystem.get_archer_damage_modifier).
 const KEY_ARCHER_DAMAGE_MULT := "archer_damage_mult"
 ## Дополнительный множитель макс. HP всех врагов (после базы сцены и get_enemy_stat_multiplier).
@@ -48,7 +52,7 @@ const _PRESETS: Array[Dictionary] = [
 		KEY_ID: Id.EASY,
 		KEY_KEY: "easy",
 		KEY_DISPLAY_NAME: "Лёгкий",
-		KEY_DESCRIPTION: "Враги слабее и бьют мягче; больше привалов и лечения на отдыхе; дешевле услуги, мягче приказы Короны; броня дольше держится; шахта и лимиты добычи щедрее.",
+		KEY_DESCRIPTION: "Враги слабее и бьют мягче; больше привалов и лечения на отдыхе; дешевле услуги, мягче приказы Короны; броня дольше держится; шахта и лимиты добычи щедрее. Немилость Короны слабее давит на кошелёк, одобрение заметнее помогает.",
 		KEY_ENEMY_STAT_MULT: 0.86,
 		KEY_GOLD_REWARD_MULT: 1.12,
 		KEY_EXP_REWARD_MULT: 1.1,
@@ -64,6 +68,8 @@ const _PRESETS: Array[Dictionary] = [
 		KEY_MINE_YIELD_MULT: 1.06,
 		KEY_EXPEDITION_CARRY_CAP_MULT: 1.08,
 		KEY_SUPPLY_EFFECT_MULT: 1.06,
+		KEY_CROWN_WALLET_PENALTY_STRENGTH: 0.74,
+		KEY_CROWN_WALLET_FAVOR_STRENGTH: 1.22,
 		KEY_ARCHER_DAMAGE_MULT: 1.05,
 		KEY_ENEMY_HP_GLOBAL_MULT: 1.06,
 	},
@@ -71,7 +77,7 @@ const _PRESETS: Array[Dictionary] = [
 		KEY_ID: Id.NORMAL,
 		KEY_KEY: "normal",
 		KEY_DISPLAY_NAME: "Нормальный",
-		KEY_DESCRIPTION: "Базовый баланс: 3 привала за поход, нормальный износ брони, услуги по прайсу экономики, приказы Короны как в таблице, урон врагов и отдых без доп. модификаторов.",
+		KEY_DESCRIPTION: "Базовый баланс: 3 привала за поход, нормальный износ брони, услуги по прайсу экономики, приказы Короны как в таблице, урон врагов и отдых без доп. модификаторов. Влияние немилости и одобрения на цены и жалованье — эталонное.",
 		KEY_ENEMY_STAT_MULT: 1.0,
 		KEY_GOLD_REWARD_MULT: 0.95,
 		KEY_EXP_REWARD_MULT: 0.95,
@@ -87,6 +93,8 @@ const _PRESETS: Array[Dictionary] = [
 		KEY_MINE_YIELD_MULT: 1.0,
 		KEY_EXPEDITION_CARRY_CAP_MULT: 1.0,
 		KEY_SUPPLY_EFFECT_MULT: 1.0,
+		KEY_CROWN_WALLET_PENALTY_STRENGTH: 1.0,
+		KEY_CROWN_WALLET_FAVOR_STRENGTH: 1.0,
 		KEY_ARCHER_DAMAGE_MULT: 1.0,
 		KEY_ENEMY_HP_GLOBAL_MULT: 1.2,
 	},
@@ -94,7 +102,7 @@ const _PRESETS: Array[Dictionary] = [
 		KEY_ID: Id.HARD,
 		KEY_KEY: "hard",
 		KEY_DISPLAY_NAME: "Сложный",
-		KEY_DESCRIPTION: "Враги сильнее и больнее; 2 привала за поход; броня стирается быстрее; услуги и приказы Короны жёстче; меньше хила за отдых; шахта и лимиты добычи суровее; снабжение Короны слабее.",
+		KEY_DESCRIPTION: "Враги сильнее и больнее; 2 привала за поход; броня стирается быстрее; услуги и приказы Короны жёстче; меньше хила за отдых; шахта и лимиты добычи суровее; снабжение Короны слабее. Немилость сильнее бьёт по золоту и ценам; бонус одобрения чуть скромнее.",
 		KEY_ENEMY_STAT_MULT: 1.16,
 		KEY_GOLD_REWARD_MULT: 0.76,
 		KEY_EXP_REWARD_MULT: 0.84,
@@ -110,6 +118,8 @@ const _PRESETS: Array[Dictionary] = [
 		KEY_MINE_YIELD_MULT: 0.92,
 		KEY_EXPEDITION_CARRY_CAP_MULT: 0.88,
 		KEY_SUPPLY_EFFECT_MULT: 0.88,
+		KEY_CROWN_WALLET_PENALTY_STRENGTH: 1.34,
+		KEY_CROWN_WALLET_FAVOR_STRENGTH: 0.86,
 		KEY_ARCHER_DAMAGE_MULT: 0.92,
 		KEY_ENEMY_HP_GLOBAL_MULT: 1.34,
 	},
@@ -224,6 +234,14 @@ func get_expedition_carry_cap_mult() -> float:
 
 func get_supply_effect_mult() -> float:
 	return _float(get_active_preset(), KEY_SUPPLY_EFFECT_MULT, 1.0)
+
+
+func get_crown_wallet_penalty_strength() -> float:
+	return maxf(0.35, _float(get_active_preset(), KEY_CROWN_WALLET_PENALTY_STRENGTH, 1.0))
+
+
+func get_crown_wallet_favor_strength() -> float:
+	return maxf(0.35, _float(get_active_preset(), KEY_CROWN_WALLET_FAVOR_STRENGTH, 1.0))
 
 
 func get_archer_damage_mult() -> float:

@@ -3,11 +3,11 @@ class_name CampCodexDossier
 
 
 static func serdtsevina_info_plain() -> String:
-	return "Сердцевина — ресурс с недр островов; на материке им питают маяки королевства. На базе копите в шахте и на островах, тратите на услуги и найм, отправляйте караваном Короне — от суммы отправок растут титул и добыча шахты."
+	return "Сердцевина — ресурс с недр островов; на материке им питают маяки королевства. На базе копите в шахте и на островах, тратите на услуги и найм, отправляйте караваном Короне — от суммы отправок растёт титул (жалованье, лимит вывоза с острова, скидки в замке)."
 
 
 static func serdtsevina_info_bbcode() -> String:
-	return "[b]Сердцевина[/b] — ресурс с недр островов; на материке им питают [color=#9fd4ff]маяки королевства[/color]. На базе копите в шахте и на островах, тратите на услуги и найм, отправляйте караваном Короне — от суммы отправок растут [color=#e8c97a]титул[/color] и добыча шахты."
+	return "[b]Сердцевина[/b] — ресурс с недр островов; на материке им питают [color=#9fd4ff]маяки королевства[/color]. На базе копите в шахте и на островах, тратите на услуги и найм, отправляйте караваном Короне — от суммы отправок растёт [color=#e8c97a]титул[/color] (жалованье, лимит вывоза с острова, скидки в замке)."
 
 
 static func intro_plain_text() -> String:
@@ -114,17 +114,26 @@ static func crown_dossier_panel_data() -> Dictionary:
 	var has_art := path != "" and ResourceLoader.exists(path)
 	var nm := CrownSystem.get_current_title_name()
 	var t: Dictionary = CrownSystem.get_current_title()
-	var mine_b := int(t.get("mine_ore_bonus", 0))
+	var ore_cap := int(t.get("expedition_ore_carry_bonus", 0))
 	var gold_r := float(t.get("gold_bonus_ratio", 0.0))
 	var disc := float(t.get("service_discount", 0.0))
+	var chp := int(t.get("combat_hp_bonus", 0))
+	var cin := float(t.get("combat_incoming_damage_mult", 1.0))
+	var xpr := float(t.get("exp_bonus_ratio", 0.0))
 	var sent := SaveManager.ore_sent_to_crown_total
 	var fx: PackedStringArray = []
 	if gold_r > 0.001:
 		fx.append("+%d%% к золоту в жалованье каравана" % int(round(gold_r * 100.0)))
 	if disc > 0.001:
-		fx.append("скидка на услуги %d%%" % int(round(disc * 100.0)))
-	if mine_b > 0:
-		fx.append("шахта при возврате: +%d Сердцевины" % mine_b)
+		fx.append("скидка на здания %d%%" % int(round(disc * 100.0)))
+	if ore_cap > 0:
+		fx.append("лимит руды с похода +%d" % ore_cap)
+	if chp > 0:
+		fx.append("+%d HP" % chp)
+	if cin < 0.999:
+		fx.append("−%d%% урон от врагов" % int(round((1.0 - cin) * 100.0)))
+	if xpr > 0.001:
+		fx.append("+%d%% опыта" % int(round(xpr * 100.0)))
 	var fx_line: String = " · ".join(fx) if fx.size() > 0 else "Следующие ступени титула усилят бонусы."
 	return {
 		"art_path": path if has_art else "",

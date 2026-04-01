@@ -308,12 +308,14 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 	_reset_chrome_dynamic_expand()
 	_clear_choice_ui()
 	var sid: String = line.speaker_id
-	_name_label.text = SPEAKER_LABELS.get(sid, sid.capitalize() if not sid.is_empty() else "?")
+	var sid_key := sid.strip_edges().to_lower()
+	_name_label.text = SPEAKER_LABELS.get(sid_key, sid.capitalize() if not sid.is_empty() else "?")
 	_update_name_label_min_width_for_current_text()
-	var tex: Texture2D = SPEAKER_FACES.get(sid, null)
+	var face_key := sid_key
+	var tex: Texture2D = SPEAKER_FACES.get(face_key, null)
 	if tex:
 		_face.texture = tex
-		_face.flip_h = bool(SPEAKER_FACE_FLIP_H.get(sid, false))
+		_face.flip_h = bool(SPEAKER_FACE_FLIP_H.get(face_key, false))
 		_face.visible = true
 	else:
 		_face.texture = null
