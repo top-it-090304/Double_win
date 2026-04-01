@@ -1,0 +1,40 @@
+{
+  "products": [
+    {
+      "sku": "dev_starter_pack_small",
+      "amount_minor": 9900,
+      "currency": "RUB",
+      "active": true
+    },
+    {
+      "sku": "dev_starter_pack_large",
+      "amount_minor": 49900,
+      "currency": "RUB",
+      "active": true
+    },
+    {
+      "sku": "premium_ore_adventurer",
+      "amount_minor": 29900,
+      "currency": "RUB",
+      "active": true
+    },
+    {
+      "sku": "premium_ore_commander",
+      "amount_minor": 59900,
+      "currency": "RUB",
+      "active": true
+    },
+    {
+      "sku": "premium_ore_warlord",
+      "amount_minor": 119900,
+      "currency": "RUB",
+      "active": true
+    },
+    {
+      "sku": "dev_inactive_example",
+      "amount_minor": 100,
+      "currency": "RUB",
+      "active": false
+    }
+  ]
+}
