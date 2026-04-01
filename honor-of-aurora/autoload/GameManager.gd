@@ -785,6 +785,8 @@ func handle_location_changed(new_location: Events.LOCATION):
 	if packed == null or not (packed is PackedScene):
 		push_error("GameManager: no PackedScene for location %s" % new_location)
 		return
+	if _teleport_should_toggle_world_ambience(prev_location, new_location):
+		SaveManager.world_ambience_night = not SaveManager.world_ambience_night
 	## Из главного меню: не использовать чёрный экран — оставить сцену меню поверх, пока не заспавнится герой
 	## (change_scene_to_packed уничтожил бы корень меню сразу).
 	var use_menu_overlay := prev_location == Events.LOCATION.MENU and new_location != Events.LOCATION.MENU
@@ -1186,6 +1188,7 @@ func _finish_player_placement_after_scene_change(location: Events.LOCATION) -> v
 	## После смены сцены снова применить FPS/физику/Y-sort (раньше только deferred при load — первые кадры могли быть «не те»).
 	SaveManager.apply_window_and_engine_settings()
 	PostFinaleWorld.apply_after_scene_loaded()
+	_apply_world_ambience_layer(new_scene)
 
 func _spawn_saved_archers(root: Node) -> void:
 	if not current_scene_player or not is_instance_valid(current_scene_player):
@@ -1310,6 +1313,34 @@ func ensure_youth_companion_on_base_scene() -> void:
 		yw.global_position = positions[0]
 	else:
 		yw.global_position = player.global_position + Vector2(88.0, 0.0)
+
+
+func _teleport_should_toggle_world_ambience(prev_loc: Events.LOCATION, nxt_loc: Events.LOCATION) -> bool:
+	if prev_loc == nxt_loc:
+		return false
+	if prev_loc == Events.LOCATION.MENU or nxt_loc == Events.LOCATION.MENU:
+		return false
+	return true
+
+
+## Полупрозрачный «ночной» тинт на игровой сцене (слой под HUD layer=5), без анимаций при загрузке.
+func _apply_world_ambience_layer(scene_root: Node) -> void:
+	if scene_root == null or not is_instance_valid(scene_root):
+		return
+	var old_layer: Node = scene_root.get_node_or_null("WorldAmbienceLayer")
+	if old_layer != null:
+		old_layer.queue_free()
+	if not SaveManager.world_ambience_night:
+		return
+	var canvas := CanvasLayer.new()
+	canvas.name = "WorldAmbienceLayer"
+	canvas.layer = 4
+	var rect := ColorRect.new()
+	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rect.color = Color(0.065, 0.085, 0.2, 0.52)
+	canvas.add_child(rect)
+	scene_root.add_child(canvas)
 
 
 func _show_scene_transition_blocker() -> void:
