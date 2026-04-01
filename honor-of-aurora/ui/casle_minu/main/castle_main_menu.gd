@@ -6,6 +6,42 @@ enum HireKind { ARCHER, LANCER, PAWN }
 func get_hud() -> Node:
 	return GameplayFacade.get_hud(get_tree())
 
+
+func _ru_day_word_counted(n: int) -> String:
+	var a := absi(n)
+	var n10 := a % 10
+	var n100 := a % 100
+	if n100 >= 11 and n100 <= 14:
+		return "дней"
+	if n10 == 1:
+		return "день"
+	if n10 >= 2 and n10 <= 4:
+		return "дня"
+	return "дней"
+
+
+func _ru_day_word_genitive_after_iz(n: int) -> String:
+	var a := absi(n)
+	var n10 := a % 10
+	var n100 := a % 100
+	if n100 >= 11 and n100 <= 14:
+		return "дней"
+	if n10 == 1:
+		return "дня"
+	return "дней"
+
+
+func _ru_day_word_dative_after_kraten(n: int) -> String:
+	var a := absi(n)
+	var n10 := a % 10
+	var n100 := a % 100
+	if n100 >= 11 and n100 <= 14:
+		return "дням"
+	if n10 == 1:
+		return "дню"
+	return "дням"
+
+
 ## Одна цена на любой тип юнита из меню найма (по умолчанию из BalanceConfig).
 @export var unit_hire_cost: int = 340
 @export var archer_scene: PackedScene
@@ -1415,9 +1451,9 @@ func _populate_crown_help_caravan_tab(vbox: VBoxContainer) -> void:
 	_rtl_theme_line(rtl0)
 	rtl0.add_theme_font_size_override("normal_font_size", 15)
 	rtl0.text = (
-		"Пока обоз не ждёт у причала, [b]каждый ваш возврат с острова на базу[/b] приближает день, когда снова приедет [color=#e8c97a]караван Короны[/color]. "
+		"Пока обоз не ждёт у причала, [b]каждое ваше возвращение на базу с острова сменяет день и ночь в лагере[/b] и приближает момент, когда снова приедет [color=#e8c97a]караван Короны[/color]. "
 		+ "Это не часы на столе — ритм задают ваши походы.\n\n"
-		+ "Когда караван стоит в порту, следующий рейс не приближается, пока вы не отгрузите [color=#9fd4ff]Сердцевину[/color] или не [b]отпустите караван порожним[/b]. Срок текущего приказа Короны при этом уменьшается за каждый возврат с острова, как обычно.\n\n"
+		+ "Когда караван стоит в порту, следующий рейс не приближается, пока вы не отгрузите [color=#9fd4ff]Сердцевину[/color] или не [b]отпустите караван порожним[/b]. Срок текущего приказа Короны при этом убывает с каждым таким днём, как обычно.\n\n"
 		+ "Сколько Корона ждёт от вас сейчас и успеваете ли — сказано прямо на экране [color=#e8c97a]«Караван Короны»[/color] в замке, отдельный слот в меню. "
 		+ "Там же, под [b]«Подробнее о правилах ▼»[/b], — развёрнутый текст. Первое поручение появится после первого приезда каравана."
 	)
@@ -1599,7 +1635,7 @@ func _init_caravan_deadline_bar_look() -> void:
 	_caravan_dl_bar_style_fill = StyleBoxFlat.new()
 	_caravan_dl_bar_style_fill.set_corner_radius_all(4)
 	_caravan_order_dl_bar.add_theme_stylebox_override("fill", _caravan_dl_bar_style_fill)
-	_caravan_order_dl_bar.tooltip_text = "Полоса заполняется по мере истечения срока приказа. 100%% — срок истёк; до этого успейте отгрузить норму."
+	_caravan_order_dl_bar.tooltip_text = "Полоса заполняется по мере истечения срока приказа (дни в лагере после возвращений с острова). 100%% — срок истёк; до этого успейте отгрузить норму."
 
 
 func _set_caravan_deadline_bar_fill_by_ratio(elapsed_ratio: float) -> void:
@@ -1645,13 +1681,16 @@ func _caravan_rules_bbcode() -> String:
 	lines.append("")
 	lines.append("[b]Титул[/b]: зависит от суммарной Сердцевины, отправленной Короне; плашка вверху замка, кнопка «Справка».")
 	lines.append("")
-	lines.append("[b]Рейсы[/b]: после отъезда каравана следующий прибудет через [color=#9fd4ff]%d[/color] возвратов с острова." % interval)
+	lines.append(
+		"[b]Рейсы[/b]: после отъезда каравана следующий прибудет через [color=#9fd4ff]%d[/color] %s — столько полных суток в лагере после возвращений с острова."
+		% [interval, _ru_day_word_counted(interval)]
+	)
 	lines.append("")
-	lines.append("[b]Пока караван у причала[/b]: следующий рейс встаёт в очередь; счёт возвратов один на срок и на график рейса. «Отпустить порожним» снимает ожидание.")
+	lines.append("[b]Пока караван у причала[/b]: следующий рейс встаёт в очередь; один счётчик дней на срок приказа и на график рейса. «Отпустить порожним» снимает ожидание.")
 	lines.append("")
 	lines.append(
-		"[b]Приказ[/b]: норма Сердцевины к сроку в тех же завершённых возвратах с острова, что считает и прибытие каравана; срок кратен [color=#9fd4ff]%d[/color] возвратам (ритм рейса). Если к концу срока отгружено меньше половины нормы — растёт [color=#ff9a7a]немилость[/color], макс. %d. Одна отгрузка примерно на [b]120%%[/b] нормы после недобора снижает немилость."
-		% [BalanceConfig.CARAVAN_EXPEDITION_INTERVAL, BalanceConfig.DISPLEASURE_MAX_LEVEL]
+		"[b]Приказ[/b]: норма Сердцевины к сроку в тех же днях, что считает и прибытие каравана (каждое возвращение на базу с похода — новый день); срок кратен [color=#9fd4ff]%d[/color] %s (ритм рейса). Если к концу срока отгружено меньше половины нормы — растёт [color=#ff9a7a]немилость[/color], макс. %d. Одна отгрузка примерно на [b]120%%[/b] нормы после недобора снижает немилость."
+		% [BalanceConfig.CARAVAN_EXPEDITION_INTERVAL, _ru_day_word_dative_after_kraten(BalanceConfig.CARAVAN_EXPEDITION_INTERVAL), BalanceConfig.DISPLEASURE_MAX_LEVEL]
 	)
 	lines.append("")
 	lines.append(
@@ -1677,13 +1716,16 @@ func _caravan_arrival_details_bbcode() -> String:
 		lines.append("Караван у причала. Загрузите Сердцевину или отпустите порожним.")
 	else:
 		if exp_left <= 0:
-			lines.append("Следующий возврат с острова приведёт караван.")
+			lines.append("С вашим следующим приходом на базу с похода прибудет караван.")
 		elif exp_left == 1:
-			lines.append("До прибытия каравана остался 1 возврат с острова.")
+			lines.append("До прибытия каравана остался 1 %s." % _ru_day_word_counted(1))
 		else:
-			lines.append("До прибытия каравана осталось %d возвратов с острова." % exp_left)
+			lines.append(
+				"До прибытия каравана осталось %d %s."
+				% [exp_left, _ru_day_word_counted(exp_left)]
+			)
 	lines.append("")
-	lines.append("[color=#8a93a8]Возвраты с острова до следующего рейса[/color]")
+	lines.append("[color=#8a93a8]Дни до следующего рейса (после возвращения на базу)[/color]")
 	lines.append("")
 	var completed_raw := 0
 	if not pending:
@@ -1691,7 +1733,10 @@ func _caravan_arrival_details_bbcode() -> String:
 	if pending:
 		lines.append("Пока караван у причала, следующий рейс не прибывает — загрузите Сердцевину или отпустите обоз (очередь рейса сохраняется).")
 	else:
-		lines.append("Завершено возвратов с острова: %d из %d. Полный цикл — следующий рейс при очередном возврате." % [completed_raw, interval_cfg])
+		lines.append(
+			"Отмечено дней в текущем цикле: %d из %d %s. Полный цикл — караван при следующем приходе на базу."
+			% [completed_raw, interval_cfg, _ru_day_word_genitive_after_iz(interval_cfg)]
+		)
 	return "\n".join(lines)
 
 
@@ -1750,7 +1795,10 @@ func _refresh_caravan_expedition_dots(interval_cfg: int, pending: bool, exp_left
 	var filled := 0
 	if not pending and interval_cfg > 0:
 		filled = clampi(int(round(float(completed_raw) * float(n) / float(interval_cfg))), 0, n)
-	var seg_tip := "Каждый сегмент — один завершённый возврат с острова на базу. Заполненный ряд — следующий рейс при очередном возврате. Макс. %d сегм." % interval_cfg
+	var seg_tip := (
+		"Каждый сегмент — один день: возвращение с острова на базу. Заполненный ряд — следующий рейс при следующем приходе на базу. Макс. %d сегм."
+		% interval_cfg
+	)
 	for i in _caravan_dot_panels.size():
 		var p := _caravan_dot_panels[i]
 		if i >= n:
@@ -1810,7 +1858,7 @@ func _refresh_caravan_order_block(order: Dictionary, caravan_pending: bool) -> v
 
 	if _caravan_order_dl_bar:
 		_caravan_order_dl_bar.visible = true
-		## Доля прошедшего срока: 0% в начале периода, 100% когда осталось 0 возвратов (окончание срока).
+		## Доля прошедшего срока: 0% в начале периода, 100% когда не осталось дней в счётчике (окончание срока).
 		## Диапазон 0..1 — совпадает с дефолтом сцены и гарантирует корректный % без рассинхрона max/value.
 		_caravan_order_dl_bar.min_value = 0.0
 		_caravan_order_dl_bar.max_value = 1.0
@@ -1827,8 +1875,8 @@ func _refresh_caravan_order_block(order: Dictionary, caravan_pending: bool) -> v
 			_caravan_order_dl_lbl.visible = true
 			if dl_left > 0:
 				_caravan_order_dl_lbl.text = (
-					"Следующий приказ поступит по окончании срока этого поручения: осталось %d из %d возвратов с острова."
-					% [dl_left, dl_total]
+					"Следующий приказ поступит по окончании срока этого поручения: осталось %d из %d %s."
+					% [dl_left, dl_total, _ru_day_word_genitive_after_iz(dl_total)]
 				)
 			else:
 				if awaiting:
@@ -1846,7 +1894,10 @@ func _refresh_caravan_order_block(order: Dictionary, caravan_pending: bool) -> v
 	if _caravan_order_dl_lbl:
 		_caravan_order_dl_lbl.visible = true
 		if dl_left > 0:
-			_caravan_order_dl_lbl.text = "Осталось %d из %d возвратов до конца срока." % [dl_left, dl_total]
+			_caravan_order_dl_lbl.text = (
+				"Осталось %d из %d %s до конца срока."
+				% [dl_left, dl_total, _ru_day_word_genitive_after_iz(dl_total)]
+			)
 		else:
 			if awaiting:
 				if caravan_pending:
@@ -1880,7 +1931,7 @@ func _refresh_caravan_warning(order: Dictionary) -> void:
 	if sent >= half_barrier:
 		return
 	_caravan_warning_line.visible = true
-	_caravan_warning_line.text = "Остался 1 поход до конца срока приказа, норма ещё не выполнена."
+	_caravan_warning_line.text = "Остался 1 день до конца срока приказа, норма ещё не выполнена."
 
 
 func _resolve_archer_scene() -> PackedScene:

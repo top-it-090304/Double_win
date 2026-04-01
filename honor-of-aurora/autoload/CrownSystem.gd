@@ -339,7 +339,7 @@ func tick_caravan_on_expedition_return() -> void:
 	SaveManager.save_game()
 
 
-## Сколько завершённых возвратов до следующего прибытия каравана (для UI). До первого приказа — то же, что до первого рейса.
+## Сколько «дней» (тиков счётчика после возвращения на базу) до следующего прибытия каравана (для UI). До первого приказа — то же, что до первого рейса.
 func get_returns_until_next_caravan() -> int:
 	var interval := BalanceConfig.CARAVAN_EXPEDITION_INTERVAL
 	var rem := maxi(0, SaveManager.crown_returns_remaining)

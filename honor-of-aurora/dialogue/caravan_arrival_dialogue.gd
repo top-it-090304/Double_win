@@ -338,6 +338,19 @@ func _build_letter_delivery() -> void:
 			lines.append(_plain("caravan", "Милорд, с материка ответ для юноши — от матери."))
 
 
+func _ru_day_word_counted(n: int) -> String:
+	var a := absi(n)
+	var n10 := a % 10
+	var n100 := a % 100
+	if n100 >= 11 and n100 <= 14:
+		return "дней"
+	if n10 == 1:
+		return "день"
+	if n10 >= 2 and n10 <= 4:
+		return "дня"
+	return "дней"
+
+
 func _build_order_announcement(order_index: int) -> void:
 	var order := BalanceConfig.get_crown_order(order_index)
 	if order.is_empty():
@@ -345,12 +358,13 @@ func _build_order_announcement(order_index: int) -> void:
 	var ore_req := int(order.get("ore_required", 0))
 	var letter_text := str(order.get("letter", ""))
 	var deadline := int(order.get("deadline_expeditions", BalanceConfig.DEFAULT_CROWN_ORDER_DEADLINE_EXPEDITIONS))
+	var dl_word := _ru_day_word_counted(deadline)
 
 	lines.append(
 		_plain(
 			"caravan",
-			"Запись из канцелярии, милорд: сдать %d ед. Сердцевины; срок исполнения — %d по графику канцелярии. Пока лодка у пирса — следующий приезд каравана не приближается; срок по приказу идёт отдельно, так в приказе."
-			% [ore_req, deadline]
+			"Запись из канцелярии, милорд: сдать %d ед. Сердцевины; срок исполнения — %d %s по графику канцелярии (в лагере считаются сутки после каждого возвращения с острова). Пока лодка у пирса — следующий приезд каравана не приближается; срок по приказу идёт отдельно, так в приказе."
+			% [ore_req, deadline, dl_word]
 		)
 	)
 	if not letter_text.is_empty():

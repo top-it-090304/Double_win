@@ -100,7 +100,7 @@ const CARAVAN_SUPPLY_GOLD_BASE := 40
 const CARAVAN_SUPPLY_MEAT_BASE := 2
 
 ## ─── Приказы Короны (масштабируются по сюжету) ───
-## `deadline_expeditions` — длина того же единого счётчика возвратов (SaveManager.crown_returns_remaining), кратна CARAVAN_EXPEDITION_INTERVAL.
+## `deadline_expeditions` — длина того же счётчика, что `SaveManager.crown_returns_remaining` (в игре — дни в лагере), кратна CARAVAN_EXPEDITION_INTERVAL.
 const CROWN_ORDERS := [
 	{"index": 1, "ore_required": 15, "deadline_expeditions": 3, "letter": "Первая партия. Маяк на Северном мысе гаснет. Казна ждёт."},
 	{"index": 2, "ore_required": 25, "deadline_expeditions": 6, "letter": "Совет требует ускорить. Торговцы жалуются на тёмные проливы."},
