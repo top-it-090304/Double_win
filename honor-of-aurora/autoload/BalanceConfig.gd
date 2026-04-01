@@ -67,10 +67,10 @@ const ORE_TO_WOOD_RATE := 3
 
 ## Premium Ore Packs (для real-money интеграции/SDK и fallback-покупки).
 const PREMIUM_ORE_PACKS := [
-	{"id": "starter", "title": "Стартовый", "ore": 50, "bonus_ore": 5, "price_label": "99 ₽"},
-	{"id": "adventurer", "title": "Путник", "ore": 140, "bonus_ore": 20, "price_label": "299 ₽"},
-	{"id": "commander", "title": "Командир", "ore": 320, "bonus_ore": 60, "price_label": "599 ₽"},
-	{"id": "warlord", "title": "Полководец", "ore": 700, "bonus_ore": 180, "price_label": "1 199 ₽"},
+	{"id": "starter", "title": "Стартовый", "ore": 50, "bonus_ore": 5, "price_label": "99 ₽", "payment_sku": "dev_starter_pack_small"},
+	{"id": "adventurer", "title": "Путник", "ore": 140, "bonus_ore": 20, "price_label": "299 ₽", "payment_sku": "premium_ore_adventurer"},
+	{"id": "commander", "title": "Командир", "ore": 320, "bonus_ore": 60, "price_label": "599 ₽", "payment_sku": "premium_ore_commander"},
+	{"id": "warlord", "title": "Полководец", "ore": 700, "bonus_ore": 180, "price_label": "1 199 ₽", "payment_sku": "premium_ore_warlord"},
 ]
 
 ## ─── Шахта: пассивная добыча руды при возврате с похода ───
