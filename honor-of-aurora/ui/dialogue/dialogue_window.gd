@@ -87,6 +87,35 @@ var _line_change_epoch: int = 0
 var _chrome_dyn_extra_px: float = 0.0
 
 
+func _dialogue_layout_scale() -> float:
+	return clampf(float(SaveManager.dialogue_text_scale_percent) / 100.0, 0.75, 1.3)
+
+
+func _scaled_choice_btn_min_h() -> int:
+	return maxi(28, int(round(float(CHOICE_BUTTON_MIN_HEIGHT) * _dialogue_layout_scale())))
+
+
+func _refresh_dialogue_visual_scale() -> void:
+	_apply_label_theme()
+	_apply_chrome_button_fonts()
+	_sync_face_frame_size()
+
+
+func _apply_chrome_button_fonts() -> void:
+	var fs: int = maxi(14, int(round(16.0 * _dialogue_layout_scale())))
+	if _continue_btn:
+		_continue_btn.add_theme_font_size_override("font_size", fs)
+	if _close_btn:
+		_close_btn.add_theme_font_size_override("font_size", fs)
+
+
+func _sync_face_frame_size() -> void:
+	if _face_frame == null:
+		return
+	var wh: int = maxi(56, int(round(72.0 * _dialogue_layout_scale())))
+	_face_frame.custom_minimum_size = Vector2(wh, wh)
+
+
 func _ready() -> void:
 	visible = false
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -103,7 +132,7 @@ func _ready() -> void:
 	if _choices_scroll:
 		_choices_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		_choices_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	_apply_label_theme()
+	_refresh_dialogue_visual_scale()
 	_apply_dialogue_chrome_height(0)
 	DialogueManager.dialogue_started.connect(_on_dialogue_started)
 	DialogueManager.line_changed.connect(_on_line_changed)
@@ -120,13 +149,13 @@ func _exit_tree() -> void:
 func _apply_label_theme() -> void:
 	if _name_label == null or _text_label == null:
 		return
-	_name_label.add_theme_font_size_override("font_size", DialogueUiConstants.NAME_FONT_SIZE)
+	_name_label.add_theme_font_size_override("font_size", DialogueUiConstants.get_name_font_size())
 	_name_label.add_theme_color_override("font_color", DialogueUiConstants.NAME_FONT_COLOR)
 	_name_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_name_label.clip_text = false
 	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_name_label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	_text_label.add_theme_font_size_override("font_size", DialogueUiConstants.TEXT_FONT_SIZE)
+	_text_label.add_theme_font_size_override("font_size", DialogueUiConstants.get_text_font_size())
 	_text_label.add_theme_color_override("font_color", DialogueUiConstants.TEXT_FONT_COLOR)
 	_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_text_label.clip_text = true
@@ -144,7 +173,7 @@ func _reset_chrome_dynamic_expand() -> void:
 func _choice_area_min_height(choice_count: int) -> float:
 	if choice_count <= 0:
 		return 0.0
-	return float(choice_count) * float(CHOICE_BUTTON_MIN_HEIGHT) + float(max(0, choice_count - 1)) * float(CHOICE_VBOX_SEP) + CHOICE_SCROLL_PAD_PX
+	return float(choice_count) * float(_scaled_choice_btn_min_h()) + float(max(0, choice_count - 1)) * float(CHOICE_VBOX_SEP) + CHOICE_SCROLL_PAD_PX * _dialogue_layout_scale()
 
 
 func _choice_count_for_window_height(choice_count: int) -> int:
@@ -158,7 +187,7 @@ func _apply_dialogue_chrome_height(choice_count: int) -> void:
 	var extra: float = 0.0
 	if choice_count > 0:
 		var n: int = _choice_count_for_window_height(choice_count)
-		var linear_extra: float = float(n) * CHROME_EXTRA_PX_PER_CHOICE
+		var linear_extra: float = float(n) * CHROME_EXTRA_PX_PER_CHOICE * _dialogue_layout_scale()
 		var content_extra: float = _choice_area_min_height(n)
 		## Раньше только linear_extra (2×28=56) — меньше реальной высоты двух кнопок (32+6+32), появлялся скролл.
 		## n ограничен сверху — при 4+ вариантах окно не растёт бесконечно, лишнее листается в ScrollContainer.
@@ -190,8 +219,9 @@ func _apply_replica_window_for_full_line_text(full_text: String, choice_count: i
 	if vp:
 		vp_h = vp.get_visible_rect().size.y
 	## Не даём блоку текста съесть весь экран — при необходимости уменьшаем кегль до умещения.
-	var max_block_h: float = clampf(vp_h * 0.42, 140.0, 520.0)
-	var fs: int = DialogueUiConstants.TEXT_FONT_SIZE
+	var scl: float = _dialogue_layout_scale()
+	var max_block_h: float = clampf(vp_h * 0.42, 140.0 * scl, 520.0 * scl)
+	var fs: int = DialogueUiConstants.get_text_font_size()
 	var sz: Vector2
 	while fs >= TEXT_FONT_MIN:
 		sz = font.get_multiline_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, max_w, fs, -1)
@@ -199,10 +229,11 @@ func _apply_replica_window_for_full_line_text(full_text: String, choice_count: i
 			break
 		fs -= 1
 	_text_label.add_theme_font_size_override("font_size", fs)
-	var text_h: float = ceilf(float(sz.y)) + REPLICA_TEXT_PAD_PX
+	var text_h: float = ceilf(float(sz.y)) + REPLICA_TEXT_PAD_PX * scl
 	_text_label.custom_minimum_size = Vector2(0, text_h)
-	var delta: float = maxf(0.0, text_h - REPLICA_TEXT_ROW_BASELINE_H)
-	_chrome_dyn_extra_px = minf(delta, CHROME_DYN_EXPAND_MAX_PX)
+	var baseline: float = REPLICA_TEXT_ROW_BASELINE_H * scl
+	var delta: float = maxf(0.0, text_h - baseline)
+	_chrome_dyn_extra_px = minf(delta, CHROME_DYN_EXPAND_MAX_PX * scl)
 	_apply_dialogue_chrome_height(choice_count)
 
 
@@ -298,6 +329,7 @@ func _advance_dialogue_or_page() -> void:
 
 func _on_dialogue_started(_sequence: DialogueSequence) -> void:
 	visible = true
+	_refresh_dialogue_visual_scale()
 	MobileVirtualInput.clear_input()
 
 
@@ -307,6 +339,7 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 		return
 	_line_change_epoch += 1
 	var epoch := _line_change_epoch
+	_refresh_dialogue_visual_scale()
 	_reset_chrome_dynamic_expand()
 	_clear_choice_ui()
 	var sid: String = line.speaker_id
@@ -353,7 +386,8 @@ func _on_line_changed(line: DialogueLine, _index: int, _line_count: int) -> void
 			var opt: DialogueChoiceOption = dcl.options[i]
 			var btn := Button.new()
 			btn.text = "%d. %s" % [i + 1, opt.label]
-			btn.custom_minimum_size = Vector2(0, CHOICE_BUTTON_MIN_HEIGHT)
+			btn.custom_minimum_size = Vector2(0, _scaled_choice_btn_min_h())
+			btn.add_theme_font_size_override("font_size", DialogueUiConstants.get_choice_button_font_size())
 			btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 			btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -452,7 +486,7 @@ func _update_name_label_min_width_for_current_text() -> void:
 	var font: Font = _font_for_label(_name_label)
 	var fs: int = _name_label.get_theme_font_size("font_size")
 	if fs <= 0:
-		fs = DialogueUiConstants.NAME_FONT_SIZE
+		fs = DialogueUiConstants.get_name_font_size()
 	var sz: Vector2 = font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
 	var w: float = maxf(NAME_LABEL_MIN_WIDTH, float(sz.x) + NAME_LABEL_WIDTH_PAD_PX)
 	_name_label.custom_minimum_size = Vector2(w, 0)
@@ -479,12 +513,12 @@ func _pagination_max_width() -> float:
 ## Бюджет высоты для одной страницы. Если уже задан custom_minimum_size под полную реплику — используем его (иначе снова режет на ~96 px).
 func _pagination_page_height_budget() -> float:
 	if _text_label != null and _text_label.custom_minimum_size.y > 1.0:
-		return maxf(_text_label.custom_minimum_size.y - TEXT_MEASURE_HEIGHT_TRIM, float(DialogueUiConstants.TEXT_FONT_SIZE) * 1.6)
+		return maxf(_text_label.custom_minimum_size.y - TEXT_MEASURE_HEIGHT_TRIM, float(DialogueUiConstants.get_text_font_size()) * 1.6)
 	var h: float = _text_label.size.y - TEXT_MEASURE_HEIGHT_TRIM
 	if h < 32.0:
 		h = 96.0
-	var budget: float = minf(h, TEXT_PAGE_HEIGHT_BUDGET_MAX)
-	return maxf(budget, float(DialogueUiConstants.TEXT_FONT_SIZE) * 1.6)
+	var budget: float = minf(h, TEXT_PAGE_HEIGHT_BUDGET_MAX * _dialogue_layout_scale())
+	return maxf(budget, float(DialogueUiConstants.get_text_font_size()) * 1.6)
 
 
 func _label_effective_size(label: Label) -> Vector2:
@@ -518,14 +552,14 @@ func _fit_name_font() -> void:
 		return
 	_name_label.visible = true
 	_name_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	_fit_font_to_label(_name_label, _name_label.text, DialogueUiConstants.NAME_FONT_SIZE, NAME_FONT_MIN)
+	_fit_font_to_label(_name_label, _name_label.text, DialogueUiConstants.get_name_font_size(), NAME_FONT_MIN)
 	_update_name_label_min_width_for_current_text()
 
 
 func _fit_dialogue_text_font() -> void:
 	if _text_label == null:
 		return
-	_fit_font_to_label(_text_label, _text_label.text, DialogueUiConstants.TEXT_FONT_SIZE, TEXT_FONT_MIN)
+	_fit_font_to_label(_text_label, _text_label.text, DialogueUiConstants.get_text_font_size(), TEXT_FONT_MIN)
 
 
 func _build_text_pages(full_text: String) -> PackedStringArray:
@@ -537,7 +571,7 @@ func _build_text_pages(full_text: String) -> PackedStringArray:
 	var font: Font = _font_for_label(_text_label)
 	var max_w: float = maxf(_pagination_max_width(), 8.0)
 	var page_budget: float = _pagination_page_height_budget()
-	var fs: int = DialogueUiConstants.TEXT_FONT_SIZE
+	var fs: int = DialogueUiConstants.get_text_font_size()
 	## Сравниваем с тем же max_w/fs, что и _take_text_page.
 	var full_h: float = _text_block_height(t, font, fs, max_w)
 	if full_h <= page_budget + 1.0:
@@ -572,7 +606,7 @@ func _split_pages_if_still_overflow_after_fit(full_text: String) -> void:
 	if float(sz.y) <= dim_h + 2.0:
 		return
 	var tight_h: float = maxf(dim_h - TEXT_MEASURE_HEIGHT_TRIM, float(fs) * 2.0)
-	tight_h = minf(tight_h, TEXT_PAGE_HEIGHT_BUDGET_MAX)
+	tight_h = minf(tight_h, TEXT_PAGE_HEIGHT_BUDGET_MAX * _dialogue_layout_scale())
 	var pages: Array[String] = []
 	var rest: String = t
 	while not rest.is_empty():

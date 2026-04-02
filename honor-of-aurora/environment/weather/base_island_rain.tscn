@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8rainbase1"]
+
+[ext_resource type="Script" path="res://environment/weather/base_island_rain.gd" id="1_rain"]
+
+[node name="BaseIslandRain" type="Node2D"]
+script = ExtResource("1_rain")
+
+[node name="RainParticles" type="CPUParticles2D" parent="."]

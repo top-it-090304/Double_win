@@ -17,6 +17,8 @@ var monk_miron_mail_chase_pending: bool = false
 var was_on_adventure_before_menu: bool = false
 
 signal location_changed(location: LOCATION)
+## Счётчик использований телепорта (меню причала); см. RainSystem.
+signal teleport_usage_count_changed(new_count: int)
 signal gold_changed(value: int)
 signal meat_changed(value: int)
 signal wood_changed(value: int)

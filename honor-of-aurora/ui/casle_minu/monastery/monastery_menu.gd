@@ -50,8 +50,8 @@ func _refresh_ui() -> void:
 	_set_cost_button("MonasteryPanel/MainActions/SlotsRow/slot_vitality/ColumnVitality/BtnBlessVitality", cost_v_gold, cost_v_ore)
 	_set_cost_button("MonasteryPanel/MainActions/SlotsRow/slot_revive/ColumnRevive/BtnReviveFallen", cost_f_gold, cost_f_ore)
 
-	var can_vitality := (not GameManager.monastery_vitality_prepared) and GameplayFacade.can_afford_gold_plus_ore(cost_v_gold, cost_v_ore)
-	var can_fortitude := (not GameManager.monastery_fortitude_prepared) and GameplayFacade.can_afford_gold_plus_ore(cost_f_gold, cost_f_ore)
+	var can_vitality := (not GameManager.monastery_vitality_prepared) and GameplayFacade.can_afford_gold_plus_ore_strict(cost_v_gold, cost_v_ore)
+	var can_fortitude := (not GameManager.monastery_fortitude_prepared) and GameplayFacade.can_afford_gold_plus_ore_strict(cost_f_gold, cost_f_ore)
 	var btn_v := get_node_or_null("MonasteryPanel/MainActions/SlotsRow/slot_vitality/ColumnVitality/BtnBlessVitality") as Button
 	var btn_f := get_node_or_null("MonasteryPanel/MainActions/SlotsRow/slot_revive/ColumnRevive/BtnReviveFallen") as Button
 	PaidServiceButtonAppearance.set_interactive(btn_v, can_vitality)

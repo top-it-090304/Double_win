@@ -735,7 +735,7 @@ func _on_archive_item_selected(index: int) -> void:
 	if is_letter:
 		_archive_body.bbcode_text = (
 			"[font_size=%d][b][color=#d4c9a0]%s[/color][/b][/font_size]\n"
-			% [DialogueUiConstants.TEXT_FONT_SIZE, title]
+			% [DialogueUiConstants.get_text_font_size(), title]
 			+ "[color=#8a8070]─────────────────────[/color]\n\n%s\n\n"
 			% txt
 			+ "[color=#8a8070]─────────────────────[/color]"
@@ -743,7 +743,7 @@ func _on_archive_item_selected(index: int) -> void:
 	else:
 		_archive_body.bbcode_text = (
 			"[font_size=%d][b]%s[/b][/font_size]\n\n%s"
-			% [DialogueUiConstants.TEXT_FONT_SIZE, title, txt]
+			% [DialogueUiConstants.get_text_font_size(), title, txt]
 		)
 
 

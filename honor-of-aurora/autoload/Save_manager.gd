@@ -64,11 +64,13 @@ var volume_dialogue: float = 1.0
 var difficulty_id: int = 1
 ## Масштаб интерфейса окна (75–130, 100 = по умолчанию). См. Window.content_scale_factor.
 var ui_scale_percent: int = 100
+## Крупность текста в игровых диалогах (75–130, 100 = по умолчанию).
+var dialogue_text_scale_percent: int = 100
 ## Автоподстройка UI под телефон без кропа и искажения пропорций.
 var auto_fit_phone_ui: bool = true
 ## Ограничение FPS (0 = без ограничения, иначе 30–240).
 var max_fps: int = 60
-## 0 мин., 1 сред., 2 макс., 3 свой (только лимит FPS из max_fps). См. PerformancePreset.
+## 0 мин., 1 сред., 2 макс. Лимит FPS задаётся пресетом (см. PerformancePreset). Старый режим 3 в сохранениях сбрасывается в средний.
 var performance_mode: int = 1
 ## Сенсорное управление: 0 = авто, 1 = всегда показывать, 2 = скрыть (ПК/геймпад).
 var touch_mode: int = 0
@@ -115,6 +117,8 @@ var crown_favor: int = 0
 var armor_durability: int = 100
 ## Чередование день/ночь на игровой сцене при телепорте между локациями (не меню); ночь — полупрозрачный слой под HUD.
 var world_ambience_night: bool = false
+## Сколько раз использовали телепорт между локациями (меню причала); период дождя — RainSystem.
+var teleport_usage_count: int = 0
 ## Привалы, использованные в текущем походе.
 var rest_used_this_expedition: int = 0
 ## Ресурсы, собранные в текущем походе (для cap-а).
@@ -133,7 +137,7 @@ const _CODEX_SNAP_MIGRATED_KEY := "_codex_snap_v1_migrated"
 const _CODEX_UI_KEY := "_codex_ui"
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
-const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "opened_chest_ids", "chest_rolled_tiers", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "auto_fit_phone_ui", "max_fps", "performance_mode", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus", "premium_ore_purchased_total", "premium_ore_purchase_count", "ore_sent_to_crown_total", "crown_order_index", "crown_order_ore_sent", "crown_returns_remaining", "caravan_arrival_queued", "crown_deadline_expired_awaiting_dispatch", "crown_orders_failed", "crown_displeasure", "crown_title_index", "caravan_pending", "caravan_sent_count", "crown_favor", "armor_durability", "world_ambience_night"]
+const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "opened_chest_ids", "chest_rolled_tiers", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "dialogue_text_scale_percent", "auto_fit_phone_ui", "max_fps", "performance_mode", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus", "premium_ore_purchased_total", "premium_ore_purchase_count", "ore_sent_to_crown_total", "crown_order_index", "crown_order_ore_sent", "crown_returns_remaining", "caravan_arrival_queued", "crown_deadline_expired_awaiting_dispatch", "crown_orders_failed", "crown_displeasure", "crown_title_index", "caravan_pending", "caravan_sent_count", "crown_favor", "armor_durability", "world_ambience_night", "teleport_usage_count"]
 const default_data := {
 	"gold" : 10,
 	"meat_count" : 0,
@@ -169,6 +173,7 @@ const default_data := {
 	"volume_dialogue" : 1.0,
 	"difficulty_id" : 1,
 	"ui_scale_percent" : 100,
+	"dialogue_text_scale_percent" : 100,
 	"auto_fit_phone_ui" : true,
 	"max_fps" : 60,
 	"performance_mode" : 1,
@@ -194,6 +199,7 @@ const default_data := {
 	"crown_favor" : 0,
 	"armor_durability" : 100,
 	"world_ambience_night" : false,
+	"teleport_usage_count" : 0,
 }
 
 
@@ -259,6 +265,8 @@ func load_game():
 				set(variable, clampf(float(v), 0.0, 1.0))
 			elif variable == "ui_scale_percent" and typeof(v) in [TYPE_FLOAT, TYPE_INT]:
 				ui_scale_percent = clampi(int(v), 75, 130)
+			elif variable == "dialogue_text_scale_percent" and typeof(v) in [TYPE_FLOAT, TYPE_INT]:
+				dialogue_text_scale_percent = clampi(int(v), 75, 130)
 			elif variable == "auto_fit_phone_ui":
 				auto_fit_phone_ui = bool(v)
 			elif variable == "max_fps" and typeof(v) in [TYPE_FLOAT, TYPE_INT]:
@@ -357,6 +365,9 @@ func load_game():
 	if not game_data.has("armor_durability"):
 		armor_durability = 100
 	armor_durability = clampi(int(armor_durability), 0, BalanceConfig.ARMOR_MAX_DURABILITY)
+	if not game_data.has("teleport_usage_count"):
+		teleport_usage_count = 0
+	teleport_usage_count = maxi(0, int(teleport_usage_count))
 	var _warriors := archer_count + lancer_count
 	if meat_count < _warriors:
 		meat_count = _warriors
@@ -382,7 +393,7 @@ func load_game():
 		current_exp = 0
 
 	if not game_data.has("performance_mode"):
-		performance_mode = PerformancePreset.Mode.CUSTOM
+		performance_mode = PerformancePreset.Mode.MEDIUM
 
 	_normalize_settings_fields()
 	apply_window_and_engine_settings()
@@ -392,9 +403,13 @@ func load_game():
 
 func _normalize_settings_fields() -> void:
 	ui_scale_percent = clampi(int(ui_scale_percent), 75, 130)
+	dialogue_text_scale_percent = clampi(int(dialogue_text_scale_percent), 75, 130)
 	auto_fit_phone_ui = bool(auto_fit_phone_ui)
 	max_fps = clampi(int(max_fps), 0, 240)
 	performance_mode = PerformancePreset.clamp_mode(int(performance_mode))
+	## Режим «Свой (только FPS)» убран из меню — маппим в средний пресет.
+	if performance_mode == PerformancePreset.Mode.CUSTOM:
+		performance_mode = PerformancePreset.Mode.MEDIUM
 	touch_mode = clampi(int(touch_mode), 0, 2)
 	touch_scale_percent = clampi(int(touch_scale_percent), 70, 150)
 	touch_opacity_percent = clampi(int(touch_opacity_percent), 25, 100)
@@ -575,6 +590,7 @@ const _NEW_GAME_PROGRESS_IGNORE_KEYS := {
 	"volume_dialogue": true,
 	"difficulty_id": true,
 	"ui_scale_percent": true,
+	"dialogue_text_scale_percent": true,
 	"auto_fit_phone_ui": true,
 	"max_fps": true,
 	"performance_mode": true,

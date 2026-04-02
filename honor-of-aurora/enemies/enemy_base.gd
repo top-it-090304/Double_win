@@ -590,7 +590,8 @@ func die():
 	GameManager.register_enemy_kill_for_playtest()
 	var hero_lv: int = SaveManager.current_level
 	var is_boss := is_in_group("BOSS")
-	var xp_reward := int(round(float(BalanceConfig.get_exp_reward(enemy_level, hero_lv, is_boss)) * reward_mult))
+	var rain_mul: float = RainSystem.get_monster_kill_reward_multiplier()
+	var xp_reward := int(round(float(BalanceConfig.get_exp_reward(enemy_level, hero_lv, is_boss)) * reward_mult * rain_mul))
 	GameManager.add_exp(xp_reward)
 	state = State.DEATH
 	if _anim_safety_timer:
@@ -607,12 +608,14 @@ func die():
 			GameManager.on_story_island_boss_defeated(story_island)
 		GameManager.boss_kill()
 		if story_island >= 1 and story_island <= 5:
-			GameManager.spawn_boss_ore_sparks_at(global_position, story_island, self)
+			var spark_n: int = BalanceConfig.get_boss_defeat_ore_spark_count(story_island)
+			spark_n = maxi(0, int(round(float(spark_n) * rain_mul)))
+			GameManager.spawn_boss_ore_sparks_count_at(global_position, spark_n, self)
 
 	var body_col := get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if body_col:
 		body_col.set_deferred("disabled", true)
-	var gold_amt := int(round(float(BalanceConfig.get_gold_reward(enemy_level, is_boss)) * reward_mult))
+	var gold_amt := int(round(float(BalanceConfig.get_gold_reward(enemy_level, is_boss)) * reward_mult * rain_mul))
 	if gold_amt > 0:
 		GameManager.spawn_gold_pickup_at(global_position, gold_amt, self)
 	if anim.sprite_frames and anim.sprite_frames.has_animation(&"dead"):

@@ -12,7 +12,6 @@ extends "res://ui/HUD/game_hud.gd"
 @export var debug_menu: Control
 @export var camp_codex_panel: Control
 @export var camp_codex_open_button: Button
-@export var debug_menu_open_button: Button
 
 var _codex_badge: TextureRect
 var _armor_hud_root: Control
@@ -35,16 +34,6 @@ func _on_codex_button_pressed() -> void:
 	show_camp_codex_menu()
 
 
-func _on_debug_menu_open_button_pressed() -> void:
-	if debug_menu == null:
-		return
-	SoundManager.play_ui_button()
-	if debug_menu.visible:
-		hide_debug_menu()
-	else:
-		show_debug_menu()
-
-
 func _ready() -> void:
 	visible = not Engine.is_editor_hint()
 	## @tool: в редакторе автозагрузки — placeholder без методов/сигналов; не трогаем SaveManager, Events, DialogueManager.
@@ -60,14 +49,10 @@ func _ready() -> void:
 		if not camp_codex_open_button.resized.is_connected(_on_codex_open_button_resized):
 			camp_codex_open_button.resized.connect(_on_codex_open_button_resized)
 		_setup_codex_badge()
-	if debug_menu_open_button:
-		debug_menu_open_button.pressed.connect(_on_debug_menu_open_button_pressed)
 	Events.location_changed.connect(_on_location_changed_codex_button)
-	Events.location_changed.connect(_on_location_changed_debug_open_button)
 	Events.location_changed.connect(_on_location_changed_armor_hud)
 	Events.armor_durability_changed.connect(_on_armor_hud_data_changed)
 	_on_location_changed_codex_button(Events.current_location)
-	_on_location_changed_debug_open_button(Events.current_location)
 	DialogueManager.dialogue_ended.connect(_on_any_dialogue_ended_for_badge)
 	_setup_armor_hud_nodes()
 	_refresh_armor_hud()
@@ -119,12 +104,6 @@ func _on_location_changed_codex_button(_loc: Events.LOCATION) -> void:
 	camp_codex_open_button.visible = Events.current_location != Events.LOCATION.MENU
 
 
-func _on_location_changed_debug_open_button(_loc: Events.LOCATION) -> void:
-	if debug_menu_open_button == null:
-		return
-	debug_menu_open_button.visible = Events.current_location != Events.LOCATION.MENU
-
-
 func _setup_armor_hud_nodes() -> void:
 	_armor_hud_root = get_node_or_null("ArmorDurabilityHud") as Control
 	_armor_hud_label = get_node_or_null("ArmorDurabilityHud/ArmorPctLabel") as Label
@@ -168,7 +147,6 @@ func _cache_ui_scale_base_rects_if_needed() -> void:
 		"WoodCounter",
 		"Button",
 		"CodexOpenButton",
-		"DebugMenuOpenButton",
 	]:
 		var c := get_node_or_null(p) as Control
 		if c == null:
@@ -312,6 +290,7 @@ func teleport_to(location: Events.LOCATION):
 		hide_teleport_menu()
 	else:
 		get_tree().paused = false
+	RainSystem.register_teleport_use()
 	Events.location_changed.emit(location)
 
 

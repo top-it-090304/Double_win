@@ -186,6 +186,26 @@ max_value = 100.0
 step = 1.0
 value = 100.0
 
+[node name="DialogueTextScaleLabel" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+text = "Крупность текста в диалогах"
+
+[node name="DialogueTextScaleHint" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.62, 0.66, 0.74, 1)
+theme_override_font_sizes/font_size = 14
+text = "Реплики, имена и варианты ответа; высота окна диалога подстраивается. Не зависит от «Крупность меню»."
+
+[node name="DialogueTextScaleSlider" type="HSlider" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 75.0
+max_value = 130.0
+step = 1.0
+value = 100.0
+
 [node name="Sep2" type="HSeparator" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
 layout_mode = 2
 
@@ -212,16 +232,6 @@ autowrap_mode = 3
 theme_override_colors/font_color = Color(0.62, 0.66, 0.74, 1)
 theme_override_font_sizes/font_size = 14
 text = "Меняет лимит FPS, шаг физики, частоту пересчёта слоёв по Y и VSync."
-
-[node name="FpsLabel" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Частота кадров"
-
-[node name="FpsOption" type="OptionButton" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="UiScaleLabel" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
 layout_mode = 2
@@ -258,15 +268,6 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.72, 0.42, 1)
 theme_override_font_sizes/font_size = 20
 text = "Управление (сенсор)"
-
-[node name="TouchModeLabel" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
-layout_mode = 2
-text = "Виртуальный джойстик и кнопки"
-
-[node name="TouchModeOption" type="OptionButton" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="TouchScaleLabel" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
 layout_mode = 2

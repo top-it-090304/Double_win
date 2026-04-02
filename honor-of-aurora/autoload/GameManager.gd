@@ -151,7 +151,7 @@ func get_armory_shield_factor_after_buff_preview() -> float:
 func try_prepare_armory_sword() -> bool:
 	if armory_sword_prepared:
 		return false
-	if not GameplayFacade.try_spend_gold_or_ore(BalanceConfig.get_armory_sword_buff_cost()):
+	if not GameplayFacade.try_spend_gold(BalanceConfig.get_armory_sword_buff_cost()):
 		return false
 	armory_sword_prepared = true
 	var mul := get_armory_prep_strength_multiplier()
@@ -165,7 +165,7 @@ func try_prepare_armory_sword() -> bool:
 func try_prepare_armory_shield() -> bool:
 	if armory_shield_prepared:
 		return false
-	if not GameplayFacade.try_spend_gold_or_ore(BalanceConfig.get_armory_shield_buff_cost()):
+	if not GameplayFacade.try_spend_gold(BalanceConfig.get_armory_shield_buff_cost()):
 		return false
 	armory_shield_prepared = true
 	var mul := get_armory_prep_strength_multiplier()
@@ -177,7 +177,7 @@ func try_prepare_armory_shield() -> bool:
 func try_prepare_monastery_vitality() -> bool:
 	if monastery_vitality_prepared:
 		return false
-	if not GameplayFacade.try_spend_gold_plus_ore(
+	if not GameplayFacade.try_spend_gold_plus_ore_strict(
 		BalanceConfig.get_monastery_vitality_gold_cost(),
 		BalanceConfig.get_monastery_vitality_ore_cost()
 	):
@@ -193,7 +193,7 @@ func try_prepare_monastery_vitality() -> bool:
 func try_prepare_monastery_fortitude() -> bool:
 	if monastery_fortitude_prepared:
 		return false
-	if not GameplayFacade.try_spend_gold_plus_ore(
+	if not GameplayFacade.try_spend_gold_plus_ore_strict(
 		BalanceConfig.get_monastery_revive_gold_cost(),
 		BalanceConfig.get_monastery_revive_ore_cost()
 	):
@@ -206,7 +206,7 @@ func try_prepare_monastery_fortitude() -> bool:
 func try_prepare_archery_volley() -> bool:
 	if archery_volley_prepared:
 		return false
-	if not GameplayFacade.try_spend_gold_plus_ore(
+	if not GameplayFacade.try_spend_gold_plus_ore_strict(
 		BalanceConfig.get_archery_volley_gold_cost(),
 		BalanceConfig.get_archery_volley_ore_cost()
 	):
@@ -219,7 +219,7 @@ func try_prepare_archery_volley() -> bool:
 func try_prepare_archery_guard() -> bool:
 	if archery_guard_prepared:
 		return false
-	if not GameplayFacade.try_spend_gold_plus_ore(
+	if not GameplayFacade.try_spend_gold_plus_ore_strict(
 		BalanceConfig.get_archery_guard_gold_cost(),
 		BalanceConfig.get_archery_guard_ore_cost()
 	):
@@ -1199,6 +1199,7 @@ func _finish_player_placement_after_scene_change(location: Events.LOCATION) -> v
 	SaveManager.apply_window_and_engine_settings()
 	PostFinaleWorld.apply_after_scene_loaded()
 	_apply_world_ambience_layer(new_scene)
+	RainSystem.sync_rain_overlay_for_scene(new_scene)
 
 func _spawn_saved_archers(root: Node) -> void:
 	if not current_scene_player or not is_instance_valid(current_scene_player):

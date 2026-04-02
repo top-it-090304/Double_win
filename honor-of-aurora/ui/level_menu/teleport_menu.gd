@@ -7,13 +7,45 @@ extends Control
 @onready var _btn_lvl5: Button = $TextureRect/buttons/Button5
 @onready var _btn_base: Button = $TextureRect/buttons/Button7
 
+var _tp_usage_label: Label
+
 
 func _ready() -> void:
+	_setup_teleport_usage_label()
+	_refresh_teleport_usage_label()
+	if not Events.teleport_usage_count_changed.is_connected(_on_teleport_usage_count_changed):
+		Events.teleport_usage_count_changed.connect(_on_teleport_usage_count_changed)
 	_refresh_teleport_buttons_disabled()
+
+
+func _setup_teleport_usage_label() -> void:
+	_tp_usage_label = Label.new()
+	_tp_usage_label.name = "TeleportUsageLabel"
+	_tp_usage_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_tp_usage_label.add_theme_font_size_override("font_size", 15)
+	add_child(_tp_usage_label)
+	_tp_usage_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_tp_usage_label.offset_left = 12.0
+	_tp_usage_label.offset_top = 8.0
+	_tp_usage_label.offset_right = 420.0
+	_tp_usage_label.offset_bottom = 72.0
+
+
+func _refresh_teleport_usage_label() -> void:
+	if _tp_usage_label == null:
+		return
+	var n: int = SaveManager.teleport_usage_count
+	var line2: String = "Дождь + x2 лут (каждый 5-й телепорт, до следующего)" if RainSystem.is_rain_weather_active() else "След. дождь + x2 на 5-м, 10-м, 15-м… телепорте"
+	_tp_usage_label.text = "Телепортаций: %d\n%s" % [n, line2]
+
+
+func _on_teleport_usage_count_changed(_c: int) -> void:
+	_refresh_teleport_usage_label()
 
 
 ## Вызывается из HUD при входе в зону телепорта; `_location` оставлен для совместимости с TeleportZone.
 func set_target_location(_location: Events.LOCATION) -> void:
+	_refresh_teleport_usage_label()
 	_refresh_teleport_buttons_disabled()
 
 

@@ -20,6 +20,7 @@ config/icon="res://images/Logo/Logo.png"
 [autoload]
 
 SaveManager="*res://autoload/Save_manager.gd"
+RainSystem="*res://autoload/rain_system.gd"
 DifficultyConfig="*res://autoload/DifficultyConfig.gd"
 BalanceConfig="*res://autoload/BalanceConfig.gd"
 Events="*res://autoload/Events.gd"
