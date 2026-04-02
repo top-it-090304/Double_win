@@ -567,6 +567,84 @@ func _normalize_building_levels(src: Dictionary) -> Dictionary:
 	return out
 
 
+## Поля настроек: не учитываются при проверке «прогресс как у новой игры».
+const _NEW_GAME_PROGRESS_IGNORE_KEYS := {
+	"volume_music": true,
+	"volume_sfx": true,
+	"volume_ui": true,
+	"volume_dialogue": true,
+	"difficulty_id": true,
+	"ui_scale_percent": true,
+	"auto_fit_phone_ui": true,
+	"max_fps": true,
+	"performance_mode": true,
+	"touch_mode": true,
+	"touch_scale_percent": true,
+	"touch_opacity_percent": true,
+	"haptic_enabled": true,
+}
+
+
+func _story_flags_without_bookkeeping() -> Dictionary:
+	var out: Dictionary = {}
+	for k in story_flags:
+		var ks := str(k)
+		if (
+			ks == _CODEX_SNAP_KEY
+			or ks == _CODEX_SNAP_MIGRATED_KEY
+			or ks == _CODEX_UI_KEY
+			or ks == "_codex_seen_version"
+			or ks == "_youth_letter_prompt_mig_v1"
+			or ks == "_story_islands_migrated"
+		):
+			continue
+		out[k] = story_flags[k]
+	return out
+
+
+func _progress_field_matches_new_game_defaults(variable: String) -> bool:
+	match variable:
+		"current_health":
+			if hero_max_health_bonus != 0:
+				return false
+			var tier_hp := HeroProgression.get_tier_for_level(current_level).max_health
+			return int(round(float(current_health))) == tier_hp
+		"meat_count":
+			var w := archer_count + lancer_count
+			return int(meat_count) == maxi(int(default_data["meat_count"]), w)
+		"building_levels":
+			var norm := _normalize_building_levels(building_levels)
+			for k in DEFAULT_BUILDING_LEVELS:
+				if int(norm.get(k, 0)) != int(DEFAULT_BUILDING_LEVELS[k]):
+					return false
+			return true
+		"story_flags":
+			return _story_flags_without_bookkeeping().is_empty()
+		"island_zone_state", "opened_chest_ids", "chest_rolled_tiers":
+			var d: Variant = get(variable)
+			return d is Dictionary and (d as Dictionary).is_empty()
+		"resume_player_position_x", "resume_player_position_y", "hero_speed_bonus":
+			return is_equal_approx(float(get(variable)), float(default_data[variable]))
+		_:
+			var cur: Variant = get(variable)
+			var dfl: Variant = default_data[variable]
+			if dfl is bool:
+				return bool(cur) == bool(dfl)
+			if typeof(dfl) in [TYPE_INT, TYPE_FLOAT] or typeof(cur) in [TYPE_INT, TYPE_FLOAT]:
+				return is_equal_approx(float(cur), float(dfl))
+			return cur == dfl
+
+
+## true, если сохранённый прогресс совпадает с состоянием после «Новая игра» (настройки громкости и т.д. не сравниваются).
+func is_saved_progress_equivalent_to_new_game() -> bool:
+	for variable in SAVE_DATA:
+		if _NEW_GAME_PROGRESS_IGNORE_KEYS.get(variable, false):
+			continue
+		if not _progress_field_matches_new_game_defaults(variable):
+			return false
+	return true
+
+
 func is_chest_opened(chest_id: String) -> bool:
 	if chest_id.is_empty():
 		return false

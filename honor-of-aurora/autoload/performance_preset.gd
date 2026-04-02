@@ -9,7 +9,7 @@ static func clamp_mode(m: int) -> int:
 	return clampi(m, 0, 3)
 
 
-## Применить к движку и YSortManager. Для CUSTOM max_fps берётся из SaveManager, остальное — «средний» базис.
+## Применить к движку и YSortManager. Для CUSTOM max_fps из SaveManager; физика 60 Гц и Y-sort раз в 2 кадра — для ручного лимита FPS без урезания симуляции.
 static func apply_from_save_manager(sm: Node) -> void:
 	if sm == null:
 		return
@@ -25,14 +25,16 @@ static func apply_from_save_manager(sm: Node) -> void:
 			ysort_every = 4
 			vsync = DisplayServer.VSYNC_ENABLED
 		Mode.MEDIUM:
+			## 60 FPS на экране, но нагрузка как у «слабого» профиля: 30 Гц физики + редкий Y-sort (см. physics_interpolation у CharacterUnit).
 			max_fps_val = 60
-			ticks = 60
-			ysort_every = 2
+			ticks = 30
+			ysort_every = 4
 			vsync = DisplayServer.VSYNC_ENABLED
 		Mode.MAXIMUM:
 			max_fps_val = 0
 			ticks = 60
-			ysort_every = 1
+			## Раньше каждый кадр — дорого при сотнях y_sortable; 2 кадра — заметно дешевле, слои всё ещё часто обновляются.
+			ysort_every = 2
 			## ADAPTIVE на части ПК/драйверов даёт неочевидное поведение; для «макс. плавности» — обычный VSync.
 			vsync = DisplayServer.VSYNC_ENABLED
 		Mode.CUSTOM:

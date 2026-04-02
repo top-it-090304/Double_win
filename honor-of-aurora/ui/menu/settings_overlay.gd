@@ -190,11 +190,11 @@ func _update_performance_desc() -> void:
 		PerformancePreset.Mode.MINIMAL:
 			_perf_desc.text = "Минимальный: 30 FPS, физика 30 Гц, редкий пересчёт слоёв по Y (4 кадра), VSync — максимум экономии."
 		PerformancePreset.Mode.MEDIUM:
-			_perf_desc.text = "Средний: 60 FPS, физика 60 Гц, пересчёт Y-sort раз в 2 кадра, VSync — баланс."
+			_perf_desc.text = "Средний: 60 FPS, физика 30 Гц (меньше нагрузки), Y-sort раз в 4 кадра, VSync — ближе к слабому железу при цели 60 FPS."
 		PerformancePreset.Mode.MAXIMUM:
-			_perf_desc.text = "Максимальный: без лимита FPS, физика 60 Гц, Y-sort каждый кадр, VSync — максимум плавности картинки."
+			_perf_desc.text = "Максимальный: без лимита FPS, физика 60 Гц, Y-sort раз в 2 кадра, VSync — упор на плавность."
 		_:
-			_perf_desc.text = "Свой: задаётся только пункт «Частота кадров»; физика 60 Гц, средний пересчёт Y-sort."
+			_perf_desc.text = "Свой: задаётся только пункт «Частота кадров»; физика 60 Гц, Y-sort раз в 2 кадра."
 
 
 func _sync_fps_locked_from_performance_mode() -> void:
