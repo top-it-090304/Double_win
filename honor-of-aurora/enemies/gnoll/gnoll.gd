@@ -71,7 +71,7 @@ func _finish_hit_recovery() -> void:
 func start_attack() -> void:
 	if state == State.ATTACK:
 		return
-	SoundManager.play_enemy_attack_swing()
+	SoundManager.play_enemy_attack_swing_for(_get_enemy_sfx_kind())
 	state = State.ATTACK
 	can_attack = false
 	_attack_damage_applied = true

@@ -43,8 +43,9 @@ const BUS_DIALOGUE := &"Dialogue"
 ## Щит (raise + block) громче остального боя — хорошо слышно.
 const VOL_MUSIC := -20.0
 const VOL_COMBAT := -22.0
+const VOL_ENEMY_HIT := -16.0
 const VOL_ATTACK_SWING := -20.0
-const VOL_ENEMY_ATTACK_SWING := -20.0
+const VOL_ENEMY_ATTACK_SWING := -14.0
 const VOL_SHIELD := -8.0
 const VOL_SHIELD_RAISE := -6.0
 const VOL_UI := -36.0
@@ -67,18 +68,101 @@ const ATTACK_SHOUTS = [
 	preload("res://audio/sfx/knight_attack_shout_1.wav"),
 	preload("res://audio/sfx/knight_attack_shout_2.wav"),
 ]
-## Взмах врага — только Kenney (металл/механика), без голоса.
-const ENEMY_ATTACK_SWINGS = [
-	preload("res://audio/sfx/shield_variants/raise_03_metalClick.ogg"),
-	preload("res://audio/sfx/shield_variants/raise_01_beltHandle.ogg"),
-	preload("res://audio/sfx/shield_variants/block_01_metal_light.ogg"),
+## Взмах/крик атаки врага: CC0 creature SFX (rubberduck, OGA), по типу юнита — infer_enemy_sfx_kind_from_script_path().
+## Медведь — рычание (roar_*), не щелчки металла.
+const _SW_BLOCK_00 := preload("res://audio/sfx/shield_variants/block_00_metalClick.ogg")
+const _CRE_ROAR: Array[AudioStream] = [
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/roar_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/roar_02.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/roar_03.ogg"),
+]
+const _CRE_TROLL: Array[AudioStream] = [
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/troll_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/troll_02.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/troll_03.ogg"),
+]
+const _CRE_MINOTAUR: Array[AudioStream] = [
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/monster_04.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/monster_05.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/monster_06.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/troll_01.ogg"),
+]
+const _CRE_THIEF: Array[AudioStream] = [
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_02.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/spit_01.ogg"),
+]
+const _CRE_GNOME: Array[AudioStream] = [
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/weird_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/weird_02.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/cough_01.ogg"),
+]
+const _CRE_LANCER: Array[AudioStream] = [
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_03.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_04.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_05.ogg"),
+]
+const _CRE_SKULL: Array[AudioStream] = [
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/scream_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/scream_02.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/weird_05.ogg"),
+]
+const _CRE_SPIDER: Array[AudioStream] = [
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/bug_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/bug_02.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/bug_03.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/bug_04.ogg"),
+]
+const _CRE_SNAKE_LIZARD: Array[AudioStream] = [
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/spit_02.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/spit_03.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/burble_01.ogg"),
+]
+const _CRE_TURTLE: Array[AudioStream] = [
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/breath.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/burble_02.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/misc_01.ogg"),
+]
+const _CRE_GNOLL: Array[AudioStream] = [
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/howl.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/monster_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/monster_02.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/eat_01.ogg"),
+]
+const _CRE_SHAMAN: Array[AudioStream] = [
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/weird_03.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/weird_04.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/ooh.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/alien_01.ogg"),
+]
+const _CRE_FISH_THROW: Array[AudioStream] = [
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/spit_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/misc_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/burble_01.ogg"),
+]
+const _CRE_GOBLIN_TORCH: Array[AudioStream] = [
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/cute_02.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/cute_03.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/scream_01.ogg"),
+]
+const _CRE_GOBLIN_TNT: Array[AudioStream] = [
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/burp_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/burp_02.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/misc_02.ogg"),
+]
+## Неизвестный тип / чистый enemy_base.gd — злой рык, без «дверных» щелчков.
+const ENEMY_ATTACK_SWINGS: Array[AudioStream] = [
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_02.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_03.ogg"),
+	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_04.ogg"),
 ]
 const STREAM_HIT_ARMOR := preload("res://audio/sfx/hit_armor.ogg")
 const STREAM_HIT_BODY := preload("res://audio/sfx/hit_body.ogg")
 const STREAM_PLAYER_HURT := preload("res://audio/sfx/player_hurt.ogg")
 const STREAM_ENEMY_HURT := preload("res://audio/sfx/enemy_hurt.ogg")
 const STREAM_SHIELD_RAISE := preload("res://audio/sfx/shield_variants/raise_00_metalLatch.ogg")
-const STREAM_SHIELD_BLOCK := preload("res://audio/sfx/shield_variants/block_00_metalClick.ogg")
+const STREAM_SHIELD_BLOCK := _SW_BLOCK_00
 const STREAM_DEATH := preload("res://audio/sfx/death.ogg")
 
 const STREAM_DIALOGUE_PAGE_TURN := preload("res://audio/sfx/dialogue/page_turn.ogg")
@@ -423,21 +507,171 @@ func play_attack_swing() -> void:
 	_play_sfx(stream, randf_range(0.96, 1.04), VOL_ATTACK_SWING, BUS_SFX)
 
 
+## Папка врага из пути скрипта сцены (bear, gnoll, goblin_torch …); для enemy_base.gd — default.
+func infer_enemy_sfx_kind_from_script_path(path: String) -> StringName:
+	if path.is_empty():
+		return &"default"
+	var n := path.replace("\\", "/")
+	if n.ends_with("/enemy_base.gd") or n.ends_with("enemy_base.gd"):
+		return &"default"
+	var key := "/enemies/"
+	var i := n.find(key)
+	if i < 0:
+		return &"default"
+	var rest := n.substr(i + key.length())
+	var parts := rest.split("/")
+	if parts.is_empty():
+		return &"default"
+	var top := String(parts[0]).to_lower()
+	if top == "goblin" and parts.size() >= 2:
+		var sub := String(parts[1]).to_lower()
+		if sub == "torch":
+			return &"goblin_torch"
+		if sub == "tnt":
+			return &"goblin_tnt"
+	return StringName(top.replace(" ", "_"))
+
+
+func _enemy_attack_streams_for_kind(kind: StringName) -> Array[AudioStream]:
+	match kind:
+		&"bear", &"panda":
+			return _CRE_ROAR
+		&"troll":
+			return _CRE_TROLL
+		&"minotaur":
+			return _CRE_MINOTAUR
+		&"thief":
+			return _CRE_THIEF
+		&"gnome":
+			return _CRE_GNOME
+		&"lancer":
+			return _CRE_LANCER
+		&"skull":
+			return _CRE_SKULL
+		&"spider":
+			return _CRE_SPIDER
+		&"snake", &"lizard":
+			return _CRE_SNAKE_LIZARD
+		&"turtle":
+			return _CRE_TURTLE
+		&"gnoll":
+			return _CRE_GNOLL
+		&"shaman":
+			return _CRE_SHAMAN
+		&"harpoon_fish", &"paddle_fish":
+			return _CRE_FISH_THROW
+		&"goblin_torch":
+			return _CRE_GOBLIN_TORCH
+		&"goblin_tnt":
+			return _CRE_GOBLIN_TNT
+		_:
+			return ENEMY_ATTACK_SWINGS
+
+
+func _enemy_attack_pitch_range_for_kind(kind: StringName) -> Vector2:
+	match kind:
+		&"bear":
+			return Vector2(0.78, 0.92)
+		&"panda":
+			return Vector2(0.9, 1.04)
+		&"troll", &"minotaur":
+			return Vector2(0.84, 0.98)
+		&"turtle":
+			return Vector2(0.9, 1.02)
+		&"skull":
+			return Vector2(1.0, 1.12)
+		&"spider", &"snake", &"lizard":
+			return Vector2(1.04, 1.18)
+		&"shaman", &"gnome":
+			return Vector2(1.06, 1.22)
+		&"goblin_torch", &"goblin_tnt":
+			return Vector2(1.08, 1.24)
+		&"gnoll", &"harpoon_fish", &"paddle_fish":
+			return Vector2(0.94, 1.1)
+		_:
+			return Vector2(0.92, 1.08)
+
+
+func play_enemy_attack_swing_for(kind: StringName = &"") -> void:
+	var k := kind
+	if k.is_empty():
+		k = &"default"
+	var arr: Array[AudioStream] = _enemy_attack_streams_for_kind(k)
+	if arr.is_empty():
+		arr = ENEMY_ATTACK_SWINGS
+	var stream: AudioStream = arr[randi() % arr.size()]
+	var pr := _enemy_attack_pitch_range_for_kind(k)
+	_play_sfx(stream, randf_range(pr.x, pr.y), VOL_ENEMY_ATTACK_SWING, BUS_SFX)
+
+
 func play_enemy_attack_swing() -> void:
-	var stream: AudioStream = ENEMY_ATTACK_SWINGS[randi() % ENEMY_ATTACK_SWINGS.size()]
-	_play_sfx(stream, randf_range(0.92, 1.08), VOL_ENEMY_ATTACK_SWING, BUS_SFX)
+	play_enemy_attack_swing_for(&"default")
+
+
+func play_enemy_hit_for(kind: StringName = &"") -> void:
+	var k := kind
+	if k.is_empty():
+		k = &"default"
+	var r := randf()
+	var stream: AudioStream
+	var p_lo := 0.95
+	var p_hi := 1.05
+	match k:
+		&"bear", &"panda", &"troll", &"minotaur", &"turtle":
+			if r < 0.55:
+				stream = STREAM_HIT_BODY
+			elif r < 0.88:
+				stream = STREAM_HIT_ARMOR
+			else:
+				stream = STREAM_ENEMY_HURT
+			p_lo = 0.88
+			p_hi = 0.98
+		&"skull":
+			if r < 0.48:
+				stream = STREAM_HIT_ARMOR
+			elif r < 0.78:
+				stream = STREAM_HIT_BODY
+			else:
+				stream = STREAM_ENEMY_HURT
+			p_lo = 1.04
+			p_hi = 1.16
+		&"spider", &"snake", &"lizard", &"harpoon_fish", &"paddle_fish":
+			if r < 0.22:
+				stream = STREAM_HIT_ARMOR
+			elif r < 0.58:
+				stream = STREAM_HIT_BODY
+			else:
+				stream = STREAM_ENEMY_HURT
+			p_lo = 1.03
+			p_hi = 1.14
+		&"lancer", &"gnoll":
+			if r < 0.58:
+				stream = STREAM_HIT_ARMOR
+			elif r < 0.88:
+				stream = STREAM_HIT_BODY
+			else:
+				stream = STREAM_ENEMY_HURT
+		&"shaman":
+			if r < 0.35:
+				stream = STREAM_HIT_ARMOR
+			elif r < 0.65:
+				stream = STREAM_HIT_BODY
+			else:
+				stream = STREAM_ENEMY_HURT
+			p_lo = 1.02
+			p_hi = 1.12
+		_:
+			if r < 0.38:
+				stream = STREAM_HIT_ARMOR
+			elif r < 0.72:
+				stream = STREAM_HIT_BODY
+			else:
+				stream = STREAM_ENEMY_HURT
+	_play_sfx(stream, randf_range(p_lo, p_hi), VOL_ENEMY_HIT, BUS_SFX)
 
 
 func play_enemy_hit() -> void:
-	var r := randf()
-	var stream: AudioStream
-	if r < 0.38:
-		stream = STREAM_HIT_ARMOR
-	elif r < 0.72:
-		stream = STREAM_HIT_BODY
-	else:
-		stream = STREAM_ENEMY_HURT
-	_play_sfx(stream, randf_range(0.95, 1.05), VOL_COMBAT, BUS_SFX)
+	play_enemy_hit_for(&"default")
 
 
 func play_player_hurt() -> void:

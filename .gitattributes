@@ -1,4 +1,5 @@
-# Репозиторий в LF. На Windows без CRLF в рабочей копии — не будет предупреждений при git add.
+# Репозиторий в LF. Рабочая копия тоже LF: см. honor-of-aurora/.editorconfig (root) и .vscode/settings.json.
+# При предупреждениях о CRLF: git config core.autocrlf false (локально в этом репо).
 * text=auto eol=lf
 
 *.tscn text eol=lf

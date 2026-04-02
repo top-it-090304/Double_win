@@ -81,7 +81,7 @@ func start_attack() -> void:
 	## Повторный вызов в том же кадре/пока уже кастуем — второй и третий таймеры снарядов (баг «три шара»).
 	if state == State.ATTACK:
 		return
-	SoundManager.play_enemy_attack_swing()
+	SoundManager.play_enemy_attack_swing_for(_get_enemy_sfx_kind())
 	state = State.ATTACK
 	can_attack = false
 	_attack_damage_applied = true

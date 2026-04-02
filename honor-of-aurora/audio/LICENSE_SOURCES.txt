@@ -35,7 +35,8 @@ SFX combat / steps: Kenney (CC0) — RPG Audio, Impact Sounds — https://kenney
 Attack shout (только игрок, взмах): «Voice Clip Pack - Male Adventurer RPG» (Brandon Song / wolfwoot), CC0
 https://opengameart.org/content/voice-clip-pack-male-adventurer-rpg
 Короткие возгласы (без длинных «attackbig»): attack2, attack4, attack8.wav → knight_attack_shout_0..2.wav
-Взмах врагов: Kenney RPG/Impact — metalClick, beltHandle, metal_light (без голоса).
+Атака врагов (рычание, тролль, жуки и т.д.): «80 CC0 creature SFX», rubberduck, CC0 — https://opengameart.org/content/80-cc0-creature-sfx
+Файлы в res://audio/sfx/enemy_attack/rubberduck_cc0/ (подмножество из архива; roar_* — медведь/панда, troll_* — тролль, bug_* — паук и т.п.).
 
 UI (dialogue, menus, buttons): Kenney Interface Sounds (CC0) — https://kenney.nl/assets/interface-sounds
 Menu open/close: pluck_001 + tick_001 (мягкие, вместо open/close).

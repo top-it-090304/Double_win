@@ -431,8 +431,15 @@ func _get_attack_animation_name() -> StringName:
 	return &"attack"
 
 
+func _get_enemy_sfx_kind() -> StringName:
+	var sp: Script = get_script() as Script
+	if sp == null:
+		return &"default"
+	return SoundManager.infer_enemy_sfx_kind_from_script_path(sp.resource_path)
+
+
 func start_attack():
-	SoundManager.play_enemy_attack_swing()
+	SoundManager.play_enemy_attack_swing_for(_get_enemy_sfx_kind())
 	state = State.ATTACK
 	can_attack = false
 	_attack_damage_applied = false
@@ -565,7 +572,7 @@ func _modify_incoming_damage(amount: int) -> int:
 
 
 func _on_health_damage_applied(amount: int) -> void:
-	SoundManager.play_enemy_hit()
+	SoundManager.play_enemy_hit_for(_get_enemy_sfx_kind())
 	show_damage_number(amount)
 	if health_component == null or health_component.current_health <= 0:
 		return
