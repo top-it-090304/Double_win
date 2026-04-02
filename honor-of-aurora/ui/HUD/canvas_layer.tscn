@@ -21,7 +21,7 @@
 [ext_resource type="PackedScene" uid="uid://b8q3e34lq86dv" path="res://ui/camp_codex/camp_codex_panel.tscn" id="camp_codex_scene"]
 [ext_resource type="Texture2D" uid="uid://dgwuk12s7shin" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_06.png" id="shield_hud_icon"]
 
-[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("teleport_menu", "castle_menu", "barracks_menu", "monastery_menu", "archery_menu", "payshop_menu", "squad_orders_menu", "debug_menu", "camp_codex_panel", "camp_codex_open_button") groups=["hud"]]
+[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("teleport_menu", "castle_menu", "barracks_menu", "monastery_menu", "archery_menu", "payshop_menu", "squad_orders_menu", "debug_menu", "camp_codex_panel", "camp_codex_open_button", "debug_menu_open_button") groups=["hud"]]
 process_mode = 3
 layer = 5
 visible = false
@@ -36,6 +36,7 @@ squad_orders_menu = NodePath("SquadOrdersMenu")
 debug_menu = NodePath("DebugMenu")
 camp_codex_panel = NodePath("CampCodexPanel")
 camp_codex_open_button = NodePath("CodexOpenButton")
+debug_menu_open_button = NodePath("DebugMenuOpenButton")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 anchors_preset = 15
@@ -107,6 +108,16 @@ offset_top = 18.0
 offset_right = 116.0
 offset_bottom = 90.0
 icon = ExtResource("4_ap7xm")
+flat = true
+
+[node name="DebugMenuOpenButton" type="Button" parent="."]
+offset_left = 1104.0
+offset_top = 96.0
+offset_right = 1176.0
+offset_bottom = 168.0
+tooltip_text = "Отладка (то же окно, что по F3)"
+theme_override_font_sizes/font_size = 20
+text = "DBG"
 flat = true
 
 [node name="CodexOpenButton" type="Button" parent="."]
