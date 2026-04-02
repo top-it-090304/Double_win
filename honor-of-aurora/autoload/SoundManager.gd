@@ -112,7 +112,6 @@ const _SPEAKER_BLIP := {
 	"young_worker": [2, &"male", 1.06],
 	"veteran": [3, &"male", 0.91],
 	"caravan": [0, &"female", 0.98],
-	"narrator": [0, &"whisper", 1.0],
 	"letter": [1, &"whisper", 1.02],
 	## Внутренние id для меню приказов (не speaker_id в ресурсах).
 	"_squad_archer": [1, &"female", 1.0],
@@ -464,8 +463,11 @@ func play_death() -> void:
 
 
 ## Блип голоса при появлении реплики (speaker_id из DialogueLine).
+## Повествование (narrator) без голоса — только тишина.
 func play_dialogue_speaker_blip(speaker_id: String) -> void:
 	var sid: String = speaker_id.strip_edges().to_lower()
+	if sid == "narrator":
+		return
 	var stream: AudioStream = null
 	var pitch: float = 1.0
 	if _SPEAKER_BLIP.has(sid):
