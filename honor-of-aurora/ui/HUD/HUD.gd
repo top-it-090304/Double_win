@@ -16,6 +16,8 @@ extends "res://ui/HUD/game_hud.gd"
 var _codex_badge: TextureRect
 var _armor_hud_root: Control
 var _armor_hud_label: Label
+var _ui_scale_base_rects: Dictionary = {}
+var _ui_scale_cached: bool = false
 
 
 func set_target_location(location: Events.LOCATION) -> void:
@@ -54,6 +56,8 @@ func _ready() -> void:
 	DialogueManager.dialogue_ended.connect(_on_any_dialogue_ended_for_badge)
 	_setup_armor_hud_nodes()
 	_refresh_armor_hud()
+	_cache_ui_scale_base_rects_if_needed()
+	apply_user_ui_scale()
 
 
 func _setup_codex_badge() -> void:
@@ -129,6 +133,46 @@ func _refresh_armor_hud() -> void:
 			c = Color(0.82, 0.9, 0.98)
 		_armor_hud_label.add_theme_color_override("font_color", c)
 		_armor_hud_label.text = "%d%%" % pct
+
+
+func _cache_ui_scale_base_rects_if_needed() -> void:
+	if _ui_scale_cached:
+		return
+	for p in [
+		"hp_bar",
+		"ArmorDurabilityHud",
+		"Gold",
+		"OreCounter",
+		"MeatCounter",
+		"WoodCounter",
+		"Button",
+		"CodexOpenButton",
+	]:
+		var c := get_node_or_null(p) as Control
+		if c == null:
+			continue
+		_ui_scale_base_rects[p] = {
+			"position": c.position,
+			"size": c.size,
+			"pivot": c.pivot_offset,
+		}
+	_ui_scale_cached = true
+
+
+func apply_user_ui_scale() -> void:
+	_cache_ui_scale_base_rects_if_needed()
+	var s := clampf(float(SaveManager.ui_scale_percent) / 100.0, 0.75, 1.3)
+	for p in _ui_scale_base_rects.keys():
+		var c := get_node_or_null(str(p)) as Control
+		if c == null:
+			continue
+		var d: Dictionary = _ui_scale_base_rects[p]
+		var base_pos := d.get("position", Vector2.ZERO) as Vector2
+		var base_size := d.get("size", Vector2.ZERO) as Vector2
+		c.position = base_pos
+		c.size = base_size
+		c.pivot_offset = base_size * 0.5
+		c.scale = Vector2(s, s)
 
 
 func _on_location_changed_armor_hud(_loc: Events.LOCATION) -> void:

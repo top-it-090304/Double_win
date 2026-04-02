@@ -67,3 +67,7 @@ func teleport_to(_location: Events.LOCATION) -> void:
 
 func set_target_location(_location: Events.LOCATION) -> void:
 	pass
+
+
+func apply_user_ui_scale() -> void:
+	pass

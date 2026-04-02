@@ -13,6 +13,7 @@ extends Control
 @onready var _perf_desc: Label = %PerformanceDesc
 @onready var _fps_option: OptionButton = %FpsOption
 @onready var _fps_label: Label = %FpsLabel
+@onready var _auto_fit_phone_check: CheckButton = %AutoFitPhoneCheck
 @onready var _ui_scale_slider: HSlider = %UiScaleSlider
 @onready var _touch_mode: OptionButton = %TouchModeOption
 @onready var _touch_scale: HSlider = %TouchScaleSlider
@@ -41,6 +42,7 @@ func _ready() -> void:
 	_difficulty.item_selected.connect(_on_difficulty_selected)
 	_perf_option.item_selected.connect(_on_performance_mode_selected)
 	_fps_option.item_selected.connect(_on_fps_selected)
+	_auto_fit_phone_check.toggled.connect(_on_auto_fit_phone_toggled)
 	_ui_scale_slider.value_changed.connect(_on_ui_scale_changed)
 	_touch_mode.item_selected.connect(_on_touch_mode_selected)
 	_touch_scale.value_changed.connect(_on_touch_scale_changed)
@@ -113,6 +115,9 @@ func _load_all_from_save() -> void:
 	_perf_option.set_block_signals(true)
 	_fps_option.set_block_signals(true)
 	_touch_mode.set_block_signals(true)
+	_auto_fit_phone_check.set_block_signals(true)
+	if SaveManager.auto_fit_phone_ui:
+		SaveManager.apply_auto_phone_ui_settings()
 	_music_slider.value = SaveManager.volume_music * 100.0
 	_sfx_slider.value = SaveManager.volume_sfx * 100.0
 	_ui_slider.value = SaveManager.volume_ui * 100.0
@@ -123,6 +128,7 @@ func _load_all_from_save() -> void:
 	_update_performance_desc()
 	_fps_option.select(_fps_index_from_value(SaveManager.max_fps))
 	_sync_fps_locked_from_performance_mode()
+	_auto_fit_phone_check.button_pressed = SaveManager.auto_fit_phone_ui
 	_ui_scale_slider.value = float(SaveManager.ui_scale_percent)
 	_touch_mode.select(clampi(SaveManager.touch_mode, 0, 2))
 	_touch_scale.value = float(SaveManager.touch_scale_percent)
@@ -131,6 +137,8 @@ func _load_all_from_save() -> void:
 	_perf_option.set_block_signals(false)
 	_fps_option.set_block_signals(false)
 	_touch_mode.set_block_signals(false)
+	_auto_fit_phone_check.set_block_signals(false)
+	_sync_ui_controls_locked_from_auto_fit()
 	_block_sliders(false)
 
 
@@ -196,6 +204,14 @@ func _sync_fps_locked_from_performance_mode() -> void:
 		_fps_label.modulate = Color(1, 1, 1, 1) if custom else Color(0.65, 0.68, 0.75, 1)
 
 
+func _sync_ui_controls_locked_from_auto_fit() -> void:
+	var locked := SaveManager.auto_fit_phone_ui
+	_ui_scale_slider.editable = not locked
+	_touch_mode.disabled = locked
+	_touch_scale.editable = not locked
+	_touch_opacity.editable = not locked
+
+
 func _on_performance_mode_selected(_idx: int) -> void:
 	SaveManager.performance_mode = clampi(_perf_option.selected, 0, 3)
 	_update_performance_desc()
@@ -220,27 +236,57 @@ func _on_fps_selected(_idx: int) -> void:
 
 
 func _on_ui_scale_changed(v: float) -> void:
+	if SaveManager.auto_fit_phone_ui:
+		return
 	SaveManager.ui_scale_percent = clampi(int(round(v)), 75, 130)
 	SaveManager.save_game()
 	SaveManager.apply_window_and_engine_settings()
 
 
 func _on_touch_mode_selected(_idx: int) -> void:
+	if SaveManager.auto_fit_phone_ui:
+		return
 	SaveManager.touch_mode = clampi(_touch_mode.selected, 0, 2)
 	SaveManager.save_game()
 	get_tree().call_group("touch_controls", "apply_user_touch_settings")
 
 
 func _on_touch_scale_changed(v: float) -> void:
+	if SaveManager.auto_fit_phone_ui:
+		return
 	SaveManager.touch_scale_percent = clampi(int(round(v)), 70, 150)
 	SaveManager.save_game()
 	get_tree().call_group("touch_controls", "apply_user_touch_settings")
 
 
 func _on_touch_opacity_changed(v: float) -> void:
+	if SaveManager.auto_fit_phone_ui:
+		return
 	SaveManager.touch_opacity_percent = clampi(int(round(v)), 25, 100)
 	SaveManager.save_game()
 	get_tree().call_group("touch_controls", "apply_user_touch_settings")
+
+
+func _on_auto_fit_phone_toggled(on: bool) -> void:
+	SaveManager.auto_fit_phone_ui = on
+	if on:
+		SaveManager.apply_auto_phone_ui_settings()
+		_ui_scale_slider.set_block_signals(true)
+		_touch_mode.set_block_signals(true)
+		_touch_scale.set_block_signals(true)
+		_touch_opacity.set_block_signals(true)
+		_ui_scale_slider.value = float(SaveManager.ui_scale_percent)
+		_touch_mode.select(clampi(SaveManager.touch_mode, 0, 2))
+		_touch_scale.value = float(SaveManager.touch_scale_percent)
+		_touch_opacity.value = float(SaveManager.touch_opacity_percent)
+		_ui_scale_slider.set_block_signals(false)
+		_touch_mode.set_block_signals(false)
+		_touch_scale.set_block_signals(false)
+		_touch_opacity.set_block_signals(false)
+	SaveManager.save_game()
+	SaveManager.apply_window_and_engine_settings()
+	get_tree().call_group("touch_controls", "apply_user_touch_settings")
+	_sync_ui_controls_locked_from_auto_fit()
 
 
 func _on_back_pressed() -> void:
@@ -260,6 +306,7 @@ func _settings_scroll_touch_blocks_scroll(global_pos: Vector2) -> bool:
 		_dialogue_slider,
 		_perf_option,
 		_fps_option,
+		_auto_fit_phone_check,
 		_ui_scale_slider,
 		_touch_mode,
 		_touch_scale,

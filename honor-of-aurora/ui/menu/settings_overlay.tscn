@@ -227,6 +227,21 @@ size_flags_horizontal = 3
 layout_mode = 2
 text = "Крупность меню и панелей"
 
+[node name="AutoFitPhoneCheck" type="CheckButton" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+button_pressed = true
+text = "Подстроиться под экран"
+
+[node name="AutoFitPhoneHint" type="Label" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.62, 0.66, 0.74, 1)
+theme_override_font_sizes/font_size = 14
+text = "Эталонный режим без обрезания: видны весь HUD и стартовая сцена меню. При включении ручные параметры интерфейса блокируются."
+
 [node name="UiScaleSlider" type="HSlider" parent="OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner"]
 unique_name_in_owner = true
 layout_mode = 2
