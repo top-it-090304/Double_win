@@ -283,9 +283,8 @@ const SUPPLY_REST_BONUS_PER_FAVOR := 0.09
 const SUPPLY_SERVICE_DISCOUNT_PER_FAVOR := 0.15
 const SUPPLY_ARCHER_DAMAGE_PER_FAVOR := 0.06
 
-## ─── Износ снаряжения (броня) ───
+## ─── Износ снаряжения (броня): только попадания по герою, см. CrownSystem.apply_armor_wear_on_hit_taken ───
 const ARMOR_MAX_DURABILITY := 100
-const ARMOR_WEAR_PER_EXPEDITION := 15
 ## Потеря прочности за каждое попадание по герою (1 ед. при макс. 100 ≈ 1% полоски).
 const ARMOR_WEAR_PER_HIT_TAKEN := 1
 const ARMOR_REPAIR_GOLD_COST := 80

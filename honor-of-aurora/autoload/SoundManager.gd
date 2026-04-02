@@ -110,6 +110,7 @@ const _SPEAKER_BLIP := {
 	"hero": [0, &"male", 1.0],
 	"healer": [1, &"male", 0.96],
 	"young_worker": [2, &"male", 1.06],
+	"pawn_worker": [2, &"male", 0.89],
 	"veteran": [3, &"male", 0.91],
 	"caravan": [0, &"female", 0.98],
 	"letter": [1, &"whisper", 1.02],

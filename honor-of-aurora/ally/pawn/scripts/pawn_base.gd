@@ -59,6 +59,8 @@ var _base_nav_region: NavigationRegion2D = null
 @export var base_move_use_map_force_update: bool = false
 @onready var _nav_agent: NavigationAgent2D = $NavigationAgent2D
 
+var _squad_promotion_lock: bool = false
+
 
 func _ready() -> void:
 	speed = 120.0
@@ -321,6 +323,122 @@ func is_assigned_to_ore_mining() -> bool:
 
 func is_pawn_in_ore_mine() -> bool:
 	return _base_worker_state == BaseWorkerState.ORE_UNDERGROUND
+
+
+func _squad_promotion_run_active() -> bool:
+	if has_meta("squad_promotion_kind"):
+		var k := str(get_meta("squad_promotion_kind"))
+		return k == "archer" or k == "lancer"
+	return false
+
+
+func _squad_promotion_resolve_target_kind() -> String:
+	if has_meta("squad_promotion_kind"):
+		return str(get_meta("squad_promotion_kind"))
+	return ""
+
+
+func _squad_promotion_zone_for_kind(kind: String) -> Area2D:
+	var grp: String = "worker_training_archery_zone" if kind == "archer" else "worker_training_castle_zone"
+	for n in get_tree().get_nodes_in_group(grp):
+		if n is Area2D:
+			return n as Area2D
+	return null
+
+
+func _process_squad_promotion_training_run(delta: float) -> bool:
+	if not _squad_promotion_run_active():
+		return false
+	if Events.current_location != Events.LOCATION.BASE:
+		return false
+	if DialogueManager.is_active():
+		velocity = Vector2.ZERO
+		_play_idle()
+		_cancel_base_worker()
+		if _nav_agent and is_instance_valid(_nav_agent):
+			_nav_agent.target_position = global_position
+			_nav_agent.velocity = Vector2.ZERO
+		return true
+	_cancel_base_worker()
+	var kind := _squad_promotion_resolve_target_kind()
+	if kind.is_empty():
+		return false
+	var zone := _squad_promotion_zone_for_kind(kind)
+	if zone != null and zone.overlaps_body(self):
+		_complete_squad_promotion_at_training_zone()
+		return true
+	var goal: Vector2 = zone.global_position if zone else Vector2.ZERO
+	if goal == Vector2.ZERO:
+		velocity = Vector2.ZERO
+		_play_idle()
+		_cancel_base_worker()
+		return true
+	var dlt: float = delta
+	if follow_use_navigation and _follow_nav:
+		var vn: Variant = _follow_nav.get_velocity_or_null(self, goal, speed, dlt)
+		if vn != null and vn is Vector2:
+			var fv: Vector2 = vn as Vector2
+			if fv.length_squared() > 1.0:
+				velocity = fv
+				_face_velocity(velocity)
+				_play_run()
+				SquadWorkerLikeSteering.apply_wall_slide_toward(self, goal, speed)
+				return true
+	var to_g := goal - global_position
+	var dist := to_g.length()
+	if dist < 2.0:
+		velocity = Vector2.ZERO
+		_play_idle()
+		return true
+	velocity = (to_g / dist) * speed
+	_face_velocity(velocity)
+	_play_run()
+	SquadWorkerLikeSteering.apply_wall_slide_toward(self, goal, speed)
+	return true
+
+
+func _complete_squad_promotion_at_training_zone() -> void:
+	if _squad_promotion_lock:
+		return
+	if is_in_group("story_youth_companion"):
+		return
+	var kind := _squad_promotion_resolve_target_kind()
+	if kind != "archer" and kind != "lancer":
+		return
+	_squad_promotion_lock = true
+	var pos := global_position
+	var par := get_parent()
+	var idx := get_index()
+	if has_meta("squad_promotion_kind"):
+		remove_meta("squad_promotion_kind")
+	GameManager.promote_pawn_worker_to_warrior(kind, pos, par, idx)
+	queue_free()
+
+
+func can_start_military_training_from_menu() -> bool:
+	if Events.current_location != Events.LOCATION.BASE:
+		return false
+	if is_pawn_in_ore_mine():
+		return false
+	if _squad_promotion_run_active():
+		return false
+	if state == State.DEAD:
+		return false
+	if is_in_group("story_youth_companion"):
+		return false
+	return true
+
+
+## Меню приказов: отправить к стрельбищу/замку для замены на лучника/копейщика.
+func apply_squad_menu_military_training(kind: String) -> void:
+	if kind != "archer" and kind != "lancer":
+		return
+	if not can_start_military_training_from_menu():
+		return
+	if state == State.ATTACK:
+		state = State.FOLLOW
+	set_meta("squad_promotion_kind", kind)
+	_cancel_base_worker()
 
 
 func get_base_shift_phase_name() -> String:
@@ -896,6 +1014,8 @@ func _nearest_sheep_in_attack_area() -> Node2D:
 
 
 func _process_follow_custom(_delta: float) -> bool:
+	if _process_squad_promotion_training_run(_delta):
+		return true
 	if Events.current_location != Events.LOCATION.BASE:
 		_cancel_base_worker()
 		return false

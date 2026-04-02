@@ -14,6 +14,8 @@ static func _crown_patent_story_item(tier: int, item_id: String, display_name: S
 		"icon_color": Color(0.72, 0.62, 0.42),
 		"icon_char": "✉",
 		"is_letter": true,
+		## Титул уже в строке «Титулы Короны» досье — в «Предметы» прогресс не считаем.
+		"exclude_from_codex_progress": true,
 		"brief": "Заверенная грамота о новом титуле",
 		"description": BalanceConfig.build_crown_patent_letter_plain_text(tier),
 	}
@@ -163,29 +165,52 @@ static func get_all_items() -> Array[Dictionary]:
 	]
 
 
+static func _counts_for_codex_item_progress(item: Dictionary) -> bool:
+	return not bool(item.get("exclude_from_codex_progress", false))
+
+
+static func _is_item_unlocked(item: Dictionary) -> bool:
+	var flag: String = str(item.get("flag", ""))
+	if flag.is_empty() or not StoryState.has_flag(flag):
+		return false
+	var extra: String = str(item.get("flag_extra", ""))
+	if not extra.is_empty() and not StoryState.has_flag(extra):
+		return false
+	return true
+
+
+## Сколько предметов учитывается в строке прогресса «Предметы» (без грамот титулов).
+static func get_codex_progress_item_total() -> int:
+	var n := 0
+	for item in get_all_items():
+		if _counts_for_codex_item_progress(item):
+			n += 1
+	return n
+
+
+static func get_codex_progress_item_unlocked() -> int:
+	var n := 0
+	for item in get_all_items():
+		if not _counts_for_codex_item_progress(item):
+			continue
+		if _is_item_unlocked(item):
+			n += 1
+	return n
+
+
 static func get_unlocked_items() -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	for item in get_all_items():
-		var flag: String = str(item.get("flag", ""))
-		if flag.is_empty() or not StoryState.has_flag(flag):
-			continue
-		var extra: String = str(item.get("flag_extra", ""))
-		if not extra.is_empty() and not StoryState.has_flag(extra):
-			continue
-		out.append(item)
+		if _is_item_unlocked(item):
+			out.append(item)
 	return out
 
 
 static func get_unlocked_count() -> int:
 	var n := 0
 	for item in get_all_items():
-		var flag: String = str(item.get("flag", ""))
-		if flag.is_empty() or not StoryState.has_flag(flag):
-			continue
-		var extra: String = str(item.get("flag_extra", ""))
-		if not extra.is_empty() and not StoryState.has_flag(extra):
-			continue
-		n += 1
+		if _is_item_unlocked(item):
+			n += 1
 	return n
 
 

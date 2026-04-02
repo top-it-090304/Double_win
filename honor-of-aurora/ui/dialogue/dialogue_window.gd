@@ -44,6 +44,7 @@ const TEX_INTENDANT := preload("res://Asets/Unit_pack/Units/моряк.png")
 const SPEAKER_LABELS := {
 	"healer": "Целитель",
 	"hero": "Рыцарь",
+	"pawn_worker": "Рабочий",
 	"young_worker": "Мирон",
 	"narrator": "Повествование",
 	"letter": "Письмо",
@@ -54,6 +55,7 @@ const SPEAKER_LABELS := {
 const SPEAKER_FACES := {
 	"healer": TEX_HEALER,
 	"hero": TEX_PLAYER,
+	"pawn_worker": TEX_WORKER,
 	"young_worker": TEX_WORKER,
 	"veteran": TEX_VETERAN,
 	"caravan": TEX_INTENDANT,

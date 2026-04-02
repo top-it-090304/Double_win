@@ -10,8 +10,10 @@ var _value_tween: Tween
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	z_index = 50
-	z_as_relative = false
+	## С YSortManager у юнитов и декора z_index в сотнях/тысячах. Абсолютный низкий z (было 50)
+	## оставлял бар «под» деревьями; относительный — следует за юнитом и остаётся над спрайтом.
+	z_as_relative = true
+	z_index = 64
 	custom_minimum_size = Vector2(BAR_W, BAR_H)
 	size = custom_minimum_size
 

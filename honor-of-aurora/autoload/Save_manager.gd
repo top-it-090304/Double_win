@@ -510,7 +510,14 @@ func notify_squad_member_died(unit: Node) -> void:
 	if bool(unit.get_meta("no_squad_death", false)):
 		return
 	if unit.is_in_group("story_youth_companion"):
-		StoryState.set_flag("worker_youth_dead", true)
+		StoryState.write_flag("worker_youth_dead", true)
+		story_flags.erase("worker_youth_promoted_archer")
+		story_flags.erase("worker_youth_promoted_lancer")
+		if unit.is_in_group("ally_archer"):
+			archer_count = maxi(0, archer_count - 1)
+		elif unit.is_in_group("ally_lancer"):
+			lancer_count = maxi(0, lancer_count - 1)
+		save_game()
 		return
 	if unit.is_in_group("ally_archer"):
 		archer_count = maxi(0, archer_count - 1)

@@ -428,9 +428,6 @@ func _try_squad_orders_instead_of_attack() -> bool:
 		if body == null or not is_instance_valid(body):
 			continue
 		if body.is_in_group("squad_member"):
-			## Сюжетный рабочий: меню отряда только через `try_open_priority_story_dialog` (после интро).
-			if body.is_in_group("story_youth_companion"):
-				continue
 			if body.has_method("is_pawn_in_ore_mine") and body.is_pawn_in_ore_mine():
 				continue
 			var hud: Node = GameplayFacade.get_hud(get_tree())

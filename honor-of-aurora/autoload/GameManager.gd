@@ -1046,9 +1046,19 @@ func get_max_warriors_allowed() -> int:
 func get_squad_member_count() -> int:
 	var n: int = SaveManager.archer_count + SaveManager.lancer_count + SaveManager.pawn_count
 	if not StoryState.has_flag("worker_youth_dead"):
-		if StoryState.has_flag("worker_youth_recruited") or StoryState.has_flag("worker_youth_works_on_base"):
+		## Мирон-рабочий вне archer/lancer/pawn_count; после обучения он уже в счётчике лучника/копейщика.
+		if _story_youth_expect_worker_unit_in_squad_counts():
 			n += 1
 	return n
+
+
+## Юноша в форме пешего рабочего учитывается отдельно; в форме лучника/копейщика — только в archer/lancer_count.
+func _story_youth_expect_worker_unit_in_squad_counts() -> bool:
+	if StoryState.has_flag("worker_youth_promoted_archer") or StoryState.has_flag("worker_youth_promoted_lancer"):
+		return false
+	if StoryState.has_flag("worker_youth_recruited") or StoryState.has_flag("worker_youth_works_on_base"):
+		return true
+	return false
 
 
 func add_meat(amount: int) -> void:
@@ -1200,14 +1210,14 @@ func _spawn_saved_archers(root: Node) -> void:
 	if Events.current_location != Events.LOCATION.BASE:
 		np = 0
 	var ny: int = 0
-	if not StoryState.has_flag("worker_youth_dead"):
+	if not StoryState.has_flag("worker_youth_dead") and _story_youth_expect_worker_unit_in_squad_counts():
 		if Events.current_location == Events.LOCATION.BASE:
-			if StoryState.has_flag("worker_youth_recruited") or StoryState.has_flag("worker_youth_works_on_base"):
-				ny = 1
-		else:
+			ny = 1
+		elif StoryState.has_flag("worker_youth_recruited"):
 			## В поход — только если взят в отряд; «только работник базы» на островах не появляется.
-			if StoryState.has_flag("worker_youth_recruited"):
-				ny = 1
+			ny = 1
+	var miron_archer := not StoryState.has_flag("worker_youth_dead") and StoryState.has_flag("worker_youth_promoted_archer")
+	var miron_lancer := not StoryState.has_flag("worker_youth_dead") and StoryState.has_flag("worker_youth_promoted_lancer")
 	var skip_youth_spawn := ny > 0 and _has_story_youth_under_scene(root)
 	var effective_youth := 0 if skip_youth_spawn else ny
 	var total: int = na + nl + np + effective_youth
@@ -1233,6 +1243,9 @@ func _spawn_saved_archers(root: Node) -> void:
 		if i < positions.size():
 			archer.global_position = positions[i]
 		archer.add_to_group("squad_member")
+		## Стабильный слот: первый лучник в списке спавна — сюжетный Мирон (см. promote_youth_worker_to_warrior).
+		if miron_archer and i == 0:
+			_apply_story_youth_warrior_identity(archer)
 	for j in range(nl):
 		if lancer_scene == null:
 			break
@@ -1246,6 +1259,8 @@ func _spawn_saved_archers(root: Node) -> void:
 		if idx < positions.size():
 			lancer.global_position = positions[idx]
 		lancer.add_to_group("squad_member")
+		if miron_lancer and j == 0:
+			_apply_story_youth_warrior_identity(lancer)
 	for k in range(np):
 		if pawn_scene == null:
 			break
@@ -1278,11 +1293,74 @@ func _has_story_youth_under_scene(root: Node) -> bool:
 	return false
 
 
+func _apply_story_youth_warrior_identity(unit: Node) -> void:
+	if unit == null or not is_instance_valid(unit):
+		return
+	unit.add_to_group("story_youth_companion")
+
+
+## Сюжетный Мирон дошёл до стрельбища/замка: +1 лучник или копейщик (без изменения pawn_count).
+func promote_youth_worker_to_warrior(kind: String, world_pos: Vector2, parent: Node, preferred_index: int) -> void:
+	if kind != "archer" and kind != "lancer":
+		return
+	SaveManager.story_flags.erase("worker_youth_training_archer")
+	SaveManager.story_flags.erase("worker_youth_training_lancer")
+	if kind == "archer":
+		SaveManager.story_flags["worker_youth_promoted_archer"] = true
+		SaveManager.story_flags.erase("worker_youth_promoted_lancer")
+	else:
+		SaveManager.story_flags["worker_youth_promoted_lancer"] = true
+		SaveManager.story_flags.erase("worker_youth_promoted_archer")
+	## Остаётся в отряде для писем/лагеря/меню; в форме воина — без отдельного youth_worker в ny.
+	SaveManager.story_flags["worker_youth_recruited"] = true
+	SaveManager.save_game()
+	_spawn_promoted_warrior_unit(kind, world_pos, parent, preferred_index, true)
+
+
+## Обычный рабочий: −1 pawn_count, +1 лучник или копейщик, спавн на месте.
+func promote_pawn_worker_to_warrior(kind: String, world_pos: Vector2, parent: Node, preferred_index: int) -> void:
+	if kind != "archer" and kind != "lancer":
+		return
+	SaveManager.pawn_count = maxi(0, SaveManager.pawn_count - 1)
+	_spawn_promoted_warrior_unit(kind, world_pos, parent, preferred_index, false)
+
+
+func _spawn_promoted_warrior_unit(kind: String, world_pos: Vector2, parent: Node, preferred_index: int, stamp_story_youth: bool) -> void:
+	if kind != "archer" and kind != "lancer":
+		return
+	if parent == null or not is_instance_valid(parent):
+		return
+	var ps: PackedScene = _get_archer_scene() if kind == "archer" else _get_lancer_scene()
+	if ps == null:
+		return
+	if kind == "archer":
+		SaveManager.archer_count = maxi(0, SaveManager.archer_count + 1)
+	else:
+		SaveManager.lancer_count = maxi(0, SaveManager.lancer_count + 1)
+	SaveManager.save_game()
+	var unit := ps.instantiate() as Node2D
+	if unit == null:
+		return
+	parent.add_child(unit)
+	var cap: int = maxi(0, parent.get_child_count() - 1)
+	parent.move_child(unit, clampi(preferred_index, 0, cap))
+	unit.global_position = world_pos
+	if unit.has_method("apply_building_progression_from_manager"):
+		unit.apply_building_progression_from_manager()
+	if kind == "archer" and unit.has_method("apply_archery_modifiers_from_manager"):
+		unit.apply_archery_modifiers_from_manager()
+	unit.add_to_group("squad_member")
+	if stamp_story_youth:
+		_apply_story_youth_warrior_identity(unit)
+
+
 ## После диалога без смены сцены: создать юношу на базе, если флаг уже есть, а юнита в дереве нет.
 func ensure_youth_companion_on_base_scene() -> void:
 	if Events.current_location != Events.LOCATION.BASE:
 		return
 	if StoryState.has_flag("worker_youth_dead"):
+		return
+	if StoryState.has_flag("worker_youth_promoted_archer") or StoryState.has_flag("worker_youth_promoted_lancer"):
 		return
 	if not StoryState.has_flag("worker_youth_recruited") and not StoryState.has_flag("worker_youth_works_on_base"):
 		return

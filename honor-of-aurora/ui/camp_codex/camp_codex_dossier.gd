@@ -328,8 +328,8 @@ static func _build_lore_progress_section() -> Dictionary:
 	var miron_flags := ["youth_letter_1_done", "youth_letter_2_done", "worker_youth_death_scene_done", "youth_belongings_found", "youth_postmortem_1_done", "youth_postmortem_2_done", "youth_letter_sent_done"]
 	items.append(_progress_row("Линия Мирона", miron_flags, "Общайтесь с Мироном"))
 
-	var item_found := StoryItemLibrary.get_unlocked_count()
-	var item_total := StoryItemLibrary.get_all_items().size()
+	var item_found := StoryItemLibrary.get_codex_progress_item_unlocked()
+	var item_total := StoryItemLibrary.get_codex_progress_item_total()
 	items.append(_progress_row_raw("Предметы", item_found, item_total, "Исследуйте и слушайте"))
 
 	return {"title": "Исследование мира", "items": items}

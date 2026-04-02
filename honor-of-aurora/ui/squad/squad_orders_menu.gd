@@ -195,6 +195,9 @@ func _clear_choice_buttons() -> void:
 
 func _build_order_choice_buttons() -> void:
 	_clear_choice_buttons()
+	if _stage == 3:
+		_build_military_training_choice_buttons()
+		return
 	var u := _context_unit
 	if u != null and u.is_in_group("story_youth_companion"):
 		_build_youth_worker_choice_buttons()
@@ -250,6 +253,11 @@ func _build_youth_worker_choice_buttons() -> void:
 		idx = _add_choice_btn(idx, "Добывать мясо", _apply_pawn_job_meat)
 		idx = _add_choice_btn(idx, "Добывать дерево", _apply_pawn_job_wood)
 	idx = _add_choice_btn(idx, "Не добывать ресурсы", _apply_pawn_job_none)
+	if at_base and _context_unit != null and is_instance_valid(_context_unit) and _context_unit.has_method("is_youth_narrative_recruit_menu_visible"):
+		if bool(_context_unit.call("is_youth_narrative_recruit_menu_visible")):
+			idx = _add_choice_btn(idx, "Беру с собой в поход", _apply_youth_menu_recruit_expedition)
+			idx = _add_choice_btn(idx, "Пока останься ждать на базе", _apply_youth_menu_recruit_wait)
+			idx = _add_choice_btn(idx, "Работай на базе — руда, лес, стадо", _apply_youth_menu_recruit_base_worker)
 	if not at_base:
 		idx = _add_choice_btn(idx, "Стоять", _apply_hold)
 		idx = _add_choice_btn(idx, "Готовиться к бою", _apply_combat)
@@ -279,9 +287,84 @@ func _build_pawn_worker_choice_buttons() -> void:
 		idx = _add_choice_btn(idx, "Добывать мясо", _apply_pawn_job_meat)
 		idx = _add_choice_btn(idx, "Добывать дерево", _apply_pawn_job_wood)
 	idx = _add_choice_btn(idx, "Не добывать ресурсы", _apply_pawn_job_none)
+	if at_base and _can_offer_military_training_from_menu():
+		idx = _add_choice_btn(idx, "В отряд с обучением…", _open_military_submenu)
 	if not at_base:
 		idx = _add_choice_btn(idx, "Стоять", _apply_hold)
 		idx = _add_choice_btn(idx, "Готовиться к бою", _apply_combat)
+
+
+func _can_offer_military_training_from_menu() -> bool:
+	var u := _context_unit
+	if u == null or not is_instance_valid(u):
+		return false
+	if not u.has_method("can_start_military_training_from_menu"):
+		return false
+	return bool(u.call("can_start_military_training_from_menu"))
+
+
+func _open_military_submenu() -> void:
+	_stage = 3
+	_clear_choice_buttons()
+	_face.texture = TEX_HERO
+	_face.visible = true
+	_name_label.text = "Рыцарь"
+	_text_label.text = "Кого готовим — лучника у стрельбища или копейщика у замка?"
+	_continue_btn.visible = false
+	_choices_scroll.visible = true
+	_build_military_training_choice_buttons()
+	_apply_dialogue_chrome_height(_choices_vbox.get_child_count())
+	SoundManager.play_dialogue_speaker_blip("hero")
+	call_deferred("_deferred_fit_labels")
+
+
+func _build_military_training_choice_buttons() -> void:
+	_clear_choice_buttons()
+	var idx := 1
+	idx = _add_choice_btn(idx, "Лучник — к стрельбищу (Бран)", _apply_military_training_archer)
+	idx = _add_choice_btn(idx, "Копейщик — к замку", _apply_military_training_lancer)
+	idx = _add_choice_btn(idx, "Назад", _apply_military_training_back)
+
+
+func _apply_military_training_archer() -> void:
+	_apply_military_training_kind("archer")
+
+
+func _apply_military_training_lancer() -> void:
+	_apply_military_training_kind("lancer")
+
+
+func _apply_military_training_kind(kind: String) -> void:
+	var u := _context_unit
+	if u != null and is_instance_valid(u) and u.has_method("apply_squad_menu_military_training"):
+		u.apply_squad_menu_military_training(kind)
+	close()
+
+
+func _apply_military_training_back() -> void:
+	_stage = 1
+	_show_hero_orders_stage()
+
+
+func _apply_youth_menu_recruit_expedition() -> void:
+	var u := _context_unit
+	if u != null and is_instance_valid(u) and u.has_method("menu_apply_youth_recruit_expedition"):
+		u.menu_apply_youth_recruit_expedition()
+	close()
+
+
+func _apply_youth_menu_recruit_wait() -> void:
+	var u := _context_unit
+	if u != null and is_instance_valid(u) and u.has_method("menu_apply_youth_recruit_wait"):
+		u.menu_apply_youth_recruit_wait()
+	close()
+
+
+func _apply_youth_menu_recruit_base_worker() -> void:
+	var u := _context_unit
+	if u != null and is_instance_valid(u) and u.has_method("menu_apply_youth_recruit_base_worker"):
+		u.menu_apply_youth_recruit_base_worker()
+	close()
 
 
 func _apply_pawn_job_none() -> void:

@@ -52,7 +52,6 @@ func _reset_expedition_tracking() -> void:
 	SaveManager.expedition_ore_collected = 0
 	SaveManager.expedition_wood_collected = 0
 	SaveManager.expedition_meat_collected = 0
-	degrade_armor()
 
 
 ## ═══════════════════════════════════════════════════════
@@ -660,14 +659,6 @@ func get_archer_damage_modifier() -> float:
 
 func get_armor_durability() -> int:
 	return clampi(SaveManager.armor_durability, 0, BalanceConfig.ARMOR_MAX_DURABILITY)
-
-
-func degrade_armor() -> int:
-	var wear := int(round(float(BalanceConfig.ARMOR_WEAR_PER_EXPEDITION) * DifficultyConfig.get_armor_wear_mult()))
-	SaveManager.armor_durability = maxi(0, SaveManager.armor_durability - wear)
-	Events.armor_durability_changed.emit(SaveManager.armor_durability)
-	SaveManager.save_game()
-	return SaveManager.armor_durability
 
 
 ## Износ брони/щита при ударе по герою (блок или нет — удар по щиту/доспеху).
