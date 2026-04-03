@@ -20,6 +20,8 @@ extends CharacterBody2D
 
 
 func _ready() -> void:
+	## Не перехватывать клики/тапы (меню: облака поверх UI, события должны доходить до кнопок).
+	input_pickable = false
 	scale = Vector2.ONE * maxf(0.05, visual_scale)
 	var random_index: int = randi() % cloud_textures.size()
 	var selected_texture: Texture2D = cloud_textures[random_index]

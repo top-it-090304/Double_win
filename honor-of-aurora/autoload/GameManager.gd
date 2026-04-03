@@ -413,9 +413,6 @@ var _lancer_scene: PackedScene
 var _pawn_scene: PackedScene
 var _youth_worker_scene: PackedScene
 
-## Полноэкранная заглушка на 1 кадр между сменой сцены и спавном героя: иначе виден мир с «камерой по умолчанию» в (0,0), не там где resume/spawn.
-var _scene_transition_blocker_layer: CanvasLayer = null
-
 ## Уже в памяти при старте: нет подвисания на load() при первом «Новая игра».
 const BASE_SCENE_PACKED: PackedScene = preload("res://Game/Game_base_islad.tscn")
 const PLAYER_SCENE_PACKED: PackedScene = preload("res://ally/player/scenes/worrier_base.tscn")
@@ -791,19 +788,19 @@ func handle_location_changed(new_location: Events.LOCATION):
 	## (change_scene_to_packed уничтожил бы корень меню сразу).
 	var use_menu_overlay := prev_location == Events.LOCATION.MENU and new_location != Events.LOCATION.MENU
 	var hide_world_until_player := new_location != Events.LOCATION.MENU and not use_menu_overlay
+	var teleport_cloud_overlay: Node = null
 	if hide_world_until_player:
-		_show_scene_transition_blocker()
-	# Старый герой — дочерний узел текущей сцены; change_scene_to_packed освобождает дерево вместе с ним.
+		## Телепорт: сначала новая сцена под старой (без «пустого» вьюпорта), облака без заголовка.
+		teleport_cloud_overlay = await MenuStartTransition.run_cover(false)
+	# Старый герой — дочерний узел текущей сцены; при смене сцены освобождается вместе со старым корнем.
 	current_scene_player = null
 	if use_menu_overlay and get_tree().current_scene != null:
-		var overlay: Node = await MenuStartTransition.run_cover()
+		var overlay: Node = await MenuStartTransition.run_cover(true)
 		var menu_root: Node = get_tree().current_scene
 		var new_scene: Node = (packed as PackedScene).instantiate()
 		if new_scene == null:
 			push_error("GameManager: instantiate failed for location %s" % new_location)
 			await MenuStartTransition.run_exit(overlay)
-			if hide_world_until_player:
-				_hide_scene_transition_blocker()
 			return
 		var root := get_tree().root
 		root.add_child(new_scene)
@@ -821,20 +818,43 @@ func handle_location_changed(new_location: Events.LOCATION):
 			call_deferred("_apply_pending_healer_dialogue_token_on_base")
 			call_deferred("_try_caravan_arrival_dialogue_on_base_ready")
 		return
+	if hide_world_until_player:
+		var old_scene: Node = get_tree().current_scene
+		if old_scene == null:
+			push_error("GameManager: current_scene is null before teleport swap")
+			if teleport_cloud_overlay != null and is_instance_valid(teleport_cloud_overlay):
+				await MenuStartTransition.run_exit(teleport_cloud_overlay)
+			return
+		var new_scene: Node = (packed as PackedScene).instantiate()
+		if new_scene == null:
+			push_error("GameManager: instantiate failed for location %s" % new_location)
+			if teleport_cloud_overlay != null and is_instance_valid(teleport_cloud_overlay):
+				await MenuStartTransition.run_exit(teleport_cloud_overlay)
+			return
+		var root := get_tree().root
+		root.add_child(new_scene)
+		root.move_child(new_scene, old_scene.get_index())
+		get_tree().set_current_scene(new_scene)
+		await get_tree().process_frame
+		if get_tree().current_scene == null:
+			await get_tree().process_frame
+		_finish_player_placement_after_scene_change(new_location)
+		old_scene.queue_free()
+		if teleport_cloud_overlay != null and is_instance_valid(teleport_cloud_overlay):
+			await MenuStartTransition.run_exit(teleport_cloud_overlay)
+		if new_location == Events.LOCATION.BASE:
+			call_deferred("_apply_pending_healer_dialogue_token_on_base")
+			call_deferred("_try_caravan_arrival_dialogue_on_base_ready")
+		return
 	var err := get_tree().change_scene_to_packed(packed as PackedScene)
 	if err != OK:
 		push_error("GameManager: change_scene_to_packed failed: %s" % err)
-		if hide_world_until_player:
-			_hide_scene_transition_blocker()
 		return
 	# Ожидание кадра: current_scene и дерево должны стабилизироваться (см. godot#86286).
-	# Без этого _finish_player_placement часто видел пустую сцену — герой и камера не создавались.
 	await get_tree().process_frame
 	if get_tree().current_scene == null:
 		await get_tree().process_frame
 	_finish_player_placement_after_scene_change(new_location)
-	if hide_world_until_player:
-		_hide_scene_transition_blocker()
 	# После загрузки базы монах применяет жетон (см. monk_base).
 	if new_location == Events.LOCATION.BASE:
 		call_deferred("_apply_pending_healer_dialogue_token_on_base")
@@ -1420,27 +1440,6 @@ func _apply_world_ambience_layer(scene_root: Node) -> void:
 	rect.color = Color(0.065, 0.085, 0.2, 0.52)
 	canvas.add_child(rect)
 	scene_root.add_child(canvas)
-
-
-func _show_scene_transition_blocker() -> void:
-	if _scene_transition_blocker_layer != null and is_instance_valid(_scene_transition_blocker_layer):
-		return
-	var layer := CanvasLayer.new()
-	layer.layer = 1000
-	layer.process_mode = Node.PROCESS_MODE_ALWAYS
-	var rect := ColorRect.new()
-	rect.color = Color.BLACK
-	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
-	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layer.add_child(rect)
-	get_tree().root.add_child(layer)
-	_scene_transition_blocker_layer = layer
-
-
-func _hide_scene_transition_blocker() -> void:
-	if _scene_transition_blocker_layer != null and is_instance_valid(_scene_transition_blocker_layer):
-		_scene_transition_blocker_layer.queue_free()
-	_scene_transition_blocker_layer = null
 
 
 func add_camera_to_player(player: Node) -> void:

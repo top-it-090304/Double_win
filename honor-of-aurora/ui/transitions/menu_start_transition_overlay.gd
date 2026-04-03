@@ -1,7 +1,7 @@
 extends CanvasLayer
 
-## Переход «главное меню → игра»: облака заезжают с краёв, затем улетают.
-## Заголовок — стилизованный текст (game_title_text), не PNG.
+## Переход «главное меню → игра» и телепорт: облака заезжают с краёв, затем улетают.
+## Заголовок (game_title_text) — поверх облаков внутри _holder; при show_game_title = false только облака.
 ## Те же текстуры облаков, что в objects/clouds/cloud.tscn. Множитель cloud_visual_scale к размеру текстуры.
 ## Локальные координаты _holder: (0,0) — левый верх видимой области вьюпорта; размер = visible_rect.size (без vr.position — CanvasLayer уже в системе вьюпорта).
 ##
@@ -68,6 +68,8 @@ const _EDGE_INSET: float = 4.0
 @export_range(1.0, 1.35, 0.01) var opaque_cloud_glow_scale: float = 1.1
 @export_range(0.0, 0.55, 0.01) var opaque_cloud_glow_strength: float = 0.18
 @export var opaque_cloud_glow_tint: Color = Color(0.78, 0.9, 1.0, 1.0)
+## Заголовок и подзаголовок поверх облаков. Выключено — только облака (телепорт между локациями).
+@export var show_game_title: bool = true
 ## Текст заголовка на экране перехода (перенос строки = вторая строка).
 @export_multiline var game_title_text: String = "Честь\nАвроры"
 ## Подзаголовок под названием (пусто = не показывать).
@@ -582,21 +584,22 @@ func play_cover() -> void:
 			Tween.EASE_OUT,
 			cloud_mod
 		)
-	var title_root: Control = _add_title(vw, vh)
-	var t_in: float = maxf(0.05, title_fade_in_sec)
-	var step_in := tween.tween_property(title_root, "modulate", Color(1, 1, 1, 1), t_in)
-	step_in.set_trans(Tween.TRANS_SINE)
-	step_in.set_ease(Tween.EASE_IN_OUT)
-	step_in.finished.connect(
-		func() -> void:
-			if not is_instance_valid(title_root):
-				return
-			var tv: Variant = title_root.get_meta(META_TITLE_MOTION_VISUAL, null)
-			if tv is Control and is_instance_valid(tv):
-				var tvc: Control = tv as Control
-				tvc.pivot_offset = tvc.size * 0.5
-				_start_title_breath(tvc)
-	)
+	if show_game_title:
+		var title_root: Control = _add_title(vw, vh)
+		var t_in: float = maxf(0.05, title_fade_in_sec)
+		var step_in := tween.tween_property(title_root, "modulate", Color(1, 1, 1, 1), t_in)
+		step_in.set_trans(Tween.TRANS_SINE)
+		step_in.set_ease(Tween.EASE_IN_OUT)
+		step_in.finished.connect(
+			func() -> void:
+				if not is_instance_valid(title_root):
+					return
+				var tv: Variant = title_root.get_meta(META_TITLE_MOTION_VISUAL, null)
+				if tv is Control and is_instance_valid(tv):
+					var tvc: Control = tv as Control
+					tvc.pivot_offset = tvc.size * 0.5
+					_start_title_breath(tvc)
+		)
 	await tween.finished
 
 

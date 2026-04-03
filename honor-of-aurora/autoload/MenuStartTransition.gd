@@ -1,12 +1,13 @@
 extends Node
 
-## Только выход из главного меню в игру. Явные шаги без Callable — GameManager вызывает run_cover / run_exit по очереди.
+## Меню → игра и телепорт. GameManager вызывает run_cover / run_exit по очереди.
 
 const OVERLAY_SCENE := preload("res://ui/transitions/menu_start_transition_overlay.tscn")
 
 
-func run_cover() -> Node:
+func run_cover(with_title: bool = true) -> Node:
 	var overlay: Node = OVERLAY_SCENE.instantiate()
+	overlay.show_game_title = with_title
 	get_tree().root.add_child(overlay)
 	await overlay.play_cover()
 	return overlay
