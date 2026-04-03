@@ -15,6 +15,8 @@ extends Area2D
 @export var lore_note_candidates: PackedStringArray = PackedStringArray()
 ## Если кандидаты исчерпаны или пусты — шанс случайной записки из ChestLoreLibrary.
 @export_range(0.0, 1.0, 0.01) var bonus_random_lore_chance: float = 0.12
+## Только записка / пустой лут ресурсов (например сюжетный сундук в меню).
+@export var suppress_resource_loot: bool = false
 
 var _visual: ChestVisual = null
 
@@ -110,7 +112,11 @@ func try_open_chest_if_player_inside() -> bool:
 		return false
 	if SaveManager.is_chest_opened(id):
 		return false
-	var loot: Dictionary = ChestLootRules.roll_resources(loot_tier)
+	var loot: Dictionary
+	if suppress_resource_loot:
+		loot = {"gold": 0, "wood": 0, "meat": 0, "ore": 0}
+	else:
+		loot = ChestLootRules.roll_resources(loot_tier)
 	var lore_id := _resolve_lore_note()
 	if not lore_id.is_empty():
 		loot["lore_note_id"] = lore_id

@@ -157,6 +157,17 @@ static func get_all_items() -> Array[Dictionary]:
 			"brief": "Рисунок на обороте письма",
 			"description": "На обратной стороне последнего письма — кривой рисунок. Кораблик с парусом, волны, солнце. Подпись: «Нике. От братика с острова».\n\nОна нарисовала ему кораблик — он нарисовал ей. Два рисунка, два берега. Ни один не дойдёт до адресата вовремя.\n\nОн не вложил рисунок в конверт. Может, не успел. Может, боялся, что мать поймёт.",
 		},
+		{
+			"id": "dev_team_thanks_letter",
+			"name": ChestLoreLibrary.get_note_display_title("chest_note_dev_thanks_github"),
+			"lore_note_id": "chest_note_dev_thanks_github",
+			"icon": "",
+			"icon_color": Color(0.85, 0.72, 0.42),
+			"icon_char": "★",
+			"is_letter": true,
+			"brief": "Из сундука на главном экране после финала",
+			"description": ChestLoreLibrary.get_note_text("chest_note_dev_thanks_github"),
+		},
 		_crown_patent_story_item(1, "crown_patent_letter_scout", "Грамота: Разведчик Архипелага"),
 		_crown_patent_story_item(2, "crown_patent_letter_guardian", "Грамота: Страж Маяков"),
 		_crown_patent_story_item(3, "crown_patent_letter_knight", "Грамота: Рыцарь Сердцевины"),
@@ -170,6 +181,9 @@ static func _counts_for_codex_item_progress(item: Dictionary) -> bool:
 
 
 static func _is_item_unlocked(item: Dictionary) -> bool:
+	var lore_note: String = str(item.get("lore_note_id", ""))
+	if not lore_note.is_empty():
+		return SaveManager.has_lore_note(lore_note)
 	var flag: String = str(item.get("flag", ""))
 	if flag.is_empty() or not StoryState.has_flag(flag):
 		return false

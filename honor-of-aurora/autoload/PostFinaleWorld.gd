@@ -179,13 +179,13 @@ func _start_ending_sequence() -> void:
 		player = _find_player_fallback()
 	var cam := player.get_node_or_null("Camera2D") as Camera2D if player else null
 	if cam == null:
-		_show_ending_title_then_menu()
+		await _show_ending_title_then_menu()
 		return
 	var tw := create_tween()
 	tw.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	tw.tween_property(cam, "zoom", ENDING_ZOOM, ENDING_ZOOM_SEC)
 	await tw.finished
-	_show_ending_title_then_menu()
+	await _show_ending_title_then_menu()
 
 
 func _find_player_fallback() -> Node:
@@ -209,7 +209,12 @@ func _show_ending_title_then_menu() -> void:
 		if is_instance_valid(overlay):
 			overlay.queue_free()
 	player_movement_locked = false
-	GameManager.handle_location_changed(Events.LOCATION.MENU)
+	## Сундук с благодарностью в главном меню (герой при boss_kill == 5 настраивается в menu_scene).
+	## Явные поля сохранения + story_flags; одна запись до смены сцены. await — handle_location_changed корутина.
+	SaveManager.menu_post_finale_thanks_unlocked = true
+	SaveManager.story_flags["menu_post_finale_thanks_unlocked"] = true
+	SaveManager.save_game()
+	await GameManager.handle_location_changed(Events.LOCATION.MENU)
 
 
 func _ensure_vignette() -> void:

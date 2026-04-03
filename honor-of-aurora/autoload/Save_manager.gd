@@ -119,6 +119,10 @@ var armor_durability: int = 100
 var world_ambience_night: bool = false
 ## Сколько раз использовали телепорт между локациями (меню причала); период дождя — RainSystem.
 var teleport_usage_count: int = 0
+## После финальных титров: один раз заспавнить героя у сундука в главном меню.
+var menu_epilogue_spawn_player_pending: bool = false
+## Титры пройдены — показывать сундук с письмом в главном меню (отдельно от story_flags, чтобы не терять при load).
+var menu_post_finale_thanks_unlocked: bool = false
 ## Привалы, использованные в текущем походе.
 var rest_used_this_expedition: int = 0
 ## Ресурсы, собранные в текущем походе (для cap-а).
@@ -137,7 +141,7 @@ const _CODEX_SNAP_MIGRATED_KEY := "_codex_snap_v1_migrated"
 const _CODEX_UI_KEY := "_codex_ui"
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
-const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "opened_chest_ids", "chest_rolled_tiers", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "dialogue_text_scale_percent", "auto_fit_phone_ui", "max_fps", "performance_mode", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus", "premium_ore_purchased_total", "premium_ore_purchase_count", "ore_sent_to_crown_total", "crown_order_index", "crown_order_ore_sent", "crown_returns_remaining", "caravan_arrival_queued", "crown_deadline_expired_awaiting_dispatch", "crown_orders_failed", "crown_displeasure", "crown_title_index", "caravan_pending", "caravan_sent_count", "crown_favor", "armor_durability", "world_ambience_night", "teleport_usage_count"]
+const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "opened_chest_ids", "chest_rolled_tiers", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "dialogue_text_scale_percent", "auto_fit_phone_ui", "max_fps", "performance_mode", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus", "premium_ore_purchased_total", "premium_ore_purchase_count", "ore_sent_to_crown_total", "crown_order_index", "crown_order_ore_sent", "crown_returns_remaining", "caravan_arrival_queued", "crown_deadline_expired_awaiting_dispatch", "crown_orders_failed", "crown_displeasure", "crown_title_index", "caravan_pending", "caravan_sent_count", "crown_favor", "armor_durability", "world_ambience_night", "teleport_usage_count", "menu_epilogue_spawn_player_pending", "menu_post_finale_thanks_unlocked"]
 const default_data := {
 	"gold" : 10,
 	"meat_count" : 0,
@@ -200,6 +204,8 @@ const default_data := {
 	"armor_durability" : 100,
 	"world_ambience_night" : false,
 	"teleport_usage_count" : 0,
+	"menu_epilogue_spawn_player_pending" : false,
+	"menu_post_finale_thanks_unlocked" : false,
 }
 
 
@@ -293,6 +299,10 @@ func load_game():
 			building_levels = DEFAULT_BUILDING_LEVELS.duplicate()
 
 	building_levels = _normalize_building_levels(building_levels)
+
+	## Старые сохранения: флаг мог быть только в story_flags.
+	if not menu_post_finale_thanks_unlocked and bool(story_flags.get("menu_post_finale_thanks_unlocked", false)):
+		menu_post_finale_thanks_unlocked = true
 
 	_migrate_crown_returns_counter(game_data)
 	_migrate_crown_deadline_awaiting_flag(game_data)

@@ -160,6 +160,11 @@ func _reposition_rest_above_joystick() -> void:
 
 
 func _should_show_touch_ui() -> bool:
+	## Эпилог в главном меню: герой у сундука — нужны атака/щит, иначе layer меню перекрывает (HUD поднимают отдельно).
+	if Events.current_location == Events.LOCATION.MENU:
+		var p: Node = GameManager.current_scene_player
+		if p != null and is_instance_valid(p):
+			return true
 	match SaveManager.touch_mode:
 		1:
 			return true

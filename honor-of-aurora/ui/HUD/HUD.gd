@@ -101,7 +101,39 @@ func _on_any_dialogue_ended_for_badge(_seq: Variant) -> void:
 func _on_location_changed_codex_button(_loc: Events.LOCATION) -> void:
 	if camp_codex_open_button == null:
 		return
+	## В главном меню с героем у сундука — кодекс нужен, чтобы читать письмо из «Предметы».
+	if (
+		Events.current_location == Events.LOCATION.MENU
+		and GameManager.current_scene_player != null
+		and is_instance_valid(GameManager.current_scene_player)
+	):
+		camp_codex_open_button.visible = true
+		return
 	camp_codex_open_button.visible = Events.current_location != Events.LOCATION.MENU
+
+
+## Меню после финала: скрыть верхнюю полосу (HP, ресурсы, телепорт); тач и кнопка кодекса остаются.
+func apply_epilogue_menu_minimal_top_hud() -> void:
+	if Engine.is_editor_hint():
+		return
+	if Events.current_location != Events.LOCATION.MENU:
+		return
+	if GameManager.current_scene_player == null or not is_instance_valid(GameManager.current_scene_player):
+		return
+	for p: String in [
+		"TextureRect",
+		"ArmorDurabilityHud",
+		"Gold",
+		"OreCounter",
+		"MeatCounter",
+		"WoodCounter",
+		"Button",
+	]:
+		var c := get_node_or_null(NodePath(p)) as Control
+		if c:
+			c.visible = false
+	if camp_codex_open_button:
+		camp_codex_open_button.visible = true
 
 
 func _setup_armor_hud_nodes() -> void:

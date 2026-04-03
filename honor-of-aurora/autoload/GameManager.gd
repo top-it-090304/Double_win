@@ -1173,6 +1173,38 @@ func _find_player_node_in_current_scene() -> Node:
 	return null
 
 
+## Главное меню: герой у сундука (вызывать только если menu_scene уже отфильтровал прогресс). Камера героя выключена.
+func spawn_menu_player_next_to_chest(menu_root: Node2D, chest: Node2D) -> void:
+	if menu_root == null or chest == null or not is_instance_valid(chest):
+		return
+	var to_free: Array[Node] = []
+	for n in get_tree().get_nodes_in_group("player"):
+		if n is Node and menu_root.is_ancestor_of(n as Node):
+			to_free.append(n as Node)
+	for n in to_free:
+		n.free()
+	current_scene_player = null
+	var ps: PackedScene = _get_player_scene()
+	if ps == null:
+		push_error("GameManager: missing player PackedScene for menu")
+		return
+	current_scene_player = ps.instantiate()
+	menu_root.add_child(current_scene_player)
+	if current_scene_player.has_method("sync_from_save"):
+		current_scene_player.sync_from_save()
+	current_scene_player.visible = true
+	current_scene_player.process_mode = Node.PROCESS_MODE_INHERIT
+	if current_scene_player is Node2D:
+		(current_scene_player as Node2D).global_position = chest.global_position + Vector2(-108.0, 6.0)
+	## В главном меню камера героя не нужна — обзор как у обычного меню (viewport по умолчанию).
+	var p_cam := current_scene_player.get_node_or_null("Camera2D") as Camera2D
+	if p_cam:
+		p_cam.enabled = false
+	if current_scene_player.has_method("gain_exp"):
+		current_scene_player.health = SaveManager.current_health
+	SaveManager.apply_window_and_engine_settings()
+
+
 func _finish_player_placement_after_scene_change(location: Events.LOCATION) -> void:
 	var new_scene: Node = get_tree().current_scene
 	if not new_scene:

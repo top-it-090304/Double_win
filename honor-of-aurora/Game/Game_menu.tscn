@@ -1,5 +1,4 @@
-[gd_scene load_steps=95 format=4 uid="uid://b0oiqjmnjpppv"]
-[ext_resource type="Script" path="res://world/decor/tile_layer_trees_y_sort_migrate.gd" id="ysort_decor_migrate"]
+[gd_scene load_steps=96 format=4 uid="uid://b0oiqjmnjpppv"]
 
 [ext_resource type="Script" uid="uid://b2w1ontyogkqw" path="res://ui/menu/menu_scene.gd" id="1_0pui4"]
 [ext_resource type="PackedScene" uid="uid://dcadwipnt18nr" path="res://objects/clouds/cloud.tscn" id="2_fqxwl"]
@@ -48,6 +47,8 @@
 [ext_resource type="Texture2D" uid="uid://dup5d05xcku5y" path="res://Asets/Environment/Deco/11.png" id="45_ifi3r"]
 [ext_resource type="TileSet" uid="uid://firbi0hvr3ji" path="res://world/resources/other/boat.tres" id="46_chuwt"]
 [ext_resource type="PackedScene" uid="uid://odmcdls13s41" path="res://ui/menu/menu.tscn" id="47_afjly"]
+[ext_resource type="PackedScene" uid="uid://dgvv3qgd71jvc" path="res://objects/world/chest/world_chest.tscn" id="49_fqxwl"]
+[ext_resource type="Script" uid="uid://dmom720sjgw12" path="res://world/decor/tile_layer_trees_y_sort_migrate.gd" id="ysort_decor_migrate"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4v8e7"]
 texture = ExtResource("3_g6lub")
@@ -804,5 +805,14 @@ one_shot = true
 
 [node name="cloud" parent="." instance=ExtResource("2_fqxwl")]
 position = Vector2(32, 497)
+
+[node name="MenuThanksChest" parent="." instance=ExtResource("49_fqxwl")]
+visible = false
+position = Vector2(1094, 283)
+chest_save_id = "menu_post_finale_thanks_chest"
+loot_tier = 0
+lore_note_candidates = PackedStringArray("chest_note_dev_thanks_github")
+bonus_random_lore_chance = 0.0
+suppress_resource_loot = true
 
 [connection signal="timeout" from="CloudSpawnTimer" to="." method="_on_cloud_spawn_timer_timeout"]
