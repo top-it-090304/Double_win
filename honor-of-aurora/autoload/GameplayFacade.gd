@@ -334,3 +334,34 @@ func collect_squad_rest_heal_targets() -> Array[Node]:
 				continue
 			out.append(n)
 	return out
+
+
+const _ARCHER_BASE_SCRIPT := preload("res://ally/archer/arche_baser.gd")
+const _COMPANION_UNIT_SCRIPT := preload("res://characters/companion_unit.gd")
+
+
+## Сюжетный Мирон жив в текущей сцене (лучник/копейщик/рабочий в `story_youth_companion`, не DEAD).
+## Для цепочки посмертных писем с каравана: не гоняться и не открывать почту, пока он здесь живой.
+func is_story_youth_miron_alive_in_scene() -> bool:
+	var tree := get_tree()
+	if tree == null:
+		return false
+	for n in tree.get_nodes_in_group("story_youth_companion"):
+		if n == null or not is_instance_valid(n) or not (n is Node):
+			continue
+		if not (n as Node).is_inside_tree():
+			continue
+		if n is _ARCHER_BASE_SCRIPT:
+			var ab := n as _ARCHER_BASE_SCRIPT
+			if ab.state == ab.State.DEAD:
+				continue
+		elif n is _COMPANION_UNIT_SCRIPT:
+			var cu := n as _COMPANION_UNIT_SCRIPT
+			if cu.state == cu.State.DEAD:
+				continue
+		else:
+			continue
+		if n.has_method("is_alive") and not n.call("is_alive"):
+			continue
+		return true
+	return false

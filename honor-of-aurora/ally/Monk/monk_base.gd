@@ -299,6 +299,10 @@ func _heal_zone_dialogue_ids_resolved() -> PackedStringArray:
 
 
 func _pick_miron_caravan_mail_id() -> String:
+	if not StoryState.has_flag("worker_youth_dead"):
+		return ""
+	if GameplayFacade.is_story_youth_miron_alive_in_scene():
+		return ""
 	for d_id in MIRON_CARAVAN_MAIL_STORY_IDS:
 		if DialogueRegistry.can_play(d_id):
 			return d_id
@@ -433,12 +437,18 @@ func _on_heal_zone_enter_for_story_dialogue(body: Node2D) -> void:
 	if not GameplayFacade.is_player_body(body):
 		return
 	if Events.monk_miron_mail_chase_pending:
-		var mid := _pick_miron_caravan_mail_id()
-		if mid.is_empty():
+		if (
+			not StoryState.has_flag("worker_youth_dead")
+			or GameplayFacade.is_story_youth_miron_alive_in_scene()
+		):
 			Events.monk_miron_mail_chase_pending = false
-		elif not DialogueManager.is_active() and DialogueRegistry.try_start(mid):
-			Events.monk_miron_mail_chase_pending = false
-			return
+		else:
+			var mid := _pick_miron_caravan_mail_id()
+			if mid.is_empty():
+				Events.monk_miron_mail_chase_pending = false
+			elif not DialogueManager.is_active() and DialogueRegistry.try_start(mid):
+				Events.monk_miron_mail_chase_pending = false
+				return
 	_attempt_start_zone_story_dialogue(false)
 
 
@@ -468,6 +478,8 @@ func _try_activate_miron_mail_chase_after_caravan(sequence: DialogueSequence) ->
 	Events.monk_miron_mail_chase_defer = false
 	if not StoryState.has_flag("worker_youth_dead"):
 		return
+	if GameplayFacade.is_story_youth_miron_alive_in_scene():
+		return
 	var mid := _pick_miron_caravan_mail_id()
 	if mid.is_empty():
 		return
@@ -494,6 +506,9 @@ func _arm_youth_letter_caravan_reminder_if_eligible(sequence: DialogueSequence) 
 
 func _monk_needs_miron_mail_chase() -> bool:
 	if not Events.monk_miron_mail_chase_pending:
+		return false
+	if not StoryState.has_flag("worker_youth_dead") or GameplayFacade.is_story_youth_miron_alive_in_scene():
+		Events.monk_miron_mail_chase_pending = false
 		return false
 	if Events.current_location != Events.LOCATION.BASE:
 		return false

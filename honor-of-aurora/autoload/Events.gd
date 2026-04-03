@@ -68,6 +68,8 @@ func sync_story_state_from_save() -> void:
 func arm_miron_mail_chase_defer_if_eligible() -> void:
 	if not StoryState.has_flag("worker_youth_dead"):
 		return
+	if GameplayFacade.is_story_youth_miron_alive_in_scene():
+		return
 	if not DialogueRegistry.can_play("youth_postmortem_letter_1") and not DialogueRegistry.can_play(
 		"youth_postmortem_letter_2"
 	):
@@ -86,6 +88,8 @@ func on_caravan_no_longer_pending() -> void:
 		return
 	monk_miron_mail_chase_defer = false
 	if not StoryState.has_flag("worker_youth_dead"):
+		return
+	if GameplayFacade.is_story_youth_miron_alive_in_scene():
 		return
 	if not DialogueRegistry.can_play("youth_postmortem_letter_1") and not DialogueRegistry.can_play(
 		"youth_postmortem_letter_2"
