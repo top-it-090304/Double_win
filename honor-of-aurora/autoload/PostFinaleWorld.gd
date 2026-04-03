@@ -1,6 +1,7 @@
 extends Node
 ## После победы над последним стражом: затемнение, красноватая вода и пена волн (слой vawe), тишина врагов.
-## Титры и выход в меню в двух случаях: (1) после monk_story_6 — путь с пятым островом; (2) после monk_finale_refused — на последней реплике нарратора (или по таймеру чтения).
+## Финал: зум камеры, затем тот же оверлей, что при старте из меню (облака + «Честь / Авроры»), с тёплым оттенком облаков; пауза на чтение; уход облаков и выход в меню.
+## Срабатывает: (1) после monk_story_6; (2) после monk_finale_refused — на последней реплике нарратора (или по таймеру чтения).
 
 const VIGNETTE_MAX_ALPHA := 0.38
 const VIGNETTE_TWEEN_SEC := 5.0
@@ -11,8 +12,13 @@ const _DRAMATIC_DONE_FLAG := "post_finale_water_dramatic_done"
 const _META_WATER_BASE := &"post_finale_water_base_modulate"
 const ENDING_ZOOM := Vector2(0.32, 0.32)
 const ENDING_ZOOM_SEC := 4.5
-const THANK_YOU_SEC := 5.0
-## Ветка отказа: после появления последней реплики нарратора в monk_finale_refused — пауза на чтение, затем конец диалога и титры (если игрок не нажал «Далее» раньше).
+## Пауза с полным экраном заголовка на облаках перед уходом в меню.
+const ENDING_TITLE_HOLD_SEC := 5.0
+const _ENDING_OVERLAY_SCENE: PackedScene = preload("res://ui/transitions/menu_start_transition_overlay.tscn")
+## Лёгкий «рассветный» оттенок облаков (тёплый R, приглушённый B).
+const ENDING_CLOUD_TINT_MULT := Color(1.08, 0.92, 0.86, 1.0)
+const ENDING_CLOUD_GLOW_TINT := Color(1.0, 0.62, 0.48, 1.0)
+## Ветка отказа: если в monk_finale_refused последняя строка — нарратор, короткая пауза и авто-закрытие диалога (иначе игрок жмёт «Далее» на последней реплике персонажа).
 const REFUSAL_NARRATOR_READ_SEC := 2.5
 
 var player_movement_locked: bool = false
@@ -33,16 +39,9 @@ func _ready() -> void:
 	DialogueManager.dialogue_ended.connect(_on_dialogue_ended_credits)
 
 
-## Пока идёт финальная сценка (зум, титры) — не открывать новые диалоги у монаха/ветерана.
+## Пока идёт финальная сценка (зум, оверлей с заголовком) — не открывать новые диалоги у монаха/ветерана.
 func is_ending_cinematic_active() -> bool:
 	return _ending_started
-
-
-func discard_thank_you_overlay() -> void:
-	if _thank_you_layer and is_instance_valid(_thank_you_layer):
-		_thank_you_layer.queue_free()
-	_thank_you_layer = null
-	_thank_you_label = null
 
 
 func discard_vignette() -> void:
@@ -53,7 +52,6 @@ func discard_vignette() -> void:
 
 
 func reset_state_for_main_menu() -> void:
-	discard_thank_you_overlay()
 	discard_vignette()
 	_ending_started = false
 	player_movement_locked = false
@@ -181,13 +179,13 @@ func _start_ending_sequence() -> void:
 		player = _find_player_fallback()
 	var cam := player.get_node_or_null("Camera2D") as Camera2D if player else null
 	if cam == null:
-		_show_thank_you_then_menu()
+		_show_ending_title_then_menu()
 		return
 	var tw := create_tween()
 	tw.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	tw.tween_property(cam, "zoom", ENDING_ZOOM, ENDING_ZOOM_SEC)
 	await tw.finished
-	_show_thank_you_then_menu()
+	_show_ending_title_then_menu()
 
 
 func _find_player_fallback() -> Node:
@@ -197,51 +195,21 @@ func _find_player_fallback() -> Node:
 	return null
 
 
-func _show_thank_you_then_menu() -> void:
-	_ensure_thank_you_layer()
-	var tl := _thank_you_label
-	if tl:
-		tl.text = "Спасибо, что прошли игру. Будем очень рады вашим отзывам."
-		tl.visible = true
-		tl.modulate.a = 0.0
-		var tw := create_tween()
-		tw.tween_property(tl, "modulate:a", 1.0, 1.2)
-		await tw.finished
-	await get_tree().create_timer(THANK_YOU_SEC).timeout
+func _show_ending_title_then_menu() -> void:
+	var overlay: Node = _ENDING_OVERLAY_SCENE.instantiate()
+	overlay.show_game_title = true
+	overlay.cloud_modulate_multiplier = ENDING_CLOUD_TINT_MULT
+	overlay.opaque_cloud_glow_tint = ENDING_CLOUD_GLOW_TINT
+	get_tree().root.add_child(overlay)
+	await overlay.play_cover()
+	await get_tree().create_timer(ENDING_TITLE_HOLD_SEC).timeout
+	if is_instance_valid(overlay) and overlay.has_method("play_exit"):
+		await overlay.play_exit()
+	else:
+		if is_instance_valid(overlay):
+			overlay.queue_free()
 	player_movement_locked = false
-	discard_thank_you_overlay()
 	GameManager.handle_location_changed(Events.LOCATION.MENU)
-
-
-var _thank_you_layer: CanvasLayer
-var _thank_you_label: Label
-
-
-func _ensure_thank_you_layer() -> void:
-	if _thank_you_layer and is_instance_valid(_thank_you_layer):
-		return
-	_thank_you_layer = CanvasLayer.new()
-	_thank_you_layer.layer = 120
-	_thank_you_layer.process_mode = Node.PROCESS_MODE_ALWAYS
-	add_child(_thank_you_layer)
-	var panel := PanelContainer.new()
-	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_thank_you_layer.add_child(panel)
-	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 48)
-	margin.add_theme_constant_override("margin_right", 48)
-	margin.add_theme_constant_override("margin_top", 120)
-	margin.add_theme_constant_override("margin_bottom", 120)
-	panel.add_child(margin)
-	_thank_you_label = Label.new()
-	_thank_you_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_thank_you_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_thank_you_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_thank_you_label.add_theme_font_size_override("font_size", 28)
-	_thank_you_label.add_theme_color_override("font_color", Color(0.95, 0.92, 0.88))
-	margin.add_child(_thank_you_label)
 
 
 func _ensure_vignette() -> void:
@@ -270,7 +238,6 @@ func _show_vignette_target() -> void:
 
 func _refresh_finale_bgm_if_needed() -> void:
 	SoundManager.refresh_adventure_bgm_state()
-
 
 func _apply_water_tint_instant_to_scene(root: Node) -> void:
 	if root == null or not is_finale_world():
@@ -328,3 +295,4 @@ func _collect_water_layers(n: Node, out: Array[TileMapLayer]) -> void:
 			out.append(n as TileMapLayer)
 	for c in n.get_children():
 		_collect_water_layers(c, out)
+

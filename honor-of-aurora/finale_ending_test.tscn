@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b0ml60ychbgur"]
+
+[ext_resource type="Script" path="res://finale_ending_test.gd" id="1_script"]
+
+[node name="FinaleEndingTest" type="Node2D"]
+script = ExtResource("1_script")

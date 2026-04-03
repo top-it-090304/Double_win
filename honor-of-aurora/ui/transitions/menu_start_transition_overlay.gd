@@ -68,6 +68,8 @@ const _EDGE_INSET: float = 4.0
 @export_range(1.0, 1.35, 0.01) var opaque_cloud_glow_scale: float = 1.1
 @export_range(0.0, 0.55, 0.01) var opaque_cloud_glow_strength: float = 0.18
 @export var opaque_cloud_glow_tint: Color = Color(0.78, 0.9, 1.0, 1.0)
+## Дополнительный множитель к modulate каждого облака (например заря: чуть больше R, меньше B).
+@export var cloud_modulate_multiplier: Color = Color(1, 1, 1, 1)
 ## Заголовок и подзаголовок поверх облаков. Выключено — только облака (телепорт между локациями).
 @export var show_game_title: bool = true
 ## Текст заголовка на экране перехода (перенос строки = вторая строка).
@@ -571,6 +573,13 @@ func play_cover() -> void:
 		var delay_sec: float = 0.0
 		var move_dur: float = t_ends[idx]
 		var cloud_mod: Color = _cloud_layer_modulate(opaque_flags[idx], rng)
+		var cm := cloud_mod * cloud_modulate_multiplier
+		cloud_mod = Color(
+			clampf(cm.r, 0.0, 1.0),
+			clampf(cm.g, 0.0, 1.0),
+			clampf(cm.b, 0.0, 1.0),
+			clampf(cm.a, 0.0, 1.0)
+		)
 		_add_cloud(
 			tween,
 			tex,
