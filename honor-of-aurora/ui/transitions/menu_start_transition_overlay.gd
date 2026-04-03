@@ -1,13 +1,16 @@
 extends CanvasLayer
 
 ## Переход «главное меню → игра»: облака заезжают с краёв, затем улетают.
-## Те же текстуры, что в objects/clouds/cloud.tscn. Единый множитель cloud_visual_scale к размеру текстуры.
+## Заголовок — стилизованный текст (game_title_text), не PNG.
+## Те же текстуры облаков, что в objects/clouds/cloud.tscn. Множитель cloud_visual_scale к размеру текстуры.
 ## Локальные координаты _holder: (0,0) — левый верх видимой области вьюпорта; размер = visible_rect.size (без vr.position — CanvasLayer уже в системе вьюпорта).
 ##
 ## Плотность: row_height_px × col_width_factor × extra. Конечные точки — 2D-сетка по всему экрану; сторона заезда — шахматно (col+row) % 2.
 ## Фаза наезда: старт без задержки; момент остановки размазан не более чем на stop_time_spread_sec (последний к cover_total_sec). Кривая: TRANS_EXPO, EASE_OUT.
 
-const TITLE_TEXTURE: Texture2D = preload("res://ui/transitions/title_chest_avrory.png")
+## Philosopher (SIL OFL) — кириллица, спокойный «книжный» характер; Bold читается в крупном заголовке.
+const TITLE_FONT_DISPLAY: Font = preload("res://ui/font/Philosopher-Bold.ttf")
+const TITLE_FONT_TAGLINE: Font = preload("res://ui/font/Philosopher-Regular.ttf")
 
 const CLOUD_TEXTURES: Array[Texture2D] = [
 	preload("res://Asets/Unit_pack/Terrain/Decorations/Clouds/Clouds_01.png"),
@@ -22,6 +25,8 @@ const CLOUD_TEXTURES: Array[Texture2D] = [
 
 const META_FROM_LEFT := &"cloud_from_left"
 const META_TITLE_OVERLAY := &"menu_title_overlay"
+const META_CLOUD_WRAPPER := &"menu_cloud_row_wrapper"
+const META_TITLE_MOTION_VISUAL := &"title_motion_visual"
 const _EDGE_INSET: float = 4.0
 
 ## Вертикаль: число рядов из высоты экрана (как в первой версии).
@@ -39,7 +44,7 @@ const _EDGE_INSET: float = 4.0
 ## Случайная позиция центра внутри ячейки сетки покрытия (0.1 = у края клетки).
 @export var spread_cell_inner_jitter: float = 0.38
 ## Немного крупнее исходных PNG (1.0 = как в файле).
-@export var cloud_visual_scale: float = 1.28
+@export var cloud_visual_scale: float = 1.408
 ## Момент полной остановки последнего облака (самый длинный твин).
 @export var cover_total_sec: float = 1.4
 ## Разница между самым ранним и самым поздним моментом остановки (секунды).
@@ -55,8 +60,24 @@ const _EDGE_INSET: float = 4.0
 @export var title_fade_in_sec: float = 0.75
 ## Плавное исчезновение заголовка при уходе облаков.
 @export var title_fade_out_sec: float = 0.5
+## Ровно эта доля облаков на экране перехода — полностью непрозрачные; остальные — случайная альфа.
+@export_range(0.0, 1.0, 0.01) var opaque_cloud_fraction: float = 0.5
+@export_range(0.0, 1.0, 0.01) var translucent_alpha_min: float = 0.18
+@export_range(0.0, 1.0, 0.01) var translucent_alpha_max: float = 0.78
+## Аддитивное свечение только у полностью непрозрачных облаков (TextureRect внутри обёртки).
+@export_range(1.0, 1.35, 0.01) var opaque_cloud_glow_scale: float = 1.1
+@export_range(0.0, 0.55, 0.01) var opaque_cloud_glow_strength: float = 0.18
+@export var opaque_cloud_glow_tint: Color = Color(0.78, 0.9, 1.0, 1.0)
+## Текст заголовка на экране перехода (перенос строки = вторая строка).
+@export_multiline var game_title_text: String = "Честь\nАвроры"
+## Подзаголовок под названием (пусто = не показывать).
+@export var game_title_tagline: String = "Свет под цепью островов"
+@export_range(0.75, 1.0, 0.01) var title_fill_alpha: float = 0.9
+@export_range(1.0, 1.06, 0.001) var title_breath_scale_max: float = 1.014
+@export_range(1.5, 5.0, 0.1) var title_breath_period_sec: float = 3.2
 
 var _holder: Control
+var _title_motion_tween: Tween
 
 
 func _ready() -> void:
@@ -120,6 +141,34 @@ func _spawn_x_right_local(vw: float, cw: float, rng: RandomNumberGenerator, dept
 func _scaled_cloud_size(tex: Texture2D) -> Vector2:
 	var s: float = maxf(0.05, cloud_visual_scale)
 	return Vector2(float(tex.get_width()) * s, float(tex.get_height()) * s)
+
+
+func _cloud_layer_modulate(opaque: bool, rng: RandomNumberGenerator) -> Color:
+	var r: float = clampf(rng.randf_range(0.94, 1.03), 0.0, 1.0)
+	var g: float = clampf(rng.randf_range(0.96, 1.04), 0.0, 1.0)
+	var b: float = clampf(rng.randf_range(0.97, 1.06), 0.0, 1.0)
+	var a: float = 1.0 if opaque else rng.randf_range(
+		minf(translucent_alpha_min, translucent_alpha_max),
+		maxf(translucent_alpha_min, translucent_alpha_max)
+	)
+	a = clampf(a, 0.0, 1.0)
+	return Color(r, g, b, a)
+
+
+func _shuffled_opaque_flags(n: int, rng: RandomNumberGenerator) -> Array[bool]:
+	var n_opaque: int = int(round(float(n) * clampf(opaque_cloud_fraction, 0.0, 1.0)))
+	n_opaque = clampi(n_opaque, 0, n)
+	var flags: Array[bool] = []
+	for _i in range(n_opaque):
+		flags.append(true)
+	while flags.size() < n:
+		flags.append(false)
+	for i in range(flags.size() - 1, 0, -1):
+		var j: int = rng.randi_range(0, i)
+		var t: bool = flags[i]
+		flags[i] = flags[j]
+		flags[j] = t
+	return flags
 
 
 func _rows_for_height(h: float) -> int:
@@ -219,49 +268,236 @@ func _add_cloud(
 	from_left: bool,
 	move_dur: float,
 	trans_type: Tween.TransitionType,
-	ease_type: Tween.EaseType
+	ease_type: Tween.EaseType,
+	modulate: Color
 ) -> void:
 	var sz: Vector2 = _scaled_cloud_size(tex)
 	var cw: float = sz.x
 	var ch: float = sz.y
+	var is_opaque_cloud: bool = modulate.a >= 0.995
+
+	var wrapper := Control.new()
+	wrapper.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	wrapper.custom_minimum_size = Vector2(cw, ch)
+	wrapper.size = Vector2(cw, ch)
+	wrapper.position = Vector2(start_x, y)
+	wrapper.set_meta(META_CLOUD_WRAPPER, true)
+	wrapper.set_meta(META_FROM_LEFT, from_left)
+
+	if is_opaque_cloud:
+		var glow_tr := TextureRect.new()
+		glow_tr.texture = tex
+		glow_tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		glow_tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		var gs: float = maxf(1.01, opaque_cloud_glow_scale)
+		var gw: float = cw * gs
+		var gh: float = ch * gs
+		glow_tr.custom_minimum_size = Vector2(gw, gh)
+		glow_tr.size = Vector2(gw, gh)
+		glow_tr.position = Vector2((cw - gw) * 0.5, (ch - gh) * 0.5)
+		glow_tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var gmat := CanvasItemMaterial.new()
+		gmat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		glow_tr.material = gmat
+		var gt: Color = opaque_cloud_glow_tint
+		glow_tr.modulate = Color(gt.r, gt.g, gt.b, clampf(opaque_cloud_glow_strength, 0.0, 1.0))
+		wrapper.add_child(glow_tr)
+
 	var tr := TextureRect.new()
 	tr.texture = tex
 	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	tr.modulate = Color(1, 1, 1, 1)
+	tr.modulate = modulate
 	tr.custom_minimum_size = Vector2(cw, ch)
 	tr.size = Vector2(cw, ch)
-	tr.position = Vector2(start_x, y)
+	tr.position = Vector2.ZERO
 	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tr.set_meta(META_FROM_LEFT, from_left)
-	_holder.add_child(tr)
-	var tw_move := tween.tween_property(tr, "position", Vector2(end_x, y), move_dur)
+	wrapper.add_child(tr)
+	_holder.add_child(wrapper)
+
+	var tw_move := tween.tween_property(wrapper, "position", Vector2(end_x, y), move_dur)
 	if delay_sec > 0.0:
 		tw_move.set_delay(delay_sec)
 	tw_move.set_trans(trans_type)
 	tw_move.set_ease(ease_type)
 
 
-func _add_title(vw: float, vh: float) -> TextureRect:
-	var tr := TextureRect.new()
-	tr.texture = TITLE_TEXTURE
-	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tr.set_meta(META_TITLE_OVERLAY, true)
-	tr.modulate = Color(1, 1, 1, 0)
-	var tex_w: float = float(TITLE_TEXTURE.get_width())
-	var tex_h: float = float(TITLE_TEXTURE.get_height())
-	var max_w: float = vw * 0.72
-	var s: float = clampf(max_w / maxf(1.0, tex_w), 0.35, 1.35)
-	var rw: float = tex_w * s
-	var rh: float = tex_h * s
-	tr.custom_minimum_size = Vector2(rw, rh)
-	tr.size = Vector2(rw, rh)
-	tr.position = Vector2((vw - rw) * 0.5, (vh - rh) * 0.5)
-	tr.z_index = 500
-	_holder.add_child(tr)
-	return tr
+func _title_label_settings(
+	p_font: Font,
+	font_px: int,
+	outline_w: int,
+	outline_col: Color,
+	fill_col: Color,
+	with_shadow: bool = true,
+	shadow_strength: float = 1.0
+) -> LabelSettings:
+	var ls := LabelSettings.new()
+	ls.font = p_font
+	ls.font_size = font_px
+	ls.font_color = fill_col
+	ls.outline_size = outline_w
+	ls.outline_color = outline_col
+	# В части версий Godot у LabelSettings нет shadow_enabled — тень выключаем нулевым size / альфой.
+	if with_shadow:
+		var ss: float = clampf(shadow_strength, 0.0, 2.0)
+		ls.shadow_color = Color(0.04, 0.06, 0.14, 0.55 * ss)
+		ls.shadow_size = int(roundf(4.0 * ss))
+		ls.shadow_offset = Vector2(1, 3) * ss
+	else:
+		ls.shadow_color = Color(0, 0, 0, 0)
+		ls.shadow_size = 0
+		ls.shadow_offset = Vector2.ZERO
+	return ls
+
+
+func _make_stacked_title_label(
+	text: String,
+	font_px: int,
+	outline_w: int,
+	outline_col: Color,
+	fill_col: Color,
+	with_shadow: bool = true,
+	p_font: Font = TITLE_FONT_DISPLAY
+) -> Label:
+	var lbl := Label.new()
+	lbl.text = text
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lbl.label_settings = _title_label_settings(p_font, font_px, outline_w, outline_col, fill_col, with_shadow)
+	return lbl
+
+
+func _add_title(vw: float, vh: float) -> Control:
+	_stop_title_motion()
+	var lines: String = game_title_text.strip_edges()
+	if lines.is_empty():
+		lines = "Честь\nАвроры"
+
+	var title_root := Control.new()
+	title_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	title_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	title_root.set_meta(META_TITLE_OVERLAY, true)
+	title_root.modulate = Color(1, 1, 1, 0)
+	title_root.z_index = 500
+
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	title_root.add_child(center)
+
+	var visual := VBoxContainer.new()
+	visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	visual.add_theme_constant_override("separation", 14)
+	center.add_child(visual)
+
+	# Крупный заголовок: доля ширины экрана и потолок px.
+	var base_px: int = int(clampf(vw * 0.102, 52.0, 168.0))
+	var fill_a: float = clampf(title_fill_alpha, 0.0, 1.0)
+
+	var stack := Control.new()
+	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var line_count: int = maxi(1, lines.split("\n").size())
+	var stack_h: float = float(base_px) * (1.05 + float(line_count) * 1.22)
+	var stack_w: float = minf(vw * 0.98, 1900.0)
+	stack.custom_minimum_size = Vector2(stack_w, stack_h)
+	stack.size = Vector2(stack_w, stack_h)
+
+	# Сзади вперёд: холодный ореол, золотое кольцо, аддитивный заряд, основной текст.
+	stack.add_child(
+		_make_stacked_title_label(
+			lines,
+			base_px + 6,
+			22,
+			Color(0.38, 0.74, 1.0, 0.38),
+			Color(1, 1, 1, 0.0)
+		)
+	)
+	stack.add_child(
+		_make_stacked_title_label(
+			lines,
+			base_px + 2,
+			14,
+			Color(1.0, 0.72, 0.38, 0.58),
+			Color(1, 1, 1, 0.0)
+		)
+	)
+	var charge := _make_stacked_title_label(
+		lines,
+		int(maxf(float(base_px) * 1.05, float(base_px + 1))),
+		0,
+		Color.TRANSPARENT,
+		Color(0.55, 0.82, 1.0, 0.14),
+		false
+	)
+	var ch_mat := CanvasItemMaterial.new()
+	ch_mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	charge.material = ch_mat
+	stack.add_child(charge)
+
+	var main_fill := Color(1.0, 0.96, 0.88, fill_a)
+	stack.add_child(
+		_make_stacked_title_label(
+			lines,
+			base_px,
+			5,
+			Color(0.18, 0.28, 0.48, 0.92),
+			main_fill
+		)
+	)
+
+	visual.add_child(stack)
+
+	var tag: String = game_title_tagline.strip_edges()
+	if not tag.is_empty():
+		var sub := Label.new()
+		sub.text = "— %s —" % tag
+		sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		sub.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		# Крупнее и контрастнее основного «тонкого» варианта — читаемость на облаках.
+		var sub_px: int = maxi(26, int(float(base_px) * 0.38))
+		sub.label_settings = _title_label_settings(
+			TITLE_FONT_TAGLINE,
+			sub_px,
+			6,
+			Color(0.03, 0.06, 0.2, 0.94),
+			Color(0.99, 0.97, 0.93, 0.98),
+			true,
+			1.35
+		)
+		visual.add_child(sub)
+
+	title_root.set_meta(META_TITLE_MOTION_VISUAL, visual)
+	_holder.add_child(title_root)
+
+	var _on_visual_resized := func() -> void:
+		visual.pivot_offset = visual.size * 0.5
+	visual.resized.connect(_on_visual_resized)
+	_on_visual_resized.call()
+
+	return title_root
+
+
+func _stop_title_motion() -> void:
+	if _title_motion_tween != null and _title_motion_tween.is_valid():
+		_title_motion_tween.kill()
+	_title_motion_tween = null
+
+
+func _start_title_breath(visual: Control) -> void:
+	if visual == null or not is_instance_valid(visual):
+		return
+	_stop_title_motion()
+	var smax: float = maxf(1.001, title_breath_scale_max)
+	var half: float = maxf(0.8, title_breath_period_sec) * 0.5
+	_title_motion_tween = create_tween()
+	_title_motion_tween.set_loops()
+	_title_motion_tween.set_parallel(false)
+	_title_motion_tween.set_trans(Tween.TRANS_SINE)
+	_title_motion_tween.set_ease(Tween.EASE_IN_OUT)
+	_title_motion_tween.tween_property(visual, "scale", Vector2(smax, smax), half)
+	_title_motion_tween.tween_property(visual, "scale", Vector2(1.0, 1.0), half)
 
 
 func play_cover() -> void:
@@ -305,6 +541,7 @@ func play_cover() -> void:
 		t_ends.shuffle()
 	var tween := create_tween()
 	tween.set_parallel(true)
+	var opaque_flags: Array[bool] = _shuffled_opaque_flags(pairs.size(), rng)
 	for idx in range(pairs.size()):
 		var p: Dictionary = pairs[idx]
 		var center: Vector2 = p["c"]
@@ -316,6 +553,13 @@ func play_cover() -> void:
 		var end_pos: Vector2 = _center_to_top_left_clamped(center, cw, ch, vw, vh, bleed)
 		var end_x: float = end_pos.x
 		var y: float = end_pos.y
+		# Левый поток визуально ниже правого: смещение на половину высоты спрайта (без зеркальной симметрии).
+		if from_left:
+			var lo_y: float = -bleed
+			var hi_y: float = vh - ch + bleed
+			y += ch * 0.5
+			if hi_y >= lo_y:
+				y = clampf(y, lo_y, hi_y)
 		var depth_max: float = spawn_offscreen_depth_variance_px
 		if from_left:
 			depth_max *= rng.randf_range(0.72, 1.22)
@@ -324,6 +568,7 @@ func play_cover() -> void:
 		var start_x: float = _spawn_x_left_local(cw, rng, depth_max) if from_left else _spawn_x_right_local(vw, cw, rng, depth_max)
 		var delay_sec: float = 0.0
 		var move_dur: float = t_ends[idx]
+		var cloud_mod: Color = _cloud_layer_modulate(opaque_flags[idx], rng)
 		_add_cloud(
 			tween,
 			tex,
@@ -334,13 +579,24 @@ func play_cover() -> void:
 			from_left,
 			move_dur,
 			Tween.TRANS_EXPO,
-			Tween.EASE_OUT
+			Tween.EASE_OUT,
+			cloud_mod
 		)
-	var title_rect: TextureRect = _add_title(vw, vh)
+	var title_root: Control = _add_title(vw, vh)
 	var t_in: float = maxf(0.05, title_fade_in_sec)
-	var step_in := tween.tween_property(title_rect, "modulate", Color(1, 1, 1, 1), t_in)
+	var step_in := tween.tween_property(title_root, "modulate", Color(1, 1, 1, 1), t_in)
 	step_in.set_trans(Tween.TRANS_SINE)
 	step_in.set_ease(Tween.EASE_IN_OUT)
+	step_in.finished.connect(
+		func() -> void:
+			if not is_instance_valid(title_root):
+				return
+			var tv: Variant = title_root.get_meta(META_TITLE_MOTION_VISUAL, null)
+			if tv is Control and is_instance_valid(tv):
+				var tvc: Control = tv as Control
+				tvc.pivot_offset = tvc.size * 0.5
+				_start_title_breath(tvc)
+	)
 	await tween.finished
 
 
@@ -348,6 +604,7 @@ func play_exit() -> void:
 	if _holder == null or not is_instance_valid(_holder):
 		queue_free()
 		return
+	_stop_title_motion()
 	_holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var vr := _visible_rect_strict()
 	var vw: float = vr.size.x
@@ -360,19 +617,19 @@ func play_exit() -> void:
 	var n: int = children.size()
 	var idx: int = 0
 	for child in children:
-		if child is TextureRect:
-			var tr: TextureRect = child as TextureRect
-			if bool(tr.get_meta(META_TITLE_OVERLAY, false)):
-				var t_out: float = maxf(0.05, title_fade_out_sec)
-				var step_fade := tw.tween_property(tr, "modulate", Color(1, 1, 1, 0), t_out)
-				step_fade.set_trans(Tween.TRANS_SINE)
-				step_fade.set_ease(Tween.EASE_IN)
-				continue
-			var from_left: bool = bool(tr.get_meta(META_FROM_LEFT, true))
-			var end_x: float = (-tr.size.x - pad) if from_left else (vw + pad)
-			var delay: float = float(idx) * exit_stagger_sec / float(max(1, n))
+		if child is Control and bool(child.get_meta(META_CLOUD_WRAPPER, false)):
+			var from_left_w: bool = bool(child.get_meta(META_FROM_LEFT, true))
+			var end_x_w: float = (-child.size.x - pad) if from_left_w else (vw + pad)
+			var delay_w: float = float(idx) * exit_stagger_sec / float(max(1, n))
 			idx += 1
-			var step := tw.tween_property(tr, "position:x", end_x, exit_duration_sec)
-			step.set_delay(delay)
+			var step_w := tw.tween_property(child, "position:x", end_x_w, exit_duration_sec)
+			step_w.set_delay(delay_w)
+			continue
+		if child is Control and bool(child.get_meta(META_TITLE_OVERLAY, false)):
+			var t_out: float = maxf(0.05, title_fade_out_sec)
+			var step_title := tw.tween_property(child, "modulate", Color(1, 1, 1, 0), t_out)
+			step_title.set_trans(Tween.TRANS_SINE)
+			step_title.set_ease(Tween.EASE_IN)
+			continue
 	await tw.finished
 	queue_free()
