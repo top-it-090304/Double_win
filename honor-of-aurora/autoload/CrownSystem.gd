@@ -455,6 +455,10 @@ func _apply_order_failure() -> void:
 func try_play_caravan_arrival_if_pending() -> void:
 	if not SaveManager.caravan_pending:
 		return
+	## Письма Мирона привязаны к прибытию каравана — до старта диалога интенданта.
+	var tree := get_tree()
+	if tree:
+		tree.call_group("miron_mail_carrier", "on_caravan_arrived_for_mail")
 	DialogueRegistry.try_start("caravan_arrival", false)
 
 

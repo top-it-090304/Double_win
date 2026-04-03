@@ -333,8 +333,7 @@ func _build_letter_delivery() -> void:
 
 	var knew_youth_letters := StoryState.has_flag("youth_letter_1_done")
 	if knew_youth_letters and not StoryState.has_flag("worker_youth_dead"):
-		var has_mother_reply := SaveManager.expedition_return_count >= 4
-		if has_mother_reply:
+		if StoryState.has_flag("youth_letter_2_done"):
 			lines.append(_plain("caravan", "Милорд, с материка ответ для юноши — от матери."))
 
 

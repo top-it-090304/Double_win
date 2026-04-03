@@ -309,6 +309,7 @@ func load_game():
 
 	_migrate_story_island_flags_from_legacy_boss_kill()
 	_migrate_truth_choice_flags()
+	_migrate_truth_choice_stuck_no_branch()
 	_migrate_worker_youth_refused_to_base_worker()
 	_migrate_worker_youth_prompt_anchor()
 	_migrate_youth_letter_healer_prompt_legacy()
@@ -462,6 +463,19 @@ func _migrate_truth_choice_flags() -> void:
 		story_flags["truth_and_choice_done"] = true
 		story_flags["hero_chose_finish_chain"] = true
 		save_game()
+
+
+## Закрыли окно «правда и выбор» до клика по варианту: висел truth_and_choice_done без ветки — без острова 5.
+func _migrate_truth_choice_stuck_no_branch() -> void:
+	if not bool(story_flags.get("truth_and_choice_done", false)):
+		return
+	if bool(story_flags.get("hero_chose_finish_chain", false)) or bool(story_flags.get("hero_chose_refuse_chain", false)):
+		return
+	if bool(story_flags.get("story_island_5_cleared", false)) or bool(story_flags.get("monk_story_6_done", false)):
+		story_flags["hero_chose_finish_chain"] = true
+	else:
+		story_flags.erase("truth_and_choice_done")
+	save_game()
 
 
 ## Старый отказ «не место в походе» блокировал всё; теперь юноша — рабочий на базе.

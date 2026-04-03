@@ -54,10 +54,18 @@ const _LORE_ZONE_META: Dictionary = {
 	"youth_reply_1": {"title": "✉ Сын → маме (первый ответ)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_1_done", "is_letter": true, "order": 2},
 	"youth_mother_letter_2": {"title": "✉ Мама → сыну (второе)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_2_done", "is_letter": true, "order": 3},
 	"youth_reply_2": {"title": "✉ Сын → маме (второй ответ)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_2_done", "is_letter": true, "order": 4},
-	"youth_last_letter": {"title": "✉ Последнее письмо Мирона (прощальное)", "cat": CAT_YOUTH_MAIL, "flag": "worker_youth_death_scene_done", "is_letter": true, "order": 5},
-	"youth_mother_letter_3": {"title": "✉ Мама → сыну (третье, без ответа)", "cat": CAT_YOUTH_MAIL, "flag": "youth_postmortem_1_done", "flag_also": "youth_letter_2_done", "is_letter": true, "order": 6},
-	"youth_mother_letter_postmortem_2": {"title": "✉ Мама → сыну (без ответа)", "cat": CAT_YOUTH_MAIL, "flag": "youth_postmortem_2_done", "flag_also": "youth_letter_1_done", "flag_not": "youth_letter_2_done", "is_letter": true, "order": 7},
-	"youth_nika_drawing_postmortem": {"title": "✉ Рисунок Ники (одиннадцатый кораблик)", "cat": CAT_YOUTH_MAIL, "flag": "youth_postmortem_2_done", "is_letter": true, "order": 8},
+	"youth_mother_letter_wave_3": {"title": "✉ Мама → сыну (после второго стража)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_3_done", "is_letter": true, "order": 5},
+	"youth_reply_wave_3": {"title": "✉ Сын → маме (ответ)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_3_done", "is_letter": true, "order": 6},
+	"youth_mother_letter_wave_4": {"title": "✉ Мама → сыну (после третьего стража)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_4_done", "is_letter": true, "order": 7},
+	"youth_reply_wave_4": {"title": "✉ Сын → маме (ответ)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_4_done", "is_letter": true, "order": 8},
+	"youth_mother_letter_wave_5": {"title": "✉ Мама → сыну (после четвёртого стража)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_5_done", "is_letter": true, "order": 9},
+	"youth_reply_wave_5": {"title": "✉ Сын → маме (ответ)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_5_done", "is_letter": true, "order": 10},
+	"youth_mother_letter_wave_6": {"title": "✉ Мама → сыну (второй караван после четвёртого стража)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_6_done", "is_letter": true, "order": 11},
+	"youth_reply_wave_6": {"title": "✉ Сын → маме (ответ)", "cat": CAT_YOUTH_MAIL, "flag": "youth_letter_6_done", "is_letter": true, "order": 12},
+	"youth_last_letter": {"title": "✉ Последнее письмо Мирона (прощальное)", "cat": CAT_YOUTH_MAIL, "flag": "worker_youth_death_scene_done", "is_letter": true, "order": 13},
+	"youth_mother_letter_3": {"title": "✉ Мама → сыну (третье, без ответа)", "cat": CAT_YOUTH_MAIL, "flag": "youth_postmortem_1_done", "flag_also": "youth_letter_2_done", "is_letter": true, "order": 14},
+	"youth_mother_letter_postmortem_2": {"title": "✉ Мама → сыну (без ответа)", "cat": CAT_YOUTH_MAIL, "flag": "youth_postmortem_2_done", "flag_also": "youth_letter_1_done", "flag_not": "youth_letter_2_done", "is_letter": true, "order": 15},
+	"youth_nika_drawing_postmortem": {"title": "✉ Рисунок Ники (одиннадцатый кораблик)", "cat": CAT_YOUTH_MAIL, "flag": "youth_postmortem_2_done", "is_letter": true, "order": 16},
 }
 
 ## {id, title, category, text_bbcode} — только разблокированные записи.

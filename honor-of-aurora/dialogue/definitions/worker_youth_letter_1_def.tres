@@ -8,7 +8,7 @@
 script = ExtResource("2_cond")
 required_flags = Array[String](["worker_youth_intro_done"])
 blocked_flags = Array[String](["youth_letter_1_done", "worker_youth_dead"])
-min_expedition_return_count = 2
+min_expedition_return_count = -1
 
 [resource]
 script = ExtResource("1_def")

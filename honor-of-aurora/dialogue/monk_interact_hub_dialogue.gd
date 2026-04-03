@@ -8,6 +8,8 @@ class_name MonkInteractHubDialogue
 func ensure_lines_ready() -> void:
 	if not lines.is_empty():
 		return
+	## С прошлого сеанса мог остаться флаг (вылет до конца хаба) — не цеплять truth_and_choice без выбора пункта.
+	StoryState.clear_flag("monk_hub_queue_truth_choice")
 	id = "monk_interact_hub"
 	lines.append(_choice("healer", "Странник… Выбери, о чём речь.", _build_root_options()))
 
@@ -84,6 +86,14 @@ func _build_story_question_option_dicts() -> Array:
 			"grant_flags": PackedStringArray([]),
 			"continuation": [
 				["healer", "Не богиня. Не демон. Сила — древнее слов для неё. Старые тексты ордена зовут её «первый свет в волне». Она дала архипелагу имя. Стражи держали её сон. С каждым убитым стражем сон тоньше. Что будет, когда она проснётся, — не знает никто."],
+			],
+		})
+	if DialogueRegistry.can_play("truth_and_choice"):
+		opts.append({
+			"label": "Последний страж. Нужно сказать тебе своё решение.",
+			"grant_flags": PackedStringArray(["monk_hub_queue_truth_choice"]),
+			"continuation": [
+				["healer", "Садись. Я не закончил тот разговор — и ты тоже. Говори, как есть."],
 			],
 		})
 	if StoryState.has_flag("truth_and_choice_done"):

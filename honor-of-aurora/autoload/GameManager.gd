@@ -1499,5 +1499,9 @@ func on_story_island_boss_defeated(island_index: int) -> void:
 	if StoryState.has_flag(key):
 		return
 	StoryState.set_flag(key, true)
+	## Мирон: письма 2–5 — с караванами после боссов 1–4. Шестое — со следующим караваном после пятого письма (до босса 5).
+	if island_index >= 1 and island_index <= 4:
+		StoryState.set_flag("youth_miron_mail_after_boss_%d" % island_index, true)
 	if island_index == 5:
 		PostFinaleWorld.on_story_island_5_boss_won()
+	SaveManager.save_game()

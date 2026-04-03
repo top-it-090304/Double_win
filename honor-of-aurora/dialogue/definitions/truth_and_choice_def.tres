@@ -14,4 +14,4 @@ script = ExtResource("1_def")
 id = "truth_and_choice"
 sequence = ExtResource("3_seq")
 conditions = SubResource("cond")
-grant_flags_on_complete = Array[String](["truth_and_choice_done"])
+grant_flags_on_complete = Array[String]([])

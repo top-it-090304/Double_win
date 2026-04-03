@@ -23,7 +23,7 @@ func ensure_lines_ready() -> void:
 	lines.append(_choice("healer", "Теперь ты знаешь всё. И про корону, и про меня. Что ты выберешь?", [
 		{
 			"label": "Иду на последний остров. Ты увидишь дочь.",
-			"grant_flags": PackedStringArray(["hero_chose_finish_chain"]),
+			"grant_flags": PackedStringArray(["truth_and_choice_done", "hero_chose_finish_chain"]),
 			"continuation": [
 				["hero", "Я не делаю этого ради короны. И не ради указа. Может, ради тебя. Может, ради того, чтобы довести дело до конца — и наконец посмотреть в глаза тому, что я натворил."],
 				["healer", "…Спасибо. Не за меч. За честность. Иди. Вернёшься — я буду у церкви. Как всегда."],
@@ -31,7 +31,7 @@ func ensure_lines_ready() -> void:
 		},
 		{
 			"label": "Отказываюсь. Не буду будить то, что спит, ради чужой руды.",
-			"grant_flags": PackedStringArray(["hero_chose_refuse_chain"]),
+			"grant_flags": PackedStringArray(["truth_and_choice_done", "hero_chose_refuse_chain"]),
 			"continuation": [
 				["hero", "Мне жаль, что ты не увидишь дочь. Правда жаль. Но я не буду тем, кто разбудит неизвестность ради чужого удобства. Мой последний поход научил меня одному: цена спешки — чужие жизни."],
 				["healer", "…Я знал, что ты можешь так ответить. Готовился к этому каждую ночь. Не получилось подготовиться. Иди, странник. Я… останусь в церкви. Мне нужно написать письмо."],

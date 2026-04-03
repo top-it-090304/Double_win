@@ -1,7 +1,7 @@
 extends DialogueSequence
 
 ## Второй обмен: мать услышала про потери. Ника перестала спрашивать. Ракушка.
-## Триггер: youth_letter_1_done + min 3 похода или story_island_2_cleared.
+## Триггер: первое письмо есть + флаг после 1-го босса (`youth_miron_mail_after_boss_1`); сцена с ближайшим караваном (см. youth_worker_companion / GameManager).
 
 
 func ensure_lines_ready() -> void:

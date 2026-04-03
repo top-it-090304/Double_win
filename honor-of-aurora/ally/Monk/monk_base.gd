@@ -384,6 +384,10 @@ func try_open_interact_dialog() -> bool:
 func _handle_monk_hub_deferred(sequence: DialogueSequence) -> void:
 	if sequence == null or sequence.id != "monk_interact_hub":
 		return
+	if StoryState.has_flag("monk_hub_queue_truth_choice"):
+		StoryState.set_flag("monk_hub_queue_truth_choice", false)
+		call_deferred("_deferred_run_truth_choice_after_hub")
+		return
 	if StoryState.has_flag("monk_hub_def_story"):
 		StoryState.set_flag("monk_hub_def_story", false)
 		call_deferred("_deferred_run_story_after_hub")
@@ -398,6 +402,21 @@ func _deferred_run_story_after_hub() -> void:
 		return
 	await get_tree().process_frame
 	if DialogueManager.is_active():
+		return
+	if _attempt_start_zone_story_dialogue(true):
+		return
+	if _attempt_start_attack_dialogue():
+		return
+	DialogueRegistry.try_start("healer_idle_fallback")
+
+
+func _deferred_run_truth_choice_after_hub() -> void:
+	if not is_inside_tree():
+		return
+	await get_tree().process_frame
+	if DialogueManager.is_active():
+		return
+	if DialogueRegistry.try_start("truth_and_choice"):
 		return
 	if _attempt_start_zone_story_dialogue(true):
 		return
