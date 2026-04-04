@@ -11,10 +11,10 @@ const _CLOUD_VISUAL_SCALE: float = 1.1
 @export var cloud_scene: PackedScene
 @export var spawn_x: float = -200
 @export var spawn_interval: float = 2.0
-## Над картой (Node2D), но ниже MenuCanvas (layer 10): облака не перекрывают кнопки меню.
-## Клики идут в кнопки: облака — Node2D + input_pickable=false, не участвуют в GUI.
+## Выше всего мира меню (тайлы, декор, кнопки как «лежачие камни» на Node2D).
+## Модалки/настройки — свои CanvasLayer выше (например 100). Клики по кнопкам: спрайты облаков не Control.
 @export var menu_clouds_canvas_layer: int = 6
-## HUD эпилога: выше MenuCanvas (10), чтобы тач и кодекс работали поверх меню.
+## HUD эпилога: выше слоя облаков меню.
 const _MENU_EPILOGUE_HUD_LAYER: int = 12
 
 var spawn_timer: Timer
@@ -74,7 +74,7 @@ func _should_spawn_menu_hero_for_thanks_chest() -> bool:
 	)
 
 
-## Фон HUD на весь экран иначе съедает клики по кнопкам меню (слой выше MenuCanvas).
+## Фон HUD на весь экран: не перехватывать клики по каменным кнопкам под облаками.
 ## Плюс скрываем верхнюю полосу HUD (ресурсы, HP) — остаются тач и кодекс.
 func _menu_epilogue_hud_passthrough_fullscreen_bg(hud: Node) -> void:
 	if not is_instance_valid(hud):
