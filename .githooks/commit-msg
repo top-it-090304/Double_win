@@ -1,0 +1,11 @@
+#!/bin/sh
+# Убирает служебные строки-трейлеры из текста сообщения (Made-with, Co-authored-by).
+# Настройка: git config core.hooksPath .githooks
+msg_file="$1"
+tmp="${msg_file}.strip.$$"
+if ! sed -e '/^[Mm]ade-[Ww]ith:/d' \
+         -e '/^[Cc]o-[Aa]uthored-[Bb]y:/d' \
+         "$msg_file" > "$tmp" 2>/dev/null; then
+  exit 0
+fi
+mv -f "$tmp" "$msg_file" 2>/dev/null || { rm -f "$tmp"; exit 0; }
