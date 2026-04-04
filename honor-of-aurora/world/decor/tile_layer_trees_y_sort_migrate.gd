@@ -23,6 +23,7 @@ func _migrate_deferred() -> void:
 	## сортируются движком по Y **origin** (верх спрайта при centered=false), а YSortManager — по
 	## **низу** через get_y_sort_bottom_y(). Два правила дают сдвиг ~на высоту спрайта при отрисовке.
 	y_sort_enabled = false
+	add_to_group("slipper_cull_decor_layer")
 
 
 func _migrate_cell(cell: Vector2i, ts: TileSet) -> void:

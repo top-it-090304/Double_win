@@ -70,7 +70,9 @@ var dialogue_text_scale_percent: int = 100
 var auto_fit_phone_ui: bool = true
 ## Ограничение FPS (0 = без ограничения, иначе 30–240).
 var max_fps: int = 60
-## 0 мин., 1 сред., 2 макс. Лимит FPS задаётся пресетом (см. PerformancePreset). Старый режим 3 в сохранениях сбрасывается в средний.
+## performance_mode → PerformancePreset.Mode. Миграция со старых сохранений:
+## 0 = MINIMAL, 1 = MEDIUM, 2 = MAXIMUM — без изменений; 3 = CUSTOM («свой FPS») при нормализации мапится в MEDIUM (1);
+## новое 4 = SLIPPER («На тапке»). Значения вне диапазона после clamp_mode приводятся к 0..4.
 var performance_mode: int = 1
 ## Сенсорное управление: 0 = авто, 1 = всегда показывать, 2 = скрыть (ПК/геймпад).
 var touch_mode: int = 0
@@ -433,8 +435,16 @@ func apply_window_and_engine_settings() -> void:
 		apply_auto_phone_ui_settings()
 	var w := get_window()
 	if w:
-		## Не масштабируем всё окно: это может обрезать сцену и «съезжать» HUD.
-		w.content_scale_factor = 1.0
+		if PerformancePreset.should_apply_slipper_viewport_stretch(self):
+			## Рендер в пониженном разрешении (viewport stretch), затем апскейл на окно — меньше пикселей на GPU.
+			## Главное меню (`Game_menu`) — без этого: масштаб как в проекте (canvas_items).
+			## Логические координаты сцены остаются 1280×720; input и раскладка UI не смещаются.
+			w.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
+			w.content_scale_factor = PerformancePreset.SLIPPER_RENDER_STRETCH_SCALE
+		else:
+			## Как в `project.godot` (canvas_items): не делить внутреннее разрешение на stretch scale.
+			w.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+			w.content_scale_factor = 1.0
 	PerformancePreset.apply_from_save_manager(self)
 	var tree := get_tree()
 	if tree:
@@ -1127,12 +1137,27 @@ func _migrate_base_resume_off_old_teleport_spawn() -> void:
 	resume_player_position_y = BASE_DOCK_SPAWN_Y
 
 
+func _snapshot_menu_settings_from_save() -> Dictionary:
+	## Те же поля, что в `_NEW_GAME_PROGRESS_IGNORE_KEYS`: настройки меню не сбрасываем при «Новая игра».
+	var d: Dictionary = {}
+	for k in _NEW_GAME_PROGRESS_IGNORE_KEYS:
+		var ks := str(k)
+		d[ks] = get(ks)
+	return d
+
+
+func _restore_menu_settings_after_new_game(keep: Dictionary, game_data: Dictionary) -> void:
+	for k in keep:
+		set(k, keep[k])
+		game_data[k] = get(k)
+	_normalize_settings_fields()
+	for k in _NEW_GAME_PROGRESS_IGNORE_KEYS:
+		game_data[str(k)] = get(str(k))
+
+
 func reset_data():
 	invalidate_codex_state_build_cache()
-	var keep_vm := volume_music
-	var keep_vs := volume_sfx
-	var keep_vu := volume_ui
-	var keep_vd := volume_dialogue
+	var keep_menu := _snapshot_menu_settings_from_save()
 	## Сначала память и сигналы — даже если запись файла не удастся, новая игра не останется со старым золотом/ресурсами.
 	var game_data := {}
 	for variable in SAVE_DATA:
@@ -1147,14 +1172,7 @@ func reset_data():
 	building_levels = DEFAULT_BUILDING_LEVELS.duplicate()
 	game_data["building_levels"] = building_levels.duplicate()
 
-	volume_music = keep_vm
-	volume_sfx = keep_vs
-	volume_ui = keep_vu
-	volume_dialogue = keep_vd
-	game_data["volume_music"] = volume_music
-	game_data["volume_sfx"] = volume_sfx
-	game_data["volume_ui"] = volume_ui
-	game_data["volume_dialogue"] = volume_dialogue
+	_restore_menu_settings_after_new_game(keep_menu, game_data)
 
 	current_health = HeroProgression.get_tier_for_level(current_level).max_health
 	game_data["current_health"] = current_health
@@ -1182,3 +1200,14 @@ func reset_data():
 
 	var json_object := JSON.new()
 	game_save_file.store_line(json_object.stringify(game_data))
+	call_deferred("_deferred_apply_settings_after_reset_data")
+
+
+func _deferred_apply_settings_after_reset_data() -> void:
+	## Восстановленные настройки меню должны сразу отразиться в окне, звуке, HUD и тач-слое.
+	apply_window_and_engine_settings()
+	SoundManager.apply_user_volume_settings()
+	var tree := get_tree()
+	if tree:
+		tree.call_group("hud", "apply_user_ui_scale")
+		tree.call_group("touch_controls", "apply_user_touch_settings")

@@ -215,18 +215,20 @@ func _apply_soft_separation_to_velocity(delta: float) -> void:
 	var tree := get_tree()
 	if tree == null:
 		return
+	if tree.get_node_count_in_group(&"character_unit") < 2:
+		return
+	## Один список на кадр физики: раньше `get_nodes_in_group` вызывался дважды (босс + отряд).
+	var units := tree.get_nodes_in_group("character_unit")
 	## Сначала: жёсткое разведение с боссом (и для врагов — иначе залипание у крупного коллайдера).
-	_apply_boss_radius_separation(delta, tree)
+	_apply_boss_radius_separation(delta, units)
 	if is_in_group("enemy"):
 		return
 	if unit_soft_separation_distance <= 0.0 or unit_soft_separation_strength <= 0.0:
 		return
-	if tree.get_node_count_in_group(&"character_unit") < 2:
-		return
 	var push := Vector2.ZERO
 	var my_pos := global_position
 	var my_r := _soft_sep_body_radius(self)
-	for other in tree.get_nodes_in_group("character_unit"):
+	for other in units:
 		if other == self or other == null or not is_instance_valid(other):
 			continue
 		if not (other is Node2D):
@@ -257,14 +259,14 @@ func _apply_soft_separation_to_velocity(delta: float) -> void:
 	velocity += push.normalized() * speed_ref * unit_soft_separation_strength * delta
 
 
-func _apply_boss_radius_separation(delta: float, tree: SceneTree) -> void:
-	if tree.get_node_count_in_group(&"character_unit") < 2:
+func _apply_boss_radius_separation(delta: float, units: Array) -> void:
+	if units.size() < 2:
 		return
 	var self_boss := is_in_group("BOSS")
 	var my_pos := global_position
 	var my_r := _soft_sep_body_radius(self)
 	var push := Vector2.ZERO
-	for other in tree.get_nodes_in_group("character_unit"):
+	for other in units:
 		if other == self or other == null or not is_instance_valid(other):
 			continue
 		if not (other is Node2D):

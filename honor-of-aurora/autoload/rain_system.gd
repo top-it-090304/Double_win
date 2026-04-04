@@ -1,7 +1,8 @@
 extends Node
 ## Погода: счётчик телепортов из меню причала.
 ## Дождь один «ход» за цикл: активен, пока число телепортов кратно 5 (5, 10, 15…); после следующего телепорта — снова сухо до следующего кратного 5.
-## В дождь награды за убийство монстров x2 (см. enemy_base.die).
+## В дождь награды за убийство монстров x2 (см. enemy_base.die) — по `is_rain_weather_active()`, без привязки к пресету «На тапке».
+## Визуальный оверлей дождя при `PerformancePreset.Mode.SLIPPER` не показывается (`should_show_rain_overlay()`).
 
 const TELEPORTS_PER_RAIN_PULSE := 5
 
@@ -11,6 +12,11 @@ const _RAIN_OVERLAY_SCENE := preload("res://environment/weather/base_island_rain
 func is_rain_weather_active() -> bool:
 	var c: int = SaveManager.teleport_usage_count
 	return c > 0 and c % TELEPORTS_PER_RAIN_PULSE == 0
+
+
+## Оверлей с частицами: выключается в режиме «На тапке»; логика x2 остаётся по `is_rain_weather_active()`.
+func should_show_rain_overlay() -> bool:
+	return is_rain_weather_active() and not PerformancePreset.is_slipper_mode(SaveManager)
 
 
 func get_monster_kill_reward_multiplier() -> float:
@@ -29,9 +35,9 @@ func sync_rain_overlay_for_scene(scene_root: Node) -> void:
 		return
 	if Events.current_location == Events.LOCATION.MENU:
 		return
-	var want_rain := is_rain_weather_active()
+	var show_overlay := should_show_rain_overlay()
 	var existing: Node = scene_root.get_node_or_null("BaseIslandRain")
-	if want_rain:
+	if show_overlay:
 		if existing == null:
 			var r: Node = _RAIN_OVERLAY_SCENE.instantiate()
 			r.name = "BaseIslandRain"

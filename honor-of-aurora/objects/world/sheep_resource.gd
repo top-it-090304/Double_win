@@ -48,8 +48,7 @@ func _pawn_hits_sheep() -> bool:
 		var an: StringName = spr.animation
 		if an == &"interact_knife":
 			continue
-		var s := String(an)
-		if s.begins_with("interact"):
+		if an.begins_with("interact"):
 			return true
 	return false
 

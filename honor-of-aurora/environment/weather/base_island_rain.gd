@@ -1,9 +1,11 @@
 extends Node2D
 ## Лёгкий дождь: редкие капли чуть крупнее, медленное падение, низкая частота симуляции.
 ## CPUParticles2D — стабильно на gl_compatibility. Позиция = центр экрана камеры.
-## Включается только в «дождливый» период RainSystem (счётчик телепортов).
+## Включается при `RainSystem.should_show_rain_overlay()` (период дождя без режима «На тапке»).
 
 @onready var _particles: CPUParticles2D = $RainParticles
+## Кэш камеры с узла «player», если viewport не даёт Camera2D — без повторного обхода группы каждый кадр.
+var _cached_player_camera: Camera2D = null
 
 
 func _ready() -> void:
@@ -39,7 +41,7 @@ func _ready() -> void:
 
 
 func refresh_rain_state() -> void:
-	var on := RainSystem.is_rain_weather_active()
+	var on := RainSystem.should_show_rain_overlay()
 	visible = on
 	set_process(on)
 	if not on:
@@ -49,13 +51,18 @@ func refresh_rain_state() -> void:
 func _resolve_camera_2d() -> Camera2D:
 	var cam := get_viewport().get_camera_2d()
 	if cam != null and cam.enabled:
+		_cached_player_camera = null
 		return cam
+	if _cached_player_camera != null and is_instance_valid(_cached_player_camera) and _cached_player_camera.enabled:
+		return _cached_player_camera
 	for n in get_tree().get_nodes_in_group("player"):
 		if not (n is Node) or not n.is_inside_tree():
 			continue
 		var c := (n as Node).get_node_or_null("Camera2D") as Camera2D
 		if c != null and c.enabled:
+			_cached_player_camera = c
 			return c
+	_cached_player_camera = null
 	return null
 
 

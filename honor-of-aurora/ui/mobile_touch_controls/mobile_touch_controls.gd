@@ -9,6 +9,10 @@ extends Control
 var _rest_offset_base: Vector4 = Vector4.ZERO
 var _rest_offsets_cached: bool = false
 
+## «На тапке»: видимость тач-HUD не критична каждый кадр — реже вызываем _refresh_visibility (TASK-009).
+var _slipper_refresh_tick: int = 0
+const _SLIPPER_TOUCH_REFRESH_EVERY_FRAMES: int = 3
+
 func _ready() -> void:
 	add_to_group("touch_controls")
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -21,6 +25,8 @@ func _ready() -> void:
 		get_viewport().size_changed.connect(_on_viewport_size_changed)
 	DialogueManager.dialogue_started.connect(_on_dialogue_started_visibility)
 	DialogueManager.dialogue_ended.connect(_on_dialogue_ended_visibility)
+	if not Events.location_changed.is_connected(_on_location_changed_touch_visibility):
+		Events.location_changed.connect(_on_location_changed_touch_visibility)
 	_refresh_visibility()
 
 
@@ -67,7 +73,15 @@ func _on_dialogue_ended_visibility(_a = null) -> void:
 	_refresh_visibility()
 
 
+func _on_location_changed_touch_visibility(_loc: Events.LOCATION) -> void:
+	_refresh_visibility()
+
+
 func _process(_delta: float) -> void:
+	if PerformancePreset.is_slipper_mode(SaveManager):
+		_slipper_refresh_tick += 1
+		if (_slipper_refresh_tick % _SLIPPER_TOUCH_REFRESH_EVERY_FRAMES) != 0:
+			return
 	_refresh_visibility()
 
 
@@ -123,6 +137,7 @@ func apply_user_touch_settings() -> void:
 	if rc:
 		_apply_scaled_touch_zone(rc, false)
 	_reposition_rest_above_joystick()
+	_refresh_visibility()
 
 
 func _cache_rest_offsets_from_scene_if_needed(root: Control) -> void:

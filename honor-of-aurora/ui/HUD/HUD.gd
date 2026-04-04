@@ -23,9 +23,44 @@ const _TOP_HUD_BAR_PATH := "TopHudBar"
 const _TOP_HUD_SEP_BASE := 8
 const _TOP_HUD_OFF_L := 16.0
 const _TOP_HUD_OFF_R := -16.0
-const _TOP_HUD_OFF_TOP := 18.0
-const _TOP_HUD_OFF_BOT := 102.0
+## Верхняя полоса HUD (высота полосы = OFF_BOT − OFF_TOP).
+const _TOP_HUD_OFF_TOP := -6.0
+const _TOP_HUD_OFF_BOT := 78.0
 const _TOP_HUD_EVEN_GAP_COUNT := 7
+## Сумма custom_minimum_size.x по TopHudBar (tscn) + 7 зазоров по 8 px — минимальная ширина ряда при scale=1.
+## Нельзя масштабировать дочерние Control по отдельности: HBox раскладывает по несжатым размерам, визуал вылезает за слоты.
+const _TOP_HUD_ROW_MIN_WIDTH := 1248.0
+
+
+func _connect_top_hud_resize_for_pivot() -> void:
+	var bar := get_node_or_null(_TOP_HUD_BAR_PATH) as Control
+	if bar == null:
+		return
+	if bar.resized.is_connected(_on_top_hud_bar_resized):
+		return
+	bar.resized.connect(_on_top_hud_bar_resized)
+
+
+func _on_top_hud_bar_resized() -> void:
+	## Масштаб от центра: при смене ширины полосы обновляем pivot, иначе полоса «уезжает» в сторону.
+	if Engine.is_editor_hint():
+		return
+	var bar := get_node_or_null(_TOP_HUD_BAR_PATH) as Control
+	if bar == null:
+		return
+	_update_top_hud_pivot_to_center(bar)
+
+
+func _update_top_hud_pivot_to_center(bar: Control) -> void:
+	var w := bar.size.x
+	var h := bar.size.y
+	if w < 2.0 or h < 2.0:
+		var cms := bar.get_combined_minimum_size()
+		if w < 2.0:
+			w = maxf(cms.x, _TOP_HUD_ROW_MIN_WIDTH)
+		if h < 2.0:
+			h = maxf(cms.y, 1.0)
+	bar.pivot_offset = Vector2(w * 0.5, h * 0.5)
 
 
 func set_target_location(location: Events.LOCATION) -> void:
@@ -47,6 +82,9 @@ func _ready() -> void:
 	## @tool: в редакторе автозагрузки — placeholder без методов/сигналов; не трогаем SaveManager, Events, DialogueManager.
 	if Engine.is_editor_hint():
 		return
+	var vp := get_viewport()
+	if vp and not vp.size_changed.is_connected(_on_viewport_size_changed_hud_scale):
+		vp.size_changed.connect(_on_viewport_size_changed_hud_scale)
 	set_process_input(true)
 	if teleport_menu:
 		teleport_menu.hide()
@@ -65,6 +103,11 @@ func _ready() -> void:
 	_setup_armor_hud_nodes()
 	_refresh_armor_hud()
 	_cache_ui_scale_base_rects_if_needed()
+	_connect_top_hud_resize_for_pivot()
+	apply_user_ui_scale()
+
+
+func _on_viewport_size_changed_hud_scale() -> void:
 	apply_user_ui_scale()
 
 
@@ -207,16 +250,17 @@ func _hud_skip_manual_position_size(c: Control) -> bool:
 	return p != null and p.name == _TOP_HUD_BAR_PATH
 
 
-func _apply_top_hud_bar_margins(scale_ui: float) -> void:
+func _apply_top_hud_bar_margins() -> void:
 	var bar := get_node_or_null(_TOP_HUD_BAR_PATH) as HBoxContainer
 	if bar == null:
 		return
 	bar.add_theme_constant_override("separation", 0)
-	bar.offset_left = _TOP_HUD_OFF_L * scale_ui
-	bar.offset_right = _TOP_HUD_OFF_R * scale_ui
-	bar.offset_top = _TOP_HUD_OFF_TOP * scale_ui
-	bar.offset_bottom = _TOP_HUD_OFF_BOT * scale_ui
-	var gap_w := maxf(2.0, float(_TOP_HUD_SEP_BASE) * scale_ui)
+	## Отступы в логических координатах; итоговый визуальный масштаб — только `TopHudBar.scale` (см. apply_user_ui_scale).
+	bar.offset_left = _TOP_HUD_OFF_L
+	bar.offset_right = _TOP_HUD_OFF_R
+	bar.offset_top = _TOP_HUD_OFF_TOP
+	bar.offset_bottom = _TOP_HUD_OFF_BOT
+	var gap_w := float(_TOP_HUD_SEP_BASE)
 	for i in range(_TOP_HUD_EVEN_GAP_COUNT):
 		var g := bar.get_node_or_null("HudEvenGap%d" % i) as Control
 		if g:
@@ -225,8 +269,11 @@ func _apply_top_hud_bar_margins(scale_ui: float) -> void:
 
 func apply_user_ui_scale() -> void:
 	_cache_ui_scale_base_rects_if_needed()
-	var s := clampf(float(SaveManager.ui_scale_percent) / 100.0, 0.75, 1.3)
-	_apply_top_hud_bar_margins(s)
+	_apply_top_hud_bar_margins()
+	var bar := get_node_or_null(_TOP_HUD_BAR_PATH) as Control
+	if bar:
+		bar.scale = Vector2.ONE
+		bar.pivot_offset = Vector2.ZERO
 	for p in _ui_scale_base_rects.keys():
 		var c := get_node_or_null(str(p)) as Control
 		if c == null:
@@ -241,7 +288,44 @@ func apply_user_ui_scale() -> void:
 		if _hud_skip_manual_position_size(c) and c.size.x > 0.5 and c.size.y > 0.5:
 			pivot_sz = c.size
 		c.pivot_offset = pivot_sz * 0.5
-		c.scale = Vector2(s, s)
+		c.scale = Vector2.ONE
+	## После раскладки HBox: min_width по факту (лейблы/цифры шире минимума) + pivot по центру, иначе scale тянет всё к левому краю.
+	call_deferred("_deferred_apply_top_hud_scale_and_pivot")
+
+
+func _viewport_width_px_safe(bar: Control) -> float:
+	## `get_viewport()` у CanvasLayer иногда null в отложенном кадре — сначала вьюпорт с `Control` полосы HUD.
+	var vp := bar.get_viewport()
+	if vp == null:
+		vp = get_viewport()
+	if vp == null and is_inside_tree():
+		var r := get_tree().root
+		if r is Viewport:
+			vp = r as Viewport
+	if vp != null:
+		return vp.get_visible_rect().size.x
+	var ws := DisplayServer.window_get_size()
+	if ws.x > 0:
+		return float(ws.x)
+	return float(ProjectSettings.get_setting("display/window/size/viewport_width", 1280))
+
+
+func _deferred_apply_top_hud_scale_and_pivot() -> void:
+	if Engine.is_editor_hint():
+		return
+	var bar := get_node_or_null(_TOP_HUD_BAR_PATH) as Control
+	if bar == null:
+		return
+	var s := clampf(float(SaveManager.ui_scale_percent) / 100.0, 0.75, 1.3)
+	var cms := bar.get_combined_minimum_size()
+	var min_w := maxf(_TOP_HUD_ROW_MIN_WIDTH, cms.x)
+	var vw := _viewport_width_px_safe(bar)
+	if Events.current_location != Events.LOCATION.MENU:
+		var inner := maxf(0.0, vw - _TOP_HUD_OFF_L - abs(_TOP_HUD_OFF_R))
+		if inner > 1.0 and min_w > 0.001:
+			s = minf(s, inner / min_w)
+	_update_top_hud_pivot_to_center(bar)
+	bar.scale = Vector2(s, s)
 
 
 func _on_location_changed_armor_hud(_loc: Events.LOCATION) -> void:

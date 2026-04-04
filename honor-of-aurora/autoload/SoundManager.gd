@@ -215,9 +215,15 @@ const FOOTSTEPS = [
 ]
 
 const _SFX_POOL_SIZE := 8
+## В режиме «На тапке»: меньше одновременных «мелких» SFX (удар/шаг и т.п.) — при переполнении звук отбрасывается, не перехватывая канал 0.
+const _SLIPPER_SFX_VOICES := 4
+const _FOOTSTEP_MIN_INTERVAL_SLIPPER_SEC := 0.14
 
 var _music: AudioStreamPlayer
 var _sfx_pool: Array[AudioStreamPlayer] = []
+
+## Для throttle шагов в SLIPPER (секунды, Time.get_ticks_msec).
+var _last_footstep_time_sec: float = -1000.0
 
 var _playlist_order: Array[int] = []
 var _playlist_cursor: int = 0
@@ -482,19 +488,29 @@ func _on_music_track_finished() -> void:
 	_play_track_at_cursor()
 
 
-func _pick_sfx_player() -> AudioStreamPlayer:
-	for p in _sfx_pool:
+## allow_drop: в SLIPPER для «второстепенных» SFX — только первые _SLIPPER_SFX_VOICES голосов; при занятости отбрасывать (не красть канал у других).
+func _pick_sfx_player(allow_drop: bool) -> AudioStreamPlayer:
+	var slipper := PerformancePreset.is_slipper_mode(SaveManager)
+	var limit: int = _sfx_pool.size()
+	if slipper and allow_drop:
+		limit = mini(_SLIPPER_SFX_VOICES, _sfx_pool.size())
+	for i in range(limit):
+		var p: AudioStreamPlayer = _sfx_pool[i]
 		if not p.playing:
 			return p
+	if slipper and allow_drop:
+		return null
 	return _sfx_pool[0]
 
 
-func _play_sfx(stream: AudioStream, pitch_scale: float, volume_db: float, bus_name: StringName) -> void:
-	_play_sfx_from(stream, pitch_scale, volume_db, 0.0, bus_name)
+func _play_sfx(stream: AudioStream, pitch_scale: float, volume_db: float, bus_name: StringName, allow_drop: bool = false) -> void:
+	_play_sfx_from(stream, pitch_scale, volume_db, 0.0, bus_name, allow_drop)
 
 
-func _play_sfx_from(stream: AudioStream, pitch_scale: float, volume_db: float, from_sec: float, bus_name: StringName) -> void:
-	var p := _pick_sfx_player()
+func _play_sfx_from(stream: AudioStream, pitch_scale: float, volume_db: float, from_sec: float, bus_name: StringName, allow_drop: bool = false) -> void:
+	var p := _pick_sfx_player(allow_drop)
+	if p == null:
+		return
 	p.stream = stream
 	p.pitch_scale = pitch_scale
 	p.volume_db = volume_db
@@ -504,7 +520,7 @@ func _play_sfx_from(stream: AudioStream, pitch_scale: float, volume_db: float, f
 
 func play_attack_swing() -> void:
 	var stream: AudioStream = ATTACK_SHOUTS[randi() % ATTACK_SHOUTS.size()]
-	_play_sfx(stream, randf_range(0.96, 1.04), VOL_ATTACK_SWING, BUS_SFX)
+	_play_sfx(stream, randf_range(0.96, 1.04), VOL_ATTACK_SWING, BUS_SFX, true)
 
 
 ## Папка врага из пути скрипта сцены (bear, gnoll, goblin_torch …); для enemy_base.gd — default.
@@ -601,7 +617,7 @@ func play_enemy_attack_swing_for(kind: StringName = &"") -> void:
 		arr = ENEMY_ATTACK_SWINGS
 	var stream: AudioStream = arr[randi() % arr.size()]
 	var pr := _enemy_attack_pitch_range_for_kind(k)
-	_play_sfx(stream, randf_range(pr.x, pr.y), VOL_ENEMY_ATTACK_SWING, BUS_SFX)
+	_play_sfx(stream, randf_range(pr.x, pr.y), VOL_ENEMY_ATTACK_SWING, BUS_SFX, true)
 
 
 func play_enemy_attack_swing() -> void:
@@ -667,7 +683,7 @@ func play_enemy_hit_for(kind: StringName = &"") -> void:
 				stream = STREAM_HIT_BODY
 			else:
 				stream = STREAM_ENEMY_HURT
-	_play_sfx(stream, randf_range(p_lo, p_hi), VOL_ENEMY_HIT, BUS_SFX)
+	_play_sfx(stream, randf_range(p_lo, p_hi), VOL_ENEMY_HIT, BUS_SFX, true)
 
 
 func play_enemy_hit() -> void:
@@ -773,13 +789,18 @@ func play_ui_button() -> void:
 
 
 func play_footstep() -> void:
+	if PerformancePreset.is_slipper_mode(SaveManager):
+		var now_sec: float = Time.get_ticks_msec() / 1000.0
+		if now_sec - _last_footstep_time_sec < _FOOTSTEP_MIN_INTERVAL_SLIPPER_SEC:
+			return
+		_last_footstep_time_sec = now_sec
 	var stream: AudioStream = FOOTSTEPS[randi() % FOOTSTEPS.size()]
-	_play_sfx(stream, randf_range(0.92, 1.08), VOL_FOOTSTEP, BUS_SFX)
+	_play_sfx(stream, randf_range(0.92, 1.08), VOL_FOOTSTEP, BUS_SFX, true)
 
 
 ## Награда / золото (Kenney UI, тот же сэмпл что кнопка — короткий «блик»).
 func play_pickup_gold() -> void:
-	_play_sfx(STREAM_UI_BUTTON, randf_range(1.12, 1.22), VOL_REWARD, BUS_SFX)
+	_play_sfx(STREAM_UI_BUTTON, randf_range(1.12, 1.22), VOL_REWARD, BUS_SFX, true)
 
 
 ## Уровень: короткий позитивный тон (menu_open + чуть выше тон).
@@ -789,7 +810,7 @@ func play_level_up() -> void:
 
 ## Лечение: мягкий щелчок (page_turn).
 func play_heal() -> void:
-	_play_sfx(STREAM_DIALOGUE_PAGE_TURN, randf_range(1.05, 1.15), VOL_HEAL, BUS_SFX)
+	_play_sfx(STREAM_DIALOGUE_PAGE_TURN, randf_range(1.05, 1.15), VOL_HEAL, BUS_SFX, true)
 
 
 ## Телепорт / смена локации в UI.

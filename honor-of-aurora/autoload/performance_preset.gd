@@ -2,11 +2,46 @@ extends RefCounted
 class_name PerformancePreset
 ## Пресеты производительности: FPS, физика, Y-sort, VSync. Не добавлять в autoload — только вызовы из SaveManager.
 
-enum Mode { MINIMAL = 0, MEDIUM = 1, MAXIMUM = 2, CUSTOM = 3 }
+enum Mode { MINIMAL = 0, MEDIUM = 1, MAXIMUM = 2, CUSTOM = 3, SLIPPER = 4 }
+
+## «На тапке»: в `Window.CONTENT_SCALE_MODE_VIEWPORT` внутреннее разрешение = base / factor (~75% по ширине/высоте, ~56% пикселей).
+## См. `Save_manager.apply_window_and_engine_settings`.
+const SLIPPER_RENDER_STRETCH_SCALE: float = 4.0 / 3.0
+## Сцена главного меню: без понижения внутреннего разрешения (см. `should_apply_slipper_viewport_stretch`).
+const MAIN_MENU_SCENE_FILE := "Game_menu.tscn"
 
 
 static func clamp_mode(m: int) -> int:
-	return clampi(m, 0, 3)
+	return clampi(m, 0, Mode.SLIPPER)
+
+
+## Режим «На тапке» (`Mode.SLIPPER`): централизованная проверка для отключения тяжёлого визуала (погода, частицы и т.д.) без смены логики наград/сохранений.
+static func is_slipper_mode(sm: Node) -> bool:
+	if sm == null:
+		return false
+	return clamp_mode(int(sm.performance_mode)) == Mode.SLIPPER
+
+
+## Понижение внутреннего разрешения (viewport stretch) в SLIPPER — только в игровых сценах, не в главном меню.
+static func should_apply_slipper_viewport_stretch(sm: Node) -> bool:
+	if sm == null or not is_slipper_mode(sm):
+		return false
+	var tree: SceneTree = sm.get_tree()
+	if tree == null:
+		tree = Engine.get_main_loop() as SceneTree
+	if tree == null:
+		return false
+	if Events.current_location == Events.LOCATION.MENU:
+		return false
+	var cs: Node = tree.current_scene
+	if cs == null:
+		return false
+	var path := str(cs.scene_file_path)
+	if path.is_empty():
+		return false
+	if path.get_file() == MAIN_MENU_SCENE_FILE:
+		return false
+	return true
 
 
 ## Применить к движку и YSortManager. Для CUSTOM max_fps из SaveManager; физика 60 Гц и Y-sort раз в 2 кадра — для ручного лимита FPS без урезания симуляции.
@@ -19,6 +54,13 @@ static func apply_from_save_manager(sm: Node) -> void:
 	var ysort_every: int = 2
 	var vsync: int = DisplayServer.VSYNC_ENABLED
 	match mode:
+		Mode.SLIPPER:
+			## «На тапке»: 30 FPS, VSync; физика 30 Гц (как MINIMAL). Y-sort реже, чем у MINIMAL (8 кадров) — меньше работы на кадр.
+			## Риск снижения physics_ticks ниже 30: боёвка и быстрые снаряды; не уменьшать без отдельной проверки геймплея.
+			max_fps_val = 30
+			ticks = 30
+			ysort_every = 8
+			vsync = DisplayServer.VSYNC_ENABLED
 		Mode.MINIMAL:
 			max_fps_val = 30
 			ticks = 30

@@ -52,6 +52,7 @@ func _fill_difficulty_options() -> void:
 
 func _fill_performance_options() -> void:
 	_perf_option.clear()
+	_perf_option.add_item("На тапке")
 	_perf_option.add_item("Минимальный")
 	_perf_option.add_item("Средний")
 	_perf_option.add_item("Максимальный")
@@ -78,7 +79,7 @@ func _load_all_from_save() -> void:
 	_dialogue_text_scale_slider.value = float(SaveManager.dialogue_text_scale_percent)
 	_difficulty.select(clampi(SaveManager.difficulty_id, 0, _difficulty.item_count - 1))
 	_update_difficulty_desc()
-	_perf_option.select(clampi(SaveManager.performance_mode, 0, _perf_option.item_count - 1))
+	_perf_option.select(_performance_mode_to_option_index(SaveManager.performance_mode))
 	_update_performance_desc()
 	_auto_fit_phone_check.button_pressed = SaveManager.auto_fit_phone_ui
 	_ui_scale_slider.value = float(SaveManager.ui_scale_percent)
@@ -137,10 +138,40 @@ func _on_dialogue_text_scale_changed(v: float) -> void:
 	SaveManager.save_game()
 
 
+func _performance_mode_to_option_index(m: int) -> int:
+	match m:
+		PerformancePreset.Mode.SLIPPER:
+			return 0
+		PerformancePreset.Mode.MINIMAL:
+			return 1
+		PerformancePreset.Mode.MEDIUM:
+			return 2
+		PerformancePreset.Mode.MAXIMUM:
+			return 3
+		_:
+			return 2
+
+
+func _option_index_to_performance_mode(idx: int) -> int:
+	match clampi(idx, 0, _perf_option.item_count - 1):
+		0:
+			return PerformancePreset.Mode.SLIPPER
+		1:
+			return PerformancePreset.Mode.MINIMAL
+		2:
+			return PerformancePreset.Mode.MEDIUM
+		3:
+			return PerformancePreset.Mode.MAXIMUM
+		_:
+			return PerformancePreset.Mode.MEDIUM
+
+
 func _update_performance_desc() -> void:
 	if _perf_desc == null:
 		return
-	match clampi(SaveManager.performance_mode, 0, 2):
+	match SaveManager.performance_mode:
+		PerformancePreset.Mode.SLIPPER:
+			_perf_desc.text = "На тапке: 30 FPS, физика 30 Гц, Y-sort раз в 8 кадров, VSync. В игровых сценах внутренний рендер ~75% (viewport stretch); главное меню без понижения разрешения. HUD масштабируется целиком, чтобы не вылезать за края."
 		PerformancePreset.Mode.MINIMAL:
 			_perf_desc.text = "Минимальный: 30 FPS, физика 30 Гц, редкий пересчёт слоёв по Y (4 кадра), VSync — максимум экономии."
 		PerformancePreset.Mode.MAXIMUM:
@@ -157,7 +188,7 @@ func _sync_ui_controls_locked_from_auto_fit() -> void:
 
 
 func _on_performance_mode_selected(_idx: int) -> void:
-	SaveManager.performance_mode = clampi(_perf_option.selected, 0, _perf_option.item_count - 1)
+	SaveManager.performance_mode = _option_index_to_performance_mode(_perf_option.selected)
 	_update_performance_desc()
 	SaveManager.save_game()
 	SaveManager.apply_window_and_engine_settings()

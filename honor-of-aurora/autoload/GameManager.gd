@@ -1211,6 +1211,8 @@ func _finish_player_placement_after_scene_change(location: Events.LOCATION) -> v
 		return
 	
 	if location == Events.LOCATION.MENU:
+		## Снять viewport stretch SLIPPER на главном меню (раньше return без apply — масштаб «залипал» с острова).
+		SaveManager.apply_window_and_engine_settings()
 		return
 	
 	var ps: PackedScene = _get_player_scene()
