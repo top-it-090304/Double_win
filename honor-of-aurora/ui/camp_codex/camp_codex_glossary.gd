@@ -4,7 +4,7 @@ class_name CampCodexGlossary
 
 ## Как в HUD: `ui/resources_hud/ore_counter.tscn` (TextureRect без шейдера).
 const HUD_ORE_ICON := "res://Asets/Руда/1.png"
-## Как у кнопки «Книга лагеря» в правом верхнем углу HUD: `ui/HUD/canvas_layer.tscn` → CodexOpenButton.
+## Как у кнопки «Книга лагеря» в верхней полосе HUD: `ui/HUD/canvas_layer.tscn` → TopHudBar/CodexOpenButton.
 const HUD_CODEX_OPEN_ICON := "res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_11.png"
 ## Кнопка привала: `ui/mobile_touch_controls/moba_action_button.gd` (BtnKind.REST) — иконка мяса.
 const HUD_REST_CAMP_ICON := "res://Asets/Environment/Resources/Resources/M_Idle.png"

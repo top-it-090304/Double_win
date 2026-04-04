@@ -19,6 +19,14 @@ var _armor_hud_label: Label
 var _ui_scale_base_rects: Dictionary = {}
 var _ui_scale_cached: bool = false
 
+const _TOP_HUD_BAR_PATH := "TopHudBar"
+const _TOP_HUD_SEP_BASE := 8
+const _TOP_HUD_OFF_L := 16.0
+const _TOP_HUD_OFF_R := -16.0
+const _TOP_HUD_OFF_TOP := 18.0
+const _TOP_HUD_OFF_BOT := 102.0
+const _TOP_HUD_EVEN_GAP_COUNT := 7
+
 
 func set_target_location(location: Events.LOCATION) -> void:
 	if teleport_menu and teleport_menu.has_method("set_target_location"):
@@ -120,25 +128,21 @@ func apply_epilogue_menu_minimal_top_hud() -> void:
 		return
 	if GameManager.current_scene_player == null or not is_instance_valid(GameManager.current_scene_player):
 		return
-	for p: String in [
-		"TextureRect",
-		"ArmorDurabilityHud",
-		"Gold",
-		"OreCounter",
-		"MeatCounter",
-		"WoodCounter",
-		"Button",
-	]:
-		var c := get_node_or_null(NodePath(p)) as Control
-		if c:
-			c.visible = false
-	if camp_codex_open_button:
-		camp_codex_open_button.visible = true
+	var bar := get_node_or_null(_TOP_HUD_BAR_PATH) as Control
+	if bar == null:
+		return
+	bar.visible = true
+	for child in bar.get_children():
+		if child == camp_codex_open_button:
+			if child is Control:
+				(child as Control).visible = true
+		elif child is Control:
+			(child as Control).visible = false
 
 
 func _setup_armor_hud_nodes() -> void:
-	_armor_hud_root = get_node_or_null("ArmorDurabilityHud") as Control
-	_armor_hud_label = get_node_or_null("ArmorDurabilityHud/ArmorPctLabel") as Label
+	_armor_hud_root = get_node_or_null("TopHudBar/ArmorDurabilityHud") as Control
+	_armor_hud_label = get_node_or_null("TopHudBar/ArmorDurabilityHud/ArmorPctLabel") as Label
 
 
 func _armor_hud_should_show() -> bool:
@@ -171,39 +175,72 @@ func _cache_ui_scale_base_rects_if_needed() -> void:
 	if _ui_scale_cached:
 		return
 	for p in [
-		"hp_bar",
-		"ArmorDurabilityHud",
-		"Gold",
-		"OreCounter",
-		"MeatCounter",
-		"WoodCounter",
-		"Button",
-		"CodexOpenButton",
+		"TopHudBar/hp_bar",
+		"TopHudBar/ArmorDurabilityHud",
+		"TopHudBar/Gold",
+		"TopHudBar/OreCounter",
+		"TopHudBar/MeatCounter",
+		"TopHudBar/WoodCounter",
+		"TopHudBar/Button",
+		"TopHudBar/CodexOpenButton",
 	]:
 		var c := get_node_or_null(p) as Control
 		if c == null:
 			continue
+		var sz: Vector2 = c.size
+		if sz.x < 1.0 or sz.y < 1.0:
+			sz = c.get_combined_minimum_size()
 		_ui_scale_base_rects[p] = {
 			"position": c.position,
-			"size": c.size,
+			"size": sz,
 			"pivot": c.pivot_offset,
 		}
 	_ui_scale_cached = true
 
 
+func _hud_skip_manual_position_size(c: Control) -> bool:
+	if c == null:
+		return false
+	if camp_codex_open_button != null and c == camp_codex_open_button:
+		return true
+	var p := c.get_parent()
+	return p != null and p.name == _TOP_HUD_BAR_PATH
+
+
+func _apply_top_hud_bar_margins(scale_ui: float) -> void:
+	var bar := get_node_or_null(_TOP_HUD_BAR_PATH) as HBoxContainer
+	if bar == null:
+		return
+	bar.add_theme_constant_override("separation", 0)
+	bar.offset_left = _TOP_HUD_OFF_L * scale_ui
+	bar.offset_right = _TOP_HUD_OFF_R * scale_ui
+	bar.offset_top = _TOP_HUD_OFF_TOP * scale_ui
+	bar.offset_bottom = _TOP_HUD_OFF_BOT * scale_ui
+	var gap_w := maxf(2.0, float(_TOP_HUD_SEP_BASE) * scale_ui)
+	for i in range(_TOP_HUD_EVEN_GAP_COUNT):
+		var g := bar.get_node_or_null("HudEvenGap%d" % i) as Control
+		if g:
+			g.custom_minimum_size.x = gap_w
+
+
 func apply_user_ui_scale() -> void:
 	_cache_ui_scale_base_rects_if_needed()
 	var s := clampf(float(SaveManager.ui_scale_percent) / 100.0, 0.75, 1.3)
+	_apply_top_hud_bar_margins(s)
 	for p in _ui_scale_base_rects.keys():
 		var c := get_node_or_null(str(p)) as Control
 		if c == null:
 			continue
 		var d: Dictionary = _ui_scale_base_rects[p]
-		var base_pos := d.get("position", Vector2.ZERO) as Vector2
 		var base_size := d.get("size", Vector2.ZERO) as Vector2
-		c.position = base_pos
-		c.size = base_size
-		c.pivot_offset = base_size * 0.5
+		if not _hud_skip_manual_position_size(c):
+			var base_pos := d.get("position", Vector2.ZERO) as Vector2
+			c.position = base_pos
+			c.size = base_size
+		var pivot_sz := base_size
+		if _hud_skip_manual_position_size(c) and c.size.x > 0.5 and c.size.y > 0.5:
+			pivot_sz = c.size
+		c.pivot_offset = pivot_sz * 0.5
 		c.scale = Vector2(s, s)
 
 
