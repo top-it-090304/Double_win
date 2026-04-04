@@ -28,7 +28,7 @@ func reset_monastery_menu_state() -> void:
 
 
 func _refresh_ui() -> void:
-	var hp_label := get_node_or_null("MonasteryPanel/MainActions/SlotsRow/slot_vitality/ColumnVitality/VitalityDesc") as Label
+	var hp_label := get_node_or_null("MonasteryPanel/BodyVBox/SlotsRow/slot_vitality/ColumnVitality/VitalityDesc") as Label
 	var hp_pct := GameManager.get_monastery_vitality_ratio_preview() * 100.0
 	var heal_mod := CrownSystem.get_heal_modifier()
 	if hp_label:
@@ -37,7 +37,7 @@ func _refresh_ui() -> void:
 		else:
 			hp_label.text = "+%.0f%% к макс. здоровью героя (поход)" % hp_pct
 
-	var fortitude_desc := get_node_or_null("MonasteryPanel/MainActions/SlotsRow/slot_revive/ColumnRevive/ReviveDesc") as Label
+	var fortitude_desc := get_node_or_null("MonasteryPanel/BodyVBox/SlotsRow/slot_revive/ColumnRevive/ReviveDesc") as Label
 	if fortitude_desc:
 		var reduction := GameManager.get_monastery_fortitude_ratio_preview() * 100.0
 		fortitude_desc.text = "−%.0f%% входящего урона по отряду (поход)" % reduction
@@ -47,13 +47,13 @@ func _refresh_ui() -> void:
 	var cost_f_gold := BalanceConfig.get_monastery_revive_gold_cost()
 	var cost_f_ore := BalanceConfig.get_monastery_revive_ore_cost()
 
-	_set_cost_button("MonasteryPanel/MainActions/SlotsRow/slot_vitality/ColumnVitality/BtnBlessVitality", cost_v_gold, cost_v_ore)
-	_set_cost_button("MonasteryPanel/MainActions/SlotsRow/slot_revive/ColumnRevive/BtnReviveFallen", cost_f_gold, cost_f_ore)
+	_set_cost_button("MonasteryPanel/BodyVBox/SlotsRow/slot_vitality/ColumnVitality/BtnBlessVitality", cost_v_gold, cost_v_ore)
+	_set_cost_button("MonasteryPanel/BodyVBox/SlotsRow/slot_revive/ColumnRevive/BtnReviveFallen", cost_f_gold, cost_f_ore)
 
 	var can_vitality := (not GameManager.monastery_vitality_prepared) and GameplayFacade.can_afford_gold_plus_ore_strict(cost_v_gold, cost_v_ore)
 	var can_fortitude := (not GameManager.monastery_fortitude_prepared) and GameplayFacade.can_afford_gold_plus_ore_strict(cost_f_gold, cost_f_ore)
-	var btn_v := get_node_or_null("MonasteryPanel/MainActions/SlotsRow/slot_vitality/ColumnVitality/BtnBlessVitality") as Button
-	var btn_f := get_node_or_null("MonasteryPanel/MainActions/SlotsRow/slot_revive/ColumnRevive/BtnReviveFallen") as Button
+	var btn_v := get_node_or_null("MonasteryPanel/BodyVBox/SlotsRow/slot_vitality/ColumnVitality/BtnBlessVitality") as Button
+	var btn_f := get_node_or_null("MonasteryPanel/BodyVBox/SlotsRow/slot_revive/ColumnRevive/BtnReviveFallen") as Button
 	PaidServiceButtonAppearance.set_interactive(btn_v, can_vitality)
 	PaidServiceButtonAppearance.set_interactive(btn_f, can_fortitude)
 

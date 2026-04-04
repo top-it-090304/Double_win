@@ -578,10 +578,10 @@ func _build_crown_title_strip() -> void:
 	text_col.add_theme_constant_override("separation", 4)
 	_crown_title_name_lbl = Label.new()
 	_crown_title_name_lbl.add_theme_color_override("font_color", Color(0.94, 0.9, 0.78, 1))
-	_crown_title_name_lbl.add_theme_font_size_override("font_size", 26)
+	_crown_title_name_lbl.add_theme_font_size_override("font_size", 32)
 	_crown_title_sub_lbl = Label.new()
 	_crown_title_sub_lbl.add_theme_color_override("font_color", Color(0.72, 0.78, 0.88, 0.95))
-	_crown_title_sub_lbl.add_theme_font_size_override("font_size", 17)
+	_crown_title_sub_lbl.add_theme_font_size_override("font_size", 21)
 	_crown_title_sub_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text_col.add_child(_crown_title_name_lbl)
 	text_col.add_child(_crown_title_sub_lbl)
@@ -590,7 +590,7 @@ func _build_crown_title_strip() -> void:
 	help_btn.text = "Справка"
 	help_btn.focus_mode = Control.FOCUS_NONE
 	help_btn.custom_minimum_size = Vector2(120, 44)
-	help_btn.add_theme_font_size_override("font_size", 20)
+	help_btn.add_theme_font_size_override("font_size", 25)
 	var hb := StyleBoxFlat.new()
 	hb.bg_color = Color(0.14, 0.16, 0.22, 0.98)
 	hb.set_border_width_all(1)
@@ -657,9 +657,9 @@ func _ensure_crown_mood_strip() -> void:
 	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text_col.add_theme_constant_override("separation", 2)
 	_crown_mood_headline = Label.new()
-	_crown_mood_headline.add_theme_font_size_override("font_size", 21)
+	_crown_mood_headline.add_theme_font_size_override("font_size", 26)
 	_crown_mood_detail = Label.new()
-	_crown_mood_detail.add_theme_font_size_override("font_size", 15)
+	_crown_mood_detail.add_theme_font_size_override("font_size", 19)
 	_crown_mood_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text_col.add_child(_crown_mood_headline)
 	text_col.add_child(_crown_mood_detail)
@@ -718,11 +718,11 @@ func _build_crown_mood_effects_modal_if_needed() -> void:
 	ht.text = "Влияние на базу"
 	ht.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ht.add_theme_color_override("font_color", Color(0.92, 0.88, 0.82, 1))
-	ht.add_theme_font_size_override("font_size", 22)
+	ht.add_theme_font_size_override("font_size", 28)
 	var close_b := Button.new()
 	close_b.text = "Закрыть"
 	close_b.focus_mode = Control.FOCUS_NONE
-	close_b.add_theme_font_size_override("font_size", 18)
+	close_b.add_theme_font_size_override("font_size", 22)
 	close_b.pressed.connect(_on_crown_mood_effects_close_pressed)
 	header.add_child(ht)
 	header.add_child(close_b)
@@ -738,7 +738,7 @@ func _build_crown_mood_effects_modal_if_needed() -> void:
 	_crown_mood_effects_rtl.scroll_active = false
 	_crown_mood_effects_rtl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_crown_mood_effects_rtl.add_theme_color_override("default_color", Color(0.82, 0.86, 0.92, 0.95))
-	_crown_mood_effects_rtl.add_theme_font_size_override("normal_font_size", 16)
+	_crown_mood_effects_rtl.add_theme_font_size_override("normal_font_size", 20)
 	_crown_mood_effects_rtl.custom_minimum_size = Vector2(380, 0)
 	_apply_dialogue_default_font_to_richtext(_crown_mood_effects_rtl)
 	scroll.add_child(_crown_mood_effects_rtl)
@@ -1057,11 +1057,11 @@ func _build_crown_help_modal() -> void:
 	ht.text = "Титулы Короны"
 	ht.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ht.add_theme_color_override("font_color", Color(0.94, 0.92, 0.88, 1))
-	ht.add_theme_font_size_override("font_size", 32)
+	ht.add_theme_font_size_override("font_size", 40)
 	var close_b := Button.new()
 	close_b.text = "Закрыть"
 	close_b.focus_mode = Control.FOCUS_NONE
-	close_b.add_theme_font_size_override("font_size", 20)
+	close_b.add_theme_font_size_override("font_size", 25)
 	close_b.pressed.connect(_on_crown_help_close_pressed)
 	header.add_child(ht)
 	header.add_child(close_b)
@@ -1078,7 +1078,7 @@ func _build_crown_help_modal() -> void:
 		tb.focus_mode = Control.FOCUS_NONE
 		tb.custom_minimum_size = Vector2(96, 42)
 		tb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		tb.add_theme_font_size_override("font_size", 17)
+		tb.add_theme_font_size_override("font_size", 21)
 		tb.add_theme_color_override("font_color", Color(0.92, 0.9, 0.84, 1))
 		tb.pressed.connect(_on_crown_help_tab_pressed.bind(i))
 		tab_row.add_child(tb)
@@ -1202,14 +1202,14 @@ func _crown_help_title_card_style(current: bool) -> StyleBoxFlat:
 func _make_crown_help_section_title(text: String) -> Label:
 	var l := Label.new()
 	l.text = text
-	l.add_theme_font_size_override("font_size", 20)
+	l.add_theme_font_size_override("font_size", 25)
 	l.add_theme_color_override("font_color", Color(0.94, 0.9, 0.78, 1))
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	return l
 
 
-func _make_crown_help_body_label(text: String, font_size: int = 15) -> Label:
+func _make_crown_help_body_label(text: String, font_size: int = 19) -> Label:
 	var l := Label.new()
 	l.text = text
 	l.add_theme_font_size_override("font_size", font_size)
@@ -1222,7 +1222,7 @@ func _make_crown_help_body_label(text: String, font_size: int = 15) -> Label:
 func _make_crown_help_bullet_label(text: String) -> Label:
 	var l := Label.new()
 	l.text = "•  %s" % text
-	l.add_theme_font_size_override("font_size", 14)
+	l.add_theme_font_size_override("font_size", 18)
 	l.add_theme_color_override("font_color", Color(0.72, 0.78, 0.88, 0.95))
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1243,7 +1243,7 @@ func _add_crown_help_progress_block(parent: VBoxContainer) -> void:
 	var inner := VBoxContainer.new()
 	inner.add_theme_constant_override("separation", 8)
 	var cap := Label.new()
-	cap.add_theme_font_size_override("font_size", 17)
+	cap.add_theme_font_size_override("font_size", 21)
 	cap.add_theme_color_override("font_color", Color(0.88, 0.82, 0.7, 1))
 	cap.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	cap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1259,7 +1259,7 @@ func _add_crown_help_progress_block(parent: VBoxContainer) -> void:
 	bar_bg.set_corner_radius_all(5)
 	bar.add_theme_stylebox_override("background", bar_bg)
 	var sub := Label.new()
-	sub.add_theme_font_size_override("font_size", 14)
+	sub.add_theme_font_size_override("font_size", 18)
 	sub.add_theme_color_override("font_color", Color(0.7, 0.76, 0.86, 0.92))
 	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	sub.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1310,7 +1310,7 @@ func _build_crown_help_title_card(t: Dictionary, step_i: int, is_current: bool) 
 	var name_l := Label.new()
 	name_l.text = nm
 	name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	name_l.add_theme_font_size_override("font_size", 18)
+	name_l.add_theme_font_size_override("font_size", 22)
 	name_l.add_theme_color_override("font_color", Color(0.92, 0.82, 0.55, 1))
 	name_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title_row.add_child(name_l)
@@ -1326,19 +1326,19 @@ func _build_crown_help_title_card(t: Dictionary, step_i: int, is_current: bool) 
 		badge_wrap.add_theme_stylebox_override("panel", bs)
 		var badge := Label.new()
 		badge.text = "Ваш титул"
-		badge.add_theme_font_size_override("font_size", 13)
+		badge.add_theme_font_size_override("font_size", 16)
 		badge.add_theme_color_override("font_color", Color(0.15, 0.12, 0.08, 1))
 		badge_wrap.add_child(badge)
 		title_row.add_child(badge_wrap)
 	col.add_child(title_row)
 	var th_l := _make_crown_help_body_label(
-		"Эта ступень — когда Короне за всю игру ушло не меньше %d ед. Сердцевины караваном." % th, 14
+		"Эта ступень — когда Короне за всю игру ушло не меньше %d ед. Сердцевины караваном." % th, 18
 	)
 	th_l.add_theme_color_override("font_color", Color(0.65, 0.78, 0.95, 0.95))
 	col.add_child(th_l)
 	var bonus_title := Label.new()
 	bonus_title.text = "Бонусы ступени"
-	bonus_title.add_theme_font_size_override("font_size", 13)
+	bonus_title.add_theme_font_size_override("font_size", 16)
 	bonus_title.add_theme_color_override("font_color", Color(0.55, 0.6, 0.7, 0.9))
 	col.add_child(bonus_title)
 	for line in _crown_title_bonus_lines(t):
@@ -1371,7 +1371,7 @@ func _populate_crown_help_overview(vbox: VBoxContainer) -> void:
 	hint.scroll_active = false
 	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_rtl_theme_line(hint)
-	hint.add_theme_font_size_override("normal_font_size", 14)
+	hint.add_theme_font_size_override("normal_font_size", 18)
 	hint.add_theme_color_override("default_color", Color(0.65, 0.72, 0.82, 0.9))
 	hint.text = "Подробнее о ресурсе — «Справка» в кодексе лагеря. Про караван, приказы и походы — вкладка [color=#e8c97a]«Караван»[/color]."
 	vbox.add_child(hint)
@@ -1379,8 +1379,8 @@ func _populate_crown_help_overview(vbox: VBoxContainer) -> void:
 	_add_crown_help_progress_block(vbox)
 	vbox.add_child(_make_crown_help_section_title("Сейчас"))
 	var cur := CrownSystem.get_current_title()
-	vbox.add_child(_make_crown_help_body_label("Титул: %s" % str(cur.get("name", "")), 16))
-	vbox.add_child(_make_crown_help_body_label(_crown_progress_subline(), 14))
+	vbox.add_child(_make_crown_help_body_label("Титул: %s" % str(cur.get("name", "")), 20))
+	vbox.add_child(_make_crown_help_body_label(_crown_progress_subline(), 18))
 	var dis := SaveManager.crown_displeasure
 	var fav_h := SaveManager.crown_favor
 	if dis > 0:
@@ -1415,7 +1415,7 @@ func _populate_crown_help_overview(vbox: VBoxContainer) -> void:
 	vbox.add_child(
 		_make_crown_help_body_label(
 			"Каждая отгрузка караваном добавляет к тому, что вы уже отдали Короне за всю игру. Титул смотрит на это накопление, а не на размер одной партии.",
-			15
+			19
 		)
 	)
 
@@ -1449,7 +1449,7 @@ func _populate_crown_help_caravan_tab(vbox: VBoxContainer) -> void:
 	rtl0.scroll_active = false
 	rtl0.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_rtl_theme_line(rtl0)
-	rtl0.add_theme_font_size_override("normal_font_size", 15)
+	rtl0.add_theme_font_size_override("normal_font_size", 19)
 	rtl0.text = (
 		"Пока обоз не ждёт у причала, [b]каждое ваше возвращение на базу с острова сменяет день и ночь в лагере[/b] и приближает момент, когда снова приедет [color=#e8c97a]караван Короны[/color]. "
 		+ "Это не часы на столе — ритм задают ваши походы.\n\n"
@@ -1476,7 +1476,7 @@ func _populate_crown_help_caravan_tab(vbox: VBoxContainer) -> void:
 	go.text = "Открыть «Караван Короны»"
 	go.focus_mode = Control.FOCUS_NONE
 	go.custom_minimum_size = Vector2(0, 48)
-	go.add_theme_font_size_override("font_size", 18)
+	go.add_theme_font_size_override("font_size", 22)
 	go.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var gb := StyleBoxFlat.new()
 	gb.bg_color = Color(0.16, 0.2, 0.28, 1)
@@ -1517,7 +1517,7 @@ func _populate_crown_help_panel() -> void:
 
 func _rtl_theme_line(rtl: RichTextLabel) -> void:
 	rtl.add_theme_color_override("default_color", Color(0.78, 0.82, 0.9, 0.98))
-	rtl.add_theme_font_size_override("normal_font_size", 16)
+	rtl.add_theme_font_size_override("normal_font_size", 20)
 	_apply_dialogue_default_font_to_richtext(rtl)
 
 

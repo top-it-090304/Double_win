@@ -28,7 +28,7 @@ func reset_archery_menu_state() -> void:
 
 
 func _refresh_ui() -> void:
-	var passive := get_node_or_null("ArcheryPanel/ArcherySubtitle") as Label
+	var passive := get_node_or_null("ArcheryPanel/BodyVBox/ArcherySubtitle") as Label
 	if passive:
 		var hp_passive := GameManager.get_archery_passive_hp_ratio() * 100.0
 		var as_passive := GameManager.get_archery_passive_attack_speed_ratio() * 100.0
@@ -38,10 +38,10 @@ func _refresh_ui() -> void:
 		else:
 			passive.text = "Пассив от тира: +%.0f%% HP лучников, +%.0f%% к темпу стрельбы." % [hp_passive, as_passive]
 
-	var volley_desc := get_node_or_null("ArcheryPanel/MainActions/SlotsRow/slot_volley/ColumnVolley/VolleyDesc") as Label
+	var volley_desc := get_node_or_null("ArcheryPanel/BodyVBox/SlotsRow/slot_volley/ColumnVolley/VolleyDesc") as Label
 	if volley_desc:
 		volley_desc.text = "Боевой приказ: +%.0f%% к темпу стрельбы (поход)." % (GameManager.get_archery_volley_ratio_preview() * 100.0)
-	var guard_desc := get_node_or_null("ArcheryPanel/MainActions/SlotsRow/slot_guard/ColumnGuard/GuardDesc") as Label
+	var guard_desc := get_node_or_null("ArcheryPanel/BodyVBox/SlotsRow/slot_guard/ColumnGuard/GuardDesc") as Label
 	if guard_desc:
 		guard_desc.text = "Боевой приказ: +%.0f%% к HP лучников (поход)." % (GameManager.get_archery_guard_ratio_preview() * 100.0)
 
@@ -49,11 +49,11 @@ func _refresh_ui() -> void:
 	var cost_v_ore := BalanceConfig.get_archery_volley_ore_cost()
 	var cost_g_gold := BalanceConfig.get_archery_guard_gold_cost()
 	var cost_g_ore := BalanceConfig.get_archery_guard_ore_cost()
-	_set_cost_button("ArcheryPanel/MainActions/SlotsRow/slot_volley/ColumnVolley/BtnVolleyOrder", cost_v_gold, cost_v_ore)
-	_set_cost_button("ArcheryPanel/MainActions/SlotsRow/slot_guard/ColumnGuard/BtnGuardOrder", cost_g_gold, cost_g_ore)
+	_set_cost_button("ArcheryPanel/BodyVBox/SlotsRow/slot_volley/ColumnVolley/BtnVolleyOrder", cost_v_gold, cost_v_ore)
+	_set_cost_button("ArcheryPanel/BodyVBox/SlotsRow/slot_guard/ColumnGuard/BtnGuardOrder", cost_g_gold, cost_g_ore)
 
-	var btn_v := get_node_or_null("ArcheryPanel/MainActions/SlotsRow/slot_volley/ColumnVolley/BtnVolleyOrder") as Button
-	var btn_g := get_node_or_null("ArcheryPanel/MainActions/SlotsRow/slot_guard/ColumnGuard/BtnGuardOrder") as Button
+	var btn_v := get_node_or_null("ArcheryPanel/BodyVBox/SlotsRow/slot_volley/ColumnVolley/BtnVolleyOrder") as Button
+	var btn_g := get_node_or_null("ArcheryPanel/BodyVBox/SlotsRow/slot_guard/ColumnGuard/BtnGuardOrder") as Button
 	var can_v := not GameManager.archery_volley_prepared and GameplayFacade.can_afford_gold_plus_ore_strict(cost_v_gold, cost_v_ore)
 	var can_g := not GameManager.archery_guard_prepared and GameplayFacade.can_afford_gold_plus_ore_strict(cost_g_gold, cost_g_ore)
 	PaidServiceButtonAppearance.set_interactive(btn_v, can_v)
