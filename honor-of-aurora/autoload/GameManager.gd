@@ -1480,6 +1480,7 @@ func add_camera_to_player(player: Node) -> void:
 		cam = Camera2D.new()
 		cam.name = "Camera2D"
 		player.add_child(cam)
+	cam.anchor_mode = Camera2D.ANCHOR_MODE_DRAG_CENTER
 	cam.enabled = true
 	cam.make_current()
 	if cam.position_smoothing_enabled:

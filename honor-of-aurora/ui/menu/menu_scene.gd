@@ -23,6 +23,7 @@ var _menu_clouds_canvas: CanvasLayer
 
 func _ready():
 	Events.current_location = Events.LOCATION.MENU
+	_ensure_menu_camera_centered()
 	await get_tree().process_frame
 	## После await у GameManager.handle_location_changed — стабильное сохранение в SaveManager.
 	call_deferred("_apply_post_finale_menu_thanks_chest")
@@ -40,6 +41,21 @@ func _ready():
 	spawn_timer.autostart = true
 	add_child(spawn_timer)
 	spawn_timer.timeout.connect(_on_cloud_spawn_timer_timeout)
+
+
+## Без активной Camera2D 2D-вид привязан к левому верхнему углу вьюпорта: при stretch expand ширина «нарастает» вправо.
+## Камера с якорем по центру держит базовый кадр по центру экрана при любом соотношении сторон.
+func _ensure_menu_camera_centered() -> void:
+	var cam := get_node_or_null(^"MenuViewportCamera") as Camera2D
+	if cam == null:
+		cam = Camera2D.new()
+		cam.name = "MenuViewportCamera"
+		add_child(cam)
+	cam.anchor_mode = Camera2D.ANCHOR_MODE_DRAG_CENTER
+	var bw: float = float(ProjectSettings.get_setting("display/window/size/viewport_width", 1280))
+	var bh: float = float(ProjectSettings.get_setting("display/window/size/viewport_height", 720))
+	cam.position = Vector2(bw * 0.5, bh * 0.5)
+	cam.make_current()
 
 
 ## Сундук — после финальных титров. Герой у сундука — в меню, если финал пройден (счётчик боссов / остров 5 / титры).

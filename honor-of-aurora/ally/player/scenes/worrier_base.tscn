@@ -186,6 +186,7 @@ frame = 8
 frame_progress = 1.0
 
 [node name="Camera2D" type="Camera2D" parent="."]
+anchor_mode = 1
 position_smoothing_enabled = true
 
 [node name="AttackArea" type="Area2D" parent="."]
