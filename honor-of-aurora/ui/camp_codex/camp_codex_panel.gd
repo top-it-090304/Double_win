@@ -11,10 +11,10 @@ var _touch_scroll_helper := TouchScrollHelper.new()
 @onready var _body_progress: RichTextLabel = $SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox/CardProgress/CardProgInner/BodyProgress
 @onready var _body_story: RichTextLabel = $SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox/CardStory/CardStoryInner/BodyStory
 @onready var _body_personal: RichTextLabel = $SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/DossierTab/DossierScroll/DossierPad/DossierVBox/CardPersonal/CardPersInner/BodyPersonal
-@onready var _char_list: ItemList = $SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/LeftPanel/LeftMargin/LeftVBox/CharList
-@onready var _char_portrait: TextureRect = $SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/LeftPanel/LeftMargin/LeftVBox/PortraitPanel/CharPortrait
-@onready var _role_line_label: Label = $SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/LeftPanel/LeftMargin/LeftVBox/RoleLineLabel
-@onready var _char_brief: Label = $SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/LeftPanel/LeftMargin/LeftVBox/CharBrief
+@onready var _char_list: ItemList = $SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/LeftPanel/LeftMargin/CharLeftScroll/LeftVBox/CharList
+@onready var _char_portrait: TextureRect = $SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/LeftPanel/LeftMargin/CharLeftScroll/LeftVBox/PortraitPanel/CharPortrait
+@onready var _role_line_label: Label = $SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/LeftPanel/LeftMargin/CharLeftScroll/LeftVBox/RoleLineLabel
+@onready var _char_brief: Label = $SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/LeftPanel/LeftMargin/CharLeftScroll/LeftVBox/CharBrief
 @onready var _char_story_scroll: ScrollContainer = $SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/RightPanel/RightMargin/CharStoryScroll
 @onready var _char_story: RichTextLabel = $SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/CharactersTab/DossierSplit/RightPanel/RightMargin/CharStoryScroll/CharStoryBody
 @onready var _archive_list: ItemList = $SafeMargin/PanelRoot/InnerMargin/VBox/MainTabs/ArchiveTab/ArchiveSplit/ListPanel/ListMargin/NoteList
@@ -47,6 +47,11 @@ var _codex_prev_tab: int = 0
 var _crown_dossier_block: PanelContainer
 var _crown_dossier_hbox: HBoxContainer
 var _help_tab: Control
+var _codex_tab_buttons_row: HBoxContainer
+var _codex_tab_buttons: Array[Button] = []
+
+const _CODEX_TAB_BTN_MIN_HEIGHT := 54
+const _CODEX_TAB_BTN_FONT := 24
 
 
 func _ready() -> void:
@@ -70,6 +75,86 @@ func _ready() -> void:
 	_setup_items_tab()
 	_setup_help_tab()
 	_set_tab_titles()
+	_build_codex_tab_button_row()
+
+
+func _codex_tab_stylebox_dup(which: String) -> StyleBoxFlat:
+	var sb: StyleBox = _main_tabs.get_theme_stylebox(which, "TabContainer")
+	if sb is StyleBoxFlat:
+		return (sb as StyleBoxFlat).duplicate() as StyleBoxFlat
+	var f := StyleBoxFlat.new()
+	f.bg_color = Color(0.08, 0.09, 0.12, 0.95)
+	f.set_border_width_all(1)
+	f.border_color = Color(0.35, 0.38, 0.48, 0.55)
+	f.set_corner_radius_all(8)
+	f.content_margin_left = 12.0
+	f.content_margin_top = 12.0
+	f.content_margin_right = 12.0
+	f.content_margin_bottom = 12.0
+	return f
+
+
+func _build_codex_tab_button_row() -> void:
+	if _main_tabs == null:
+		return
+	_main_tabs.tabs_visible = false
+	var vbox := _main_tabs.get_parent() as VBoxContainer
+	if vbox == null:
+		return
+	if _codex_tab_buttons_row != null and is_instance_valid(_codex_tab_buttons_row):
+		_codex_tab_buttons_row.queue_free()
+	_codex_tab_buttons.clear()
+	var row := HBoxContainer.new()
+	row.name = "CodexTabButtonsRow"
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.clip_contents = true
+	row.add_theme_constant_override("separation", 2)
+	vbox.add_child(row)
+	vbox.move_child(row, _main_tabs.get_index())
+	_codex_tab_buttons_row = row
+	var sb_n := _codex_tab_stylebox_dup("tab_unselected")
+	var sb_h := _codex_tab_stylebox_dup("tab_hover")
+	var sb_p := _codex_tab_stylebox_dup("tab_selected")
+	var n := _main_tabs.get_tab_count()
+	for i in n:
+		var btn := Button.new()
+		btn.name = "TabBtn_%d" % i
+		btn.text = _main_tabs.get_tab_title(i)
+		btn.toggle_mode = true
+		btn.focus_mode = Control.FOCUS_NONE
+		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn.size_flags_stretch_ratio = 1.0
+		btn.clip_text = true
+		btn.custom_minimum_size = Vector2(0, _CODEX_TAB_BTN_MIN_HEIGHT)
+		btn.add_theme_font_size_override("font_size", _CODEX_TAB_BTN_FONT)
+		btn.add_theme_color_override("font_color", Color(0.55, 0.58, 0.65, 0.95))
+		btn.add_theme_color_override("font_hover_color", Color(0.82, 0.84, 0.9, 1))
+		btn.add_theme_color_override("font_pressed_color", Color(0.96, 0.93, 0.86, 1))
+		btn.add_theme_stylebox_override("normal", sb_n.duplicate() as StyleBoxFlat)
+		btn.add_theme_stylebox_override("hover", sb_h.duplicate() as StyleBoxFlat)
+		btn.add_theme_stylebox_override("pressed", sb_p.duplicate() as StyleBoxFlat)
+		btn.add_theme_constant_override("icon_max_width", 24)
+		btn.icon_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		btn.expand_icon = false
+		btn.pressed.connect(_on_codex_tab_button_pressed.bind(i))
+		row.add_child(btn)
+		_codex_tab_buttons.append(btn)
+	_apply_codex_tab_markers()
+	_sync_codex_tab_buttons_from_container(_main_tabs.current_tab)
+
+
+func _sync_codex_tab_buttons_from_container(tab: int) -> void:
+	for i in range(_codex_tab_buttons.size()):
+		var on := (i == tab)
+		if _codex_tab_buttons[i].button_pressed != on:
+			_codex_tab_buttons[i].button_pressed = on
+
+
+func _on_codex_tab_button_pressed(i: int) -> void:
+	if _main_tabs == null:
+		return
+	_main_tabs.current_tab = i
+	_sync_codex_tab_buttons_from_container(i)
 
 
 func _set_tab_titles() -> void:
@@ -83,6 +168,8 @@ func _set_tab_titles() -> void:
 		_main_tabs.set_tab_title(4, "Предметы")
 	if _main_tabs.get_tab_count() > 5:
 		_main_tabs.set_tab_title(5, "Справка")
+	for j in range(mini(_main_tabs.get_tab_count(), _codex_tab_buttons.size())):
+		_codex_tab_buttons[j].text = _main_tabs.get_tab_title(j)
 
 
 func _setup_timeline_tab() -> void:
@@ -96,9 +183,10 @@ func _setup_timeline_tab() -> void:
 	_timeline_body.bbcode_enabled = true
 	_timeline_body.fit_content = true
 	_timeline_body.scroll_active = false
+	_timeline_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_timeline_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_timeline_body.add_theme_color_override("default_color", Color(0.78, 0.82, 0.9, 0.98))
-	_timeline_body.add_theme_font_size_override("normal_font_size", 15)
+	_timeline_body.add_theme_font_size_override("normal_font_size", 22)
 	_inv_vbox.add_child(_timeline_body)
 
 
@@ -107,6 +195,7 @@ func _setup_items_tab() -> void:
 		return
 	_items_tab = Control.new()
 	_items_tab.name = "ItemsTab"
+	_items_tab.clip_contents = true
 	_main_tabs.add_child(_items_tab)
 
 	_items_scroll = ScrollContainer.new()
@@ -132,7 +221,7 @@ func _setup_items_tab() -> void:
 	_items_empty.visible = false
 	_items_empty.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	_items_empty.add_theme_color_override("font_color", Color(0.55, 0.6, 0.68, 0.92))
-	_items_empty.add_theme_font_size_override("font_size", 16)
+	_items_empty.add_theme_font_size_override("font_size", 23)
 	_items_empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_items_empty.text = "Предметов пока нет. Исследуйте острова."
 	_items_tab.add_child(_items_empty)
@@ -145,6 +234,7 @@ func _setup_help_tab() -> void:
 		return
 	_help_tab = Control.new()
 	_help_tab.name = "HelpTab"
+	_help_tab.clip_contents = true
 	_main_tabs.add_child(_help_tab)
 	var scroll := ScrollContainer.new()
 	scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -165,7 +255,7 @@ func _setup_help_tab() -> void:
 	lead.text = "Краткие пояснения по ресурсам и терминам мира. Подробности сюжета — в сводке, досье и архиве."
 	lead.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	lead.add_theme_color_override("font_color", Color(0.62, 0.66, 0.74, 0.95))
-	lead.add_theme_font_size_override("font_size", 14)
+	lead.add_theme_font_size_override("font_size", 21)
 	vbox.add_child(lead)
 	for sec in CampCodexGlossary.get_sections():
 		if not (sec is Dictionary):
@@ -181,7 +271,7 @@ func _make_help_heading(title: String) -> Label:
 	var l := Label.new()
 	l.text = title
 	l.add_theme_color_override("font_color", Color(0.82, 0.72, 0.45, 1))
-	l.add_theme_font_size_override("font_size", 16)
+	l.add_theme_font_size_override("font_size", 22)
 	return l
 
 
@@ -231,14 +321,14 @@ func _make_help_entry_card(entry: Dictionary) -> PanelContainer:
 	var ttl := Label.new()
 	ttl.text = str(entry.get("title", ""))
 	ttl.add_theme_color_override("font_color", Color(0.82, 0.72, 0.45, 1))
-	ttl.add_theme_font_size_override("font_size", 15)
+	ttl.add_theme_font_size_override("font_size", 21)
 	col.add_child(ttl)
 	var body := Label.new()
 	body.text = str(entry.get("body", ""))
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.add_theme_color_override("font_color", Color(0.78, 0.82, 0.9, 0.98))
-	body.add_theme_font_size_override("font_size", 14)
+	body.add_theme_font_size_override("font_size", 20)
 	col.add_child(body)
 	row.add_child(col)
 	card.add_child(row)
@@ -248,6 +338,7 @@ func _make_help_entry_card(entry: Dictionary) -> PanelContainer:
 func reset_camp_codex_state() -> void:
 	if _main_tabs:
 		_main_tabs.current_tab = 0
+	_sync_codex_tab_buttons_from_container(0)
 	_scroll_dossier_top()
 
 
@@ -331,6 +422,8 @@ func _extract_help_card_title(card: PanelContainer) -> String:
 
 func _codex_finish_open_setup() -> void:
 	_codex_block_click_marks = false
+	if _main_tabs:
+		_sync_codex_tab_buttons_from_container(_main_tabs.current_tab)
 	_focus_close_button()
 
 
@@ -429,24 +522,24 @@ func _refresh_crown_dossier_panel() -> void:
 	var hdr := Label.new()
 	hdr.text = "Титул Короны"
 	hdr.add_theme_color_override("font_color", Color(0.82, 0.72, 0.45, 1))
-	hdr.add_theme_font_size_override("font_size", 13)
+	hdr.add_theme_font_size_override("font_size", 19)
 	text_col.add_child(hdr)
 	var nm_lbl := Label.new()
 	nm_lbl.text = String(data.get("title_name", ""))
 	nm_lbl.add_theme_color_override("font_color", Color(0.94, 0.9, 0.78, 1))
-	nm_lbl.add_theme_font_size_override("font_size", 20)
+	nm_lbl.add_theme_font_size_override("font_size", 27)
 	nm_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text_col.add_child(nm_lbl)
 	var sent_lbl := Label.new()
 	sent_lbl.text = String(data.get("sent_line", ""))
 	sent_lbl.add_theme_color_override("font_color", Color(0.62, 0.72, 0.82, 0.95))
-	sent_lbl.add_theme_font_size_override("font_size", 15)
+	sent_lbl.add_theme_font_size_override("font_size", 21)
 	sent_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text_col.add_child(sent_lbl)
 	var fx_lbl := Label.new()
 	fx_lbl.text = String(data.get("fx_line", ""))
 	fx_lbl.add_theme_color_override("font_color", Color(0.7, 0.74, 0.82, 0.92))
-	fx_lbl.add_theme_font_size_override("font_size", 14)
+	fx_lbl.add_theme_font_size_override("font_size", 20)
 	fx_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text_col.add_child(fx_lbl)
 	_crown_dossier_hbox.add_child(text_col)
@@ -615,6 +708,7 @@ func _on_close_pressed() -> void:
 
 
 func _on_main_tab_changed(tab: int) -> void:
+	_sync_codex_tab_buttons_from_container(tab)
 	if not _codex_block_click_marks and _main_tabs:
 		if _codex_prev_tab == 0 and tab != 0:
 			SaveManager.codex_mark_summary_seen(get_tree())
@@ -707,9 +801,9 @@ func _refresh_archive_list() -> void:
 		_archive_split.visible = found_any
 	if _archive_body:
 		if found_any:
-			_archive_body.bbcode_text = "[color=#aab8cc]Выберите запись в списке слева.[/color]"
+			_archive_body.bbcode_text = "[font_size=21][color=#aab8cc]Выберите запись в списке слева.[/color][/font_size]"
 		else:
-			_archive_body.bbcode_text = "[center][color=#aab8cc]Записей пока нет. Ищите сундуки на островах и слушайте целителя у церкви.[/color][/center]"
+			_archive_body.bbcode_text = "[center][font_size=21][color=#aab8cc]Записей пока нет. Ищите сундуки на островах и слушайте целителя у церкви.[/color][/font_size][/center]"
 	_stamp_archive_new_icons()
 
 
@@ -732,18 +826,24 @@ func _on_archive_item_selected(index: int) -> void:
 	var title := String(ed.get("title", ""))
 	var txt := String(ed.get("text_bbcode", ""))
 	var is_letter: bool = ed.get("is_letter", false)
+	var title_fs: int = DialogueUiConstants.get_text_font_size() + 3
+	## Тело письма без тега оставалось на «старом» кегле темы; явно поднимаем, как остальной кодекс.
+	var letter_body_fs: int = maxi(24, DialogueUiConstants.get_text_font_size() + 5)
 	if is_letter:
 		_archive_body.bbcode_text = (
 			"[font_size=%d][b][color=#d4c9a0]%s[/color][/b][/font_size]\n"
-			% [DialogueUiConstants.get_text_font_size(), title]
-			+ "[color=#8a8070]─────────────────────[/color]\n\n%s\n\n"
-			% txt
-			+ "[color=#8a8070]─────────────────────[/color]"
+			% [title_fs, title]
+			+ "[font_size=%d][color=#8a8070]─────────────────────[/color][/font_size]\n\n"
+			% letter_body_fs
+			+ "[font_size=%d]%s[/font_size]\n\n"
+			% [letter_body_fs, txt]
+			+ "[font_size=%d][color=#8a8070]─────────────────────[/color][/font_size]"
+			% letter_body_fs
 		)
 	else:
 		_archive_body.bbcode_text = (
 			"[font_size=%d][b]%s[/b][/font_size]\n\n%s"
-			% [DialogueUiConstants.get_text_font_size(), title, txt]
+			% [title_fs, title, txt]
 		)
 
 
@@ -810,14 +910,20 @@ func _apply_codex_tab_markers() -> void:
 		return
 	var tex: Texture2D = CodexNewMarker.get_badge_texture()
 	var n := _main_tabs.get_tab_count()
-	for i in n:
-		_main_tabs.set_tab_icon(i, null)
+	var tabs_a: Array = []
 	var tabs_v: Variant = _codex_marker_info.get("tabs", [])
 	if tabs_v is Array:
-		var tabs_a: Array = tabs_v
-		for i in mini(tabs_a.size(), n):
-			if tabs_a[i]:
-				_main_tabs.set_tab_icon(i, tex)
+		tabs_a = tabs_v
+	for i in n:
+		_main_tabs.set_tab_icon(i, null)
+	for i in mini(tabs_a.size(), n):
+		if tabs_a[i]:
+			_main_tabs.set_tab_icon(i, tex)
+	for i in range(mini(n, _codex_tab_buttons.size())):
+		var ic: Texture2D = null
+		if i < tabs_a.size() and tabs_a[i]:
+			ic = tex
+		_codex_tab_buttons[i].icon = ic
 
 
 func _stamp_archive_new_icons() -> void:
@@ -945,7 +1051,7 @@ func _build_item_cell(item: Dictionary, idx: int, is_new: bool = false) -> Panel
 		char_lbl.text = str(item.get("icon_char", "?"))
 		char_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		char_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		char_lbl.add_theme_font_size_override("font_size", 28)
+		char_lbl.add_theme_font_size_override("font_size", 31)
 		char_lbl.add_theme_color_override("font_color", Color(col.r, col.g, col.b, 0.85))
 		char_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		char_lbl.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -955,7 +1061,7 @@ func _build_item_cell(item: Dictionary, idx: int, is_new: bool = false) -> Panel
 	var name_lbl := Label.new()
 	name_lbl.text = str(item.get("name", ""))
 	name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_lbl.add_theme_font_size_override("font_size", 11)
+	name_lbl.add_theme_font_size_override("font_size", 16)
 	name_lbl.add_theme_color_override("font_color", Color(0.82, 0.84, 0.9, 0.95))
 	name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_lbl.custom_minimum_size.x = 84
@@ -1044,7 +1150,7 @@ func _setup_item_detail_popup() -> void:
 	_item_detail_icon_label = Label.new()
 	_item_detail_icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_item_detail_icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_item_detail_icon_label.add_theme_font_size_override("font_size", 32)
+	_item_detail_icon_label.add_theme_font_size_override("font_size", 36)
 	_item_detail_icon_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_item_detail_icon_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_item_detail_icon_panel.add_child(_item_detail_icon_label)
@@ -1064,12 +1170,12 @@ func _setup_item_detail_popup() -> void:
 	header.add_child(title_col)
 
 	_item_detail_title = Label.new()
-	_item_detail_title.add_theme_font_size_override("font_size", 22)
+	_item_detail_title.add_theme_font_size_override("font_size", 29)
 	_item_detail_title.add_theme_color_override("font_color", Color(0.96, 0.93, 0.86, 1))
 	title_col.add_child(_item_detail_title)
 
 	_item_detail_brief = Label.new()
-	_item_detail_brief.add_theme_font_size_override("font_size", 14)
+	_item_detail_brief.add_theme_font_size_override("font_size", 20)
 	_item_detail_brief.add_theme_color_override("font_color", Color(0.62, 0.69, 0.78, 0.9))
 	title_col.add_child(_item_detail_brief)
 
@@ -1087,9 +1193,10 @@ func _setup_item_detail_popup() -> void:
 	_item_detail_desc.bbcode_enabled = true
 	_item_detail_desc.fit_content = true
 	_item_detail_desc.scroll_active = false
+	_item_detail_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_item_detail_desc.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_item_detail_desc.add_theme_color_override("default_color", Color(0.85, 0.87, 0.92, 1))
-	_item_detail_desc.add_theme_font_size_override("normal_font_size", 16)
+	_item_detail_desc.add_theme_font_size_override("normal_font_size", 22)
 	desc_scroll.add_child(_item_detail_desc)
 
 	var footer := HBoxContainer.new()
@@ -1115,7 +1222,7 @@ func _setup_item_detail_popup() -> void:
 	close_btn.add_theme_stylebox_override("pressed", btn_p)
 	close_btn.add_theme_color_override("font_color", Color(0.88, 0.85, 0.76, 1))
 	close_btn.add_theme_color_override("font_hover_color", Color(0.96, 0.93, 0.82, 1))
-	close_btn.add_theme_font_size_override("font_size", 14)
+	close_btn.add_theme_font_size_override("font_size", 20)
 	close_btn.pressed.connect(_hide_item_detail)
 	footer.add_child(close_btn)
 
@@ -1134,9 +1241,12 @@ func _show_item_detail(item: Dictionary) -> void:
 
 	var desc_text := str(item.get("description", ""))
 	if is_letter:
+		var letter_desc_fs: int = maxi(24, DialogueUiConstants.get_text_font_size() + 5)
 		_item_detail_desc.bbcode_enabled = true
 		_item_detail_desc.text = ""
-		_item_detail_desc.bbcode_text = "[color=#d4c9a0][i]%s[/i][/color]" % desc_text
+		_item_detail_desc.bbcode_text = (
+			"[font_size=%d][color=#d4c9a0][i]%s[/i][/color][/font_size]" % [letter_desc_fs, desc_text]
+		)
 		_item_detail_title.add_theme_color_override("font_color", Color(0.83, 0.79, 0.67, 1))
 	else:
 		_item_detail_desc.bbcode_enabled = true

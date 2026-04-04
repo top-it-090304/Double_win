@@ -16,7 +16,7 @@ static func intro_plain_text() -> String:
 
 static func story_bbcode() -> String:
 	var parts: PackedStringArray = []
-	parts.append("[font_size=22][b]Аврора[/b][/font_size]\n")
+	parts.append("[font_size=25][b]Аврора[/b][/font_size]\n")
 	if not StoryState.has_flag("intro_base_island_done"):
 		parts.append("[color=#aab8cc]Ты прибыл на архипелаг Аврора по указу короны. Пять островов, пять стражей. Под каждым — сердцевина, без которой гаснут маяки королевства.[/color]")
 		return "\n".join(parts)
@@ -100,7 +100,7 @@ static func build_stats_bbcode(tree: SceneTree) -> String:
 		if title == "Исследование мира":
 			out += _render_lore_progress(sd)
 		else:
-			out += "[font_size=18][b]%s[/b][/font_size]\n" % title
+			out += "[font_size=21][b]%s[/b][/font_size]\n" % title
 			for item in sd["items"]:
 				var row: Dictionary = item
 				out += "[color=#9eb0c8]%s[/color]  —  [color=#e8ecf0]%s[/color]\n" % [row["label"], row["value"]]
@@ -144,7 +144,7 @@ static func crown_dossier_panel_data() -> Dictionary:
 
 
 static func _render_lore_progress(section: Dictionary) -> String:
-	var out := "[font_size=18][b]%s[/b][/font_size]\n\n" % section["title"]
+	var out := "[font_size=21][b]%s[/b][/font_size]\n\n" % section["title"]
 	for item in section["items"]:
 		var row: Dictionary = item
 		var label: String = row["label"]
@@ -178,9 +178,9 @@ static func build_timeline_bbcode() -> String:
 		any = true
 		var title: String = String(d.get("title", ""))
 		var body: String = String(d.get("body", ""))
-		out += "[font_size=16][b]%s[/b][/font_size]\n[color=#b8c0d0]%s[/color]\n\n" % [title, body]
+		out += "[font_size=22][b]%s[/b][/font_size]\n[font_size=21][color=#b8c0d0]%s[/color][/font_size]\n\n" % [title, body]
 	if not any:
-		return "[color=#8899aa]Хронология пуста. Исследуй острова — события появятся здесь.[/color]"
+		return "[font_size=20][color=#8899aa]Хронология пуста. Исследуй острова — события появятся здесь.[/color][/font_size]"
 	return out.strip_edges()
 
 

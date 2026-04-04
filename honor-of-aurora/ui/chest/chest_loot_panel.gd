@@ -1,5 +1,5 @@
 extends CanvasLayer
-## Панель добычи сундука: стиль как у диалогов / меню замка, иконки ресурсов, компактный текст.
+## Панель добычи сундука: стиль как у диалогов / меню замка, крупные иконки ресурсов и читаемый текст.
 
 const _TEX_GOLD := preload("res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_03.png")
 const _TEX_ORE := preload("res://Asets/Руда/1.png")
@@ -73,21 +73,21 @@ func setup_from_loot(loot: Dictionary) -> void:
 
 func _add_chip(tex: Texture2D, amount: int, icon_material: Material) -> void:
 	var wrap := PanelContainer.new()
-	wrap.custom_minimum_size = Vector2(108, 52)
+	wrap.custom_minimum_size = Vector2(148, 72)
 	var inner := StyleBoxFlat.new()
 	inner.bg_color = Color(0.07, 0.08, 0.11, 0.92)
 	inner.border_color = Color(0.28, 0.34, 0.44, 0.65)
 	inner.set_border_width_all(1)
-	inner.set_corner_radius_all(10)
-	inner.content_margin_left = 8
-	inner.content_margin_top = 6
-	inner.content_margin_right = 10
-	inner.content_margin_bottom = 6
+	inner.set_corner_radius_all(12)
+	inner.content_margin_left = 12
+	inner.content_margin_top = 8
+	inner.content_margin_right = 14
+	inner.content_margin_bottom = 8
 	wrap.add_theme_stylebox_override("panel", inner)
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
+	row.add_theme_constant_override("separation", 12)
 	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(36, 36)
+	icon.custom_minimum_size = Vector2(48, 48)
 	icon.texture = tex
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -96,7 +96,7 @@ func _add_chip(tex: Texture2D, amount: int, icon_material: Material) -> void:
 	row.add_child(icon)
 	var lab := Label.new()
 	lab.text = "+%d" % amount
-	lab.add_theme_font_size_override("font_size", 22)
+	lab.add_theme_font_size_override("font_size", 30)
 	lab.add_theme_color_override("font_color", Color(0.96, 0.97, 1.0, 1.0))
 	row.add_child(lab)
 	wrap.add_child(row)

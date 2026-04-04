@@ -1,7 +1,7 @@
 extends RefCounted
 class_name CampCodexDossierStories
 
-const _EMPTY := "[color=#8899aa]Пока нет записей. Возвращайся после новых встреч и походов.[/color]"
+const _EMPTY := "[font_size=20][color=#8899aa]Пока нет записей. Возвращайся после новых встреч и походов.[/color][/font_size]"
 
 
 static func get_story_bbcode(character_key: String) -> String:
@@ -34,9 +34,9 @@ static func _join_beats(beats: Array) -> String:
 		var body: String = String(d.get("body", ""))
 		var is_letter := title.begins_with("✉")
 		if is_letter:
-			out += "[font_size=17][b][color=#d4c9a0]%s[/color][/b][/font_size]\n[color=#d4c9a0][i]%s[/i][/color]\n\n" % [title, body]
+			out += "[font_size=24][b][color=#d4c9a0]%s[/color][/b][/font_size]\n[font_size=23][color=#d4c9a0][i]%s[/i][/color][/font_size]\n\n" % [title, body]
 		else:
-			out += "[font_size=17][b]%s[/b][/font_size]\n[color=#c8d0e0]%s[/color]\n\n" % [title, body]
+			out += "[font_size=22][b]%s[/b][/font_size]\n[font_size=21][color=#c8d0e0]%s[/color][/font_size]\n\n" % [title, body]
 	if not any:
 		return _EMPTY
 	return out.strip_edges()

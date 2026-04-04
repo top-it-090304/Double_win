@@ -9,13 +9,13 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.38, 0.48, 0.62, 0.75)
-corner_radius_top_left = 14.0
-corner_radius_top_right = 14.0
-corner_radius_bottom_left = 14.0
-corner_radius_bottom_right = 14.0
+corner_radius_top_left = 16.0
+corner_radius_top_right = 16.0
+corner_radius_bottom_left = 16.0
+corner_radius_bottom_right = 16.0
 shadow_color = Color(0, 0, 0, 0.55)
-shadow_size = 16
-shadow_offset = Vector2(0, 6)
+shadow_size = 20
+shadow_offset = Vector2(0, 8)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_n"]
 bg_color = Color(0.78, 0.62, 0.22, 1)
@@ -28,10 +28,10 @@ corner_radius_top_left = 8.0
 corner_radius_top_right = 8.0
 corner_radius_bottom_left = 8.0
 corner_radius_bottom_right = 8.0
-content_margin_left = 14.0
-content_margin_top = 10.0
-content_margin_right = 16.0
-content_margin_bottom = 10.0
+content_margin_left = 20.0
+content_margin_top = 14.0
+content_margin_right = 22.0
+content_margin_bottom = 14.0
 shadow_color = Color(0, 0, 0, 0.2)
 shadow_size = 3
 shadow_offset = Vector2(0, 2)
@@ -47,10 +47,10 @@ corner_radius_top_left = 8.0
 corner_radius_top_right = 8.0
 corner_radius_bottom_left = 8.0
 corner_radius_bottom_right = 8.0
-content_margin_left = 14.0
-content_margin_top = 10.0
-content_margin_right = 16.0
-content_margin_bottom = 10.0
+content_margin_left = 20.0
+content_margin_top = 14.0
+content_margin_right = 22.0
+content_margin_bottom = 14.0
 shadow_color = Color(0, 0, 0, 0.28)
 shadow_size = 5
 shadow_offset = Vector2(0, 2)
@@ -66,10 +66,10 @@ corner_radius_top_left = 8.0
 corner_radius_top_right = 8.0
 corner_radius_bottom_left = 8.0
 corner_radius_bottom_right = 8.0
-content_margin_left = 14.0
-content_margin_top = 10.0
-content_margin_right = 16.0
-content_margin_bottom = 10.0
+content_margin_left = 20.0
+content_margin_top = 14.0
+content_margin_right = 22.0
+content_margin_bottom = 14.0
 
 [node name="ChestLootPanel" type="CanvasLayer"]
 layer = 95
@@ -103,20 +103,20 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="PanelRoot" type="PanelContainer" parent="RootLayout/Center"]
-custom_minimum_size = Vector2(360, 0)
+custom_minimum_size = Vector2(520, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
 
 [node name="Margin" type="MarginContainer" parent="RootLayout/Center/PanelRoot"]
 layout_mode = 2
-theme_override_constants/margin_left = 22
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 22
-theme_override_constants/margin_bottom = 18
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 26
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
 
 [node name="VBox" type="VBoxContainer" parent="RootLayout/Center/PanelRoot/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 20
 
 [node name="TitleRow" type="HBoxContainer" parent="RootLayout/Center/PanelRoot/Margin/VBox"]
 layout_mode = 2
@@ -125,43 +125,45 @@ alignment = 1
 [node name="TitleLabel" type="Label" parent="RootLayout/Center/PanelRoot/Margin/VBox/TitleRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.96, 1, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 34
 text = "Находка"
 horizontal_alignment = 1
 
 [node name="TitleRule" type="ColorRect" parent="RootLayout/Center/PanelRoot/Margin/VBox"]
-custom_minimum_size = Vector2(0, 1)
+custom_minimum_size = Vector2(0, 2)
 layout_mode = 2
 size_flags_horizontal = 3
 color = Color(0.42, 0.48, 0.58, 0.45)
 
 [node name="ResourcesFlow" type="HFlowContainer" parent="RootLayout/Center/PanelRoot/Margin/VBox"]
 layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
 alignment = 1
 
 [node name="LoreBlock" type="VBoxContainer" parent="RootLayout/Center/PanelRoot/Margin/VBox"]
 visible = false
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 10
 
 [node name="LoreTitle" type="Label" parent="RootLayout/Center/PanelRoot/Margin/VBox/LoreBlock"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.76, 0.86, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 20
 text = "Записка"
 
 [node name="LoreScroll" type="ScrollContainer" parent="RootLayout/Center/PanelRoot/Margin/VBox/LoreBlock"]
-custom_minimum_size = Vector2(0, 108)
+custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
 size_flags_vertical = 0
 horizontal_scroll_mode = 0
 
 [node name="LoreText" type="Label" parent="RootLayout/Center/PanelRoot/Margin/VBox/LoreBlock/LoreScroll"]
-custom_minimum_size = Vector2(304, 0)
+custom_minimum_size = Vector2(440, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.88, 0.9, 0.95, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 24
 text = ""
 autowrap_mode = 3
 
@@ -169,7 +171,7 @@ autowrap_mode = 3
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.68, 0.75, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 24
 text = "Ничего ценного."
 horizontal_alignment = 1
 
@@ -178,10 +180,10 @@ layout_mode = 2
 alignment = 1
 
 [node name="ConfirmButton" type="Button" parent="RootLayout/Center/PanelRoot/Margin/VBox/Footer"]
-custom_minimum_size = Vector2(200, 44)
+custom_minimum_size = Vector2(300, 58)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.1, 0.06, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 26
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_n")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_h")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_p")
