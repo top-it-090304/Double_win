@@ -1,2 +1,5 @@
 PAYMENTS_LOCAL/
 docs/payment/
+
+# Локальные материалы процесса оптимизации (не в remote)
+optimization-aurora/
