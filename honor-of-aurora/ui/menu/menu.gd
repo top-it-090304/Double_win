@@ -26,7 +26,7 @@ func _on_new_game_pressed() -> void:
 func _begin_new_game() -> void:
 	SaveManager.reset_data()
 	SaveManager.apply_resume_position_on_next_scene = false
-	Events.location_changed.emit(Events.LOCATION.BASE)
+	GameManager.defer_location_changed(Events.LOCATION.BASE)
 
 
 func _show_new_game_confirm() -> void:
@@ -51,7 +51,7 @@ func _on_new_game_confirm_confirmed() -> void:
 func _on_continue_pressed() -> void:
 	SoundManager.play_ui_button()
 	SaveManager.apply_resume_position_on_next_scene = true
-	Events.location_changed.emit(SaveManager.get_resume_location_enum())
+	GameManager.defer_location_changed(SaveManager.get_resume_location_enum())
 
 
 func _on_settings_pressed() -> void:

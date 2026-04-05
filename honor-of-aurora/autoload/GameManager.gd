@@ -681,9 +681,14 @@ func can_teleport_to_location(loc: Events.LOCATION) -> bool:
 			return true
 
 
-## Вызывается после смерти героя: смена сцены не должна идти из стека узла игрока (см. worrier_base.die).
-func _deferred_emit_location_menu_after_death() -> void:
-	Events.location_changed.emit(Events.LOCATION.MENU)
+## Смена локации вызывает change_scene и освобождает текущую сцену (HUD, меню, герой).
+## Синхронный emit со стека узла из этой сцены → обращение к освобождённому Node → !is_inside_tree / SIGSEGV.
+func defer_location_changed(loc: Events.LOCATION) -> void:
+	call_deferred("_emit_location_changed_deferred", loc)
+
+
+func _emit_location_changed_deferred(loc: Events.LOCATION) -> void:
+	Events.location_changed.emit(loc)
 
 
 func handle_location_changed(new_location: Events.LOCATION):

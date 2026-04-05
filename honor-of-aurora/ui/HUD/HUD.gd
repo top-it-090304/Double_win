@@ -76,7 +76,7 @@ func set_target_location(location: Events.LOCATION) -> void:
 
 
 func _on_button_pressed() -> void:
-	Events.location_changed.emit(Events.LOCATION.MENU)
+	GameManager.defer_location_changed(Events.LOCATION.MENU)
 
 
 func _on_codex_button_pressed() -> void:
@@ -453,7 +453,7 @@ func teleport_to(location: Events.LOCATION):
 	else:
 		_set_tree_paused(false)
 	RainSystem.register_teleport_use()
-	Events.location_changed.emit(location)
+	GameManager.defer_location_changed(location)
 
 
 func show_castle_menu():
