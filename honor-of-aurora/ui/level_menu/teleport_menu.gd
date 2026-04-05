@@ -1,5 +1,11 @@
 extends Control
 
+## Базовый логический размер окна (см. project.godot). В режиме «На тапке» (viewport stretch) панель телепорта
+## визуально вылезала за край — подгоняем масштаб к видимой области.
+const _DESIGN_VIEW_W := 1280.0
+const _DESIGN_VIEW_H := 720.0
+const _SLIPPER_TELEPORT_MARGIN := 0.92
+
 @onready var _btn_lvl1: Button = $TextureRect/buttons/Button
 @onready var _btn_lvl2: Button = $TextureRect/buttons/Button2
 @onready var _btn_lvl3: Button = $TextureRect/buttons/Button3
@@ -16,6 +22,42 @@ func _ready() -> void:
 	if not Events.teleport_usage_count_changed.is_connected(_on_teleport_usage_count_changed):
 		Events.teleport_usage_count_changed.connect(_on_teleport_usage_count_changed)
 	_refresh_teleport_buttons_disabled()
+	var vp := get_viewport()
+	if vp and not vp.size_changed.is_connected(_on_viewport_size_changed_tp):
+		vp.size_changed.connect(_on_viewport_size_changed_tp)
+	call_deferred("_refit_slipper_teleport_panel")
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_VISIBILITY_CHANGED and visible:
+		call_deferred("_refit_slipper_teleport_panel")
+
+
+func _on_viewport_size_changed_tp() -> void:
+	_refit_slipper_teleport_panel()
+
+
+func _refit_slipper_teleport_panel() -> void:
+	if not is_inside_tree():
+		return
+	if not PerformancePreset.is_slipper_mode(SaveManager):
+		scale = Vector2.ONE
+		pivot_offset = Vector2.ZERO
+		clip_contents = false
+		return
+	var vp := get_viewport()
+	if vp == null:
+		return
+	var r := vp.get_visible_rect()
+	var vw := maxf(r.size.x, 1.0)
+	var vh := maxf(r.size.y, 1.0)
+	var base_w := float(ProjectSettings.get_setting("display/window/size/viewport_width", _DESIGN_VIEW_W))
+	var base_h := float(ProjectSettings.get_setting("display/window/size/viewport_height", _DESIGN_VIEW_H))
+	var s := minf(vw / base_w, vh / base_h) * _SLIPPER_TELEPORT_MARGIN
+	s = clampf(s, 0.48, 0.96)
+	scale = Vector2(s, s)
+	pivot_offset = size * 0.5
+	clip_contents = true
 
 
 func _setup_teleport_usage_label() -> void:
