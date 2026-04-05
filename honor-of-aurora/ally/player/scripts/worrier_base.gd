@@ -386,7 +386,9 @@ func die():
 	anim.play("dead")
 	await anim.animation_finished
 	SaveManager.configure_death_resume_to_base_teleport()
-	Events.location_changed.emit(Events.LOCATION.MENU)
+	## Нельзя emit(MENU) сразу: handle_location_changed меняет сцену и освобождает игрока во время emit —
+	## стек вызовов всё ещё в die() на этом узле → !is_inside_tree и SIGSEGV (Aurora/Wayland).
+	GameManager.call_deferred("_deferred_emit_location_menu_after_death")
 
 
 func reset_after_death_resume() -> void:

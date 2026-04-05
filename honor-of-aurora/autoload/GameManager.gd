@@ -681,6 +681,11 @@ func can_teleport_to_location(loc: Events.LOCATION) -> bool:
 			return true
 
 
+## Вызывается после смерти героя: смена сцены не должна идти из стека узла игрока (см. worrier_base.die).
+func _deferred_emit_location_menu_after_death() -> void:
+	Events.location_changed.emit(Events.LOCATION.MENU)
+
+
 func handle_location_changed(new_location: Events.LOCATION):
 	## DialogueWindow живёт в HUD текущей сцены; при change_scene корутины await ломаются (data.tree null),
 	## а DialogueManager остаётся с активным диалогом — _player_input_frozen() блокирует движение навсегда.
