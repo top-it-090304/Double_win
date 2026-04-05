@@ -21,13 +21,27 @@ func _ready() -> void:
 	_ensure_full_rect()
 	_connect_touch_zone_resize_signals()
 	call_deferred("apply_user_touch_settings")
-	if not get_viewport().size_changed.is_connected(_on_viewport_size_changed):
-		get_viewport().size_changed.connect(_on_viewport_size_changed)
+	var vp := get_viewport()
+	if vp and not vp.size_changed.is_connected(_on_viewport_size_changed):
+		vp.size_changed.connect(_on_viewport_size_changed)
 	DialogueManager.dialogue_started.connect(_on_dialogue_started_visibility)
 	DialogueManager.dialogue_ended.connect(_on_dialogue_ended_visibility)
 	if not Events.location_changed.is_connected(_on_location_changed_touch_visibility):
 		Events.location_changed.connect(_on_location_changed_touch_visibility)
 	_refresh_visibility()
+
+
+func _exit_tree() -> void:
+	## Иначе автозагрузки могут вызвать колбэк на узле уже вне дерева (Aurora/Wayland + смена сцены) → ERROR can_process / SIGSEGV.
+	if DialogueManager.dialogue_started.is_connected(_on_dialogue_started_visibility):
+		DialogueManager.dialogue_started.disconnect(_on_dialogue_started_visibility)
+	if DialogueManager.dialogue_ended.is_connected(_on_dialogue_ended_visibility):
+		DialogueManager.dialogue_ended.disconnect(_on_dialogue_ended_visibility)
+	if Events.location_changed.is_connected(_on_location_changed_touch_visibility):
+		Events.location_changed.disconnect(_on_location_changed_touch_visibility)
+	var vp := get_viewport()
+	if vp and vp.size_changed.is_connected(_on_viewport_size_changed):
+		vp.size_changed.disconnect(_on_viewport_size_changed)
 
 
 func _connect_touch_zone_resize_signals() -> void:
@@ -88,8 +102,11 @@ func _process(_delta: float) -> void:
 func _refresh_visibility() -> void:
 	if not is_inside_tree():
 		return
+	var st := get_tree()
+	if st == null:
+		return
 	var want := _should_show_touch_ui()
-	var blocked := get_tree().paused or DialogueManager.is_active()
+	var blocked := st.paused or DialogueManager.is_active()
 	var show := want and not blocked
 	visible = show
 	MobileVirtualInput.set_controls_visible(show)
@@ -121,6 +138,8 @@ func _apply_scaled_touch_zone(zone: Control, is_left: bool) -> void:
 
 
 func apply_user_touch_settings() -> void:
+	if not is_inside_tree():
+		return
 	var root := get_node_or_null("Root") as Control
 	if root == null:
 		return

@@ -32,6 +32,13 @@ const _TOP_HUD_EVEN_GAP_COUNT := 7
 const _TOP_HUD_ROW_MIN_WIDTH := 1248.0
 
 
+func _set_tree_paused(p: bool) -> void:
+	## На Wayland/Aurora при сбоях GLES или во время смены сцены `get_tree()` может быть null — без проверки падение в `paused`.
+	var st := get_tree()
+	if st:
+		st.paused = p
+
+
 func _connect_top_hud_resize_for_pivot() -> void:
 	var bar := get_node_or_null(_TOP_HUD_BAR_PATH) as Control
 	if bar == null:
@@ -342,6 +349,8 @@ func _suppress_camp_codex_for_other_modal() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if get_viewport() == null:
+		return
 	if CrownTitlePreview.visible and event.is_action_pressed("ui_cancel"):
 		CrownTitlePreview.hide_preview()
 		get_viewport().set_input_as_handled()
@@ -423,7 +432,7 @@ func show_teleport_menu():
 		castle_menu.hide()
 	SoundManager.play_menu_open()
 	teleport_menu.show()
-	get_tree().paused = true
+	_set_tree_paused(true)
 
 
 func hide_teleport_menu():
@@ -431,7 +440,7 @@ func hide_teleport_menu():
 		return
 	SoundManager.play_menu_close()
 	teleport_menu.hide()
-	get_tree().paused = false
+	_set_tree_paused(false)
 
 
 func teleport_to(location: Events.LOCATION):
@@ -442,7 +451,7 @@ func teleport_to(location: Events.LOCATION):
 	if teleport_menu.visible:
 		hide_teleport_menu()
 	else:
-		get_tree().paused = false
+		_set_tree_paused(false)
 	RainSystem.register_teleport_use()
 	Events.location_changed.emit(location)
 
@@ -467,7 +476,7 @@ func show_castle_menu():
 	if castle_menu.has_method("reset_castle_menu_state"):
 		castle_menu.reset_castle_menu_state()
 	castle_menu.show()
-	get_tree().paused = true
+	_set_tree_paused(true)
 
 
 func hide_castle_menu():
@@ -475,7 +484,7 @@ func hide_castle_menu():
 	if castle_menu == null:
 		return
 	castle_menu.hide()
-	get_tree().paused = false
+	_set_tree_paused(false)
 
 
 func show_barracks_menu():
@@ -500,7 +509,7 @@ func show_barracks_menu():
 	if barracks_menu.has_method("reset_barracks_menu_state"):
 		barracks_menu.reset_barracks_menu_state()
 	barracks_menu.show()
-	get_tree().paused = true
+	_set_tree_paused(true)
 
 
 func hide_barracks_menu():
@@ -508,7 +517,7 @@ func hide_barracks_menu():
 	if barracks_menu == null:
 		return
 	barracks_menu.hide()
-	get_tree().paused = false
+	_set_tree_paused(false)
 
 
 func show_monastery_menu():
@@ -533,7 +542,7 @@ func show_monastery_menu():
 	if monastery_menu.has_method("reset_monastery_menu_state"):
 		monastery_menu.reset_monastery_menu_state()
 	monastery_menu.show()
-	get_tree().paused = true
+	_set_tree_paused(true)
 
 
 func hide_monastery_menu():
@@ -541,7 +550,7 @@ func hide_monastery_menu():
 	if monastery_menu == null:
 		return
 	monastery_menu.hide()
-	get_tree().paused = false
+	_set_tree_paused(false)
 
 
 func show_archery_menu():
@@ -566,7 +575,7 @@ func show_archery_menu():
 	if archery_menu.has_method("reset_archery_menu_state"):
 		archery_menu.reset_archery_menu_state()
 	archery_menu.show()
-	get_tree().paused = true
+	_set_tree_paused(true)
 
 
 func hide_archery_menu():
@@ -574,7 +583,7 @@ func hide_archery_menu():
 	if archery_menu == null:
 		return
 	archery_menu.hide()
-	get_tree().paused = false
+	_set_tree_paused(false)
 
 
 func show_payshop_menu():
@@ -599,7 +608,7 @@ func show_payshop_menu():
 	if payshop_menu.has_method("reset_payshop_menu_state"):
 		payshop_menu.reset_payshop_menu_state()
 	payshop_menu.show()
-	get_tree().paused = true
+	_set_tree_paused(true)
 
 
 func hide_payshop_menu():
@@ -607,7 +616,7 @@ func hide_payshop_menu():
 	if payshop_menu == null:
 		return
 	payshop_menu.hide()
-	get_tree().paused = false
+	_set_tree_paused(false)
 
 
 func show_camp_codex_menu() -> void:
@@ -637,7 +646,7 @@ func show_camp_codex_menu() -> void:
 	if camp_codex_panel.has_method("prepare_on_open"):
 		camp_codex_panel.prepare_on_open()
 	camp_codex_panel.visible = true
-	get_tree().paused = true
+	_set_tree_paused(true)
 
 
 ## Открывает кодекс лагеря на вкладке «Справка» и прокручивает к карточке с указанным заголовком (как в CampCodexGlossary).
@@ -668,7 +677,7 @@ func show_camp_codex_menu_at_help_entry(entry_title: String) -> void:
 	if camp_codex_panel.has_method("prepare_on_open"):
 		camp_codex_panel.prepare_on_open(entry_title)
 	camp_codex_panel.visible = true
-	get_tree().paused = true
+	_set_tree_paused(true)
 
 
 func hide_camp_codex_menu() -> void:
@@ -676,7 +685,7 @@ func hide_camp_codex_menu() -> void:
 	if camp_codex_panel == null:
 		return
 	camp_codex_panel.visible = false
-	get_tree().paused = false
+	_set_tree_paused(false)
 	_update_codex_badge()
 
 
@@ -730,7 +739,7 @@ func show_debug_menu() -> void:
 		hide_teleport_menu()
 	SoundManager.play_menu_open()
 	debug_menu.show()
-	get_tree().paused = true
+	_set_tree_paused(true)
 
 
 func hide_debug_menu() -> void:
@@ -738,4 +747,4 @@ func hide_debug_menu() -> void:
 		return
 	SoundManager.play_menu_close()
 	debug_menu.hide()
-	get_tree().paused = false
+	_set_tree_paused(false)

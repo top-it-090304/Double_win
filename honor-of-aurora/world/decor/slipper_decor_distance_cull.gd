@@ -19,6 +19,11 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
+	if not is_inside_tree():
+		return
+	var tree := get_tree()
+	if tree == null:
+		return
 	if update_every_frames > 1 and (Engine.get_process_frames() % update_every_frames) != 0:
 		return
 	var slipper := PerformancePreset.is_slipper_mode(SaveManager)
@@ -35,7 +40,7 @@ func _process(_delta: float) -> void:
 	if island_root == null:
 		return
 	var apos: Vector2 = anchor as Vector2
-	for layer in get_tree().get_nodes_in_group(GROUP_SLIPPER_CULL_DECOR):
+	for layer in tree.get_nodes_in_group(GROUP_SLIPPER_CULL_DECOR):
 		if layer == null or not is_instance_valid(layer):
 			continue
 		if not (layer is Node2D):
@@ -59,7 +64,10 @@ func _get_anchor_global() -> Variant:
 	var p: Node = GameManager.current_scene_player
 	if p and is_instance_valid(p) and p is Node2D:
 		return (p as Node2D).global_position
-	var cam := get_viewport().get_camera_2d()
+	var vp := get_viewport()
+	if vp == null:
+		return null
+	var cam := vp.get_camera_2d()
 	if cam:
 		return cam.global_position
 	return null
@@ -81,7 +89,10 @@ func _restore_all_under_island() -> void:
 	var island_root: Node = get_parent()
 	if island_root == null:
 		return
-	for layer in get_tree().get_nodes_in_group(GROUP_SLIPPER_CULL_DECOR):
+	var tree := get_tree()
+	if tree == null:
+		return
+	for layer in tree.get_nodes_in_group(GROUP_SLIPPER_CULL_DECOR):
 		if layer == null or not is_instance_valid(layer) or not (layer is Node2D):
 			continue
 		if not island_root.is_ancestor_of(layer):
