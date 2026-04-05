@@ -1,11 +1,12 @@
 extends Control
 
-## Базовый логический размер окна (см. project.godot). В режиме «На тапке» (viewport stretch) панель телепорта
-## визуально вылезала за край — подгоняем масштаб к видимой области.
+## Логический макет сцены телепорта (как при полноэкранной раскладке). В режиме «На тапке» панель центрируем
+## и масштабируем от центра, чтобы заполнить экран без clip_contents (обрезки).
 const _DESIGN_VIEW_W := 1280.0
 const _DESIGN_VIEW_H := 720.0
-const _SLIPPER_TELEPORT_MARGIN := 0.92
+const _SLIPPER_EDGE_MARGIN_PX := 10.0
 
+@onready var _texture_root: TextureRect = $TextureRect
 @onready var _btn_lvl1: Button = $TextureRect/buttons/Button
 @onready var _btn_lvl2: Button = $TextureRect/buttons/Button2
 @onready var _btn_lvl3: Button = $TextureRect/buttons/Button3
@@ -13,14 +14,8 @@ const _SLIPPER_TELEPORT_MARGIN := 0.92
 @onready var _btn_lvl5: Button = $TextureRect/buttons/Button5
 @onready var _btn_base: Button = $TextureRect/buttons/Button7
 
-var _tp_usage_label: Label
-
 
 func _ready() -> void:
-	_setup_teleport_usage_label()
-	_refresh_teleport_usage_label()
-	if not Events.teleport_usage_count_changed.is_connected(_on_teleport_usage_count_changed):
-		Events.teleport_usage_count_changed.connect(_on_teleport_usage_count_changed)
 	_refresh_teleport_buttons_disabled()
 	var vp := get_viewport()
 	if vp and not vp.size_changed.is_connected(_on_viewport_size_changed_tp):
@@ -38,12 +33,10 @@ func _on_viewport_size_changed_tp() -> void:
 
 
 func _refit_slipper_teleport_panel() -> void:
-	if not is_inside_tree():
+	if not is_inside_tree() or _texture_root == null:
 		return
 	if not PerformancePreset.is_slipper_mode(SaveManager):
-		scale = Vector2.ONE
-		pivot_offset = Vector2.ZERO
-		clip_contents = false
+		_reset_texture_root_fullscreen_layout()
 		return
 	var vp := get_viewport()
 	if vp == null:
@@ -51,43 +44,46 @@ func _refit_slipper_teleport_panel() -> void:
 	var r := vp.get_visible_rect()
 	var vw := maxf(r.size.x, 1.0)
 	var vh := maxf(r.size.y, 1.0)
-	var base_w := float(ProjectSettings.get_setting("display/window/size/viewport_width", _DESIGN_VIEW_W))
-	var base_h := float(ProjectSettings.get_setting("display/window/size/viewport_height", _DESIGN_VIEW_H))
-	var s := minf(vw / base_w, vh / base_h) * _SLIPPER_TELEPORT_MARGIN
-	s = clampf(s, 0.48, 0.96)
-	scale = Vector2(s, s)
-	pivot_offset = size * 0.5
-	clip_contents = true
+	var design_w := float(ProjectSettings.get_setting("display/window/size/viewport_width", _DESIGN_VIEW_W))
+	var design_h := float(ProjectSettings.get_setting("display/window/size/viewport_height", _DESIGN_VIEW_H))
+	var m := _SLIPPER_EDGE_MARGIN_PX
+	var avail_w := maxf(vw - m * 2.0, 1.0)
+	var avail_h := maxf(vh - m * 2.0, 1.0)
+	## Максимальный масштаб, чтобы вся панель помещалась; без верхнего искусственного «потолка» — крупно.
+	var s := minf(avail_w / design_w, avail_h / design_h)
+	s = maxf(s, 0.2)
+	## 1 = режим якорей (Control.LayoutMode в редакторе); не `Control.LAYOUT_MODE_ANCHORS` — в GDScript такого члена нет.
+	_texture_root.layout_mode = 1
+	_texture_root.anchor_left = 0.5
+	_texture_root.anchor_right = 0.5
+	_texture_root.anchor_top = 0.5
+	_texture_root.anchor_bottom = 0.5
+	var half_w := design_w * 0.5
+	var half_h := design_h * 0.5
+	_texture_root.offset_left = -half_w
+	_texture_root.offset_right = half_w
+	_texture_root.offset_top = -half_h
+	_texture_root.offset_bottom = half_h
+	_texture_root.pivot_offset = Vector2(half_w, half_h)
+	_texture_root.scale = Vector2(s, s)
+	_texture_root.rotation = 0.0
 
 
-func _setup_teleport_usage_label() -> void:
-	_tp_usage_label = Label.new()
-	_tp_usage_label.name = "TeleportUsageLabel"
-	_tp_usage_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_tp_usage_label.add_theme_font_size_override("font_size", 15)
-	add_child(_tp_usage_label)
-	_tp_usage_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	_tp_usage_label.offset_left = 12.0
-	_tp_usage_label.offset_top = 8.0
-	_tp_usage_label.offset_right = 420.0
-	_tp_usage_label.offset_bottom = 72.0
-
-
-func _refresh_teleport_usage_label() -> void:
-	if _tp_usage_label == null:
+func _reset_texture_root_fullscreen_layout() -> void:
+	if _texture_root == null:
 		return
-	var n: int = SaveManager.teleport_usage_count
-	var line2: String = "Дождь + x2 лут (каждый 5-й телепорт, до следующего)" if RainSystem.is_rain_weather_active() else "След. дождь + x2 на 5-м, 10-м, 15-м… телепорте"
-	_tp_usage_label.text = "Телепортаций: %d\n%s" % [n, line2]
-
-
-func _on_teleport_usage_count_changed(_c: int) -> void:
-	_refresh_teleport_usage_label()
+	_texture_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_texture_root.offset_left = 0.0
+	_texture_root.offset_top = 0.0
+	_texture_root.offset_right = 0.0
+	_texture_root.offset_bottom = 0.0
+	_texture_root.scale = Vector2.ONE
+	_texture_root.pivot_offset = Vector2.ZERO
+	_texture_root.rotation = 0.0
 
 
 ## Вызывается из HUD при входе в зону телепорта; `_location` оставлен для совместимости с TeleportZone.
 func set_target_location(_location: Events.LOCATION) -> void:
-	_refresh_teleport_usage_label()
 	_refresh_teleport_buttons_disabled()
 
 
