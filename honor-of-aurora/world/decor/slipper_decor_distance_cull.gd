@@ -28,13 +28,13 @@ func _process(_delta: float) -> void:
 		_was_slipper = false
 		return
 	_was_slipper = true
-	var anchor := _get_anchor_global()
+	var anchor: Variant = _get_anchor_global()
 	if anchor == null:
 		return
 	var island_root: Node = get_parent()
 	if island_root == null:
 		return
-	var apos: Vector2 = anchor
+	var apos: Vector2 = anchor as Vector2
 	for layer in get_tree().get_nodes_in_group(GROUP_SLIPPER_CULL_DECOR):
 		if layer == null or not is_instance_valid(layer):
 			continue

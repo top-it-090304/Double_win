@@ -48,7 +48,7 @@
 [ext_resource type="PackedScene" uid="uid://ov1iq7xxu5ks" path="res://objects/TeleportZone/teleport_zone.tscn" id="45_wdtt1"]
 [ext_resource type="PackedScene" uid="uid://dgvv3qgd71jvc" path="res://objects/world/chest/world_chest.tscn" id="48_7m01x"]
 [ext_resource type="PackedScene" uid="uid://erxes3g6not7" path="res://objects/SquadSpawnZone/squad_spawn_zone.tscn" id="49_squad"]
-[ext_resource type="Script" path="res://world/decor/slipper_decor_distance_cull.gd" id="slipper_decor_cull"]
+[ext_resource type="Script" uid="uid://dp4tij1uhvyqy" path="res://world/decor/slipper_decor_distance_cull.gd" id="slipper_decor_cull"]
 [ext_resource type="Script" uid="uid://dmom720sjgw12" path="res://world/decor/tile_layer_trees_y_sort_migrate.gd" id="ysort_decor_migrate"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_seqsi"]
