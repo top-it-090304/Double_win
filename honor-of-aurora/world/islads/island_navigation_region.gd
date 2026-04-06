@@ -14,12 +14,24 @@ var _default_outline: PackedVector2Array = PackedVector2Array([
 ])
 
 
-## Замена устаревшего `NavigationPolygon.make_polygons_from_outlines()` (Godot 4.4+).
-## Не вызывать `make_polygons_from_outlines` после неудачного bake на том же `NavigationPolygon` —
-## на части билдов это даёт дубли рёбер и «merge edge» при синхронизации карты (телепорт на остров).
-func _bake_navigation_polygon_from_outlines(np: NavigationPolygon) -> void:
+## Сначала `bake_from_source_geometry_data` с пустым source (как в доке Godot 4).
+## Если полигонов 0 — копия контуров на **новый** ресурс + `make_polygons_from_outlines`
+## (не вызывать make_polygons на том же `NavigationPolygon`, где bake уже трогал данные — merge edge).
+func _bake_navigation_polygon_from_outlines(np: NavigationPolygon) -> NavigationPolygon:
 	var sg := NavigationMeshSourceGeometryData2D.new()
 	NavigationServer2D.bake_from_source_geometry_data(np, sg)
+	if np.get_polygon_count() > 0:
+		return np
+	if np.get_outline_count() == 0:
+		return np
+	var fb := NavigationPolygon.new()
+	_configure_new_navigation_polygon(fb)
+	for i in range(np.get_outline_count()):
+		fb.add_outline(np.get_outline(i))
+	fb.make_polygons_from_outlines()
+	if fb.get_polygon_count() > 0:
+		return fb
+	return np
 
 
 func _is_game_base_island_scene() -> bool:
@@ -44,15 +56,16 @@ func _ready() -> void:
 		_apply_outline(_default_outline)
 		return
 	if navigation_polygon.get_polygon_count() == 0 and navigation_polygon.get_outline_count() > 0:
-		_bake_navigation_polygon_from_outlines(navigation_polygon)
+		navigation_polygon = _bake_navigation_polygon_from_outlines(navigation_polygon)
 	if navigation_polygon.get_polygon_count() == 0:
 		if navigation_polygon.get_outline_count() == 0:
 			_apply_outline(_default_outline)
 		else:
-			push_error(
-				"IslandNavigationRegion: не удалось собрать полигоны из контуров (дырки/стены?). "
-				+ "Проверь порядок точек: внешний остров — в одну сторону, дырки — в противоположную."
+			push_warning(
+				"IslandNavigationRegion: контуры из сцены не дали сетку — запасной прямоугольник. "
+				+ "Проверь порядок точек (внешний контур и дырки — противоположное направление обхода)."
 			)
+			_apply_outline(_default_outline)
 
 
 func _sync_navigation_map_cell_size() -> void:
@@ -81,7 +94,7 @@ func _apply_preset_from_arrays(outlines: Array) -> void:
 	for o in outlines:
 		if o is PackedVector2Array and (o as PackedVector2Array).size() >= 3:
 			np.add_outline(o)
-	_bake_navigation_polygon_from_outlines(np)
+	np = _bake_navigation_polygon_from_outlines(np)
 	if np.get_polygon_count() > 0:
 		navigation_polygon = np
 		call_deferred("_sync_navigation_map_cell_size")
@@ -90,7 +103,7 @@ func _apply_preset_from_arrays(outlines: Array) -> void:
 		var np2 := NavigationPolygon.new()
 		_configure_new_navigation_polygon(np2)
 		np2.add_outline(outlines[0])
-		_bake_navigation_polygon_from_outlines(np2)
+		np2 = _bake_navigation_polygon_from_outlines(np2)
 		if np2.get_polygon_count() > 0:
 			navigation_polygon = np2
 			call_deferred("_sync_navigation_map_cell_size")
@@ -106,6 +119,6 @@ func _apply_outline(outline: PackedVector2Array) -> void:
 	var np := NavigationPolygon.new()
 	_configure_new_navigation_polygon(np)
 	np.add_outline(outline)
-	_bake_navigation_polygon_from_outlines(np)
+	np = _bake_navigation_polygon_from_outlines(np)
 	navigation_polygon = np
 	call_deferred("_sync_navigation_map_cell_size")
