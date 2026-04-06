@@ -146,6 +146,18 @@ func _ready() -> void:
 	home_position = global_position
 	call_deferred("_setup_nav_agent")
 	call_deferred("_apply_enemy_balance_stats")
+	## Дочерние скрипты (bear, troll, …) задают attack_radius/detection_radius после super._ready();
+	## без отложенной синхронизации коллайдеры Area2D остаются старыми — босс не попадает в «дистанцию атаки».
+	call_deferred("_sync_attack_detection_shape_radii")
+
+
+func _sync_attack_detection_shape_radii() -> void:
+	if not is_instance_valid(self):
+		return
+	if attack_shape and attack_shape.shape is CircleShape2D:
+		(attack_shape.shape as CircleShape2D).radius = attack_radius
+	if detection_shape and detection_shape.shape is CircleShape2D:
+		(detection_shape.shape as CircleShape2D).radius = detection_radius
 
 
 func _setup_nav_agent() -> void:

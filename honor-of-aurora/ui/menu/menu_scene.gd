@@ -23,11 +23,10 @@ var _menu_clouds_canvas: CanvasLayer
 
 func _ready():
 	Events.current_location = Events.LOCATION.MENU
+	## Синхронно с GameManager перед change_scene: без отложенного apply первый кадр мог быть в viewport stretch.
+	SaveManager.apply_window_and_engine_settings()
 	_ensure_menu_camera_centered()
-	await get_tree().process_frame
-	## После стабилизации current_scene — режим окна SLIPPER без viewport stretch для меню.
-	SaveManager.call_deferred("apply_window_and_engine_settings")
-	## После await у GameManager.handle_location_changed — стабильное сохранение в SaveManager.
+	## После handle_location_changed — стабильное сохранение в SaveManager.
 	call_deferred("_apply_post_finale_menu_thanks_chest")
 
 	_menu_clouds_canvas = CanvasLayer.new()

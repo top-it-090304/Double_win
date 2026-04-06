@@ -856,6 +856,9 @@ func handle_location_changed(new_location: Events.LOCATION):
 			call_deferred("_apply_pending_healer_dialogue_token_on_base")
 			call_deferred("_try_caravan_arrival_dialogue_on_base_ready")
 		return
+	## Главное меню без SLIPPER viewport stretch: применить до первого кадра сцены — иначе кадр «прыгает» при смене масштаба.
+	if new_location == Events.LOCATION.MENU:
+		SaveManager.apply_window_and_engine_settings()
 	var err := get_tree().change_scene_to_packed(packed as PackedScene)
 	if err != OK:
 		push_error("GameManager: change_scene_to_packed failed: %s" % err)
