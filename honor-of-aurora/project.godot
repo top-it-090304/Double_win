@@ -17,8 +17,6 @@ boot_splash/bg_color=Color(0, 0, 0, 1)
 boot_splash/image="res://images/Logo/Logo.png"
 config/icon="res://images/Logo/Logo.png"
 
-; Аудио: явный драйвер для Linux/Aurora (PulseAudio первым в сборке). Если в логе «All audio drivers failed» —
-; проблема окружения (firejail, нет доступа к Pulse/PipeWire, шаблон без PULSEAUDIO) — не настройки шин в игре.
 [audio]
 
 driver/driver="PulseAudio"

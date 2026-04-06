@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=4 uid="uid://bdhapr120iqry"]
+[gd_scene load_steps=27 format=4 uid="uid://b7qcastlemenu"]
 
 [ext_resource type="Script" uid="uid://dtfup2chrte7q" path="res://ui/casle_minu/main/castle_main_menu.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cjha34kojfsit" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_08.png" id="2_back"]

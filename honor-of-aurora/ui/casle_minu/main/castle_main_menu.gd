@@ -110,6 +110,108 @@ var _caravan_dot_style_hold: StyleBoxFlat
 
 var _touch_scroll_helper := TouchScrollHelper.new()
 
+## Режим «На тапке» (SLIPPER): как `teleport_menu.gd` — центрируем и масштабируем корень относительно видимого viewport, чтобы панель не вылезала за края.
+const _SLIPPER_DESIGN_W := 1280.0
+const _SLIPPER_DESIGN_H := 720.0
+const _SLIPPER_EDGE_MARGIN_PX := 10.0
+var _castle_root_layout_defaults: Dictionary = {}
+var _castle_root_layout_cached: bool = false
+## Защита от рекурсии resized → _fit → resized при refit_slipper / смене сцены (зависание игры).
+var _caravan_viewport_fit_guard: bool = false
+var _refit_slipper_castle_guard: bool = false
+
+
+func _cache_castle_root_layout_defaults() -> void:
+	if _castle_root_layout_cached:
+		return
+	_castle_root_layout_defaults = {
+		"layout_mode": layout_mode,
+		"anchor_left": anchor_left,
+		"anchor_right": anchor_right,
+		"anchor_top": anchor_top,
+		"anchor_bottom": anchor_bottom,
+		"offset_left": offset_left,
+		"offset_top": offset_top,
+		"offset_right": offset_right,
+		"offset_bottom": offset_bottom,
+		"scale": scale,
+		"pivot_offset": pivot_offset,
+		"grow_horizontal": grow_horizontal,
+		"grow_vertical": grow_vertical,
+	}
+	_castle_root_layout_cached = true
+
+
+func _reset_slipper_castle_layout() -> void:
+	if not _castle_root_layout_cached:
+		return
+	var d: Dictionary = _castle_root_layout_defaults
+	layout_mode = int(d.get("layout_mode", layout_mode))
+	anchor_left = float(d.get("anchor_left", 0.0))
+	anchor_right = float(d.get("anchor_right", 1.0))
+	anchor_top = float(d.get("anchor_top", 0.0))
+	anchor_bottom = float(d.get("anchor_bottom", 1.0))
+	offset_left = float(d.get("offset_left", 0.0))
+	offset_top = float(d.get("offset_top", 0.0))
+	offset_right = float(d.get("offset_right", 0.0))
+	offset_bottom = float(d.get("offset_bottom", 0.0))
+	scale = d.get("scale", Vector2.ONE) as Vector2
+	pivot_offset = d.get("pivot_offset", Vector2.ZERO) as Vector2
+	grow_horizontal = int(d.get("grow_horizontal", grow_horizontal))
+	grow_vertical = int(d.get("grow_vertical", grow_vertical))
+	rotation = 0.0
+
+
+## Вызывается из HUD.apply_user_ui_scale при смене пресета/окна и из `_ready` / viewport.
+func refit_slipper_castle_layout() -> void:
+	if not is_instance_valid(self) or not is_inside_tree():
+		return
+	if _refit_slipper_castle_guard:
+		return
+	_refit_slipper_castle_guard = true
+	_cache_castle_root_layout_defaults()
+	if not is_inside_tree():
+		_refit_slipper_castle_guard = false
+		return
+	if not PerformancePreset.is_slipper_mode(SaveManager):
+		_reset_slipper_castle_layout()
+		_refit_slipper_castle_guard = false
+		return
+	var vp := get_viewport()
+	if vp == null:
+		_refit_slipper_castle_guard = false
+		return
+	var r := vp.get_visible_rect()
+	var vw := maxf(r.size.x, 1.0)
+	var vh := maxf(r.size.y, 1.0)
+	var design_w := float(ProjectSettings.get_setting("display/window/size/viewport_width", _SLIPPER_DESIGN_W))
+	var design_h := float(ProjectSettings.get_setting("display/window/size/viewport_height", _SLIPPER_DESIGN_H))
+	var m := _SLIPPER_EDGE_MARGIN_PX
+	var avail_w := maxf(vw - m * 2.0, 1.0)
+	var avail_h := maxf(vh - m * 2.0, 1.0)
+	var s := minf(avail_w / design_w, avail_h / design_h)
+	s = maxf(s, 0.2)
+	## 1 = якоря (см. teleport_menu.gd).
+	layout_mode = 1
+	anchor_left = 0.5
+	anchor_right = 0.5
+	anchor_top = 0.5
+	anchor_bottom = 0.5
+	var half_w := design_w * 0.5
+	var half_h := design_h * 0.5
+	offset_left = -half_w
+	offset_right = half_w
+	offset_top = -half_h
+	offset_bottom = half_h
+	pivot_offset = Vector2(half_w, half_h)
+	scale = Vector2(s, s)
+	rotation = 0.0
+	_refit_slipper_castle_guard = false
+
+
+func _on_viewport_size_changed_castle() -> void:
+	refit_slipper_castle_layout()
+
 
 func _apply_dialogue_default_font_to_richtext(rtl: RichTextLabel) -> void:
 	## Тот же источник, что у подписей в dialogue_window (без override — ThemeDB.fallback_font).
@@ -120,6 +222,11 @@ func _apply_dialogue_default_font_to_richtext(rtl: RichTextLabel) -> void:
 
 
 func _ready() -> void:
+	_cache_castle_root_layout_defaults()
+	var vp_ready := get_viewport()
+	if vp_ready and not vp_ready.size_changed.is_connected(_on_viewport_size_changed_castle):
+		vp_ready.size_changed.connect(_on_viewport_size_changed_castle)
+	call_deferred("refit_slipper_castle_layout")
 	unit_hire_cost = BalanceConfig.get_unit_hire_cost()
 	_refresh_hire_buy_ui()
 	_build_crown_title_strip()
@@ -155,6 +262,14 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	var vp := get_viewport()
+	if vp:
+		if vp.size_changed.is_connected(_on_viewport_size_changed_castle):
+			vp.size_changed.disconnect(_on_viewport_size_changed_castle)
+		if vp.size_changed.is_connected(_on_castle_caravan_panel_resized):
+			vp.size_changed.disconnect(_on_castle_caravan_panel_resized)
+	if resized.is_connected(_on_castle_caravan_panel_resized):
+		resized.disconnect(_on_castle_caravan_panel_resized)
 	if Events.gold_changed.is_connected(_on_castle_shop_resources_changed):
 		Events.gold_changed.disconnect(_on_castle_shop_resources_changed)
 	if Events.wood_changed.is_connected(_on_castle_shop_resources_changed):
@@ -175,6 +290,8 @@ func _on_castle_shop_resources_changed(_value: int) -> void:
 
 
 func _on_castle_root_visibility_changed() -> void:
+	if visible:
+		call_deferred("refit_slipper_castle_layout")
 	if not visible:
 		_touch_scroll_helper.reset()
 		_hide_crown_mood_effects_modal()
@@ -1588,8 +1705,9 @@ func _setup_caravan_panel_nodes() -> void:
 	_refresh_caravan_slot_badge()
 	if not resized.is_connected(_on_castle_caravan_panel_resized):
 		resized.connect(_on_castle_caravan_panel_resized)
-	if get_viewport() and not get_viewport().size_changed.is_connected(_on_castle_caravan_panel_resized):
-		get_viewport().size_changed.connect(_on_castle_caravan_panel_resized)
+	var vp_conn := get_viewport()
+	if vp_conn and not vp_conn.size_changed.is_connected(_on_castle_caravan_panel_resized):
+		vp_conn.size_changed.connect(_on_castle_caravan_panel_resized)
 	_fit_caravan_panel_to_viewport()
 
 
@@ -1598,16 +1716,28 @@ func _on_castle_caravan_panel_resized() -> void:
 
 
 func _fit_caravan_panel_to_viewport() -> void:
+	if not is_instance_valid(self) or not is_inside_tree():
+		return
+	if _caravan_viewport_fit_guard:
+		return
 	var panel := get_node_or_null("CaravanSelectPanel/CCenter/CaravanPanel") as Control
 	var scroll := get_node_or_null("CaravanSelectPanel/CCenter/CaravanPanel/CaravanInner/CaravanBodyScroll") as Control
 	if panel == null or scroll == null:
 		return
+	var vp_node := get_viewport()
+	if vp_node == null:
+		## Редко при первом кадре / изоляции сцены в редакторе; повторим, когда узел в дереве.
+		if is_inside_tree():
+			call_deferred("_fit_caravan_panel_to_viewport")
+		return
+	_caravan_viewport_fit_guard = true
 	var m := 20.0
-	var vp := get_viewport().get_visible_rect().size
+	var vp := vp_node.get_visible_rect().size
 	var max_w := clampf(vp.x - m * 2.0, 280.0, 920.0)
 	var max_h := clampf(vp.y - m * 2.0, 220.0, minf(680.0, vp.y - m * 2.0))
 	panel.custom_minimum_size = Vector2(0, 0)
 	scroll.custom_minimum_size = Vector2(max_w, max_h)
+	_caravan_viewport_fit_guard = false
 
 
 func _init_caravan_dot_styles() -> void:

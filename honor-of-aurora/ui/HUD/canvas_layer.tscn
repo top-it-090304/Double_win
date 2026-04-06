@@ -12,7 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://b8krmenu1brrx" path="res://ui/casle_minu/barracks/barracks_menu.tscn" id="6a_barracks"]
 [ext_resource type="PackedScene" path="res://ui/casle_minu/monastery/monastery_menu.tscn" id="6b_mona"]
 [ext_resource type="PackedScene" path="res://ui/casle_minu/archery/archery_menu.tscn" id="6c_arch"]
-[ext_resource type="PackedScene" uid="uid://bdhapr120iqry" path="res://ui/casle_minu/main/castle_main_menu.tscn" id="6_swbn3"]
+[ext_resource type="PackedScene" uid="uid://b7qcastlemenu" path="res://ui/casle_minu/main/castle_main_menu.tscn" id="6_swbn3"]
 [ext_resource type="PackedScene" uid="uid://duvvelmi0nd4g" path="res://ui/squad/squad_orders_menu.tscn" id="7a_squad"]
 [ext_resource type="PackedScene" uid="uid://cxrosschd3sn8" path="res://ui/dialogue/dialogue_window.tscn" id="7_dialogue"]
 [ext_resource type="PackedScene" uid="uid://br3bcwtq1i8ae" path="res://ui/mobile_touch_controls/mobile_touch_controls.tscn" id="8_mobile"]

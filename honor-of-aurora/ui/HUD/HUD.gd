@@ -298,6 +298,8 @@ func apply_user_ui_scale() -> void:
 		c.scale = Vector2.ONE
 	## После раскладки HBox: min_width по факту (лейблы/цифры шире минимума) + pivot по центру, иначе scale тянет всё к левому краю.
 	call_deferred("_deferred_apply_top_hud_scale_and_pivot")
+	if is_instance_valid(castle_menu) and castle_menu.has_method("refit_slipper_castle_layout"):
+		castle_menu.refit_slipper_castle_layout()
 
 
 func _viewport_width_px_safe(bar: Control) -> float:
