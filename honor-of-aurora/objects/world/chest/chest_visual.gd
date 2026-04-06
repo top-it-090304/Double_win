@@ -25,10 +25,10 @@ enum ChestVisualState {
 	OPEN_GEMS_OVERFLOW,
 }
 
-const TEXTURE_CLOSED := "res://Asets/chest/chests-01.png"
-const TEXTURE_OPENED := "res://Asets/chest/chests-01_opened.png"
-
-static var _chest_texture_cache: Dictionary = {}
+## Preload вместо static + ResourceLoader: при выходе из приложения порядок освобождения GLES
+## и ссылок на текстуры иначе даёт ложные «Texture … leaked» в gl_compatibility.
+const _TEXTURE_CLOSED: Texture2D = preload("res://Asets/chest/chests-01.png")
+const _TEXTURE_OPENED: Texture2D = preload("res://Asets/chest/chests-01_opened.png")
 
 ## Кадр спрайта героя (Warrior atlas 192×192) — ориентир для размера сундука.
 const _REF_PLAYER_FRAME_HEIGHT_PX := 192.0
@@ -97,7 +97,7 @@ func is_closed_visual() -> bool:
 
 
 func get_texture_path_for(_tier: ChestTier, state: ChestVisualState) -> String:
-	return TEXTURE_CLOSED if state == ChestVisualState.CLOSED else TEXTURE_OPENED
+	return _TEXTURE_CLOSED.resource_path if state == ChestVisualState.CLOSED else _TEXTURE_OPENED.resource_path
 
 
 func _is_open_state(state: ChestVisualState) -> bool:
@@ -105,13 +105,7 @@ func _is_open_state(state: ChestVisualState) -> bool:
 
 
 func _texture_for_visual_state(state: ChestVisualState) -> Texture2D:
-	var path: String = TEXTURE_OPENED if _is_open_state(state) else TEXTURE_CLOSED
-	if _chest_texture_cache.has(path):
-		return _chest_texture_cache[path] as Texture2D
-	var tex: Texture2D = ResourceLoader.load(path, "Texture2D", ResourceLoader.CACHE_MODE_REUSE) as Texture2D
-	if tex != null:
-		_chest_texture_cache[path] = tex
-	return tex
+	return _TEXTURE_OPENED if _is_open_state(state) else _TEXTURE_CLOSED
 
 
 func _refresh_texture() -> void:
@@ -120,7 +114,10 @@ func _refresh_texture() -> void:
 		return
 	var tex: Texture2D = _texture_for_visual_state(visual_state)
 	if tex == null:
-		push_warning("ChestVisual: нет текстуры для state=%s (пути: %s / %s)" % [visual_state, TEXTURE_CLOSED, TEXTURE_OPENED])
+		push_warning(
+			"ChestVisual: нет текстуры для state=%s (пути: %s / %s)"
+			% [visual_state, _TEXTURE_CLOSED.resource_path, _TEXTURE_OPENED.resource_path]
+		)
 		return
 	spr.texture = tex
 	_apply_display_scale(spr)

@@ -505,14 +505,38 @@ func start_attack():
 
 
 func apply_damage():
-	if target and is_instance_valid(target) and attack_area and is_instance_valid(attack_area) and attack_area.overlaps_body(target):
-		var amt: int = attack_damage
-		if target.is_in_group("character_unit") and not target.is_in_group("enemy"):
-			amt = maxi(
-				1,
-				int(round(float(attack_damage) * BalanceConfig.get_enemy_outgoing_damage_vs_hero(enemy_level)))
-			)
-		GameplayFacade.try_apply_damage(target, amt)
+	if target == null or not is_instance_valid(target):
+		return
+	if not (target is Node2D):
+		return
+	if attack_area == null or not is_instance_valid(attack_area):
+		return
+	if not attack_area.overlaps_body(target):
+		return
+	## Ближний бой: дублируем границу по дистанции. На GLES/части устройств overlaps_body с Area2D
+	## может давать ложное пересечение «на весь экран»; без этого босс-медведь мог наносить урон с любой дистанции.
+	var reach: float = attack_radius
+	if attack_shape and attack_shape.shape is CircleShape2D:
+		reach = (attack_shape.shape as CircleShape2D).radius
+	if attack_shape:
+		var gs: Vector2 = attack_shape.get_global_transform().get_scale().abs()
+		reach *= maxf(gs.x, gs.y)
+	var max_dist: float = reach + 112.0
+	var origin: Vector2 = attack_area.global_position
+	var tgt2: Node2D = target as Node2D
+	var aim: Vector2 = tgt2.global_position
+	var cs := tgt2.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if cs != null and cs.shape != null:
+		aim = cs.global_position
+	if origin.distance_squared_to(aim) > max_dist * max_dist:
+		return
+	var amt: int = attack_damage
+	if target.is_in_group("character_unit") and not target.is_in_group("enemy"):
+		amt = maxi(
+			1,
+			int(round(float(attack_damage) * BalanceConfig.get_enemy_outgoing_damage_vs_hero(enemy_level)))
+		)
+	GameplayFacade.try_apply_damage(target, amt)
 
 
 func _on_anim_finished():

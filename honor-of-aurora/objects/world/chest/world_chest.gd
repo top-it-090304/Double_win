@@ -96,7 +96,7 @@ func _apply_loot_tier_from_save_or_roll() -> void:
 func try_open_chest_if_player_inside() -> bool:
 	if DialogueManager.is_active():
 		return false
-	if SquadCombatState.is_engaged():
+	if SquadCombatState.is_engaged_near_player():
 		return false
 	var id := _effective_chest_id()
 	if id.is_empty():

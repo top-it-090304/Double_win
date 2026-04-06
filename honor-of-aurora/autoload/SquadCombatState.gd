@@ -2,6 +2,9 @@ extends Node
 ## Состояние боя: герой или купленный юнит в зоне врага (обнаружение / атака / преследование).
 ## Пока true — меню приказов отряду открыть нельзя.
 
+## Враги дальше этого радиуса от героя не блокируют открытие сундука (см. `is_engaged_near_player`).
+const CHEST_BLOCK_ENEMY_RADIUS_PX: float = 280.0
+
 func is_engaged() -> bool:
 	var tree := get_tree()
 	if tree == null:
@@ -15,6 +18,35 @@ func is_engaged() -> bool:
 		if not is_instance_valid(enemy):
 			continue
 		if not scene.is_ancestor_of(enemy as Node):
+			continue
+		if _enemy_threatens_hero_or_squad(enemy):
+			return true
+	return false
+
+
+## Как `is_engaged()`, но только для врагов в радиусе `radius_px` от героя — для сундуков и UX «нет врагов рядом».
+func is_engaged_near_player(radius_px: float = CHEST_BLOCK_ENEMY_RADIUS_PX) -> bool:
+	var tree := get_tree()
+	if tree == null:
+		return false
+	if tree.get_node_count_in_group(&"enemy") < 1:
+		return false
+	var player := tree.get_first_node_in_group(&"player") as Node2D
+	if player == null or not is_instance_valid(player):
+		return false
+	var scene := tree.current_scene
+	if scene == null:
+		return false
+	var rsq: float = radius_px * radius_px
+	for enemy in tree.get_nodes_in_group("enemy"):
+		if not is_instance_valid(enemy):
+			continue
+		if not scene.is_ancestor_of(enemy as Node):
+			continue
+		if enemy is Node2D:
+			if (enemy as Node2D).global_position.distance_squared_to(player.global_position) > rsq:
+				continue
+		else:
 			continue
 		if _enemy_threatens_hero_or_squad(enemy):
 			return true

@@ -458,7 +458,7 @@ func _try_healer_interact_instead_of_attack() -> bool:
 func _try_world_chest_instead_of_attack() -> bool:
 	if _player_input_frozen():
 		return false
-	if SquadCombatState.is_engaged():
+	if SquadCombatState.is_engaged_near_player():
 		return false
 	var tree := get_tree()
 	var player := tree.get_first_node_in_group("player") as Node2D
