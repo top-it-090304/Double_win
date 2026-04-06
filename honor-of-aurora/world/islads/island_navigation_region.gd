@@ -14,10 +14,14 @@ var _default_outline: PackedVector2Array = PackedVector2Array([
 ])
 
 
-## Замена устаревшего `NavigationPolygon.make_polygons_from_outlines()` (Godot 4.4+).
+## Сначала bake через NavigationServer; при нуле полигонов (встречается на части GLES/портов) — запасной `make_polygons_from_outlines`.
 func _bake_navigation_polygon_from_outlines(np: NavigationPolygon) -> void:
 	var sg := NavigationMeshSourceGeometryData2D.new()
 	NavigationServer2D.bake_from_source_geometry_data(np, sg)
+	if np.get_polygon_count() > 0:
+		return
+	if np.get_outline_count() > 0:
+		np.make_polygons_from_outlines()
 
 
 func _is_game_base_island_scene() -> bool:

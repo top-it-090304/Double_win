@@ -27,6 +27,8 @@ enum ChestVisualState {
 }
 
 const CHEST_PNG_BASE := "res://Asets/chest/Foozle_2DS0003_Elegant_Set_of_Chests_Vector/CHESTS/png"
+## Ленивая загрузка текстур (кэш по индексу). 36× preload тянули все сундуки в VRAM при первом парсе скрипта — сильные лаги.
+static var _chest_texture_cache: Dictionary = {}
 ## Кадр спрайта героя (Warrior atlas 192×192) — ориентир для размера сундука.
 const _REF_PLAYER_FRAME_HEIGHT_PX := 192.0
 ## Высота сундука на экране = эта доля от высоты кадра игрока (0.5 = половина).
@@ -108,14 +110,28 @@ func get_texture_path_for(tier: ChestTier, state: ChestVisualState) -> String:
 	return "%s/%s/NO_BACKLIGHT/chests-%02d.png" % [CHEST_PNG_BASE, sub, num]
 
 
+func _chest_texture_index(tier: ChestTier, state: ChestVisualState) -> int:
+	return int(state) * 6 + int(tier)
+
+
+func _texture_for_tier_state(tier: ChestTier, state: ChestVisualState) -> Texture2D:
+	var idx := _chest_texture_index(tier, state)
+	if _chest_texture_cache.has(idx):
+		return _chest_texture_cache[idx] as Texture2D
+	var path := get_texture_path_for(tier, state)
+	var tex: Texture2D = ResourceLoader.load(path, "Texture2D", ResourceLoader.CACHE_MODE_REUSE) as Texture2D
+	if tex != null:
+		_chest_texture_cache[idx] = tex
+	return tex
+
+
 func _refresh_texture() -> void:
 	var spr: Sprite2D = _sprite if _sprite != null else get_node_or_null("Sprite2D") as Sprite2D
 	if spr == null:
 		return
-	var path := get_texture_path_for(chest_tier, visual_state)
-	var tex: Texture2D = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_REUSE) as Texture2D
+	var tex: Texture2D = _texture_for_tier_state(chest_tier, visual_state)
 	if tex == null:
-		push_warning("ChestVisual: нет текстуры %s" % path)
+		push_warning("ChestVisual: нет текстуры для tier=%s state=%s" % [chest_tier, visual_state])
 		return
 	spr.texture = tex
 	_apply_display_scale(spr)

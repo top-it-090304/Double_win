@@ -77,6 +77,10 @@ func _spawn_animated_sprite(
 	pos_local: Vector2,
 	frame_count: int
 ) -> void:
+	## Режим «На тапке» (SLIPPER): без AnimatedSprite2D и без проигрывания — только первый кадр тайловой анимации.
+	if PerformancePreset.is_slipper_mode(SaveManager):
+		_spawn_static_sprite(src, atlas_coords, td, pos_local)
+		return
 	var speed: float = float(src.get_tile_animation_speed(atlas_coords))
 	speed = maxf(speed, 0.001)
 	var sf := SpriteFrames.new()

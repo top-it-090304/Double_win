@@ -15,6 +15,7 @@
 | TASK-017 | SLIPPER: отключение тяжёлых визуальных эффектов в сценах (не импорт) | сделано — [2026-04-06](JOURNAL.md) | [tasks/TASK-017-slipper-visual-effects-in-scenes.md](tasks/TASK-017-slipper-visual-effects-in-scenes.md) |
 | TASK-018 | SLIPPER: навигация и вспомогательные подсистемы (реже обновления) | сделано — [2026-04-06](JOURNAL.md) | [tasks/TASK-018-slipper-navigation-subsystems.md](tasks/TASK-018-slipper-navigation-subsystems.md) |
 | TASK-019 | Приёмка волны 2 и синхронизация чек-листа | сделано — [2026-04-06](JOURNAL.md) | [tasks/TASK-019-wave2-acceptance-and-docs-sync.md](tasks/TASK-019-wave2-acceptance-and-docs-sync.md) |
+| TASK-020 | SLIPPER: деревья/кусты (миграция тайлов) — статичный первый кадр | сделано — [2026-04-06](JOURNAL.md) | [tasks/TASK-020-slipper-trees-boosh-static-first-frame.md](tasks/TASK-020-slipper-trees-boosh-static-first-frame.md) |
 
 ## Рекомендуемый порядок
 

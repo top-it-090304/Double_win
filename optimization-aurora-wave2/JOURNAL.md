@@ -213,3 +213,19 @@
 
 **Заметки / риски для следующих задач:**
 - При смене констант в коде — обновлять **оба** чек-листа (`ACCEPTANCE_WAVE2_AURORA.md` и при необходимости корневой `ACCEPTANCE_AURORA.md`) и журнал.
+
+### 2026-04-06 — TASK-020 — SLIPPER: деревья/кусты (миграция тайлов) — статичный первый кадр
+**Статус задачи:** выполнено
+
+**Сделано:**
+- В `tile_layer_trees_y_sort_migrate.gd` при `PerformancePreset.is_slipper_mode(SaveManager)` для анимированных тайлов (`frame_count > 1`) вызывается тот же путь, что и для неанимированных: `_spawn_static_sprite` с регионом первого кадра (`get_tile_texture_region(..., 0)`). Без `AnimatedSprite2D`, без `SpriteFrames` и без `play()` — охватывает деревья и слои booshes на всех островах, где используется этот скрипт миграции.
+
+**Изменённые файлы (пути от корня репозитория):**
+- `honor-of-aurora/world/decor/tile_layer_trees_y_sort_migrate.gd`
+- `optimization-aurora-wave2/TASKS_INDEX.md`
+- `optimization-aurora-wave2/tasks/TASK-020-slipper-trees-boosh-static-first-frame.md`
+
+**Проверка:** не запускалось (логика по ТЗ; линтер по отредактированному `.gd` — без замечаний)
+
+**Заметки / риски для следующих задач:**
+- Вид применяется при **загрузке сцены** по текущему `SaveManager.performance_mode`. Смена пресета без перезагрузки острова может не пересоздать мигрированные спрайты — как и для других визуальных оптимизаций SLIPPER, завязанных на `_ready`.
