@@ -191,6 +191,30 @@ func _sync_attack_detection_shape_radii() -> void:
 		(attack_shape.shape as CircleShape2D).radius = attack_radius
 	if detection_shape and detection_shape.shape is CircleShape2D:
 		(detection_shape.shape as CircleShape2D).radius = detection_radius
+	## «На тапке»: облегчённые кадры и FPS анимаций (после клампа по спрайту).
+	if PerformancePreset.is_slipper_mode(SaveManager):
+		_slipper_apply_reduced_enemy_animations()
+
+
+func _slipper_apply_reduced_enemy_animations() -> void:
+	if anim == null or not is_instance_valid(anim):
+		return
+	var sf: SpriteFrames = anim.sprite_frames
+	if sf == null:
+		return
+	var reduced: SpriteFrames = SlipperEnemyAnimations.get_or_build_slipper_sprite_frames(sf)
+	if reduced == null:
+		return
+	anim.sprite_frames = reduced
+	var cur: StringName = anim.animation
+	if reduced.has_animation(cur):
+		anim.play(cur)
+	elif reduced.has_animation(&"idle"):
+		anim.play(&"idle")
+	else:
+		var names: PackedStringArray = reduced.get_animation_names()
+		if names.size() > 0:
+			anim.play(names[0])
 
 
 ## Дальний бой: радиус «каста» на export не режем по спрайту (зона удара отключена).
@@ -777,7 +801,7 @@ func die():
 		GameManager.spawn_gold_pickup_at(global_position, gold_amt, self)
 	if anim.sprite_frames and anim.sprite_frames.has_animation(&"dead"):
 		await anim.animation_finished
-	queue_free()
+	call_deferred(&"queue_free")
 
 
 func show_damage_number(amount: int) -> void:

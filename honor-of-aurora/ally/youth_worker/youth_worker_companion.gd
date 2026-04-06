@@ -23,7 +23,7 @@ var _attack_disabled_for_pursuit: bool = false
 func _ready() -> void:
 	if StoryState.has_flag("worker_youth_dead"):
 		if StoryState.has_flag("worker_youth_death_scene_done"):
-			queue_free()
+			call_deferred(&"queue_free")
 			return
 		visible = false
 		set_physics_process(false)
@@ -417,7 +417,8 @@ func _on_dialogue_ended(sequence: DialogueSequence) -> void:
 	var sid: String = sequence.id
 	if sid == "worker_youth_death":
 		get_tree().paused = false
-		queue_free()
+		if is_instance_valid(self) and is_inside_tree():
+			call_deferred(&"queue_free")
 		return
 	if sid == "dock_worker_youth_intro":
 		_record_prompt_anchor_after_dialogue()

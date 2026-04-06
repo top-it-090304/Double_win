@@ -112,7 +112,7 @@ func _on_health_component_died() -> void:
 
 
 func _handle_death() -> void:
-	queue_free()
+	call_deferred(&"queue_free")
 
 
 func _on_health_damage_applied(_amount: int) -> void:

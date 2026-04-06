@@ -735,4 +735,4 @@ func _die() -> void:
 	if sprite and sprite.sprite_frames and sprite.sprite_frames.has_animation("dead"):
 		sprite.play("dead")
 		await sprite.animation_finished
-	queue_free()
+	call_deferred(&"queue_free")

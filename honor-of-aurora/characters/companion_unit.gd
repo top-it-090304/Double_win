@@ -609,4 +609,4 @@ func _die() -> void:
 			sprite.stop()
 			sprite.play(&"dead")
 			await sprite.animation_finished
-	queue_free()
+	call_deferred(&"queue_free")
