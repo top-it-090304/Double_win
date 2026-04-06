@@ -26,6 +26,8 @@ func _try_connect_player() -> void:
 
 
 func _on_player_health_changed(current_health) -> void:
+	if not is_inside_tree():
+		return
 	var tree := get_tree()
 	if tree == null:
 		return
@@ -37,5 +39,7 @@ func _on_player_health_changed(current_health) -> void:
 
 
 func _sync_from_player(player: Node) -> void:
+	if not is_inside_tree() or player == null or not is_instance_valid(player):
+		return
 	max_value = player.max_health
 	value = player.health

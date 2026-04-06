@@ -43,8 +43,11 @@ func _is_game_base_island_scene() -> bool:
 
 func _ready() -> void:
 	## Не трогаем navigation_layers — иначе затираются слои, выставленные в редакторе на сцене базы.
-	## На базе — пресет острова. По умолчанию без дыр (`use_preset_holes`), иначе merge edge в NavigationServer.
-	if use_base_island_preset or _is_game_base_island_scene():
+	## `Game_base_islad`: навигация сразу пересобирается из коллизий тайлмапа (`game_base_islad.gd`) — не выпекаем пресет (меньше логов и лишней работы).
+	if _is_game_base_island_scene():
+		_apply_outline(_default_outline)
+		return
+	if use_base_island_preset:
 		var outlines: Array = (
 			BaseIslandNavigationPreset.get_outline_arrays()
 			if use_preset_holes
@@ -112,7 +115,8 @@ func _apply_preset_from_arrays(outlines: Array) -> void:
 			)
 			return
 	_apply_outline(_default_outline)
-	push_warning("IslandNavigationRegion: пресет не применён, используется запасной прямоугольник.")
+	if navigation_polygon == null or navigation_polygon.get_polygon_count() < 1:
+		push_warning("IslandNavigationRegion: пресет и запасной прямоугольник не дали полигонов навигации.")
 
 
 func _apply_outline(outline: PackedVector2Array) -> void:

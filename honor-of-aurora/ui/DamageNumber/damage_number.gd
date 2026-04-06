@@ -17,5 +17,12 @@ func _start_float_animation() -> void:
 
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
-	if anim_name == &"float_up":
-		queue_free()
+	if anim_name != &"float_up":
+		return
+	var ap := get_node_or_null("AnimationPlayer") as AnimationPlayer
+	if ap:
+		if ap.animation_finished.is_connected(_on_animation_player_animation_finished):
+			ap.animation_finished.disconnect(_on_animation_player_animation_finished)
+		ap.stop()
+		ap.process_mode = Node.PROCESS_MODE_DISABLED
+	queue_free()
