@@ -92,13 +92,21 @@ func _get_anchor_global() -> Variant:
 
 
 func _layer_any_sprite_within_radius_sq(layer: Node2D, anchor: Vector2, radius_sq: float) -> bool:
-	for c in layer.get_children():
+	if _any_sprite_descendant_within_radius_sq(layer, anchor, radius_sq):
+		return true
+	## Пустой слой или ещё не мигрировал — ориентир на узел слоя.
+	return anchor.distance_squared_to(layer.global_position) <= radius_sq
+
+
+func _any_sprite_descendant_within_radius_sq(n: Node, anchor: Vector2, radius_sq: float) -> bool:
+	for c in n.get_children():
 		if c is Sprite2D or c is AnimatedSprite2D:
 			var p: Vector2 = (c as Node2D).global_position
 			if anchor.distance_squared_to(p) <= radius_sq:
 				return true
-	## Пустой слой или ещё не мигрировал — ориентир на узел слоя.
-	return anchor.distance_squared_to(layer.global_position) <= radius_sq
+		elif _any_sprite_descendant_within_radius_sq(c, anchor, radius_sq):
+			return true
+	return false
 
 
 func _restore_all_under_island() -> void:

@@ -9,7 +9,7 @@ func _ready():
 	attack_damage = 35 
 	enemy_level = 2 
 	detection_radius = 700.0
-	attack_radius = 200.0
-	## Босс: узкая зона удара (обычный медведь 200 — без изменений).
+	attack_radius = 160.0
+	## Босс: узкая зона удара (обычный медведь 160 — без изменений).
 	if is_in_group(&"BOSS"):
-		attack_radius = 78.0
+		attack_radius = 62.0

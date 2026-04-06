@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://dgvv3qgd71jvc"]
 
 [ext_resource type="Script" path="res://objects/world/chest/world_chest.gd" id="1_script"]
-[ext_resource type="PackedScene" uid="uid://chestvisualbase001" path="res://objects/world/chest/chest_visual.tscn" id="2_visual"]
+[ext_resource type="PackedScene" uid="uid://15g6vopnj6oa" path="res://objects/world/chest/chest_visual.tscn" id="2_visual"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_chest"]
 radius = 56.0

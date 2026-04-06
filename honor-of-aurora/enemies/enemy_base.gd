@@ -18,7 +18,7 @@ var state: State = State.PATROL
 @export var attack_damage: int = 10
 @export var attack_cooldown: float = 2.0
 @export var patrol_change_time: float = 2.0
-@export var attack_radius: float = 100.0
+@export var attack_radius: float = 80.0
 @export var detection_radius: float = 500.0
 
 @export var use_navigation: bool = true
@@ -56,6 +56,37 @@ const _RECOVER_DURATION := 0.38
 const _FAN_STEP := PI / 10.0
 const _FAN_COUNT := 9
 const _SELECT_TARGET_INTERVAL := 0.25
+## Запас к радиусу зоны удара: хитбокс цели vs центр AttackArea (см. apply_damage; синхронно slipper_combat_budget._MELEE_EXTRA_REACH_PX).
+const _MELEE_EXTRA_REACH_PX := 90.0
+
+
+func _get_effective_melee_reach_px() -> float:
+	var reach: float = attack_radius
+	if attack_shape and attack_shape.shape is CircleShape2D:
+		reach = (attack_shape.shape as CircleShape2D).radius
+	if attack_shape:
+		var gs: Vector2 = attack_shape.get_global_transform().get_scale().abs()
+		reach *= maxf(gs.x, gs.y)
+	return reach
+
+
+func _aim_point_on_target_body(tgt: Node2D) -> Vector2:
+	if tgt == null or not is_instance_valid(tgt):
+		return Vector2.ZERO
+	var aim: Vector2 = tgt.global_position
+	var cs := tgt.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if cs != null and cs.shape != null:
+		aim = cs.global_position
+	return aim
+
+
+func _is_target_within_melee_distance(tgt: Node2D) -> bool:
+	if attack_area == null or not is_instance_valid(attack_area):
+		return false
+	var max_d: float = _get_effective_melee_reach_px() + _MELEE_EXTRA_REACH_PX
+	var origin: Vector2 = attack_area.global_position
+	var aim := _aim_point_on_target_body(tgt)
+	return origin.distance_squared_to(aim) <= max_d * max_d
 
 
 func _refresh_targets_after_leash() -> void:
@@ -154,10 +185,66 @@ func _ready() -> void:
 func _sync_attack_detection_shape_radii() -> void:
 	if not is_instance_valid(self):
 		return
+	if _should_clamp_melee_attack_radius_to_sprite():
+		_clamp_attack_radius_to_sprite_frame()
 	if attack_shape and attack_shape.shape is CircleShape2D:
 		(attack_shape.shape as CircleShape2D).radius = attack_radius
 	if detection_shape and detection_shape.shape is CircleShape2D:
 		(detection_shape.shape as CircleShape2D).radius = detection_radius
+
+
+## Дальний бой: радиус «каста» на export не режем по спрайту (зона удара отключена).
+func _should_clamp_melee_attack_radius_to_sprite() -> bool:
+	if attack_area != null and is_instance_valid(attack_area) and not attack_area.monitoring:
+		return false
+	return true
+
+
+func _pick_animation_for_sprite_size(sf: SpriteFrames) -> StringName:
+	if sf == null:
+		return &""
+	if sf.has_animation(&"idle"):
+		return &"idle"
+	if sf.has_animation(&"run"):
+		return &"run"
+	var names: PackedStringArray = sf.get_animation_names()
+	if names.size() > 0:
+		return names[0]
+	return &""
+
+
+## Максимальный радиус ближней атаки: не больше половины меньшей стороны кадра спрайта (окружность вписана в прямоугольник текстуры).
+## При ошибке чтения кадра возвращает -1.0 (ограничение не применяется).
+func _melee_attack_radius_cap_from_sprite_px() -> float:
+	if anim == null or not is_instance_valid(anim):
+		return -1.0
+	var sf: SpriteFrames = anim.sprite_frames
+	if sf == null:
+		return -1.0
+	var anim_name: StringName = _pick_animation_for_sprite_size(sf)
+	if String(anim_name).is_empty() or not sf.has_animation(anim_name):
+		return -1.0
+	var fc: int = sf.get_frame_count(anim_name)
+	if fc <= 0:
+		return -1.0
+	var tex: Texture2D = sf.get_frame_texture(anim_name, 0)
+	if tex == null:
+		return -1.0
+	var sz: Vector2 = tex.get_size()
+	if sz.x <= 0.0 or sz.y <= 0.0:
+		return -1.0
+	var gs: Vector2 = anim.global_scale.abs()
+	var w: float = sz.x * gs.x
+	var h: float = sz.y * gs.y
+	return minf(w, h) * 0.5
+
+
+func _clamp_attack_radius_to_sprite_frame() -> void:
+	var cap: float = _melee_attack_radius_cap_from_sprite_px()
+	if cap <= 0.0:
+		return
+	var lo: float = minf(12.0, cap)
+	attack_radius = clampf(attack_radius, lo, cap)
 
 
 func _setup_nav_agent() -> void:
@@ -465,14 +552,18 @@ func _on_attack_area_entered(body):
 	if body == null or not is_instance_valid(body):
 		return
 	if body == target and can_attack and state not in [State.ATTACK, State.DEATH, State.HIT]:
-		start_attack()
+		if body is Node2D and _is_target_within_melee_distance(body as Node2D):
+			start_attack()
 
 
 ## Ближний бой: цель в зоне AttackArea. Переопределить для дальнего боя (шаман).
+## overlaps_body на GLES/Wayland может быть истинным «на весь экран» — дублируем границу по дистанции (как в apply_damage).
 func _is_target_in_attack_range() -> bool:
 	if target == null or not is_instance_valid(target):
 		return false
 	if attack_area == null or not is_instance_valid(attack_area):
+		return false
+	if not _is_target_within_melee_distance(target):
 		return false
 	return attack_area.overlaps_body(target)
 
@@ -513,22 +604,7 @@ func apply_damage():
 		return
 	if not attack_area.overlaps_body(target):
 		return
-	## Ближний бой: дублируем границу по дистанции. На GLES/части устройств overlaps_body с Area2D
-	## может давать ложное пересечение «на весь экран»; без этого босс-медведь мог наносить урон с любой дистанции.
-	var reach: float = attack_radius
-	if attack_shape and attack_shape.shape is CircleShape2D:
-		reach = (attack_shape.shape as CircleShape2D).radius
-	if attack_shape:
-		var gs: Vector2 = attack_shape.get_global_transform().get_scale().abs()
-		reach *= maxf(gs.x, gs.y)
-	var max_dist: float = reach + 112.0
-	var origin: Vector2 = attack_area.global_position
-	var tgt2: Node2D = target as Node2D
-	var aim: Vector2 = tgt2.global_position
-	var cs := tgt2.get_node_or_null("CollisionShape2D") as CollisionShape2D
-	if cs != null and cs.shape != null:
-		aim = cs.global_position
-	if origin.distance_squared_to(aim) > max_dist * max_dist:
+	if not _is_target_within_melee_distance(target as Node2D):
 		return
 	var amt: int = attack_damage
 	if target.is_in_group("character_unit") and not target.is_in_group("enemy"):
@@ -570,7 +646,7 @@ func _finish_hit_recovery() -> void:
 		return
 	_select_target()
 	if target and is_instance_valid(target) and attack_area and is_instance_valid(attack_area) and detection_area and is_instance_valid(detection_area):
-		state = State.ATTACK if attack_area.overlaps_body(target) and can_attack else State.CHASE if detection_area.overlaps_body(target) else State.PATROL
+		state = State.ATTACK if _is_target_in_attack_range() and can_attack else State.CHASE if detection_area.overlaps_body(target) else State.PATROL
 	else:
 		state = State.PATROL
 

@@ -9,4 +9,4 @@ func _ready():
 	attack_damage = 25 
 	enemy_level = 1 
 	detection_radius = 700.0
-	attack_radius = 120.0
+	attack_radius = 96.0

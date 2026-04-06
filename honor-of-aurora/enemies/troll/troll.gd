@@ -10,4 +10,4 @@ func _ready():
 	enemy_level = 5
 	reward_mult = 4.2
 	detection_radius = 700.0  
-	attack_radius = 200.0
+	attack_radius = 160.0
