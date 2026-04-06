@@ -2,20 +2,23 @@ extends Node
 ## Режим «На тапке»: дальний декор (слои после tile_layer_trees_y_sort_migrate) скрывается и
 ## выводится из группы `y_sortable`, чтобы YSortManager не обходил сотни спрайтов за кадр.
 ## Узлы регистрируются в группе `slipper_cull_decor_layer` после миграции (см. tile_layer_trees_y_sort_migrate).
+## Волна 2 TASK-013: в SLIPPER радиус и частота обновления ужесточены относительно экспорта (меньше активного мира).
 
 const GROUP_SLIPPER_CULL_DECOR := "slipper_cull_decor_layer"
 const _YSORT_GROUP := "y_sortable"
 const _WIND_GROUP := "wind_decor_sprite"
 
+## Базовые значения сцены; в SLIPPER к ним применяются множители TASK-013.
 @export var cull_radius_pixels: float = 2400.0
-@export_range(1, 8, 1) var update_every_frames: int = 4
+@export_range(1, 16, 1) var update_every_frames: int = 4
 
-var _rsq: float = 0.0
+## Только SLIPPER: меньше пикселей — дальше от якоря слои считаются «дальним» декором.
+const _SLIPPER_CULL_RADIUS_MULT: float = 0.75
+## Только SLIPPER: реже полный проход по слоям (меньше CPU на проверках).
+const _SLIPPER_UPDATE_FRAMES_MULT: int = 2
+const _SLIPPER_UPDATE_FRAMES_CAP: int = 16
+
 var _was_slipper: bool = false
-
-
-func _ready() -> void:
-	_rsq = cull_radius_pixels * cull_radius_pixels
 
 
 func _process(_delta: float) -> void:
@@ -24,8 +27,6 @@ func _process(_delta: float) -> void:
 	var tree := get_tree()
 	if tree == null:
 		return
-	if update_every_frames > 1 and (Engine.get_process_frames() % update_every_frames) != 0:
-		return
 	var slipper := PerformancePreset.is_slipper_mode(SaveManager)
 	if not slipper:
 		if _was_slipper:
@@ -33,6 +34,12 @@ func _process(_delta: float) -> void:
 		_was_slipper = false
 		return
 	_was_slipper = true
+	var eff_every := update_every_frames
+	eff_every = clampi(eff_every * _SLIPPER_UPDATE_FRAMES_MULT, 1, _SLIPPER_UPDATE_FRAMES_CAP)
+	if eff_every > 1 and (Engine.get_process_frames() % eff_every) != 0:
+		return
+	var eff_radius := cull_radius_pixels * _SLIPPER_CULL_RADIUS_MULT
+	var eff_rsq: float = eff_radius * eff_radius
 	var anchor: Variant = _get_anchor_global()
 	if anchor == null:
 		return
@@ -51,7 +58,7 @@ func _process(_delta: float) -> void:
 			continue
 		var n2: Node2D = layer as Node2D
 		var center := _layer_content_center_global(n2)
-		var should_show := apos.distance_squared_to(center) <= _rsq
+		var should_show := apos.distance_squared_to(center) <= eff_rsq
 		if should_show:
 			if not n2.visible or n2.process_mode == Node.PROCESS_MODE_DISABLED:
 				_restore_layer(n2)

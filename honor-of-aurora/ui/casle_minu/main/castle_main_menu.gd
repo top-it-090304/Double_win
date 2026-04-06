@@ -2155,7 +2155,7 @@ func _hire_unit(kind: HireKind) -> void:
 		unit.apply_building_progression_from_manager()
 	unit.global_position = positions[0]
 	unit.add_to_group("squad_member")
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	_refresh_hire_buy_ui()
 
 

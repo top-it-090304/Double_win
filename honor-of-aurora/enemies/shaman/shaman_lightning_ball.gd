@@ -9,6 +9,7 @@ const SHAMAN_FRAMES := preload("res://enemies/shaman/shaman.tres")
 var damage: int = 30
 var paralysis_duration: float = 1.5
 var direction: Vector2 = Vector2.RIGHT
+var _slipper_motion_acc: float = 0.0
 
 @onready var _flight_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
@@ -31,7 +32,13 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	position += direction * speed * delta
+	_slipper_motion_acc += delta
+	var player := get_tree().get_first_node_in_group("player") as Node2D
+	if SlipperCombatBudget.should_defer_projectile_motion_frame(global_position, player, Engine.get_process_frames()):
+		return
+	var d := _slipper_motion_acc
+	_slipper_motion_acc = 0.0
+	position += direction * speed * d
 
 
 func _on_body_entered(body: Node) -> void:

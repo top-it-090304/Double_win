@@ -126,7 +126,7 @@ func try_open_chest_if_player_inside() -> bool:
 	SaveManager.mark_chest_opened(id)
 	if not lore_id.is_empty():
 		SaveManager.mark_lore_note_found(lore_id)
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	_apply_opened_visual(loot)
 	_show_feedback(loot)
 	_play_loot_sound(loot)

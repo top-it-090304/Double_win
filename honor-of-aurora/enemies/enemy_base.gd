@@ -163,6 +163,7 @@ func _setup_nav_agent() -> void:
 	add_child(_nav_agent)
 	await get_tree().physics_frame
 	if is_instance_valid(_nav_agent):
+		SlipperCombatBudget.apply_enemy_navigation_agent_preset(_nav_agent)
 		_nav_agent.target_position = global_position
 
 
@@ -178,6 +179,17 @@ func _physics_process(delta):
 	var previous_position := global_position
 	_select_target_cd -= delta
 
+	var player_node: Node2D = get_tree().get_first_node_in_group("player") as Node2D
+	var slipper_heavy: bool = SlipperCombatBudget.should_run_heavy_ai_for_enemy(
+		self,
+		attack_radius,
+		attack_area,
+		player_node,
+		Engine.get_physics_frames()
+	)
+	if state in [State.ATTACK, State.HIT, State.DEATH, State.LEASH, State.RECOVER]:
+		slipper_heavy = true
+
 	match state:
 		State.PATROL:
 			velocity = patrol_dir * speed
@@ -190,8 +202,11 @@ func _physics_process(delta):
 
 		State.CHASE:
 			if _select_target_cd <= 0.0:
-				_select_target()
-				_select_target_cd = _SELECT_TARGET_INTERVAL
+				if slipper_heavy:
+					_select_target()
+					_select_target_cd = _SELECT_TARGET_INTERVAL
+				else:
+					_select_target_cd = 0.034
 			if target and is_instance_valid(target):
 				if global_position.distance_to(home_position) > leash_radius:
 					target = null
@@ -202,7 +217,10 @@ func _physics_process(delta):
 					if can_attack:
 						start_attack()
 				else:
-					_apply_chase_velocity()
+					if slipper_heavy:
+						_apply_chase_velocity()
+					else:
+						_apply_chase_velocity_simple()
 			else:
 				state = State.PATROL
 
@@ -233,10 +251,12 @@ func _physics_process(delta):
 
 	## Босс в погоне: без soft-sep (иначе радиальное отталкивание даёт лево/вправо вместо прямо к герою).
 	if not (is_in_group(&"BOSS") and state == State.CHASE):
-		_apply_soft_separation_to_velocity(delta)
+		if slipper_heavy:
+			_apply_soft_separation_to_velocity(delta)
 	move_and_slide()
 
 	if use_navigation and _nav_agent and is_instance_valid(_nav_agent):
+		SlipperCombatBudget.apply_enemy_navigation_agent_preset(_nav_agent)
 		_nav_agent.velocity = velocity
 
 	## Босс в погоне: без скольжения вдоль стены — оно уводит вбок от прямой к цели.
@@ -245,7 +265,7 @@ func _physics_process(delta):
 			_apply_wall_slide_velocity()
 			move_and_slide()
 
-	if state == State.CHASE and target and is_instance_valid(target):
+	if state == State.CHASE and target and is_instance_valid(target) and slipper_heavy:
 		var moved_distance := previous_position.distance_to(global_position)
 		if _is_target_in_attack_range():
 			_stuck_frames = 0
@@ -274,7 +294,17 @@ func _physics_process(delta):
 				move_and_slide()
 
 	_sync_avoidance_to_state()
-	update_animation()
+	if slipper_heavy:
+		update_animation()
+
+
+func _apply_chase_velocity_simple() -> void:
+	## SLIPPER / TASK-015: без навигации и лучей — только к цели (дальние скирмиши).
+	if target == null or not is_instance_valid(target):
+		return
+	var toward := target.global_position - global_position
+	last_dir = _dir_toward_target(toward)
+	velocity = last_dir * speed
 
 
 func _apply_chase_velocity() -> void:
@@ -291,7 +321,15 @@ func _apply_chase_velocity() -> void:
 	var base_dir := _dir_toward_target(toward)
 
 	if use_navigation and _nav_agent:
-		_nav_agent.target_position = target.global_position
+		var nav_player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
+		if SlipperCombatBudget.should_push_nav_target_to_player_this_physics_frame(
+			self,
+			attack_radius,
+			attack_area,
+			nav_player,
+			Engine.get_physics_frames()
+		):
+			_nav_agent.target_position = target.global_position
 		if not _nav_agent.is_navigation_finished():
 			var next_pos := _nav_agent.get_next_path_position()
 			var seg := _snap_axis_aligned_2d(next_pos - global_position)

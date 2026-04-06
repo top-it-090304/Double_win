@@ -10,6 +10,9 @@ const SLIPPER_RENDER_STRETCH_SCALE: float = 4.0 / 3.0
 ## Сцена главного меню: без понижения внутреннего разрешения (см. `should_apply_slipper_viewport_stretch`).
 const MAIN_MENU_SCENE_FILE := "Game_menu.tscn"
 
+## Максимум `refresh_every_frames` для YSortManager — должен совпадать с `@export_range` в `YSortManager.gd`.
+const YSORT_REFRESH_FRAMES_MAX: int = 16
+
 
 static func clamp_mode(m: int) -> int:
 	return clampi(m, 0, Mode.SLIPPER)
@@ -55,11 +58,12 @@ static func apply_from_save_manager(sm: Node) -> void:
 	var vsync: int = DisplayServer.VSYNC_ENABLED
 	match mode:
 		Mode.SLIPPER:
-			## «На тапке»: 30 FPS, VSync; физика 30 Гц (как MINIMAL). Y-sort реже, чем у MINIMAL (8 кадров) — меньше работы на кадр.
+			## «На тапке» (волна 2, TASK-011): целевые значения — 30 FPS, physics_ticks_per_second = 30, Y-sort раз в 16 кадров, VSync.
 			## Риск снижения physics_ticks ниже 30: боёвка и быстрые снаряды; не уменьшать без отдельной проверки геймплея.
+			## Риск Y-sort реже 8 кадров: возможные артефакты порядка слоёв при быстром движении; реже пересчёт z_index — меньше CPU.
 			max_fps_val = 30
 			ticks = 30
-			ysort_every = 8
+			ysort_every = 16
 			vsync = DisplayServer.VSYNC_ENABLED
 		Mode.MINIMAL:
 			max_fps_val = 30
@@ -101,6 +105,6 @@ static func apply_from_save_manager(sm: Node) -> void:
 	if tree:
 		var ys: Node = tree.root.get_node_or_null("YSortManager")
 		if ys:
-			ys.set("refresh_every_frames", clampi(ysort_every, 1, 8))
+			ys.set("refresh_every_frames", clampi(ysort_every, 1, YSORT_REFRESH_FRAMES_MAX))
 
 	DisplayServer.window_set_vsync_mode(vsync)

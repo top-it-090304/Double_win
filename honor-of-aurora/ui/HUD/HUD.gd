@@ -16,6 +16,8 @@ extends "res://ui/HUD/game_hud.gd"
 var _codex_badge: TextureRect
 var _armor_hud_root: Control
 var _armor_hud_label: Label
+## SLIPPER (TASK-016): реже обновлять процент брони — не критичный индикатор относительно HP.
+var _slipper_armor_hud_refresh_timer: Timer
 var _ui_scale_base_rects: Dictionary = {}
 var _ui_scale_cached: bool = false
 
@@ -93,6 +95,11 @@ func _ready() -> void:
 	if vp and not vp.size_changed.is_connected(_on_viewport_size_changed_hud_scale):
 		vp.size_changed.connect(_on_viewport_size_changed_hud_scale)
 	set_process_input(true)
+	_slipper_armor_hud_refresh_timer = Timer.new()
+	_slipper_armor_hud_refresh_timer.one_shot = true
+	_slipper_armor_hud_refresh_timer.wait_time = 0.12
+	_slipper_armor_hud_refresh_timer.timeout.connect(_on_slipper_armor_hud_debounce_timeout)
+	add_child(_slipper_armor_hud_refresh_timer)
 	if teleport_menu:
 		teleport_menu.hide()
 	if debug_menu:
@@ -338,10 +345,20 @@ func _deferred_apply_top_hud_scale_and_pivot() -> void:
 
 
 func _on_location_changed_armor_hud(_loc: Events.LOCATION) -> void:
+	if _slipper_armor_hud_refresh_timer != null and is_instance_valid(_slipper_armor_hud_refresh_timer):
+		_slipper_armor_hud_refresh_timer.stop()
+	_refresh_armor_hud()
+
+
+func _on_slipper_armor_hud_debounce_timeout() -> void:
 	_refresh_armor_hud()
 
 
 func _on_armor_hud_data_changed(_value: int) -> void:
+	if PerformancePreset.is_slipper_mode(SaveManager):
+		if _slipper_armor_hud_refresh_timer != null and is_instance_valid(_slipper_armor_hud_refresh_timer):
+			_slipper_armor_hud_refresh_timer.start()
+		return
 	_refresh_armor_hud()
 
 

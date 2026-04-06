@@ -55,7 +55,7 @@ func upgrade_building() -> bool:
 		return false
 	current_color = current_color + 1
 	SaveManager.set_building_tier(building_type, int(current_color))
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	var ok := update_texture()
 	GameManager.refresh_all_companion_progression()
 	return ok

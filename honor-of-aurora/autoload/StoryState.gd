@@ -7,14 +7,14 @@ func has_flag(key: String) -> bool:
 	return bool(SaveManager.story_flags.get(key, false))
 
 
-## Без сохранения — вызывающий обязан вызвать `SaveManager.save_game()` (например пакетная выдача наград).
+## Без сохранения — вызывающий обязан вызвать `SaveManager.save_game(true)` (например пакетная выдача наград).
 func write_flag(key: String, value: Variant = true) -> void:
 	SaveManager.story_flags[key] = value
 
 
 func set_flag(key: String, value: Variant = true) -> void:
 	SaveManager.story_flags[key] = value
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	## Сразу после выбора в диалоге: юноша должен появиться на базе без перезагрузки сцены.
 	if bool(value) and (key == "worker_youth_works_on_base" or key == "worker_youth_recruited"):
 		var tree := Engine.get_main_loop() as SceneTree
@@ -26,4 +26,4 @@ func set_flag(key: String, value: Variant = true) -> void:
 
 func clear_flag(key: String) -> void:
 	SaveManager.story_flags.erase(key)
-	SaveManager.save_game()
+	SaveManager.save_game(true)

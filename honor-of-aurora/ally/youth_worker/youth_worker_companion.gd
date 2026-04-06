@@ -142,18 +142,18 @@ func _migrate_miron_caravan_mail_flags() -> void:
 		):
 			StoryState.set_flag("youth_miron_letter6_pending_next_caravan", true)
 		StoryState.clear_flag("youth_miron_mail_after_boss_5")
-		SaveManager.save_game()
+		SaveManager.save_game(true)
 	if (
 		StoryState.has_flag("youth_letter_5_done")
 		and not StoryState.has_flag("youth_letter_6_done")
 		and not StoryState.has_flag("youth_miron_letter6_pending_next_caravan")
 	):
 		StoryState.set_flag("youth_miron_letter6_pending_next_caravan", true)
-		SaveManager.save_game()
+		SaveManager.save_game(true)
 	if StoryState.has_flag("youth_miron_letter2_pending_next_caravan"):
 		StoryState.set_flag("youth_miron_mail_after_boss_1", true)
 		StoryState.clear_flag("youth_miron_letter2_pending_next_caravan")
-		SaveManager.save_game()
+		SaveManager.save_game(true)
 		return
 	if not StoryState.has_flag("story_island_1_cleared"):
 		return
@@ -162,7 +162,7 @@ func _migrate_miron_caravan_mail_flags() -> void:
 	if StoryState.has_flag("youth_miron_mail_after_boss_1"):
 		return
 	StoryState.set_flag("youth_miron_mail_after_boss_1", true)
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 ## Вызывается из CrownSystem перед диалогом прибытия каравана (группа `miron_mail_carrier` — только рабочий у причала).
@@ -435,7 +435,7 @@ func _on_dialogue_ended(sequence: DialogueSequence) -> void:
 				StoryState.clear_flag("youth_miron_mail_after_boss_%d" % (n - 1))
 				if n == 5:
 					StoryState.set_flag("youth_miron_letter6_pending_next_caravan", true)
-					SaveManager.save_game()
+					SaveManager.save_game(true)
 			elif n == 6:
 				StoryState.clear_flag("youth_miron_letter6_pending_next_caravan")
 	_sync_youth_base_worker_job()
@@ -443,7 +443,7 @@ func _on_dialogue_ended(sequence: DialogueSequence) -> void:
 
 func _record_prompt_anchor_after_dialogue() -> void:
 	SaveManager.story_flags["worker_youth_last_prompt_expedition_return"] = SaveManager.expedition_return_count
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 ## Только авто-интро из зоны (без авто-просьбы в отряд — это в меню приказов).
@@ -515,7 +515,7 @@ func menu_apply_youth_recruit_expedition() -> void:
 	StoryState.clear_flag("worker_youth_works_on_base")
 	_after_menu_recruit_choice()
 	_sync_youth_base_worker_job()
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 func menu_apply_youth_recruit_base_worker() -> void:
@@ -523,9 +523,9 @@ func menu_apply_youth_recruit_base_worker() -> void:
 	StoryState.clear_flag("worker_youth_recruited")
 	_after_menu_recruit_choice()
 	_sync_youth_base_worker_job()
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 func menu_apply_youth_recruit_wait() -> void:
 	_after_menu_recruit_choice()
-	SaveManager.save_game()
+	SaveManager.save_game(true)

@@ -15,6 +15,7 @@ func is_rain_weather_active() -> bool:
 
 
 ## Оверлей с частицами: выключается в режиме «На тапке»; логика x2 остаётся по `is_rain_weather_active()`.
+## После смены пресета в настройках оверлей синхронизируется из `Save_manager.apply_window_and_engine_settings` (TASK-017).
 func should_show_rain_overlay() -> bool:
 	return is_rain_weather_active() and not PerformancePreset.is_slipper_mode(SaveManager)
 
@@ -25,7 +26,7 @@ func get_monster_kill_reward_multiplier() -> float:
 
 func register_teleport_use() -> void:
 	SaveManager.teleport_usage_count = maxi(0, SaveManager.teleport_usage_count + 1)
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	Events.teleport_usage_count_changed.emit(SaveManager.teleport_usage_count)
 
 

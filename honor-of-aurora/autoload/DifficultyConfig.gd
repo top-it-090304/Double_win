@@ -1,6 +1,6 @@
 extends Node
 ## Три пресета сложности. Активный id хранится в SaveManager.difficulty_id (0–2).
-## Подключите выбор в меню: DifficultyConfig.set_active_id() или SaveManager.difficulty_id + save_game().
+## Подключите выбор в меню: DifficultyConfig.set_active_id() или SaveManager.difficulty_id + save_game(true).
 
 enum Id {
 	EASY = 0,
@@ -150,7 +150,7 @@ func get_active_preset() -> Dictionary:
 ## Установка сложности из меню (0 = EASY … 2 = HARD).
 func set_active_id(id: int) -> void:
 	SaveManager.difficulty_id = clampi(id, 0, 2)
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 func get_all_presets() -> Array[Dictionary]:

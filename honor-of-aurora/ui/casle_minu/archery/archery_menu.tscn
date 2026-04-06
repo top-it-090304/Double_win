@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://ui/casle_minu/archery/archery_menu.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cjha34kojfsit" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_08.png" id="3_back"]
@@ -7,6 +7,7 @@
 [ext_resource type="Shader" uid="uid://dore1c0ng0ldsh" path="res://ui/resources_hud/ore_icon_gold.gdshader" id="6_ore_shader"]
 [ext_resource type="Texture2D" uid="uid://cf5kysi7be050" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_05.png" id="7_arrow"]
 [ext_resource type="Texture2D" uid="uid://dgwuk12s7shin" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_06.png" id="8_guard"]
+[ext_resource type="Script" path="res://ui/casle_minu/slipper_ore_icon_shader_toggle.gd" id="9_slipper_ore"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_root"]
 
@@ -279,6 +280,7 @@ alignment = 1
 
 [node name="OreIconV" type="TextureRect" parent="ArcheryPanel/BodyVBox/SlotsRow/slot_volley/ColumnVolley/OreHintV"]
 material = SubResource("ShaderMaterial_ore")
+script = ExtResource("9_slipper_ore")
 custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
 texture = ExtResource("5_ore")
@@ -351,6 +353,7 @@ alignment = 1
 
 [node name="OreIconG" type="TextureRect" parent="ArcheryPanel/BodyVBox/SlotsRow/slot_guard/ColumnGuard/OreHintG"]
 material = SubResource("ShaderMaterial_ore")
+script = ExtResource("9_slipper_ore")
 custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
 texture = ExtResource("5_ore")

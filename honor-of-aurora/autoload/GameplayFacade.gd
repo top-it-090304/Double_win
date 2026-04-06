@@ -2,6 +2,8 @@ extends Node
 ## Фасад боя, HUD и золота (autoload).
 
 const DAMAGE_NUMBER_SCENE := preload("res://ui/DamageNumber/damage_number.tscn")
+## SLIPPER (TASK-016): верхняя граница одновременных всплывашек урона — без изменения фактического урона, только визуал.
+const SLIPPER_MAX_DAMAGE_NUMBER_VISUALS: int = 14
 
 ## Всегда отдельный слой: не вешать Control на Node2D (краш GL Compatibility / Android) и не зависеть от наличия HUD.
 var _damage_numbers_layer: CanvasLayer
@@ -51,6 +53,10 @@ func spawn_damage_number(parent: Node2D, amount: int, offset: Vector2 = Vector2(
 	var tree := parent.get_tree()
 	if tree == null:
 		return
+	if PerformancePreset.is_slipper_mode(SaveManager):
+		var cap_layer := _get_damage_numbers_layer(tree)
+		if cap_layer.get_child_count() >= SLIPPER_MAX_DAMAGE_NUMBER_VISUALS:
+			return
 	var dn: Control = DAMAGE_NUMBER_SCENE.instantiate() as Control
 	if dn == null:
 		return

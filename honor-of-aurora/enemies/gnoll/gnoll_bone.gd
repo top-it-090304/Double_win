@@ -4,6 +4,7 @@ extends Area2D
 @export var speed: float = 520.0
 var damage: int = 25
 var direction: Vector2 = Vector2.RIGHT
+var _slipper_motion_acc: float = 0.0
 
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
 
@@ -25,7 +26,13 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	position += direction * speed * delta
+	_slipper_motion_acc += delta
+	var player := get_tree().get_first_node_in_group("player") as Node2D
+	if SlipperCombatBudget.should_defer_projectile_motion_frame(global_position, player, Engine.get_process_frames()):
+		return
+	var d := _slipper_motion_acc
+	_slipper_motion_acc = 0.0
+	position += direction * speed * d
 
 
 func _on_body_entered(body: Node) -> void:

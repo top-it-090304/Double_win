@@ -143,6 +143,8 @@ const _CODEX_SNAP_MIGRATED_KEY := "_codex_snap_v1_migrated"
 const _CODEX_UI_KEY := "_codex_ui"
 
 const GAME_SAVE_FILE := "user://game_save_file.save"
+## Режим «На тапке» (TASK-012): минимум секунд между «мягкими» записями на диск (HP/кодекс); критичные — save_game(true).
+const SLIPPER_SAVE_MIN_INTERVAL_SEC := 3.0
 const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "opened_chest_ids", "chest_rolled_tiers", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "dialogue_text_scale_percent", "auto_fit_phone_ui", "max_fps", "performance_mode", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus", "premium_ore_purchased_total", "premium_ore_purchase_count", "ore_sent_to_crown_total", "crown_order_index", "crown_order_ore_sent", "crown_returns_remaining", "caravan_arrival_queued", "crown_deadline_expired_awaiting_dispatch", "crown_orders_failed", "crown_displeasure", "crown_title_index", "caravan_pending", "caravan_sent_count", "crown_favor", "armor_durability", "world_ambience_night", "teleport_usage_count", "menu_epilogue_spawn_player_pending", "menu_post_finale_thanks_unlocked"]
 const default_data := {
 	"gold" : 10,
@@ -450,6 +452,10 @@ func apply_window_and_engine_settings() -> void:
 	if tree:
 		tree.call_group("wind_decor_sprite", "apply_wind_speed_from_settings")
 		tree.call_group("hud", "apply_user_ui_scale")
+		tree.call_group("slipper_visual_material_toggle", "apply_slipper_visual_material")
+		var cs: Node = tree.current_scene
+		if cs != null and is_instance_valid(cs):
+			RainSystem.sync_rain_overlay_for_scene(cs)
 
 
 ## Эталонный безопасный профиль UI: без кропа сцены и без искажения пропорций HUD.
@@ -467,12 +473,12 @@ func _migrate_truth_choice_flags() -> void:
 	if bool(story_flags.get("story_island_5_cleared", false)):
 		story_flags["truth_and_choice_done"] = true
 		story_flags["hero_chose_finish_chain"] = true
-		save_game()
+		save_game(true)
 		return
 	if bool(story_flags.get("monk_story_6_done", false)):
 		story_flags["truth_and_choice_done"] = true
 		story_flags["hero_chose_finish_chain"] = true
-		save_game()
+		save_game(true)
 
 
 ## Закрыли окно «правда и выбор» до клика по варианту: висел truth_and_choice_done без ветки — без острова 5.
@@ -485,7 +491,7 @@ func _migrate_truth_choice_stuck_no_branch() -> void:
 		story_flags["hero_chose_finish_chain"] = true
 	else:
 		story_flags.erase("truth_and_choice_done")
-	save_game()
+	save_game(true)
 
 
 ## Старый отказ «не место в походе» блокировал всё; теперь юноша — рабочий на базе.
@@ -494,7 +500,7 @@ func _migrate_worker_youth_refused_to_base_worker() -> void:
 		return
 	story_flags.erase("worker_youth_refused")
 	story_flags["worker_youth_works_on_base"] = true
-	save_game()
+	save_game(true)
 
 
 ## Грамоты титулов в кодексе «Предметы»: для старых сохранений с уже полученным титулом.
@@ -513,7 +519,7 @@ func _migrate_worker_youth_prompt_anchor() -> void:
 	if story_flags.has("worker_youth_last_prompt_expedition_return"):
 		return
 	story_flags["worker_youth_last_prompt_expedition_return"] = expedition_return_count
-	save_game()
+	save_game(true)
 
 
 ## Письмо Мирона: до этой версии отправка шла без беседы «у целителя» — помечаем, чтобы причал остался доступен.
@@ -528,7 +534,7 @@ func _migrate_youth_letter_healer_prompt_legacy() -> void:
 		and not story_flags.get("youth_letter_healer_prompt_done", false)
 	):
 		story_flags["youth_letter_healer_prompt_done"] = true
-	save_game()
+	save_game(true)
 
 
 func _migrate_story_island_flags_from_legacy_boss_kill() -> void:
@@ -541,16 +547,16 @@ func _migrate_story_island_flags_from_legacy_boss_kill() -> void:
 			break
 	if has_any:
 		story_flags["_story_islands_migrated"] = true
-		save_game()
+		save_game(true)
 		return
 	if boss_kill <= 0:
 		story_flags["_story_islands_migrated"] = true
-		save_game()
+		save_game(true)
 		return
 	for j in range(1, mini(boss_kill + 1, 6)):
 		story_flags["story_island_%d_cleared" % j] = true
 	story_flags["_story_islands_migrated"] = true
-	save_game()
+	save_game(true)
 
 
 func notify_squad_member_died(unit: Node) -> void:
@@ -566,7 +572,7 @@ func notify_squad_member_died(unit: Node) -> void:
 			archer_count = maxi(0, archer_count - 1)
 		elif unit.is_in_group("ally_lancer"):
 			lancer_count = maxi(0, lancer_count - 1)
-		save_game()
+		save_game(true)
 		return
 	if unit.is_in_group("ally_archer"):
 		archer_count = maxi(0, archer_count - 1)
@@ -574,18 +580,58 @@ func notify_squad_member_died(unit: Node) -> void:
 		lancer_count = maxi(0, lancer_count - 1)
 	elif unit.is_in_group("ally_pawn"):
 		pawn_count = maxi(0, pawn_count - 1)
-	save_game()
+	save_game(true)
 
 
 var _save_game_deferred_pending: bool = false
 
+var _last_slipper_successful_disk_write_ms: int = -1
+var _slipper_soft_save_pending: bool = false
+## Результат `SceneTreeTimer` — не Node; отмена только через nonce (нельзя `queue_free`).
+var _slipper_save_retry_timer: SceneTreeTimer = null
+var _slipper_retry_nonce: int = 0
+var _slipper_debug_throttled_soft_saves: int = 0
 
-func save_game():
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		## Перед закрытием окна — немедленная запись (режим SLIPPER не теряет прогресс из-за троттлинга «мягких» вызовов).
+		save_game(true)
+
+
+func save_game_immediate() -> void:
+	save_game(true)
+
+
+## force=true — квесты, ресурсы, смена локации, покупки, миграции; force=false — «мягкие» (кодекс UI, отложенный flush HP/уровня).
+func save_game(force: bool = false) -> void:
+	if not PerformancePreset.is_slipper_mode(self):
+		_write_save_game_to_disk()
+		return
+	if force:
+		_cancel_slipper_soft_save_retry()
+		_slipper_soft_save_pending = false
+		_write_save_game_to_disk()
+		_last_slipper_successful_disk_write_ms = Time.get_ticks_msec()
+		return
+	var remaining_ms := _slipper_remaining_ms_until_next_disk_write()
+	if remaining_ms <= 0.0:
+		_write_save_game_to_disk()
+		_last_slipper_successful_disk_write_ms = Time.get_ticks_msec()
+		_slipper_soft_save_pending = false
+		return
+	_slipper_soft_save_pending = true
+	if OS.is_debug_build():
+		_slipper_debug_throttled_soft_saves += 1
+	_schedule_slipper_soft_save_retry()
+
+
+func _write_save_game_to_disk() -> void:
 	var game_save_file = FileAccess.open(GAME_SAVE_FILE, FileAccess.WRITE)
 	if game_save_file == null:
 		printerr("Save faild with code {0}".format([FileAccess.get_open_error()]))
 		return
-		
+
 	var game_data := {}
 	for variable in SAVE_DATA:
 		game_data[variable] = get(variable)
@@ -593,7 +639,61 @@ func save_game():
 	game_save_file.store_line(json_object.stringify(game_data))
 
 
+func _slipper_remaining_ms_until_next_disk_write() -> float:
+	if _last_slipper_successful_disk_write_ms < 0:
+		return 0.0
+	var elapsed_ms := Time.get_ticks_msec() - _last_slipper_successful_disk_write_ms
+	var need_ms := int(round(SLIPPER_SAVE_MIN_INTERVAL_SEC * 1000.0))
+	return maxf(0.0, float(need_ms - elapsed_ms))
+
+
+func _cancel_slipper_soft_save_retry() -> void:
+	_slipper_retry_nonce += 1
+	_slipper_save_retry_timer = null
+
+
+func _schedule_slipper_soft_save_retry() -> void:
+	if _slipper_save_retry_timer != null and is_instance_valid(_slipper_save_retry_timer):
+		return
+	var tree: SceneTree = get_tree()
+	if tree == null:
+		tree = Engine.get_main_loop() as SceneTree
+	if tree == null:
+		return
+	var wait_sec := _slipper_remaining_ms_until_next_disk_write() / 1000.0
+	if wait_sec <= 0.0:
+		call_deferred("_finish_slipper_soft_save_after_throttle")
+		return
+	var scheduled_nonce := _slipper_retry_nonce
+	var t := tree.create_timer(wait_sec, false, false, true)
+	_slipper_save_retry_timer = t
+	t.timeout.connect(
+		func(): _on_slipper_soft_save_timer_fired(scheduled_nonce),
+		CONNECT_ONE_SHOT
+	)
+
+
+func _on_slipper_soft_save_timer_fired(scheduled_nonce: int) -> void:
+	_slipper_save_retry_timer = null
+	if scheduled_nonce != _slipper_retry_nonce:
+		return
+	_finish_slipper_soft_save_after_throttle()
+
+
+func _finish_slipper_soft_save_after_throttle() -> void:
+	_slipper_save_retry_timer = null
+	if not is_instance_valid(self):
+		return
+	if not _slipper_soft_save_pending:
+		return
+	_slipper_soft_save_pending = false
+	_write_save_game_to_disk()
+	if PerformancePreset.is_slipper_mode(self):
+		_last_slipper_successful_disk_write_ms = Time.get_ticks_msec()
+
+
 ## Одна запись на диск в конце кадра (несколько сундуков с роллом яруса не вызывают save_game подряд).
+## В SLIPPER запись может быть отложена троттлингом — намерение не теряется (таймер / deferred повтор).
 func request_save_game_deferred() -> void:
 	if _save_game_deferred_pending:
 		return
@@ -603,7 +703,7 @@ func request_save_game_deferred() -> void:
 
 func _flush_deferred_save_game() -> void:
 	_save_game_deferred_pending = false
-	save_game()
+	save_game(false)
 
 
 func _normalize_building_levels(src: Dictionary) -> Dictionary:
@@ -892,7 +992,7 @@ func mark_codex_opened(tree: SceneTree = null) -> void:
 	story_flags["_codex_seen_version"] = get_codex_content_version()
 	if t != null:
 		story_flags[_CODEX_SNAP_KEY] = JSON.stringify(build_codex_seen_state(t))
-	save_game()
+	save_game(false)
 
 
 func _codex_summary_combined_hash_from_state(st: Dictionary) -> int:
@@ -941,7 +1041,7 @@ func codex_mark_archive_clicked(entry_id: String) -> void:
 	var ui: Dictionary = story_flags[_CODEX_UI_KEY]
 	_codex_ui_ensure_subdicts(ui)
 	(ui["a"] as Dictionary)[entry_id] = true
-	save_game()
+	save_game(false)
 	_notify_codex_hud_refresh()
 
 
@@ -953,7 +1053,7 @@ func codex_mark_character_clicked(tree: SceneTree, char_key: String) -> void:
 	var ui: Dictionary = story_flags[_CODEX_UI_KEY]
 	_codex_ui_ensure_subdicts(ui)
 	(ui["c"] as Dictionary)[char_key] = h
-	save_game()
+	save_game(false)
 	_notify_codex_hud_refresh()
 
 
@@ -967,7 +1067,7 @@ func codex_mark_item_clicked(item_id: String) -> void:
 	var ui: Dictionary = story_flags[_CODEX_UI_KEY]
 	_codex_ui_ensure_subdicts(ui)
 	(ui["i"] as Dictionary)[item_id] = true
-	save_game()
+	save_game(false)
 	_notify_codex_hud_refresh()
 
 
@@ -978,7 +1078,7 @@ func codex_mark_summary_seen(tree: SceneTree) -> void:
 	var st := build_codex_seen_state(tree)
 	var ui: Dictionary = story_flags[_CODEX_UI_KEY]
 	ui["sum"] = _codex_summary_combined_hash_from_state(st)
-	save_game()
+	save_game(false)
 	_notify_codex_hud_refresh()
 
 
@@ -989,7 +1089,7 @@ func codex_mark_timeline_seen(tree: SceneTree) -> void:
 	var st := build_codex_seen_state(tree)
 	var ui: Dictionary = story_flags[_CODEX_UI_KEY]
 	ui["tl"] = _codex_int_hash(st.get("timeline", 0))
-	save_game()
+	save_game(false)
 	_notify_codex_hud_refresh()
 
 
@@ -1122,7 +1222,7 @@ func configure_death_resume_to_base_teleport() -> void:
 	resume_player_position_y = BASE_DOCK_SPAWN_Y
 	apply_resume_position_on_next_scene = true
 	death_resume_pending = true
-	save_game()
+	save_game(true)
 
 
 ## Старые сохранения: «Продолжить» ставило героя у зоны телепорта — переносим на долку.

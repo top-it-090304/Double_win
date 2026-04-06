@@ -312,7 +312,7 @@ func tick_caravan_on_expedition_return() -> void:
 	## Один счётчик `crown_returns_remaining`: и срок приказа, и моменты прибытия каравана (кратно CARAVAN_EXPEDITION_INTERVAL, включая 0).
 	## Пока срок истёк, но караван конца срока ещё не отправлен — счётчик не трогаем (ждём отгрузки).
 	if SaveManager.crown_deadline_expired_awaiting_dispatch and SaveManager.crown_order_index > 0:
-		SaveManager.save_game()
+		SaveManager.save_game(true)
 		return
 
 	var interval := BalanceConfig.CARAVAN_EXPEDITION_INTERVAL
@@ -325,7 +325,7 @@ func tick_caravan_on_expedition_return() -> void:
 	if SaveManager.crown_order_index <= 0:
 		if rem == 0:
 			_try_arrive_caravan()
-		SaveManager.save_game()
+		SaveManager.save_game(true)
 		return
 
 	if rem % interval == 0:
@@ -335,7 +335,7 @@ func tick_caravan_on_expedition_return() -> void:
 			_try_arrive_caravan()
 	if just_hit_zero:
 		SaveManager.crown_deadline_expired_awaiting_dispatch = true
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 ## Сколько «дней» (тиков счётчика после возвращения на базу) до следующего прибытия каравана (для UI). До первого приказа — то же, что до первого рейса.
@@ -366,7 +366,7 @@ func _process_caravan_arrival_queue() -> void:
 		return
 	SaveManager.caravan_arrival_queued -= 1
 	_arrive_caravan()
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 func _arrive_caravan() -> void:
@@ -405,7 +405,7 @@ func _issue_next_crown_order() -> void:
 	SaveManager.crown_order_index = next_idx
 	SaveManager.crown_order_ore_sent = 0
 	SaveManager.crown_returns_remaining = int(order.get("deadline_expeditions", BalanceConfig.DEFAULT_CROWN_ORDER_DEADLINE_EXPEDITIONS))
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 ## Вызывается только из `_resolve_crown_order_on_caravan_dispatch` и при миграции/редком рассинхроне.
@@ -426,7 +426,7 @@ func _resolve_crown_order_expiry_logic() -> void:
 	if sent < int(required * 0.5):
 		_apply_order_failure()
 	SaveManager.crown_returns_remaining = dl_default
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 func _resolve_crown_order_on_caravan_dispatch() -> void:
@@ -445,7 +445,7 @@ func _apply_order_failure() -> void:
 		SaveManager.crown_favor = 0
 		Events.crown_favor_changed.emit(0)
 	Events.crown_displeasure_changed.emit(SaveManager.crown_displeasure)
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 ## ═══════════════════════════════════════════════════════
@@ -495,7 +495,7 @@ func send_ore_with_caravan(ore_amount: int) -> bool:
 	Events.on_caravan_no_longer_pending()
 	_resolve_crown_order_on_caravan_dispatch()
 	_process_caravan_arrival_queue()
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	return true
 
 
@@ -505,7 +505,7 @@ func dismiss_caravan_empty() -> void:
 	Events.on_caravan_no_longer_pending()
 	_resolve_crown_order_on_caravan_dispatch()
 	_process_caravan_arrival_queue()
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 func _check_displeasure_recovery(ore_sent_now: int, skip_favor_from_order: bool = false) -> void:
@@ -615,7 +615,7 @@ func _update_crown_title() -> bool:
 		Events.crown_title_changed.emit(new_idx, str(title.get("name", "")))
 		_enqueue_crown_title_patents(prev_idx, new_idx)
 		call_deferred("_try_start_next_crown_patent_dialogue")
-		SaveManager.save_game()
+		SaveManager.save_game(true)
 		return favor_from_title
 	return false
 
@@ -699,7 +699,7 @@ func try_repair_armor() -> bool:
 		return false
 	SaveManager.armor_durability = BalanceConfig.ARMOR_MAX_DURABILITY
 	Events.armor_durability_changed.emit(SaveManager.armor_durability)
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	return true
 
 

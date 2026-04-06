@@ -213,7 +213,7 @@ func _show_ending_title_then_menu() -> void:
 	## Явные поля сохранения + story_flags; одна запись до смены сцены. await — handle_location_changed корутина.
 	SaveManager.menu_post_finale_thanks_unlocked = true
 	SaveManager.story_flags["menu_post_finale_thanks_unlocked"] = true
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	await GameManager.handle_location_changed(Events.LOCATION.MENU)
 
 

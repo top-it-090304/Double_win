@@ -15,7 +15,8 @@ const META_MANUAL := "y_sort_manual"
 @export var min_z_index: int = 1
 @export var max_z_index: int = 4096
 ## 1 = точнее слои при движении, выше нагрузка. 2–3 — компромисс для слабых устройств.
-@export_range(1, 8, 1) var refresh_every_frames: int = 3
+## Верхняя граница согласована с `PerformancePreset.apply_from_save_manager` (режим SLIPPER, TASK-011).
+@export_range(1, 16, 1) var refresh_every_frames: int = 3
 
 
 func _process(_delta: float) -> void:

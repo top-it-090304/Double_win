@@ -210,7 +210,7 @@ func _mark_cleared() -> void:
 	_cleared = true
 	var key := _save_key()
 	SaveManager.island_zone_state[key] = true
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	if _director and _director.has_method("on_zone_cleared"):
 		_director.on_zone_cleared(self)
 

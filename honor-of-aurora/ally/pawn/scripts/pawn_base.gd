@@ -100,6 +100,17 @@ func _sync_nav_agent_start_position() -> void:
 		_nav_agent.target_position = global_position
 
 
+func _slipper_maybe_push_nav_gather_target() -> void:
+	## TASK-018: реже target_position к цели добычи, если рабочий далеко от героя (SLIPPER).
+	if _nav_agent == null or not is_instance_valid(_nav_agent):
+		return
+	var p := get_tree().get_first_node_in_group("player") as Node2D
+	if SlipperCombatBudget.should_push_nav_target_worker_vs_player_this_physics_frame(
+		self, p, Engine.get_physics_frames()
+	):
+		_nav_agent.target_position = _gather_target
+
+
 func _sync_nav_layers_with_island_region() -> void:
 	## Слои агента должны совпадать с NavigationRegion2D, иначе map_get_path не видит твои полигоны.
 	if _nav_agent == null or not is_instance_valid(_nav_agent):
@@ -137,6 +148,7 @@ func _physics_process(delta: float) -> void:
 	var pos_before := global_position
 	super._physics_process(delta)
 	if _nav_agent and is_instance_valid(_nav_agent):
+		SlipperCombatBudget.apply_pawn_navigation_agent_preset(_nav_agent)
 		_nav_agent.velocity = velocity
 	## Порог скорости ниже, чем раньше: у стены скорость может проседать, а «застревание» не считалось.
 	if _base_worker_state == BaseWorkerState.MOVE and velocity.length_squared() > 36.0:
@@ -639,7 +651,7 @@ func _process_meat_castle_run(delta: float) -> bool:
 				_play_run()
 				return true
 			if base_move_use_navigation_agent_path and _nav_agent:
-				_nav_agent.target_position = _gather_target
+				_slipper_maybe_push_nav_gather_target()
 				var next := _nav_agent.get_next_path_position()
 				var to_next := next - global_position
 				if to_next.length_squared() < 4.0:
@@ -751,7 +763,7 @@ func _process_wood_castle_run(delta: float) -> bool:
 				_play_run()
 				return true
 			if base_move_use_navigation_agent_path and _nav_agent:
-				_nav_agent.target_position = _gather_target
+				_slipper_maybe_push_nav_gather_target()
 				var next := _nav_agent.get_next_path_position()
 				var to_next := next - global_position
 				if to_next.length_squared() < 4.0:
@@ -866,7 +878,7 @@ func _process_wood_to_log(delta: float) -> bool:
 				_play_run()
 				return true
 			if base_move_use_navigation_agent_path and _nav_agent:
-				_nav_agent.target_position = _gather_target
+				_slipper_maybe_push_nav_gather_target()
 				var next := _nav_agent.get_next_path_position()
 				var to_next := next - global_position
 				if to_next.length_squared() < 4.0:
@@ -1146,7 +1158,7 @@ func _process_ore_worker_gather(delta: float) -> bool:
 				_play_run()
 				return true
 			if base_move_use_navigation_agent_path and _nav_agent:
-				_nav_agent.target_position = _gather_target
+				_slipper_maybe_push_nav_gather_target()
 				var next := _nav_agent.get_next_path_position()
 				var to_next := next - global_position
 				if to_next.length_squared() < 4.0:
@@ -1326,7 +1338,7 @@ func _process_base_worker_gather(delta: float) -> bool:
 				_play_run()
 				return true
 			if base_move_use_navigation_agent_path and _nav_agent:
-				_nav_agent.target_position = _gather_target
+				_slipper_maybe_push_nav_gather_target()
 				var next := _nav_agent.get_next_path_position()
 				var to_next := next - global_position
 				if to_next.length_squared() < 4.0:

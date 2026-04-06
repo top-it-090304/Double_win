@@ -106,36 +106,36 @@ func _update_difficulty_desc() -> void:
 func _on_difficulty_selected(_idx: int) -> void:
 	SaveManager.difficulty_id = clampi(_difficulty.selected, 0, 2)
 	_update_difficulty_desc()
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 func _on_music_changed(v: float) -> void:
 	SaveManager.volume_music = clampf(v / 100.0, 0.0, 1.0)
 	SoundManager.apply_user_volume_settings()
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 func _on_sfx_changed(v: float) -> void:
 	SaveManager.volume_sfx = clampf(v / 100.0, 0.0, 1.0)
 	SoundManager.apply_user_volume_settings()
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 func _on_ui_changed(v: float) -> void:
 	SaveManager.volume_ui = clampf(v / 100.0, 0.0, 1.0)
 	SoundManager.apply_user_volume_settings()
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 func _on_dialogue_changed(v: float) -> void:
 	SaveManager.volume_dialogue = clampf(v / 100.0, 0.0, 1.0)
 	SoundManager.apply_user_volume_settings()
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 func _on_dialogue_text_scale_changed(v: float) -> void:
 	SaveManager.dialogue_text_scale_percent = clampi(int(round(v)), 75, 130)
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 func _performance_mode_to_option_index(m: int) -> int:
@@ -171,7 +171,7 @@ func _update_performance_desc() -> void:
 		return
 	match SaveManager.performance_mode:
 		PerformancePreset.Mode.SLIPPER:
-			_perf_desc.text = "На тапке: 30 FPS, физика 30 Гц, Y-sort раз в 8 кадров, VSync. В игровых сценах внутренний рендер ~75% (viewport stretch); главное меню без понижения разрешения. HUD масштабируется целиком, чтобы не вылезать за края."
+			_perf_desc.text = "На тапке: 30 FPS, физика 30 Гц, Y-sort раз в 16 кадров, VSync. В игровых сценах внутренний рендер ~75% (viewport stretch); главное меню без понижения разрешения. HUD масштабируется целиком, чтобы не вылезать за края."
 		PerformancePreset.Mode.MINIMAL:
 			_perf_desc.text = "Минимальный: 30 FPS, физика 30 Гц, редкий пересчёт слоёв по Y (4 кадра), VSync — максимум экономии."
 		PerformancePreset.Mode.MAXIMUM:
@@ -190,7 +190,7 @@ func _sync_ui_controls_locked_from_auto_fit() -> void:
 func _on_performance_mode_selected(_idx: int) -> void:
 	SaveManager.performance_mode = _option_index_to_performance_mode(_perf_option.selected)
 	_update_performance_desc()
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	SaveManager.apply_window_and_engine_settings()
 
 
@@ -198,7 +198,7 @@ func _on_ui_scale_changed(v: float) -> void:
 	if SaveManager.auto_fit_phone_ui:
 		return
 	SaveManager.ui_scale_percent = clampi(int(round(v)), 75, 130)
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	SaveManager.apply_window_and_engine_settings()
 
 
@@ -206,7 +206,7 @@ func _on_touch_scale_changed(v: float) -> void:
 	if SaveManager.auto_fit_phone_ui:
 		return
 	SaveManager.touch_scale_percent = clampi(int(round(v)), 70, 150)
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	get_tree().call_group("touch_controls", "apply_user_touch_settings")
 
 
@@ -214,7 +214,7 @@ func _on_touch_opacity_changed(v: float) -> void:
 	if SaveManager.auto_fit_phone_ui:
 		return
 	SaveManager.touch_opacity_percent = clampi(int(round(v)), 25, 100)
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	get_tree().call_group("touch_controls", "apply_user_touch_settings")
 
 
@@ -231,7 +231,7 @@ func _on_auto_fit_phone_toggled(on: bool) -> void:
 		_ui_scale_slider.set_block_signals(false)
 		_touch_scale.set_block_signals(false)
 		_touch_opacity.set_block_signals(false)
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	SaveManager.apply_window_and_engine_settings()
 	get_tree().call_group("touch_controls", "apply_user_touch_settings")
 	_sync_ui_controls_locked_from_auto_fit()

@@ -52,7 +52,8 @@ func setup_from_loot(loot: Dictionary) -> void:
 	if m > 0:
 		_add_chip(_TEX_MEAT, m, null)
 	if o > 0:
-		_add_chip(_TEX_ORE, o, _ore_material)
+		var ore_mat: Material = null if PerformancePreset.is_slipper_mode(SaveManager) else _ore_material
+		_add_chip(_TEX_ORE, o, ore_mat)
 	var lore_id: String = str(loot.get("lore_note_id", ""))
 	var lore_body := ""
 	if not lore_id.is_empty():

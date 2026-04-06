@@ -311,7 +311,7 @@ func purchase_premium_ore_pack(pack_id: String) -> bool:
 	SaveManager.premium_ore_purchased_total += ore_amount
 	SaveManager.premium_ore_purchase_count += 1
 	_check_patron_tier_unlock()
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	Events.premium_ore_pack_purchased.emit(pack_id, ore_amount)
 	return true
 
@@ -712,7 +712,7 @@ func handle_location_changed(new_location: Events.LOCATION):
 			SaveManager.death_resume_pending = false
 		else:
 			# Сначала текущее состояние (в т.ч. volatile из F3) на диск — иначе load_game перезапишет память старым файлом.
-			SaveManager.save_game()
+			SaveManager.save_game(true)
 			SaveManager.load_game()
 			Events.sync_story_state_from_save()
 			Events.gold_changed.emit(SaveManager.gold)
@@ -730,7 +730,7 @@ func handle_location_changed(new_location: Events.LOCATION):
 			if Events.is_adventure_location(prev_location):
 				Events.was_on_adventure_before_menu = true
 				SaveManager.was_on_adventure_before_menu = true
-		SaveManager.save_game()
+		SaveManager.save_game(true)
 
 	# Прямой телепорт: база ← остров.
 	if new_location == Events.LOCATION.BASE and Events.is_adventure_location(prev_location):
@@ -749,7 +749,7 @@ func handle_location_changed(new_location: Events.LOCATION):
 		SaveManager.was_on_adventure_before_menu = false
 		CrownSystem.harvest_mine_on_expedition_return()
 		CrownSystem.tick_caravan_on_expedition_return()
-		SaveManager.save_game()
+		SaveManager.save_game(true)
 
 	# Главное меню → база («Продолжить»): если до меню были на острове, считаем это возвратом с похода.
 	if new_location == Events.LOCATION.BASE and prev_location == Events.LOCATION.MENU:
@@ -769,7 +769,7 @@ func handle_location_changed(new_location: Events.LOCATION):
 			SaveManager.was_on_adventure_before_menu = false
 			CrownSystem.harvest_mine_on_expedition_return()
 			CrownSystem.tick_caravan_on_expedition_return()
-			SaveManager.save_game()
+			SaveManager.save_game(true)
 
 	if prev_location == Events.LOCATION.BASE and Events.is_adventure_location(new_location):
 		## Караван у причала нельзя увезти на остров. Если борт ещё ждёт загрузки, при отплытии
@@ -889,7 +889,7 @@ func _emit_hud_save_resource_signals() -> void:
 ## Только для ui/debug_menu (F3). Та же запись SaveManager, что и остальной геймплей.
 func debug_reset_death_count_to_zero() -> void:
 	SaveManager.death_count = 0
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 func debug_add_hero_speed_bonus(delta: float) -> void:
@@ -897,7 +897,7 @@ func debug_add_hero_speed_bonus(delta: float) -> void:
 	var p := _find_player_node_in_current_scene()
 	if p != null and p.has_method("apply_hero_stat_bonuses_from_save"):
 		p.apply_hero_stat_bonuses_from_save()
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 func debug_apply_progress_reset_like_new_game() -> void:
@@ -920,7 +920,7 @@ func debug_apply_progress_reset_like_new_game() -> void:
 func add_gold(amount: int):
 	SaveManager.gold += amount
 	Events.gold_changed.emit(SaveManager.gold)
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	if amount > 0:
 		SoundManager.play_pickup_gold()
 
@@ -1094,7 +1094,7 @@ func _story_youth_expect_worker_unit_in_squad_counts() -> bool:
 func add_meat(amount: int) -> void:
 	SaveManager.meat_count = maxi(0, SaveManager.meat_count + amount)
 	Events.meat_changed.emit(SaveManager.meat_count)
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 func add_meat_volatile(amount: int) -> void:
@@ -1105,7 +1105,7 @@ func add_meat_volatile(amount: int) -> void:
 func add_wood(amount: int) -> void:
 	SaveManager.wood_count = maxi(0, SaveManager.wood_count + amount)
 	Events.wood_changed.emit(SaveManager.wood_count)
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 func add_wood_volatile(amount: int) -> void:
@@ -1116,7 +1116,7 @@ func add_wood_volatile(amount: int) -> void:
 func add_ore(amount: int) -> void:
 	SaveManager.ore_count = maxi(0, SaveManager.ore_count + amount)
 	Events.ore_changed.emit(SaveManager.ore_count)
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 
 
 func add_ore_volatile(amount: int) -> void:
@@ -1258,7 +1258,7 @@ func _finish_player_placement_after_scene_change(location: Events.LOCATION) -> v
 	SaveManager.resume_game_location = int(location)
 	SaveManager.resume_player_position_x = current_scene_player.global_position.x
 	SaveManager.resume_player_position_y = current_scene_player.global_position.y
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	## После смены сцены снова применить FPS/физику/Y-sort (раньше только deferred при load — первые кадры могли быть «не те»).
 	SaveManager.apply_window_and_engine_settings()
 	PostFinaleWorld.apply_after_scene_loaded()
@@ -1378,7 +1378,7 @@ func promote_youth_worker_to_warrior(kind: String, world_pos: Vector2, parent: N
 		SaveManager.story_flags.erase("worker_youth_promoted_archer")
 	## Остаётся в отряде для писем/лагеря/меню; в форме воина — без отдельного youth_worker в ny.
 	SaveManager.story_flags["worker_youth_recruited"] = true
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	_spawn_promoted_warrior_unit(kind, world_pos, parent, preferred_index, true)
 
 
@@ -1402,7 +1402,7 @@ func _spawn_promoted_warrior_unit(kind: String, world_pos: Vector2, parent: Node
 		SaveManager.archer_count = maxi(0, SaveManager.archer_count + 1)
 	else:
 		SaveManager.lancer_count = maxi(0, SaveManager.lancer_count + 1)
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	var unit := ps.instantiate() as Node2D
 	if unit == null:
 		return
@@ -1500,7 +1500,7 @@ func add_camera_to_player(player: Node) -> void:
 
 func boss_kill():
 	SaveManager.boss_kill += 1
-	SaveManager.save_game()
+	SaveManager.save_game(true)
 	SoundManager.notify_adventure_music_progress()
 
 
@@ -1517,4 +1517,4 @@ func on_story_island_boss_defeated(island_index: int) -> void:
 		StoryState.set_flag("youth_miron_mail_after_boss_%d" % island_index, true)
 	if island_index == 5:
 		PostFinaleWorld.on_story_island_5_boss_won()
-	SaveManager.save_game()
+	SaveManager.save_game(true)
