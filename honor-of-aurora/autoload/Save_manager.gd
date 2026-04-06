@@ -597,6 +597,26 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		## Перед закрытием окна — немедленная запись (режим SLIPPER не теряет прогресс из-за троттлинга «мягких» вызовов).
 		save_game(true)
+		return
+	## Гашение экрана / блокировка (mce POWER_DOWN, lipstick sleepDisplay): сброс ввода и звука — меньше «залипаний» и артефактов после пробуждения.
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_APPLICATION_PAUSED:
+		_on_application_background()
+		return
+	if what == NOTIFICATION_APPLICATION_FOCUS_IN or what == NOTIFICATION_APPLICATION_RESUMED:
+		_on_application_foreground()
+		return
+
+
+func _on_application_background() -> void:
+	Input.flush_buffered_events()
+	MobileVirtualInput.clear_input()
+	if is_instance_valid(SoundManager):
+		SoundManager.set_suspend_audio_for_background(true)
+
+
+func _on_application_foreground() -> void:
+	if is_instance_valid(SoundManager):
+		SoundManager.set_suspend_audio_for_background(false)
 
 
 func save_game_immediate() -> void:

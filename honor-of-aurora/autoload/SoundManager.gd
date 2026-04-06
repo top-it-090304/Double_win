@@ -243,6 +243,8 @@ var _playlist_cursor: int = 0
 var _playlist_tier_when_shuffled: int = -1
 var _prev_location: Events.LOCATION = Events.LOCATION.MENU
 var _music_duck_db: float = 0.0
+## Потеря фокуса / сон экрана (Aurora, Wayland): глушим выход, чтобы не оставлять музыку и не ловить глюки драйвера.
+var _background_mute_active: bool = false
 
 
 func _ready() -> void:
@@ -309,6 +311,23 @@ func apply_user_volume_settings() -> void:
 	_set_bus_linear(BUS_SFX, SaveManager.volume_sfx)
 	_set_bus_linear(BUS_UI, SaveManager.volume_ui)
 	_set_bus_linear(BUS_DIALOGUE, SaveManager.volume_dialogue)
+	if _background_mute_active:
+		_apply_master_background_mute(true)
+
+
+## Сон экрана / сворачивание: временно глушим Master (см. SaveManager NOTIFICATION_APPLICATION_*).
+func set_suspend_audio_for_background(active: bool) -> void:
+	if active == _background_mute_active:
+		return
+	_background_mute_active = active
+	_apply_master_background_mute(active)
+
+
+func _apply_master_background_mute(mute: bool) -> void:
+	var idx := AudioServer.get_bus_index(&"Master")
+	if idx < 0:
+		idx = 0
+	AudioServer.set_bus_mute(idx, mute)
 
 
 func _set_bus_linear(bus_name: StringName, linear: float) -> void:
