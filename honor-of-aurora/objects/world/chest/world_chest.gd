@@ -3,7 +3,7 @@ extends Area2D
 
 ## Уникальный id. Для сброса после возврата с острова на базу используйте вид islN_имя (как у ChestSpawner).
 @export var chest_save_id: String = ""
-## Ярус лута и спрайта 0..5 (= ChestVisual.TIER_1 … TIER_6). Игнорируется, если включён auto_roll_loot_tier (кроме уже сохранённого ролла).
+## Ярус лута 0..5 (= ChestVisual.TIER_1 … TIER_6); на вид сундука не влияет. Игнорируется, если включён auto_roll_loot_tier (кроме уже сохранённого ролла).
 @export_range(0, 5, 1) var loot_tier: int = 0
 ## Случайный ярус из пула острова (см. ChestIslandConfig), один раз на chest_save_id — дальше хранится в сохранении.
 @export var auto_roll_loot_tier: bool = false

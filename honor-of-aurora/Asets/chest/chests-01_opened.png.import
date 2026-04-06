@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://o8veoohaxp4a"
-path="res://.godot/imported/chests-04.png-86ff1205ba7b1d408349c78c88d749d0.ctex"
+uid="uid://bk2xk8ft5vuq8"
+path="res://.godot/imported/chests-01_opened.png-b8d7f8a05c575705bbeca303b08197fc.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Asets/chest/Foozle_2DS0003_Elegant_Set_of_Chests_Vector/CHESTS/png/OPEN_GEMS_OVERFLOW/NO_BACKLIGHT/chests-04.png"
-dest_files=["res://.godot/imported/chests-04.png-86ff1205ba7b1d408349c78c88d749d0.ctex"]
+source_file="res://Asets/chest/chests-01_opened.png"
+dest_files=["res://.godot/imported/chests-01_opened.png-b8d7f8a05c575705bbeca303b08197fc.ctex"]
 
 [params]
 

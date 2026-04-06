@@ -17,6 +17,10 @@ const _SLIPPER_CULL_RADIUS_MULT: float = 0.75
 ## Только SLIPPER: реже полный проход по слоям (меньше CPU на проверках).
 const _SLIPPER_UPDATE_FRAMES_MULT: int = 2
 const _SLIPPER_UPDATE_FRAMES_CAP: int = 16
+## Гистерезис: скрытый слой показываем по внешнему радиусу, видимый прячем только если
+## ни один спрайт не попадает во внутренний — иначе на границе круга декор «мигает».
+const _HYST_OUTER_RADIUS_MULT: float = 1.12
+const _HYST_INNER_RADIUS_MULT: float = 0.88
 
 var _was_slipper: bool = false
 
@@ -40,6 +44,8 @@ func _process(_delta: float) -> void:
 		return
 	var eff_radius := cull_radius_pixels * _SLIPPER_CULL_RADIUS_MULT
 	var eff_rsq: float = eff_radius * eff_radius
+	var outer_rsq: float = eff_rsq * _HYST_OUTER_RADIUS_MULT * _HYST_OUTER_RADIUS_MULT
+	var inner_rsq: float = eff_rsq * _HYST_INNER_RADIUS_MULT * _HYST_INNER_RADIUS_MULT
 	var anchor: Variant = _get_anchor_global()
 	if anchor == null:
 		return
@@ -57,8 +63,13 @@ func _process(_delta: float) -> void:
 		if not island_root.is_ancestor_of(layer):
 			continue
 		var n2: Node2D = layer as Node2D
-		var center := _layer_content_center_global(n2)
-		var should_show := apos.distance_squared_to(center) <= eff_rsq
+		## По среднему центру слоя нельзя: на одном TileMapLayer тайлы по всему острову —
+		## среднее уезжает в «середину карты», и тыквы/грибы у камеры пропадают целыми слоями.
+		var should_show: bool
+		if n2.visible:
+			should_show = _layer_any_sprite_within_radius_sq(n2, apos, inner_rsq)
+		else:
+			should_show = _layer_any_sprite_within_radius_sq(n2, apos, outer_rsq)
 		if should_show:
 			if not n2.visible or n2.process_mode == Node.PROCESS_MODE_DISABLED:
 				_restore_layer(n2)
@@ -80,16 +91,14 @@ func _get_anchor_global() -> Variant:
 	return null
 
 
-func _layer_content_center_global(layer: Node2D) -> Vector2:
-	var sum := Vector2.ZERO
-	var n := 0
+func _layer_any_sprite_within_radius_sq(layer: Node2D, anchor: Vector2, radius_sq: float) -> bool:
 	for c in layer.get_children():
-		if c is Node2D:
-			sum += (c as Node2D).global_position
-			n += 1
-	if n == 0:
-		return layer.global_position
-	return sum / float(n)
+		if c is Sprite2D or c is AnimatedSprite2D:
+			var p: Vector2 = (c as Node2D).global_position
+			if anchor.distance_squared_to(p) <= radius_sq:
+				return true
+	## Пустой слой или ещё не мигрировал — ориентир на узел слоя.
+	return anchor.distance_squared_to(layer.global_position) <= radius_sq
 
 
 func _restore_all_under_island() -> void:

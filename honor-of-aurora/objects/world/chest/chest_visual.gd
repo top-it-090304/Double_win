@@ -1,12 +1,11 @@
 extends Node2D
 class_name ChestVisual
-## Сундук из набора Foozle: только спрайты NO_BACKLIGHT (без подсветки/«фона» за объектом).
-## Без @tool — меньше нагрузка при загрузке сцен в редакторе; в игре превью в инспекторе может отставать от tier/state.
-## Состояние картинки задаётся через visual_state; «тип» сундука — chest_tier (01…06 в именах файлов).
+## Два спрайта: закрытый и открытый (`res://Asets/chest/chests-01*.png`).
+## Состояние картинки — `visual_state`; ярус лута (`chest_tier`) на вид не влияет.
 
 signal chest_updated()
 
-## Соответствует файлам chests-01 … chests-06 (от простого к более богатому виду).
+## Сохранён для лута и инспектора; на текстуру не влияет.
 enum ChestTier {
 	TIER_1,
 	TIER_2,
@@ -16,7 +15,7 @@ enum ChestTier {
 	TIER_6,
 }
 
-## Вариант отображения (закрыт / пустой / золото / камни / переполнение).
+## Все «открытые» варианты используют одну текстуру открытого сундука.
 enum ChestVisualState {
 	CLOSED,
 	OPEN_EMPTY,
@@ -26,22 +25,15 @@ enum ChestVisualState {
 	OPEN_GEMS_OVERFLOW,
 }
 
-const CHEST_PNG_BASE := "res://Asets/chest/Foozle_2DS0003_Elegant_Set_of_Chests_Vector/CHESTS/png"
-## Ленивая загрузка текстур (кэш по индексу). 36× preload тянули все сундуки в VRAM при первом парсе скрипта — сильные лаги.
+const TEXTURE_CLOSED := "res://Asets/chest/chests-01.png"
+const TEXTURE_OPENED := "res://Asets/chest/chests-01_opened.png"
+
 static var _chest_texture_cache: Dictionary = {}
+
 ## Кадр спрайта героя (Warrior atlas 192×192) — ориентир для размера сундука.
 const _REF_PLAYER_FRAME_HEIGHT_PX := 192.0
 ## Высота сундука на экране = эта доля от высоты кадра игрока (0.5 = половина).
 const _CHEST_HEIGHT_VS_PLAYER := 0.5
-
-const _STATE_SUBDIR := {
-	ChestVisualState.CLOSED: "CLOSED",
-	ChestVisualState.OPEN_EMPTY: "OPEN_EMPTY",
-	ChestVisualState.OPEN_GOLD: "OPEN_GOLD",
-	ChestVisualState.OPEN_GEMS: "OPEN_GEMS",
-	ChestVisualState.OPEN_GOLD_OVERFLOW: "OPEN_GOLD_OVERFLOW",
-	ChestVisualState.OPEN_GEMS_OVERFLOW: "OPEN_GEMS_OVERFLOW",
-}
 
 @export var chest_tier: ChestTier = ChestTier.TIER_1:
 	set(v):
@@ -104,24 +96,21 @@ func is_closed_visual() -> bool:
 	return visual_state == ChestVisualState.CLOSED
 
 
-func get_texture_path_for(tier: ChestTier, state: ChestVisualState) -> String:
-	var sub: String = _STATE_SUBDIR[state]
-	var num := int(tier) + 1
-	return "%s/%s/NO_BACKLIGHT/chests-%02d.png" % [CHEST_PNG_BASE, sub, num]
+func get_texture_path_for(_tier: ChestTier, state: ChestVisualState) -> String:
+	return TEXTURE_CLOSED if state == ChestVisualState.CLOSED else TEXTURE_OPENED
 
 
-func _chest_texture_index(tier: ChestTier, state: ChestVisualState) -> int:
-	return int(state) * 6 + int(tier)
+func _is_open_state(state: ChestVisualState) -> bool:
+	return state != ChestVisualState.CLOSED
 
 
-func _texture_for_tier_state(tier: ChestTier, state: ChestVisualState) -> Texture2D:
-	var idx := _chest_texture_index(tier, state)
-	if _chest_texture_cache.has(idx):
-		return _chest_texture_cache[idx] as Texture2D
-	var path := get_texture_path_for(tier, state)
+func _texture_for_visual_state(state: ChestVisualState) -> Texture2D:
+	var path: String = TEXTURE_OPENED if _is_open_state(state) else TEXTURE_CLOSED
+	if _chest_texture_cache.has(path):
+		return _chest_texture_cache[path] as Texture2D
 	var tex: Texture2D = ResourceLoader.load(path, "Texture2D", ResourceLoader.CACHE_MODE_REUSE) as Texture2D
 	if tex != null:
-		_chest_texture_cache[idx] = tex
+		_chest_texture_cache[path] = tex
 	return tex
 
 
@@ -129,9 +118,9 @@ func _refresh_texture() -> void:
 	var spr: Sprite2D = _sprite if _sprite != null else get_node_or_null("Sprite2D") as Sprite2D
 	if spr == null:
 		return
-	var tex: Texture2D = _texture_for_tier_state(chest_tier, visual_state)
+	var tex: Texture2D = _texture_for_visual_state(visual_state)
 	if tex == null:
-		push_warning("ChestVisual: нет текстуры для tier=%s state=%s" % [chest_tier, visual_state])
+		push_warning("ChestVisual: нет текстуры для state=%s (пути: %s / %s)" % [visual_state, TEXTURE_CLOSED, TEXTURE_OPENED])
 		return
 	spr.texture = tex
 	_apply_display_scale(spr)
