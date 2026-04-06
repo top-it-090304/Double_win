@@ -3,11 +3,14 @@ class_name SlipperCombatBudget
 ## TASK-015: бюджет тяжёлой логики боя в режиме «На тапке» (дистанция до героя, без изменения урона/HP).
 
 ## Полный AI каждый физкадр, если герой ближе этого порога (мировые px).
+## SLIPPER: узкая зона — дальше враги идут прямо на цель без навигации/лучей.
 const NEAR_FULL_AI_DISTANCE_PX := 2000.0
+const NEAR_FULL_AI_DISTANCE_PX_SLIPPER := 720.0
 ## Запас к радиусу атаки: overlap/дистанция не должны «отставать» на кадр при редком AI.
 const CONSERVATIVE_ATTACK_REACH_MARGIN_PX := 420.0
 ## Дальше от героя: полный тяжёлый AI (навигация, выбор цели, soft-sep, анимация) раз в N физкадров.
 const FAR_HEAVY_AI_INTERVAL_FRAMES := 4
+const FAR_HEAVY_AI_INTERVAL_FRAMES_SLIPPER := 12
 
 ## Снаряды дальше этого расстояния до героя могут откладывать шаг движения (накопление delta — средняя скорость сохраняется).
 const PROJECTILE_NEAR_PLAYER_PX := 1600.0
@@ -27,6 +30,7 @@ const PAWN_NAV_PATH_DESIRED_SLIPPER := 22.0
 const PAWN_NAV_TARGET_DESIRED_SLIPPER := 38.0
 ## Дальше NEAR_FULL_AI — реже выставлять target_position (меньше запросов пути к NavigationServer), get_next_path_position по-прежнему каждый кадр движения по агенту.
 const NAV_TARGET_REFRESH_FAR_INTERVAL_FRAMES := 2
+const NAV_TARGET_REFRESH_FAR_INTERVAL_FRAMES_SLIPPER := 6
 
 
 static func apply_enemy_navigation_agent_preset(agent: NavigationAgent2D) -> void:
@@ -105,14 +109,19 @@ static func should_push_nav_target_to_player_this_physics_frame(
 	if player == null or not is_instance_valid(player):
 		return true
 	var dist: float = enemy.global_position.distance_to(player.global_position)
-	if dist <= NEAR_FULL_AI_DISTANCE_PX:
+	var near_thr: float = NEAR_FULL_AI_DISTANCE_PX
+	var nav_iv: int = NAV_TARGET_REFRESH_FAR_INTERVAL_FRAMES
+	if PerformancePreset.is_slipper_mode(SaveManager):
+		near_thr = NEAR_FULL_AI_DISTANCE_PX_SLIPPER
+		nav_iv = NAV_TARGET_REFRESH_FAR_INTERVAL_FRAMES_SLIPPER
+	if dist <= near_thr:
 		return true
 	if attack_radius_px > 0.0 and dist <= attack_radius_px + CONSERVATIVE_ATTACK_REACH_MARGIN_PX:
 		return true
 	if attack_area != null and is_instance_valid(attack_area) and attack_area.monitoring:
 		if player_in_credible_melee_reach_pixels(attack_radius_px, attack_area, player):
 			return true
-	return (physics_frame % NAV_TARGET_REFRESH_FAR_INTERVAL_FRAMES) == 0
+	return (physics_frame % nav_iv) == 0
 
 
 static func should_push_nav_target_worker_vs_player_this_physics_frame(
@@ -126,9 +135,14 @@ static func should_push_nav_target_worker_vs_player_this_physics_frame(
 		return true
 	if player == null or not is_instance_valid(player):
 		return true
-	if worker.global_position.distance_to(player.global_position) <= NEAR_FULL_AI_DISTANCE_PX:
+	var near_thr: float = NEAR_FULL_AI_DISTANCE_PX
+	var nav_iv: int = NAV_TARGET_REFRESH_FAR_INTERVAL_FRAMES
+	if PerformancePreset.is_slipper_mode(SaveManager):
+		near_thr = NEAR_FULL_AI_DISTANCE_PX_SLIPPER
+		nav_iv = NAV_TARGET_REFRESH_FAR_INTERVAL_FRAMES_SLIPPER
+	if worker.global_position.distance_to(player.global_position) <= near_thr:
 		return true
-	return (physics_frame % NAV_TARGET_REFRESH_FAR_INTERVAL_FRAMES) == 0
+	return (physics_frame % nav_iv) == 0
 
 
 static func should_run_heavy_ai_for_enemy(
@@ -149,14 +163,19 @@ static func should_run_heavy_ai_for_enemy(
 	var enemy_pos: Vector2 = enemy.global_position
 	var pp: Vector2 = player.global_position
 	var dist: float = enemy_pos.distance_to(pp)
-	if dist <= NEAR_FULL_AI_DISTANCE_PX:
+	var near_thr: float = NEAR_FULL_AI_DISTANCE_PX
+	var far_iv: int = FAR_HEAVY_AI_INTERVAL_FRAMES
+	if PerformancePreset.is_slipper_mode(SaveManager):
+		near_thr = NEAR_FULL_AI_DISTANCE_PX_SLIPPER
+		far_iv = FAR_HEAVY_AI_INTERVAL_FRAMES_SLIPPER
+	if dist <= near_thr:
 		return true
 	if attack_radius_px > 0.0 and dist <= attack_radius_px + CONSERVATIVE_ATTACK_REACH_MARGIN_PX:
 		return true
 	if attack_area != null and is_instance_valid(attack_area) and attack_area.monitoring:
 		if player_in_credible_melee_reach_pixels(attack_radius_px, attack_area, player):
 			return true
-	return (physics_frame % FAR_HEAVY_AI_INTERVAL_FRAMES) == 0
+	return (physics_frame % far_iv) == 0
 
 
 static func should_defer_projectile_motion_frame(projectile_pos: Vector2, player: Node2D, process_frame: int) -> bool:

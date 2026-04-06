@@ -49,6 +49,8 @@ var _stuck_frames: int = 0
 var _recover_time: float = 0.0
 var _recover_dir: Vector2 = Vector2.RIGHT
 var _select_target_cd: float = 0.0
+## После клампа по спрайту, до SlipperEnemyAnimations: не даём подмене кадров менять игровой радиус атаки.
+var _attack_radius_after_sprite_clamp: float = -1.0
 
 const _SEP_EPS := 1e-3
 const _STUCK_THRESHOLD_FRAMES := 14
@@ -187,6 +189,8 @@ func _sync_attack_detection_shape_radii() -> void:
 		return
 	if _should_clamp_melee_attack_radius_to_sprite():
 		_clamp_attack_radius_to_sprite_frame()
+	if _attack_radius_after_sprite_clamp < 0.0:
+		_attack_radius_after_sprite_clamp = attack_radius
 	if attack_shape and attack_shape.shape is CircleShape2D:
 		(attack_shape.shape as CircleShape2D).radius = attack_radius
 	if detection_shape and detection_shape.shape is CircleShape2D:
@@ -194,6 +198,11 @@ func _sync_attack_detection_shape_radii() -> void:
 	## «На тапке»: облегчённые кадры и FPS анимаций (после клампа по спрайту).
 	if PerformancePreset.is_slipper_mode(SaveManager):
 		_slipper_apply_reduced_enemy_animations()
+		## Подмена SpriteFrames не должна менять баланс дистанции удара — возвращаем радиус после клампа.
+		if _attack_radius_after_sprite_clamp > 0.0:
+			attack_radius = _attack_radius_after_sprite_clamp
+			if attack_shape and attack_shape.shape is CircleShape2D:
+				(attack_shape.shape as CircleShape2D).radius = attack_radius
 
 
 func _slipper_apply_reduced_enemy_animations() -> void:
@@ -290,8 +299,17 @@ func _setup_nav_agent() -> void:
 		_nav_agent.target_position = global_position
 
 
+## «На тапке»: обычные враги — без обхода препятствий и без NavigationAgent-пути (только прямой вектор к цели).
+func _slipper_linear_enemy_chase() -> bool:
+	return PerformancePreset.is_slipper_mode(SaveManager) and not is_in_group(&"BOSS")
+
+
 func _sync_avoidance_to_state() -> void:
 	if _nav_agent == null or not is_instance_valid(_nav_agent):
+		return
+	if _slipper_linear_enemy_chase():
+		if _nav_agent.avoidance_enabled:
+			_nav_agent.avoidance_enabled = false
 		return
 	var need := state == State.CHASE or state == State.ATTACK
 	if _nav_agent.avoidance_enabled != need:
@@ -329,7 +347,11 @@ func _physics_process(delta):
 					_select_target()
 					_select_target_cd = _SELECT_TARGET_INTERVAL
 				else:
-					_select_target_cd = 0.034
+					if _slipper_linear_enemy_chase():
+						_select_target()
+						_select_target_cd = 0.45
+					else:
+						_select_target_cd = 0.034
 			if target and is_instance_valid(target):
 				if global_position.distance_to(home_position) > leash_radius:
 					target = null
@@ -340,7 +362,9 @@ func _physics_process(delta):
 					if can_attack:
 						start_attack()
 				else:
-					if slipper_heavy:
+					if _slipper_linear_enemy_chase():
+						_apply_chase_velocity_simple()
+					elif slipper_heavy:
 						_apply_chase_velocity()
 					else:
 						_apply_chase_velocity_simple()
@@ -356,6 +380,9 @@ func _physics_process(delta):
 			else:
 				var want_home := _dir_toward_target(to_home)
 				if is_in_group(&"BOSS"):
+					last_dir = want_home
+					velocity = last_dir * speed * 0.95
+				elif _slipper_linear_enemy_chase():
 					last_dir = want_home
 					velocity = last_dir * speed * 0.95
 				else:
@@ -375,12 +402,17 @@ func _physics_process(delta):
 	## Босс в погоне: без soft-sep (иначе радиальное отталкивание даёт лево/вправо вместо прямо к герою).
 	if not (is_in_group(&"BOSS") and state == State.CHASE):
 		if slipper_heavy:
-			_apply_soft_separation_to_velocity(delta)
+			if _slipper_linear_enemy_chase():
+				if (Engine.get_physics_frames() % 4) == 0:
+					_apply_soft_separation_to_velocity(delta)
+			else:
+				_apply_soft_separation_to_velocity(delta)
 	move_and_slide()
 
 	if use_navigation and _nav_agent and is_instance_valid(_nav_agent):
-		SlipperCombatBudget.apply_enemy_navigation_agent_preset(_nav_agent)
-		_nav_agent.velocity = velocity
+		if not _slipper_linear_enemy_chase():
+			SlipperCombatBudget.apply_enemy_navigation_agent_preset(_nav_agent)
+			_nav_agent.velocity = velocity
 
 	## Босс в погоне: без скольжения вдоль стены — оно уводит вбок от прямой к цели.
 	if state in [State.CHASE, State.LEASH] and is_on_wall():
@@ -389,36 +421,42 @@ func _physics_process(delta):
 			move_and_slide()
 
 	if state == State.CHASE and target and is_instance_valid(target) and slipper_heavy:
-		var moved_distance := previous_position.distance_to(global_position)
-		if _is_target_in_attack_range():
-			_stuck_frames = 0
-		elif not is_in_group(&"BOSS") and moved_distance < 0.55:
-			_stuck_frames += 1
-			if _stuck_frames >= _STUCK_THRESHOLD_FRAMES and get_slide_collision_count() > 0:
-				var c := get_slide_collision(0)
-				if c:
-					var n: Vector2 = c.get_normal()
-					var tangent := n.orthogonal().normalized()
-					if tangent.dot(_dir_toward_target(target.global_position - global_position)) < 0.0:
-						tangent = -tangent
-					_recover_dir = tangent
-					_recover_time = _RECOVER_DURATION
-					state = State.RECOVER
-					_stuck_frames = 0
+		if not _slipper_linear_enemy_chase():
+			var moved_distance := previous_position.distance_to(global_position)
+			if _is_target_in_attack_range():
+				_stuck_frames = 0
+			elif not is_in_group(&"BOSS") and moved_distance < 0.55:
+				_stuck_frames += 1
+				if _stuck_frames >= _STUCK_THRESHOLD_FRAMES and get_slide_collision_count() > 0:
+					var c := get_slide_collision(0)
+					if c:
+						var n: Vector2 = c.get_normal()
+						var tangent := n.orthogonal().normalized()
+						if tangent.dot(_dir_toward_target(target.global_position - global_position)) < 0.0:
+							tangent = -tangent
+						_recover_dir = tangent
+						_recover_time = _RECOVER_DURATION
+						state = State.RECOVER
+						_stuck_frames = 0
+			else:
+				_stuck_frames = 0
+
+			var to_target := target.global_position - global_position
+			var min_distance := attack_radius * 0.4
+			if not is_in_group(&"BOSS") and to_target.length() < min_distance and not _is_target_in_attack_range():
+				var push_dir := _away_from_target(to_target)
+				if push_dir.length() > _SEP_EPS:
+					velocity = push_dir * speed * 0.35
+					move_and_slide()
 		else:
 			_stuck_frames = 0
-
-		var to_target := target.global_position - global_position
-		var min_distance := attack_radius * 0.4
-		if not is_in_group(&"BOSS") and to_target.length() < min_distance and not _is_target_in_attack_range():
-			var push_dir := _away_from_target(to_target)
-			if push_dir.length() > _SEP_EPS:
-				velocity = push_dir * speed * 0.35
-				move_and_slide()
 
 	_sync_avoidance_to_state()
 	if slipper_heavy:
 		update_animation()
+	elif PerformancePreset.is_slipper_mode(SaveManager):
+		if (Engine.get_physics_frames() % 2) == 0:
+			update_animation()
 
 
 func _apply_chase_velocity_simple() -> void:

@@ -6,9 +6,9 @@ class_name SlipperEnemyAnimations
 static var _cache: Dictionary = {}
 
 ## Максимум кадров для «длинных» клипов после урезания.
-const _MAX_ATTACK_FRAMES := 4
-const _MAX_DEAD_FRAMES := 3
-const _MAX_RUN_FRAMES := 4
+const _MAX_ATTACK_FRAMES := 3
+const _MAX_DEAD_FRAMES := 2
+const _MAX_RUN_FRAMES := 3
 ## Idle: один кадр, очень медленный цикл (визуально почти статика).
 const _IDLE_FPS_CAP := 3.5
 
