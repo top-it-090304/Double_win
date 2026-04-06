@@ -35,8 +35,9 @@ SFX combat / steps: Kenney (CC0) — RPG Audio, Impact Sounds — https://kenney
 Attack shout (только игрок, взмах): «Voice Clip Pack - Male Adventurer RPG» (Brandon Song / wolfwoot), CC0
 https://opengameart.org/content/voice-clip-pack-male-adventurer-rpg
 Короткие возгласы (без длинных «attackbig»): attack2, attack4, attack8.wav → knight_attack_shout_0..2.wav
-Атака врагов (рычание, тролль, жуки и т.д.): «80 CC0 creature SFX», rubberduck, CC0 — https://opengameart.org/content/80-cc0-creature-sfx
-Файлы в res://audio/sfx/enemy_attack/rubberduck_cc0/ (подмножество из архива; roar_* — медведь/панда, troll_* — тролль, bug_* — паук и т.п.).
+Атака врагов (вокал зверей/монстров по типу юнита, без ударов/щелчков): CC0 — artisticdude «RPG Sound Pack» — https://opengameart.org/content/rpg-sound-pack
+Дополнительно: Ogrebane «Monster Sounds» (архив monster-sounds-volume-2.zip на странице Monster Sound Pack Vol.1) — https://opengameart.org/content/monster-sound-pack-volume-1 ; StarNinjas «16 Monster Growls» — https://opengameart.org/content/16-monster-growls
+Минотавр: подпапка NPC/giant (низкие рыки, «бычий» тембр). Список файлов и сопоставление — fantasy_cc0/ATTRIBUTION.txt
 
 UI (dialogue, menus, buttons): Kenney Interface Sounds (CC0) — https://kenney.nl/assets/interface-sounds
 Menu open/close: pluck_001 + tick_001 (мягкие, вместо open/close).

@@ -1,0 +1,5 @@
+﻿ATTRIBUTION (CC0):
+- artisticdude RPG Sound Pack — https://opengameart.org/content/rpg-sound-pack
+- Ogrebane Monster Sounds Volume 2 — https://opengameart.org/content/monster-sound-pack-volume-1 (zip: monster-sounds-volume-2.zip)
+- StarNinjas 16 Monster Growls — https://opengameart.org/content/16-monster-growls
+Минотавр: NPC/giant/*.wav (низкие рыки). Медведь/череп: StarNinjas. Тролль: Ogrebane M1-M5.

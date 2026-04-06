@@ -68,94 +68,107 @@ const ATTACK_SHOUTS = [
 	preload("res://audio/sfx/knight_attack_shout_1.wav"),
 	preload("res://audio/sfx/knight_attack_shout_2.wav"),
 ]
-## Взмах/крик атаки врага: CC0 creature SFX (rubberduck, OGA), по типу юнита — infer_enemy_sfx_kind_from_script_path().
-## Медведь — рычание (roar_*), не щелчки металла.
+## Взмах атаки врага: только вокал зверей/монстров (CC0), без ударов/щелчков — см. fantasy_cc0/ATTRIBUTION.txt
 const _SW_BLOCK_00 := preload("res://audio/sfx/shield_variants/block_00_metalClick.ogg")
 const _CRE_ROAR: Array[AudioStream] = [
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/roar_01.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/roar_02.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/roar_03.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/bear_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/bear_02.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/bear_03.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/bear_04.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/bear_05.ogg"),
 ]
 const _CRE_TROLL: Array[AudioStream] = [
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/troll_01.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/troll_02.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/troll_03.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/troll_01.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/troll_02.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/troll_03.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/troll_04.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/troll_05.wav"),
 ]
+## Минотавр: низкие рыки «giant» (бык / тяжёлый зверь), не общие монстры.
 const _CRE_MINOTAUR: Array[AudioStream] = [
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/monster_04.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/monster_05.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/monster_06.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/troll_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/minotaur_01.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/minotaur_02.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/minotaur_03.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/minotaur_04.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/minotaur_05.wav"),
 ]
 const _CRE_THIEF: Array[AudioStream] = [
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_01.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_02.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/spit_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/thief_01.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/thief_02.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/thief_03.wav"),
 ]
 const _CRE_GNOME: Array[AudioStream] = [
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/weird_01.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/weird_02.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/cough_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/gnome_01.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/gnome_02.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/gnome_03.wav"),
 ]
 const _CRE_LANCER: Array[AudioStream] = [
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_03.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_04.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_05.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/lancer_01.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/lancer_02.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/lancer_03.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/lancer_04.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/lancer_05.wav"),
 ]
 const _CRE_SKULL: Array[AudioStream] = [
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/scream_01.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/scream_02.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/weird_05.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/skull_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/skull_02.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/skull_03.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/skull_04.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/skull_05.ogg"),
 ]
 const _CRE_SPIDER: Array[AudioStream] = [
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/bug_01.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/bug_02.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/bug_03.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/bug_04.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/spider_01.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/spider_02.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/spider_03.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/spider_04.wav"),
 ]
 const _CRE_SNAKE_LIZARD: Array[AudioStream] = [
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/spit_02.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/spit_03.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/burble_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/snake_01.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/snake_02.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/snake_03.wav"),
 ]
 const _CRE_TURTLE: Array[AudioStream] = [
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/breath.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/burble_02.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/misc_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/turtle_01.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/turtle_02.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/turtle_03.wav"),
 ]
 const _CRE_GNOLL: Array[AudioStream] = [
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/howl.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/monster_01.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/monster_02.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/eat_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/gnoll_01.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/gnoll_02.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/gnoll_03.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/gnoll_04.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/gnoll_05.wav"),
 ]
 const _CRE_SHAMAN: Array[AudioStream] = [
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/weird_03.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/weird_04.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/ooh.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/alien_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/shaman_01.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/shaman_02.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/shaman_03.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/shaman_04.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/shaman_05.wav"),
 ]
 const _CRE_FISH_THROW: Array[AudioStream] = [
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/spit_01.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/misc_01.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/burble_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/fish_01.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/fish_02.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/fish_03.wav"),
 ]
 const _CRE_GOBLIN_TORCH: Array[AudioStream] = [
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/cute_02.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/cute_03.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/scream_01.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/goblin_torch_01.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/goblin_torch_02.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/goblin_torch_03.wav"),
 ]
 const _CRE_GOBLIN_TNT: Array[AudioStream] = [
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/burp_01.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/burp_02.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/misc_02.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/goblin_tnt_01.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/goblin_tnt_02.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/goblin_tnt_03.wav"),
 ]
-## Неизвестный тип / чистый enemy_base.gd — злой рык, без «дверных» щелчков.
+## Неизвестный тип / чистый enemy_base.gd — звериные рыки (отдельный пул от остальных типов).
 const ENEMY_ATTACK_SWINGS: Array[AudioStream] = [
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_01.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_02.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_03.ogg"),
-	preload("res://audio/sfx/enemy_attack/rubberduck_cc0/grunt_04.ogg"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/generic_06.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/generic_07.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/generic_08.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/generic_09.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/generic_11.wav"),
+	preload("res://audio/sfx/enemy_attack/fantasy_cc0/generic_12.wav"),
 ]
 const STREAM_HIT_ARMOR := preload("res://audio/sfx/hit_armor.ogg")
 const STREAM_HIT_BODY := preload("res://audio/sfx/hit_body.ogg")
@@ -590,8 +603,10 @@ func _enemy_attack_pitch_range_for_kind(kind: StringName) -> Vector2:
 			return Vector2(0.78, 0.92)
 		&"panda":
 			return Vector2(0.9, 1.04)
-		&"troll", &"minotaur":
+		&"troll":
 			return Vector2(0.84, 0.98)
+		&"minotaur":
+			return Vector2(0.72, 0.88)
 		&"turtle":
 			return Vector2(0.9, 1.02)
 		&"skull":
