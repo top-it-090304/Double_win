@@ -136,6 +136,9 @@ func _setup_base_navigation_from_tile_collisions() -> void:
 	var nav := NavigationRegion2D.new()
 	nav.name = "IslandNavigationRegion"
 	nav.navigation_layers = 1
+	## Один регион на карте — межрегиональные edge connections не нужны; иначе Godot может
+	## ругаться в _build_step_find_edge_connection_pairs (merge already-merged edge).
+	nav.use_edge_connections = false
 	nav.navigation_polygon = np
 	add_child(nav)
 	call_deferred("_sync_nav_map_cell_size", np.cell_size)
@@ -213,7 +216,12 @@ func _sync_nav_map_cell_size(cell_size: float) -> void:
 	var cs: float = cell_size
 	if cs <= 0.0:
 		cs = 1.0
-	NavigationServer2D.map_set_cell_size(get_world_2d().get_navigation_map(), cs)
+	var map_rid: RID = get_world_2d().get_navigation_map()
+	NavigationServer2D.map_set_cell_size(map_rid, cs)
+	## Регион может иметь use_edge_connections=false, но карта World2D создаётся с
+	## navigation/2d/use_edge_connections (по умолчанию true) — иначе шаг _build_step_find_edge_connection_pairs
+	## в NavigationServer3D всё равно выполняется.
+	NavigationServer2D.map_set_use_edge_connections(map_rid, false)
 
 
 func spawn_base_sheep_random() -> void:

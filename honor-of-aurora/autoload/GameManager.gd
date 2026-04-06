@@ -681,6 +681,16 @@ func can_teleport_to_location(loc: Events.LOCATION) -> bool:
 			return true
 
 
+## Перед swap телепорта (`hide_world_until_player`): иначе старая и новая игровые сцены кратко
+## живут в дереве одновременно и оба `NavigationRegion2D` попадают на один World2D —
+## NavigationServer даёт merge edge / synchronization error.
+func _disable_navigation_regions_in_subtree(node: Node) -> void:
+	for c in node.get_children():
+		_disable_navigation_regions_in_subtree(c)
+	if node is NavigationRegion2D:
+		(node as NavigationRegion2D).enabled = false
+
+
 ## Смена локации вызывает change_scene и освобождает текущую сцену (HUD, меню, герой).
 ## Синхронный emit со стека узла из этой сцены → обращение к освобождённому Node → !is_inside_tree / SIGSEGV.
 func defer_location_changed(loc: Events.LOCATION) -> void:
@@ -841,6 +851,8 @@ func handle_location_changed(new_location: Events.LOCATION):
 			if teleport_cloud_overlay != null and is_instance_valid(teleport_cloud_overlay):
 				await MenuStartTransition.run_exit(teleport_cloud_overlay)
 			return
+		_disable_navigation_regions_in_subtree(old_scene)
+		await get_tree().process_frame
 		var root := get_tree().root
 		root.add_child(new_scene)
 		root.move_child(new_scene, old_scene.get_index())

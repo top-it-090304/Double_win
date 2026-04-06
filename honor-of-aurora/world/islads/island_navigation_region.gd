@@ -14,14 +14,12 @@ var _default_outline: PackedVector2Array = PackedVector2Array([
 ])
 
 
-## Сначала bake через NavigationServer; при нуле полигонов (встречается на части GLES/портов) — запасной `make_polygons_from_outlines`.
+## Замена устаревшего `NavigationPolygon.make_polygons_from_outlines()` (Godot 4.4+).
+## Не вызывать `make_polygons_from_outlines` после неудачного bake на том же `NavigationPolygon` —
+## на части билдов это даёт дубли рёбер и «merge edge» при синхронизации карты (телепорт на остров).
 func _bake_navigation_polygon_from_outlines(np: NavigationPolygon) -> void:
 	var sg := NavigationMeshSourceGeometryData2D.new()
 	NavigationServer2D.bake_from_source_geometry_data(np, sg)
-	if np.get_polygon_count() > 0:
-		return
-	if np.get_outline_count() > 0:
-		np.make_polygons_from_outlines()
 
 
 func _is_game_base_island_scene() -> bool:
@@ -63,7 +61,9 @@ func _sync_navigation_map_cell_size() -> void:
 	var cs: float = navigation_polygon.cell_size
 	if cs <= 0.0:
 		cs = 1.0
-	NavigationServer2D.map_set_cell_size(get_world_2d().get_navigation_map(), cs)
+	var map_rid: RID = get_world_2d().get_navigation_map()
+	NavigationServer2D.map_set_cell_size(map_rid, cs)
+	NavigationServer2D.map_set_use_edge_connections(map_rid, false)
 
 
 func _configure_new_navigation_polygon(np: NavigationPolygon) -> void:

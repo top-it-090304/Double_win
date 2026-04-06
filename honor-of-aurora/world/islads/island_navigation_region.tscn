@@ -4,4 +4,5 @@
 
 [node name="IslandNavigationRegion" type="NavigationRegion2D"]
 navigation_layers = 1
+use_edge_connections = false
 script = ExtResource("1_nav")

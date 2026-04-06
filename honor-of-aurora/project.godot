@@ -75,6 +75,7 @@ shield={
 
 [navigation]
 
+2d/use_edge_connections=false
 3d/merge_rasterizer_cell_scale=0.001
 
 [physics]
