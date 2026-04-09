@@ -3,3 +3,14 @@ docs/payment/
 
 # Локальные материалы процесса оптимизации (не в remote)
 optimization-aurora/
+
+# Ключи API (OpenCode / AITUNNEL и др.)
+.secrets/
+.env
+
+# Инструкции и конфиги для агентов / IDE (не в remote)
+AGENTS.md
+demo-prep/
+opencode.json
+optimization-aurora-wave2/
+.cursor/
