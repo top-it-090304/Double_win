@@ -1,16 +1,16 @@
-PAYMENTS_LOCAL/
-docs/payment/
-
 # Локальные материалы процесса оптимизации (не в remote)
+docs/payment/
 optimization-aurora/
+optimization-aurora-wave2/
+demo-prep/
 
-# Ключи API (OpenCode / AITUNNEL и др.)
+# Ключи API
 .secrets/
 .env
 
-# Инструкции и конфиги для агентов / IDE (не в remote)
-AGENTS.md
-demo-prep/
-opencode.json
-optimization-aurora-wave2/
-.cursor/
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
