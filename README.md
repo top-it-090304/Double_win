@@ -2,7 +2,7 @@
 
 <img src="images/Logo/Logo.jpg" alt="Честь Архипелага Аврора" width="420"/>
 
-# Честь Архипелага Аврора
+# Честь Авроры
 
 ### *Honor of Aurora*
 
