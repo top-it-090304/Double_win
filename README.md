@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="images/Logo/Logo.jpg" alt="Честь Архипелага Аврора" width="420"/>
+<img src="images/Logo/Logo.jpg" alt="Честь Авроры" width="420"/>
 
 # Честь Авроры
 
