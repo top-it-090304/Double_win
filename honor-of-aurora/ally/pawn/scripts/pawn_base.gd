@@ -104,7 +104,7 @@ func _slipper_maybe_push_nav_gather_target() -> void:
 	## TASK-018: реже target_position к цели добычи, если рабочий далеко от героя (SLIPPER).
 	if _nav_agent == null or not is_instance_valid(_nav_agent):
 		return
-	var p := get_tree().get_first_node_in_group("player") as Node2D
+	var p := get_cached_player_for_physics_frame(get_tree())
 	if SlipperCombatBudget.should_push_nav_target_worker_vs_player_this_physics_frame(
 		self, p, Engine.get_physics_frames()
 	):

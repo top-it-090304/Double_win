@@ -58,7 +58,9 @@ const _RECOVER_DURATION := 0.38
 const _FAN_STEP := PI / 10.0
 const _FAN_COUNT := 9
 const _SELECT_TARGET_INTERVAL := 0.25
+
 ## Запас к радиусу зоны удара: хитбокс цели vs центр AttackArea (см. apply_damage; синхронно slipper_combat_budget._MELEE_EXTRA_REACH_PX).
+## Поиск узла "player" разделён между всеми character_unit: см. character_unit.get_cached_player_for_physics_frame.
 const _MELEE_EXTRA_REACH_PX := 90.0
 
 
@@ -317,10 +319,20 @@ func _sync_avoidance_to_state() -> void:
 
 
 func _physics_process(delta):
+	## SLIPPER-эксклюзив: PATROL-враги далеко от героя обновляются раз в 4 физкадра,
+	## стаггер по instance_id. Невидимые за пределами экрана враги всё равно не влияют на бой.
+	## Боссы не тормозятся. Если цель уже есть (CHASE/LEASH/ATTACK/HIT) — работаем каждый кадр.
+	if state == State.PATROL and not is_in_group(&"BOSS") and PerformancePreset.is_slipper_mode(SaveManager):
+		var p_cached: Node2D = get_cached_player_for_physics_frame(get_tree())
+		if p_cached != null and is_instance_valid(p_cached):
+			if global_position.distance_squared_to(p_cached.global_position) > 1400.0 * 1400.0:
+				if ((Engine.get_physics_frames() + (int(get_instance_id()) & 0xFF)) % 4) != 0:
+					return
+
 	var previous_position := global_position
 	_select_target_cd -= delta
 
-	var player_node: Node2D = get_tree().get_first_node_in_group("player") as Node2D
+	var player_node: Node2D = get_cached_player_for_physics_frame(get_tree())
 	var slipper_heavy: bool = SlipperCombatBudget.should_run_heavy_ai_for_enemy(
 		self,
 		attack_radius,
@@ -482,7 +494,7 @@ func _apply_chase_velocity() -> void:
 	var base_dir := _dir_toward_target(toward)
 
 	if use_navigation and _nav_agent:
-		var nav_player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
+		var nav_player: Node2D = get_cached_player_for_physics_frame(get_tree())
 		if SlipperCombatBudget.should_push_nav_target_to_player_this_physics_frame(
 			self,
 			attack_radius,
@@ -529,7 +541,12 @@ func _steer_with_wall_probes(desired_dir: Vector2, goal_global: Vector2) -> Vect
 
 	var best_dir := desired_dir
 	var best_dot := -2.0
-	for i in range(1, _FAN_COUNT + 1):
+	## Если основная/слабая мощь — сканируем меньший фан (5 вместо 9): на ~56% меньше лучей при упоре в стену.
+	var fan_limit: int = _FAN_COUNT
+	var m_perf: int = int(SaveManager.performance_mode)
+	if m_perf == PerformancePreset.Mode.SLIPPER or m_perf == PerformancePreset.Mode.MINIMAL:
+		fan_limit = 5
+	for i in range(1, fan_limit + 1):
 		for sgn in [-1.0, 1.0]:
 			var d := desired_dir.rotated(sgn * _FAN_STEP * float(i))
 			if not _wall_ray_blocked_fast(d, space, my_rid):
@@ -537,11 +554,14 @@ func _steer_with_wall_probes(desired_dir: Vector2, goal_global: Vector2) -> Vect
 				if dot > best_dot:
 					best_dot = dot
 					best_dir = d
+				## Направление «почти к цели» — досрочный выход, остальные лучи не тратим.
+				if dot > 0.9:
+					return best_dir.normalized()
 
 	if best_dot > -1.5:
 		return best_dir.normalized()
 
-	for i in range(1, _FAN_COUNT + 1):
+	for i in range(1, fan_limit + 1):
 		for sgn in [-1.0, 1.0]:
 			var d2 := desired_dir.rotated(sgn * _FAN_STEP * float(i))
 			if not _wall_ray_blocked_fast(d2, space, my_rid):

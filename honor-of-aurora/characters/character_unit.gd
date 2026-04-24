@@ -18,7 +18,51 @@ const BOSS_SOFT_SEP_PADDING_PX := 26.0
 const BOSS_SOFT_SEP_STRENGTH := 4.2
 const BOSS_SOFT_SEP_SPEED_REF_MIN := 180.0
 
+## Разделённый на все инстансы кэш массива "character_unit" на один физкадр.
+## Без него каждый юнит в _physics_process аллоцирует свою копию (N вызовов get_nodes_in_group на кадр → N² работы).
+static var _shared_units_frame: int = -1
+static var _shared_units: Array = []
+## Общий кэш узла "player" на физкадр — одинаково полезен врагам, рабочим и союзникам.
+static var _shared_player_frame: int = -1
+static var _shared_player: Node2D = null
+## Флаг «в сцене есть BOSS» на физкадр: если нет — целиком пропускаем boss-sep для всех юнитов (обычный случай).
+static var _shared_has_boss_frame: int = -1
+static var _shared_has_boss: bool = false
+
 var health_component: Node
+
+
+static func _get_shared_units(tree: SceneTree) -> Array:
+	var f := Engine.get_physics_frames()
+	if f == _shared_units_frame:
+		return _shared_units
+	_shared_units_frame = f
+	_shared_units = tree.get_nodes_in_group(&"character_unit") if tree != null else []
+	return _shared_units
+
+
+static func _scene_has_boss_this_frame(units: Array) -> bool:
+	var f := Engine.get_physics_frames()
+	if f == _shared_has_boss_frame:
+		return _shared_has_boss
+	_shared_has_boss_frame = f
+	_shared_has_boss = false
+	for u in units:
+		if u != null and is_instance_valid(u) and u is Node and (u as Node).is_in_group(&"BOSS"):
+			_shared_has_boss = true
+			break
+	return _shared_has_boss
+
+
+static func get_cached_player_for_physics_frame(tree: SceneTree) -> Node2D:
+	var f := Engine.get_physics_frames()
+	if f == _shared_player_frame and _shared_player != null and is_instance_valid(_shared_player):
+		return _shared_player
+	_shared_player_frame = f
+	_shared_player = null
+	if tree != null:
+		_shared_player = tree.get_first_node_in_group(&"player") as Node2D
+	return _shared_player
 
 
 func _ready() -> void:
@@ -215,15 +259,33 @@ func _apply_soft_separation_to_velocity(delta: float) -> void:
 	var tree := get_tree()
 	if tree == null:
 		return
-	if tree.get_node_count_in_group(&"character_unit") < 2:
+	## Один список на кадр физики, общий для всех юнитов — см. _get_shared_units.
+	var units := _get_shared_units(tree)
+	if units.size() < 2:
 		return
-	## Один список на кадр физики: раньше `get_nodes_in_group` вызывался дважды (босс + отряд).
-	var units := tree.get_nodes_in_group("character_unit")
+	## SLIPPER-специфично: далеко от героя юнит всё равно не виден, soft-sep визуально не нужен.
+	## Экономит весь O(N) внутренний цикл для каждого дальнего врага/союзника.
+	var is_slipper := PerformancePreset.is_slipper_mode(SaveManager)
+	if is_slipper and not is_in_group(&"BOSS"):
+		var p := get_cached_player_for_physics_frame(tree)
+		if p != null and is_instance_valid(p):
+			var d_sq := global_position.distance_squared_to(p.global_position)
+			## 1100 px ≈ за пределами типового экрана Аврора в SLIPPER viewport (понижение разрешения).
+			if d_sq > 1100.0 * 1100.0:
+				return
 	## Сначала: жёсткое разведение с боссом (и для врагов — иначе залипание у крупного коллайдера).
-	_apply_boss_radius_separation(delta, units)
+	## Если BOSS-ов в сцене нет (обычный случай) — целиком пропускаем boss-sep: экономит N итераций на юнит.
+	if _scene_has_boss_this_frame(units):
+		_apply_boss_radius_separation(delta, units)
 	if is_in_group("enemy"):
 		return
 	if unit_soft_separation_distance <= 0.0 or unit_soft_separation_strength <= 0.0:
+		return
+	## Стаггер по instance_id: не-боссовое soft-sep для player/ally запускаем раз в K физкадров,
+	## сила×K компенсирует реже применение. На слабом железе экономит O(N²) на "тяжёлых" кадрах.
+	var stagger_k: int = 3 if PerformancePreset.is_slipper_mode(SaveManager) else 2
+	var phase_ok := ((Engine.get_physics_frames() + (int(get_instance_id()) & 0xFFF)) % stagger_k) == 0
+	if not phase_ok:
 		return
 	var push := Vector2.ZERO
 	var my_pos := global_position
@@ -256,7 +318,8 @@ func _apply_soft_separation_to_velocity(delta: float) -> void:
 	if push.length_squared() < 1e-6:
 		return
 	var speed_ref := maxf(80.0, velocity.length())
-	velocity += push.normalized() * speed_ref * unit_soft_separation_strength * delta
+	## stagger_k выше — компенсация за более редкое применение.
+	velocity += push.normalized() * speed_ref * unit_soft_separation_strength * delta * float(stagger_k)
 
 
 func _apply_boss_radius_separation(delta: float, units: Array) -> void:

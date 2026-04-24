@@ -226,8 +226,16 @@ const RALLY_NAV_SNAP_MAX_DIST: float = 240.0
 var _rally_allies_cooldown: float = 0.0
 
 
+func _ready() -> void:
+	## Стартуем без _process: он взводится только когда активен кулдаун (см. try_rally_straggler_allies_to_hero).
+	set_process(false)
+
+
 func _process(delta: float) -> void:
 	_rally_allies_cooldown = maxf(0.0, _rally_allies_cooldown - delta)
+	## Кулдаун истёк — выключаем _process, пока следующий rally не взведёт заново (см. try_rally_straggler_allies_to_hero).
+	if _rally_allies_cooldown <= 0.0:
+		set_process(false)
 
 
 ## Возврат: **-1** — перезарядка; **0** — некого подтягивать / нельзя; **>0** — число юнитов.
@@ -298,6 +306,7 @@ func try_rally_straggler_allies_to_hero() -> int:
 			u.call("squad_rally_after_reposition")
 
 	_rally_allies_cooldown = RALLY_ALLIES_COOLDOWN_SEC
+	set_process(true)
 	SoundManager.play_ui_button()
 	return cnt
 
