@@ -195,8 +195,13 @@ func _sync_attack_detection_shape_radii() -> void:
 		_attack_radius_after_sprite_clamp = attack_radius
 	if attack_shape and attack_shape.shape is CircleShape2D:
 		(attack_shape.shape as CircleShape2D).radius = attack_radius
+	## SLIPPER + не-босс: сужаем DetectionArea на 25% — меньше тел одновременно мониторится физикой Area2D,
+	## меньше вызовов _on_detection_area_entered/exited в толпе. На геймплее незаметно (враг всё ещё видит игрока издали).
+	var det_r: float = detection_radius
+	if PerformancePreset.is_slipper_mode(SaveManager) and not is_in_group(&"BOSS"):
+		det_r = detection_radius * 0.75
 	if detection_shape and detection_shape.shape is CircleShape2D:
-		(detection_shape.shape as CircleShape2D).radius = detection_radius
+		(detection_shape.shape as CircleShape2D).radius = det_r
 	## «На тапке»: облегчённые кадры и FPS анимаций (после клампа по спрайту).
 	if PerformancePreset.is_slipper_mode(SaveManager):
 		_slipper_apply_reduced_enemy_animations()
@@ -285,6 +290,10 @@ func _clamp_attack_radius_to_sprite_frame() -> void:
 func _setup_nav_agent() -> void:
 	## Босс: только прямое движение к цели — NavigationAgent2D даёт джиттер и боковой увод.
 	if not use_navigation or is_in_group(&"BOSS"):
+		return
+	## SLIPPER: обычные враги используют линейное преследование (_slipper_linear_enemy_chase) — NavigationAgent2D
+	## им вообще не нужен. Экономим 1 агент/запрос пути на NavigationServer2D на каждого спавна.
+	if PerformancePreset.is_slipper_mode(SaveManager):
 		return
 	_nav_agent = NavigationAgent2D.new()
 	_nav_agent.path_desired_distance = 22.0

@@ -3,7 +3,8 @@ extends Node
 
 const DAMAGE_NUMBER_SCENE := preload("res://ui/DamageNumber/damage_number.tscn")
 ## SLIPPER (TASK-016): верхняя граница одновременных всплывашек урона — без изменения фактического урона, только визуал.
-const SLIPPER_MAX_DAMAGE_NUMBER_VISUALS: int = 14
+## Снижено с 14 до 8 — меньше Control-инстансов и реже аллокации/queue_free в горячем бою на слабом железе.
+const SLIPPER_MAX_DAMAGE_NUMBER_VISUALS: int = 8
 
 ## Всегда отдельный слой: не вешать Control на Node2D (краш GL Compatibility / Android) и не зависеть от наличия HUD.
 var _damage_numbers_layer: CanvasLayer

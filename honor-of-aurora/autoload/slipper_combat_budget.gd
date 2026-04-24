@@ -100,7 +100,9 @@ static func should_push_nav_target_to_player_this_physics_frame(
 	player: Node2D,
 	physics_frame: int
 ) -> bool:
-	if not PerformancePreset.is_slipper_mode(SaveManager):
+	## Одно чтение на вызов — Variant / Node-setter и сравнения лишние в горячем пути.
+	var slipper: bool = PerformancePreset.is_slipper_mode(SaveManager)
+	if not slipper:
 		return true
 	if enemy == null or not is_instance_valid(enemy):
 		return true
@@ -109,11 +111,8 @@ static func should_push_nav_target_to_player_this_physics_frame(
 	if player == null or not is_instance_valid(player):
 		return true
 	var dist: float = enemy.global_position.distance_to(player.global_position)
-	var near_thr: float = NEAR_FULL_AI_DISTANCE_PX
-	var nav_iv: int = NAV_TARGET_REFRESH_FAR_INTERVAL_FRAMES
-	if PerformancePreset.is_slipper_mode(SaveManager):
-		near_thr = NEAR_FULL_AI_DISTANCE_PX_SLIPPER
-		nav_iv = NAV_TARGET_REFRESH_FAR_INTERVAL_FRAMES_SLIPPER
+	var near_thr: float = NEAR_FULL_AI_DISTANCE_PX_SLIPPER
+	var nav_iv: int = NAV_TARGET_REFRESH_FAR_INTERVAL_FRAMES_SLIPPER
 	if dist <= near_thr:
 		return true
 	if attack_radius_px > 0.0 and dist <= attack_radius_px + CONSERVATIVE_ATTACK_REACH_MARGIN_PX:
@@ -135,14 +134,9 @@ static func should_push_nav_target_worker_vs_player_this_physics_frame(
 		return true
 	if player == null or not is_instance_valid(player):
 		return true
-	var near_thr: float = NEAR_FULL_AI_DISTANCE_PX
-	var nav_iv: int = NAV_TARGET_REFRESH_FAR_INTERVAL_FRAMES
-	if PerformancePreset.is_slipper_mode(SaveManager):
-		near_thr = NEAR_FULL_AI_DISTANCE_PX_SLIPPER
-		nav_iv = NAV_TARGET_REFRESH_FAR_INTERVAL_FRAMES_SLIPPER
-	if worker.global_position.distance_to(player.global_position) <= near_thr:
+	if worker.global_position.distance_to(player.global_position) <= NEAR_FULL_AI_DISTANCE_PX_SLIPPER:
 		return true
-	return (physics_frame % nav_iv) == 0
+	return (physics_frame % NAV_TARGET_REFRESH_FAR_INTERVAL_FRAMES_SLIPPER) == 0
 
 
 static func should_run_heavy_ai_for_enemy(
@@ -162,12 +156,14 @@ static func should_run_heavy_ai_for_enemy(
 		return true
 	var enemy_pos: Vector2 = enemy.global_position
 	var pp: Vector2 = player.global_position
-	var dist: float = enemy_pos.distance_to(pp)
-	var near_thr: float = NEAR_FULL_AI_DISTANCE_PX
-	var far_iv: int = FAR_HEAVY_AI_INTERVAL_FRAMES
-	if PerformancePreset.is_slipper_mode(SaveManager):
-		near_thr = NEAR_FULL_AI_DISTANCE_PX_SLIPPER
-		far_iv = FAR_HEAVY_AI_INTERVAL_FRAMES_SLIPPER
+	## Горячий путь (вызов на каждого врага каждый физкадр) — избегаем дорогой sqrt в distance_to,
+	## сравниваем квадрат дистанции.
+	var near_thr: float = NEAR_FULL_AI_DISTANCE_PX_SLIPPER
+	var far_iv: int = FAR_HEAVY_AI_INTERVAL_FRAMES_SLIPPER
+	var dist_sq: float = enemy_pos.distance_squared_to(pp)
+	if dist_sq <= near_thr * near_thr:
+		return true
+	var dist: float = sqrt(dist_sq)
 	if dist <= near_thr:
 		return true
 	if attack_radius_px > 0.0 and dist <= attack_radius_px + CONSERVATIVE_ATTACK_REACH_MARGIN_PX:

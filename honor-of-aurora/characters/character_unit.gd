@@ -30,6 +30,20 @@ static var _shared_has_boss_frame: int = -1
 static var _shared_has_boss: bool = false
 
 var health_component: Node
+## Кэш группы: is_in_group() внутри строка-поиска не копеечный в горячем O(N²) цикле soft-sep.
+## Ленивая инициализация: дочерние классы делают add_to_group("enemy"/"BOSS") в собственных _ready после super._ready(),
+## поэтому считываем при первом запросе (call_deferred гарантирует, что add_to_group уже отработал).
+var _group_flags_inited: bool = false
+var _is_enemy_cached: bool = false
+var _is_boss_cached: bool = false
+
+
+func _ensure_group_flags() -> void:
+	if _group_flags_inited:
+		return
+	_group_flags_inited = true
+	_is_enemy_cached = is_in_group(&"enemy")
+	_is_boss_cached = is_in_group(&"BOSS")
 
 
 static func _get_shared_units(tree: SceneTree) -> Array:
@@ -72,6 +86,8 @@ func _ready() -> void:
 	safe_margin = maxf(safe_margin, 0.12)
 	add_to_group("character_unit")
 	add_to_group("y_sortable")
+	## Группы "enemy"/"BOSS" добавляются дочерними _ready — считываем на следующем кадре.
+	call_deferred("_ensure_group_flags")
 	_ensure_health_component()
 	if show_mini_hp_bar:
 		var cb := Callable(self, "_on_events_location_changed_mini_hp")
@@ -263,10 +279,11 @@ func _apply_soft_separation_to_velocity(delta: float) -> void:
 	var units := _get_shared_units(tree)
 	if units.size() < 2:
 		return
+	_ensure_group_flags()
 	## SLIPPER-специфично: далеко от героя юнит всё равно не виден, soft-sep визуально не нужен.
 	## Экономит весь O(N) внутренний цикл для каждого дальнего врага/союзника.
 	var is_slipper := PerformancePreset.is_slipper_mode(SaveManager)
-	if is_slipper and not is_in_group(&"BOSS"):
+	if is_slipper and not _is_boss_cached:
 		var p := get_cached_player_for_physics_frame(tree)
 		if p != null and is_instance_valid(p):
 			var d_sq := global_position.distance_squared_to(p.global_position)
@@ -277,7 +294,7 @@ func _apply_soft_separation_to_velocity(delta: float) -> void:
 	## Если BOSS-ов в сцене нет (обычный случай) — целиком пропускаем boss-sep: экономит N итераций на юнит.
 	if _scene_has_boss_this_frame(units):
 		_apply_boss_radius_separation(delta, units)
-	if is_in_group("enemy"):
+	if _is_enemy_cached:
 		return
 	if unit_soft_separation_distance <= 0.0 or unit_soft_separation_strength <= 0.0:
 		return
@@ -298,7 +315,7 @@ func _apply_soft_separation_to_velocity(delta: float) -> void:
 		var other_node := other as Node
 		## Между врагом и не-врагом — только коллизия CharacterBody2D. Дополнительное отталкивание
 		## суммируется с разрешением контактов и при боссах/толпе даёт взаимное гашение и «залипание».
-		if is_in_group("enemy") != other_node.is_in_group("enemy"):
+		if _is_enemy_cached != other_node.is_in_group(&"enemy"):
 			continue
 		var other_n := other as Node2D
 		var min_dist := maxf(unit_soft_separation_distance, my_r + _soft_sep_body_radius(other_n))
@@ -325,7 +342,8 @@ func _apply_soft_separation_to_velocity(delta: float) -> void:
 func _apply_boss_radius_separation(delta: float, units: Array) -> void:
 	if units.size() < 2:
 		return
-	var self_boss := is_in_group("BOSS")
+	_ensure_group_flags()
+	var self_boss := _is_boss_cached
 	var my_pos := global_position
 	var my_r := _soft_sep_body_radius(self)
 	var push := Vector2.ZERO
