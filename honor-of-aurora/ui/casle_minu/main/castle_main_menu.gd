@@ -44,6 +44,12 @@ func _ru_day_word_dative_after_kraten(n: int) -> String:
 
 ## Одна цена на любой тип юнита из меню найма (по умолчанию из BalanceConfig).
 @export var unit_hire_cost: int = 340
+
+## UX: долгое касание кнопки найма — найм пятёркой (или сколько хватит ресурсов / лимита).
+const _HIRE_LONG_PRESS_SEC := 0.55
+const _HIRE_BULK_COUNT := 5
+## Состояние долгого нажатия по типу юнита: { kind: { pressed_at_msec: int, bulk_done: bool } }.
+var _hire_press_state: Dictionary = {}
 @export var archer_scene: PackedScene
 @export var lancer_scene: PackedScene
 @export var pawn_scene: PackedScene
@@ -259,6 +265,7 @@ func _ready() -> void:
 		Events.ore_changed.connect(_on_castle_shop_resources_changed)
 	if not Events.meat_changed.is_connected(_on_castle_shop_resources_changed):
 		Events.meat_changed.connect(_on_castle_shop_resources_changed)
+	_setup_hire_long_press()
 
 
 func _exit_tree() -> void:
@@ -597,18 +604,94 @@ func _on_hire_pick_back_pressed() -> void:
 
 
 func _on_hire_archer_pressed() -> void:
+	if _consume_hire_bulk_flag(HireKind.ARCHER):
+		return
 	SoundManager.play_ui_button()
 	_hire_unit(HireKind.ARCHER)
 
 
 func _on_hire_lancer_pressed() -> void:
+	if _consume_hire_bulk_flag(HireKind.LANCER):
+		return
 	SoundManager.play_ui_button()
 	_hire_unit(HireKind.LANCER)
 
 
 func _on_hire_pawn_pressed() -> void:
+	if _consume_hire_bulk_flag(HireKind.PAWN):
+		return
 	SoundManager.play_ui_button()
 	_hire_unit(HireKind.PAWN)
+
+
+## Долгое нажатие кнопки найма (>=_HIRE_LONG_PRESS_SEC) — серия найма до пяти юнитов
+## за раз (или сколько хватит ресурсов и лимита). Подсказка — в подзаголовке найма.
+func _setup_hire_long_press() -> void:
+	for path_kind in [
+		["%s/HireSlotsRow/slot_archer/ColumnArcher/BuyArcher" % _PATH_HIRE_VBOX, HireKind.ARCHER],
+		["%s/HireSlotsRow/slot_lancer/ColumnLancer/BuyLancer" % _PATH_HIRE_VBOX, HireKind.LANCER],
+		["%s/HireSlotsRow/slot_pawn/ColumnPawn/BuyPawn" % _PATH_HIRE_VBOX, HireKind.PAWN],
+	]:
+		var path: String = path_kind[0]
+		var kind: HireKind = path_kind[1]
+		var btn := get_node_or_null(path) as Button
+		if btn == null:
+			continue
+		_hire_press_state[kind] = {"pressed_at_msec": 0, "bulk_done": false}
+		if not btn.button_down.is_connected(_on_hire_button_down.bind(kind)):
+			btn.button_down.connect(_on_hire_button_down.bind(kind))
+		if not btn.button_up.is_connected(_on_hire_button_up.bind(kind)):
+			btn.button_up.connect(_on_hire_button_up.bind(kind))
+		btn.tooltip_text = "Удерживайте, чтобы нанять до %d за раз" % _HIRE_BULK_COUNT
+	## Подсказка в подзаголовке (если найдём — заменим текст; цены в HirePriceLabel остаются как есть).
+	var subtitle := get_node_or_null("%s/SubtitleHire" % _PATH_HIRE_VBOX) as Label
+	if subtitle and not subtitle.text.contains("Удерживайте"):
+		subtitle.text = subtitle.text.strip_edges() + "  ·  Удерживайте кнопку — найм до %d сразу" % _HIRE_BULK_COUNT
+
+
+func _on_hire_button_down(kind: int) -> void:
+	var s: Dictionary = _hire_press_state.get(kind, {"pressed_at_msec": 0, "bulk_done": false})
+	s["pressed_at_msec"] = Time.get_ticks_msec()
+	s["bulk_done"] = false
+	_hire_press_state[kind] = s
+
+
+func _on_hire_button_up(kind: int) -> void:
+	var s: Dictionary = _hire_press_state.get(kind, null)
+	if s == null:
+		return
+	var dt: int = Time.get_ticks_msec() - int(s.get("pressed_at_msec", 0))
+	if dt >= int(_HIRE_LONG_PRESS_SEC * 1000.0):
+		s["bulk_done"] = true
+		_hire_press_state[kind] = s
+		SoundManager.play_ui_button()
+		_hire_unit_bulk(kind as HireKind, _HIRE_BULK_COUNT)
+
+
+## Если предыдущий button_up уже сделал bulk-найм, поглотить следующий pressed-сигнал.
+func _consume_hire_bulk_flag(kind: int) -> bool:
+	var s: Dictionary = _hire_press_state.get(kind, null)
+	if s == null:
+		return false
+	if not bool(s.get("bulk_done", false)):
+		return false
+	s["bulk_done"] = false
+	_hire_press_state[kind] = s
+	return true
+
+
+func _hire_unit_bulk(kind: HireKind, count: int) -> void:
+	var hired := 0
+	for i in range(maxi(1, count)):
+		if not _can_hire_kind(kind):
+			break
+		var before := GameManager.get_squad_member_count()
+		_hire_unit(kind)
+		if GameManager.get_squad_member_count() <= before:
+			break
+		hired += 1
+	if hired > 0:
+		_show_hire_fail("Нанято: %d" % hired)
 
 
 func _on_upgreat_pressed() -> void:
