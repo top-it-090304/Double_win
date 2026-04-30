@@ -276,6 +276,7 @@ func _physics_process(delta):
 				return
 			if MobileVirtualInput.enabled:
 				MobileVirtualInput.consume_attack()
+			_try_auto_target_easy()
 			change_state(State.ATTACK)
 
 	if state == State.SHIELD:
@@ -505,6 +506,33 @@ func apply_damage():
 			continue
 		if body.is_in_group("enemy") or body.is_in_group("base_sheep"):
 			GameplayFacade.try_apply_damage(body, attack_damage)
+
+
+## Авто-цель ближайшего врага в attack_area: только на «Лёгком». Меняет last_dir, чтобы
+## анимация удара и его направление пошли в нужного противника. Радиус и физика боя не меняются.
+func _try_auto_target_easy() -> void:
+	if DifficultyConfig == null or not DifficultyConfig.is_easy():
+		return
+	if attack_area == null or not is_instance_valid(attack_area):
+		return
+	var best_body: Node2D = null
+	var best_d_sq: float = INF
+	for body in attack_area.get_overlapping_bodies():
+		if body == null or not is_instance_valid(body):
+			continue
+		if not body.is_in_group("enemy"):
+			continue
+		if body is Node2D:
+			var d_sq: float = (body as Node2D).global_position.distance_squared_to(global_position)
+			if d_sq < best_d_sq:
+				best_d_sq = d_sq
+				best_body = body as Node2D
+	if best_body == null:
+		return
+	var to_target: Vector2 = best_body.global_position - global_position
+	if to_target.length_squared() < 0.001:
+		return
+	last_dir = to_target.normalized()
 
 func show_damage_number(amount: int) -> void:
 	GameplayFacade.spawn_damage_number(self, amount, Vector2(-26, -120))

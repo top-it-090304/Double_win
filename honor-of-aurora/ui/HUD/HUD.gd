@@ -16,6 +16,7 @@ extends "res://ui/HUD/game_hud.gd"
 var _codex_badge: TextureRect
 var _armor_hud_root: Control
 var _armor_hud_label: Label
+var _armor_hud_icon: TextureRect
 ## SLIPPER (TASK-016): реже обновлять процент брони — не критичный индикатор относительно HP.
 var _slipper_armor_hud_refresh_timer: Timer
 var _ui_scale_base_rects: Dictionary = {}
@@ -200,6 +201,11 @@ func apply_epilogue_menu_minimal_top_hud() -> void:
 func _setup_armor_hud_nodes() -> void:
 	_armor_hud_root = get_node_or_null("TopHudBar/ArmorDurabilityHud") as Control
 	_armor_hud_label = get_node_or_null("TopHudBar/ArmorDurabilityHud/ArmorPctLabel") as Label
+	_armor_hud_icon = get_node_or_null("TopHudBar/ArmorDurabilityHud/ShieldIcon") as TextureRect
+	## UX: убираем процент брони из верхней полосы HUD — цвет щита уже несёт три уровня
+	## (целая/потёртая/критическая). Точные числа доступны в кодексе/Оружейной.
+	if _armor_hud_label:
+		_armor_hud_label.visible = false
 
 
 func _armor_hud_should_show() -> bool:
@@ -213,19 +219,28 @@ func _refresh_armor_hud() -> void:
 		_armor_hud_root.visible = show_armor
 	if not show_armor:
 		return
-	if _armor_hud_label:
-		var dur := CrownSystem.get_armor_durability()
-		var pct := int(round(float(dur) / float(BalanceConfig.ARMOR_MAX_DURABILITY) * 100.0))
-		var c: Color
-		if dur <= BalanceConfig.ARMOR_CRITICAL_THRESHOLD:
-			c = Color(0.95, 0.3, 0.3)
-		elif dur <= BalanceConfig.ARMOR_WORN_THRESHOLD:
-			c = Color(0.95, 0.7, 0.25)
-		else:
-			## Светлый стальной (не зелёный): на типичном тёмном HUD зелёный 0.55/0.8/0.55 почти теряется.
-			c = Color(0.82, 0.9, 0.98)
+	## UX: на мобильном HUD точные проценты избыточны и забивают верхнюю полосу. Износ
+	## брони показываем тонировкой иконки щита (3 уровня), точные числа — в Оружейной.
+	var dur := CrownSystem.get_armor_durability()
+	var c: Color
+	var critical := false
+	if dur <= BalanceConfig.ARMOR_CRITICAL_THRESHOLD:
+		c = Color(0.95, 0.3, 0.3)
+		critical = true
+	elif dur <= BalanceConfig.ARMOR_WORN_THRESHOLD:
+		c = Color(0.95, 0.7, 0.25)
+	else:
+		## Светлый стальной (не зелёный): на типичном тёмном HUD зелёный 0.55/0.8/0.55 почти теряется.
+		c = Color(0.82, 0.9, 0.98)
+	if _armor_hud_icon:
+		_armor_hud_icon.modulate = c
+	if _armor_hud_label and _armor_hud_label.visible:
+		## Если по какой-то причине лейбл всё ещё виден (скажем, в редакторе) — оставим
+		## цветовой контраст, но без процентов: одна крупная точка читается на всех экранах.
 		_armor_hud_label.add_theme_color_override("font_color", c)
-		_armor_hud_label.text = "%d%%" % pct
+		_armor_hud_label.text = "●"
+	if critical and EasyHints != null:
+		EasyHints.notify_armor_critical()
 
 
 func _cache_ui_scale_base_rects_if_needed() -> void:
