@@ -1,4 +1,4 @@
-[gd_scene load_steps=122 format=4 uid="uid://bos5r41ll0qqe"]
+[gd_scene load_steps=121 format=4 uid="uid://bos5r41ll0qqe"]
 
 [ext_resource type="Texture2D" uid="uid://cvna4hrf8vnic" path="res://Asets/Environment/Terrain/Water/Water.png" id="1_lc62k"]
 [ext_resource type="Script" uid="uid://drx5ypae7garp" path="res://Game/game_base_islad.gd" id="1_xjk1y"]
@@ -62,7 +62,6 @@
 [ext_resource type="PackedScene" path="res://objects/ArcheryMenuZone/archery_menu_zone.tscn" id="59_archz"]
 [ext_resource type="PackedScene" uid="uid://c7brrck0menu1" path="res://objects/BarracksMenuZone/barracks_menu_zone.tscn" id="59_barrz"]
 [ext_resource type="PackedScene" path="res://objects/MonasteryMenuZone/monastery_menu_zone.tscn" id="59_monz"]
-[ext_resource type="PackedScene" path="res://objects/PayShopMenuZone/pay_shop_menu_zone.tscn" id="59_payz"]
 [ext_resource type="PackedScene" uid="uid://btfcav2k82jni" path="res://ally/sheep/base_sheep.tscn" id="60_basheep"]
 [ext_resource type="PackedScene" uid="uid://cwuvggcawpres" path="res://ally/sheep/sheep_zone.tscn" id="62_u52s7"]
 [ext_resource type="PackedScene" path="res://ally/youth_worker/youth_worker_companion.tscn" id="64_mdyw4"]
@@ -866,9 +865,6 @@ position = Vector2(1358, 213)
 
 [node name="ArcheryMenuZone" parent="." instance=ExtResource("59_archz")]
 position = Vector2(625, 128)
-
-[node name="PayShopMenuZone" parent="." instance=ExtResource("59_payz")]
-position = Vector2(-971, 18)
 
 [node name="buildings" type="Node2D" parent="."]
 position = Vector2(1197, 237)

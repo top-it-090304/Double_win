@@ -28,6 +28,35 @@ func _ready() -> void:
 	await tree.process_frame
 	await tree.process_frame
 	_hide_mini_hp_bars_on_all_non_player_units()
+	## Подсказка новичку: жёлтые точки от спавна к целителю — пока intro-диалог не пройден.
+	_setup_intro_breadcrumb_trail_if_needed()
+
+
+const _BreadcrumbTrailScene := preload("res://objects/breadcrumb_trail/breadcrumb_trail.tscn")
+const _INTRO_HINT_FLAG := "intro_base_island_done"
+
+
+func _setup_intro_breadcrumb_trail_if_needed() -> void:
+	if StoryState.has_flag(_INTRO_HINT_FLAG):
+		return
+	if Events.current_location != Events.LOCATION.BASE:
+		return
+	if find_child("IntroBreadcrumbTrail", false, false) != null:
+		return
+	var monk := find_child("Monk_base", true, false) as Node2D
+	if monk == null or not is_instance_valid(monk):
+		return
+	var spawn_node := find_child("player_sawn_zone", true, false) as Node2D
+	var start_pos: Vector2
+	if spawn_node != null and is_instance_valid(spawn_node):
+		start_pos = spawn_node.global_position
+	else:
+		start_pos = Vector2(SaveManager.BASE_DOCK_SPAWN_X, SaveManager.BASE_DOCK_SPAWN_Y)
+	var trail := _BreadcrumbTrailScene.instantiate()
+	trail.name = "IntroBreadcrumbTrail"
+	add_child(trail)
+	if trail.has_method("setup"):
+		trail.setup(start_pos, monk.global_position, _INTRO_HINT_FLAG)
 
 
 func _exit_tree() -> void:

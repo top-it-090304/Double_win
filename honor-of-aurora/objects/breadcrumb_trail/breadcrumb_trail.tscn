@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dbcrumbtrail0001"]
+
+[ext_resource type="Script" path="res://objects/breadcrumb_trail/breadcrumb_trail.gd" id="1_btrail"]
+
+[node name="BreadcrumbTrail" type="Node2D"]
+script = ExtResource("1_btrail")

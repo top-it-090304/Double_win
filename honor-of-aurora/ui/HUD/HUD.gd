@@ -606,6 +606,8 @@ func hide_archery_menu():
 
 
 func show_payshop_menu():
+	if payshop_menu == null:
+		return
 	if teleport_menu and teleport_menu.visible:
 		hide_teleport_menu()
 	SoundManager.play_menu_open()

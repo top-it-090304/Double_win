@@ -17,11 +17,10 @@
 [ext_resource type="PackedScene" uid="uid://cxrosschd3sn8" path="res://ui/dialogue/dialogue_window.tscn" id="7_dialogue"]
 [ext_resource type="PackedScene" uid="uid://br3bcwtq1i8ae" path="res://ui/mobile_touch_controls/mobile_touch_controls.tscn" id="8_mobile"]
 [ext_resource type="PackedScene" uid="uid://dbugmenu001" path="res://ui/debug_menu/debug_menu.tscn" id="9_debug"]
-[ext_resource type="PackedScene" path="res://ui/casle_minu/pay_shop/pay_shop_menu.tscn" id="10_pay"]
 [ext_resource type="PackedScene" uid="uid://b8q3e34lq86dv" path="res://ui/camp_codex/camp_codex_panel.tscn" id="camp_codex_scene"]
 [ext_resource type="Texture2D" uid="uid://dgwuk12s7shin" path="res://Asets/Unit_pack/UI Elements/UI Elements/Icons/Icon_06.png" id="shield_hud_icon"]
 
-[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("teleport_menu", "castle_menu", "barracks_menu", "monastery_menu", "archery_menu", "payshop_menu", "squad_orders_menu", "debug_menu", "camp_codex_panel", "camp_codex_open_button") groups=["hud"]]
+[node name="HUD" type="CanvasLayer" node_paths=PackedStringArray("teleport_menu", "castle_menu", "barracks_menu", "monastery_menu", "archery_menu", "squad_orders_menu", "debug_menu", "camp_codex_panel", "camp_codex_open_button") groups=["hud"]]
 process_mode = 3
 layer = 5
 visible = false
@@ -31,7 +30,6 @@ castle_menu = NodePath("CastleMainMenu")
 barracks_menu = NodePath("BarracksMenu")
 monastery_menu = NodePath("MonasteryMenu")
 archery_menu = NodePath("ArcheryMenu")
-payshop_menu = NodePath("PayShopMenu")
 squad_orders_menu = NodePath("SquadOrdersMenu")
 debug_menu = NodePath("DebugMenu")
 camp_codex_panel = NodePath("CampCodexPanel")
@@ -183,9 +181,6 @@ visible = false
 visible = false
 
 [node name="ArcheryMenu" parent="." instance=ExtResource("6c_arch")]
-visible = false
-
-[node name="PayShopMenu" parent="." instance=ExtResource("10_pay")]
 visible = false
 
 [node name="MobileTouchControls" parent="." instance=ExtResource("8_mobile")]
