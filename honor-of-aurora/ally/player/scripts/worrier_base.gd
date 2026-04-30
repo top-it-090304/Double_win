@@ -379,6 +379,8 @@ func _handle_death() -> void:
 
 func die():
 	SaveManager.death_count += 1
+	if EasyHints != null:
+		EasyHints.notify_player_death(int(Events.current_location))
 	SoundManager.play_death()
 	state = State.DEATH
 	velocity = Vector2.ZERO

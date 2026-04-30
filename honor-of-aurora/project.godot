@@ -45,6 +45,8 @@ DialogueRegistry="*res://autoload/DialogueRegistry.gd"
 CrownPatentReadingLayer="*res://autoload/crown_patent_reading_layer.gd"
 MobileVirtualInput="*res://autoload/MobileVirtualInput.gd"
 YSortManager="*res://autoload/YSortManager.gd"
+HintToast="*res://autoload/HintToast.gd"
+EasyHints="*res://autoload/EasyHints.gd"
 
 [display]
 
