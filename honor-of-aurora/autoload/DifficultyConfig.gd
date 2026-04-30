@@ -52,26 +52,26 @@ const _PRESETS: Array[Dictionary] = [
 		KEY_ID: Id.EASY,
 		KEY_KEY: "easy",
 		KEY_DISPLAY_NAME: "Лёгкий",
-		KEY_DESCRIPTION: "Враги слабее и бьют мягче; больше привалов и лечения на отдыхе; дешевле услуги, мягче приказы Короны; броня дольше держится; шахта и лимиты добычи щедрее. Немилость Короны слабее давит на кошелёк, одобрение заметнее помогает.",
-		KEY_ENEMY_STAT_MULT: 0.86,
-		KEY_GOLD_REWARD_MULT: 1.12,
-		KEY_EXP_REWARD_MULT: 1.1,
-		KEY_EXP_TO_NEXT_LEVEL_MULT: 0.78,
-		KEY_ECONOMY_COST_MULT: 0.9,
-		KEY_VS_HIGHER_ENEMY_DAMAGE_MULT: 1.38,
-		KEY_REST_MAX_PER_EXPEDITION: 4,
-		KEY_ARMOR_WEAR_MULT: 0.78,
-		KEY_SERVICE_COST_MULT: 0.88,
-		KEY_CROWN_ORE_REQUIRED_MULT: 0.85,
-		KEY_ENEMY_DAMAGE_TO_PLAYER_MULT: 0.85,
-		KEY_REST_HEAL_RATIO_MULT: 1.12,
-		KEY_MINE_YIELD_MULT: 1.06,
-		KEY_EXPEDITION_CARRY_CAP_MULT: 1.08,
-		KEY_SUPPLY_EFFECT_MULT: 1.06,
-		KEY_CROWN_WALLET_PENALTY_STRENGTH: 0.74,
-		KEY_CROWN_WALLET_FAVOR_STRENGTH: 1.22,
-		KEY_ARCHER_DAMAGE_MULT: 1.05,
-		KEY_ENEMY_HP_GLOBAL_MULT: 1.06,
+		KEY_DESCRIPTION: "Сюжетный режим: враги заметно слабее и бьют гораздо мягче; 5 привалов за поход и лечение в полтора раза щедрее; броня почти не изнашивается; цены на услуги и приказы Короны мягкие; шахта и лимиты добычи щедрые; немилость Короны почти не давит на кошелёк, одобрение хорошо помогает. На «Лёгком» включается авто-цель ближайшего врага и подсказки после повторных смертей.",
+		KEY_ENEMY_STAT_MULT: 0.7,
+		KEY_GOLD_REWARD_MULT: 1.3,
+		KEY_EXP_REWARD_MULT: 1.25,
+		KEY_EXP_TO_NEXT_LEVEL_MULT: 0.7,
+		KEY_ECONOMY_COST_MULT: 0.8,
+		KEY_VS_HIGHER_ENEMY_DAMAGE_MULT: 1.7,
+		KEY_REST_MAX_PER_EXPEDITION: 5,
+		KEY_ARMOR_WEAR_MULT: 0.3,
+		KEY_SERVICE_COST_MULT: 0.7,
+		KEY_CROWN_ORE_REQUIRED_MULT: 0.7,
+		KEY_ENEMY_DAMAGE_TO_PLAYER_MULT: 0.65,
+		KEY_REST_HEAL_RATIO_MULT: 1.5,
+		KEY_MINE_YIELD_MULT: 1.3,
+		KEY_EXPEDITION_CARRY_CAP_MULT: 1.5,
+		KEY_SUPPLY_EFFECT_MULT: 1.2,
+		KEY_CROWN_WALLET_PENALTY_STRENGTH: 0.35,
+		KEY_CROWN_WALLET_FAVOR_STRENGTH: 1.4,
+		KEY_ARCHER_DAMAGE_MULT: 1.15,
+		KEY_ENEMY_HP_GLOBAL_MULT: 0.9,
 	},
 	{
 		KEY_ID: Id.NORMAL,
@@ -141,6 +141,18 @@ func get_preset_by_id(id: Id) -> Dictionary:
 
 func get_active_id() -> Id:
 	return clampi(SaveManager.difficulty_id, 0, 2) as Id
+
+
+func is_easy() -> bool:
+	return get_active_id() == Id.EASY
+
+
+func is_normal() -> bool:
+	return get_active_id() == Id.NORMAL
+
+
+func is_hard() -> bool:
+	return get_active_id() == Id.HARD
 
 
 func get_active_preset() -> Dictionary:
