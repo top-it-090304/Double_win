@@ -17,6 +17,29 @@ var _codex_badge: TextureRect
 var _armor_hud_root: Control
 var _armor_hud_label: Label
 var _armor_hud_icon: TextureRect
+
+## UX: затемнение «не-боевых» элементов HUD во время боя на островах (ресурсы, кнопки меню),
+## чтобы игрок видел только HP/щит/броню. Затемнение, не сокрытие — иногда нужно проверить золото.
+const _COMBAT_DIM_ALPHA := 0.28
+const _COMBAT_DIM_POLL_SEC := 0.4
+const _COMBAT_DIM_FADE_SEC := 0.25
+## Узлы, которые тускнеют в бою (на adventure-локациях, при is_engaged_near_player).
+const _COMBAT_DIMMABLE_NODE_PATHS: Array[String] = [
+	"TopHudBar/Gold",
+	"TopHudBar/OreCounter",
+	"TopHudBar/MeatCounter",
+	"TopHudBar/WoodCounter",
+	"TopHudBar/CodexOpenButton",
+	"TopHudBar/Button",
+]
+var _combat_dim_timer: Timer
+var _combat_dim_active: bool = false
+var _combat_dim_tween: Tween
+
+## UX: пилюля «До каравана: N» в правом нижнем углу HUD (над кнопками действия не накладывается).
+## Видна только на базе, чтобы планировать сдачу приказа без захода в Замок.
+var _caravan_pill: PanelContainer
+var _caravan_pill_label: Label
 ## SLIPPER (TASK-016): реже обновлять процент брони — не критичный индикатор относительно HP.
 var _slipper_armor_hud_refresh_timer: Timer
 var _ui_scale_base_rects: Dictionary = {}
@@ -79,6 +102,13 @@ func set_target_location(location: Events.LOCATION) -> void:
 
 
 func _on_button_pressed() -> void:
+	## UX: на adventure-локациях кнопка-стрелка открывает паузу с выбором «Продолжить /
+	## Главное меню», чтобы случайный тап не выкидывал из боя. На базе/в меню — старое
+	## поведение (прямой выход в Главное меню).
+	if Events.is_adventure_location(Events.current_location):
+		if PauseOverlay != null and PauseOverlay.has_method("open"):
+			PauseOverlay.open()
+			return
 	GameManager.defer_location_changed(Events.LOCATION.MENU)
 
 
@@ -120,6 +150,16 @@ func _ready() -> void:
 	_cache_ui_scale_base_rects_if_needed()
 	_connect_top_hud_resize_for_pivot()
 	apply_user_ui_scale()
+	_setup_combat_dim_timer()
+	Events.location_changed.connect(_on_location_changed_combat_dim)
+	_on_location_changed_combat_dim(Events.current_location)
+	_setup_caravan_pill()
+	Events.location_changed.connect(_on_caravan_pill_location_changed)
+	Events.expedition_returned.connect(_on_caravan_pill_expedition_returned)
+	Events.caravan_arrived.connect(_on_caravan_pill_caravan_arrived)
+	Events.caravan_pending_changed.connect(_on_caravan_pill_caravan_pending_changed)
+	Events.caravan_dispatched.connect(_on_caravan_pill_caravan_dispatched)
+	_refresh_caravan_pill()
 
 
 func _on_viewport_size_changed_hud_scale() -> void:
@@ -357,6 +397,136 @@ func _deferred_apply_top_hud_scale_and_pivot() -> void:
 			s = minf(s, inner / min_w)
 	_update_top_hud_pivot_to_center(bar)
 	bar.scale = Vector2(s, s)
+
+
+func _setup_caravan_pill() -> void:
+	if _caravan_pill != null:
+		return
+	_caravan_pill = PanelContainer.new()
+	_caravan_pill.name = "CaravanCountdownPill"
+	_caravan_pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_caravan_pill.anchor_left = 1.0
+	_caravan_pill.anchor_right = 1.0
+	_caravan_pill.anchor_top = 0.0
+	_caravan_pill.anchor_bottom = 0.0
+	_caravan_pill.offset_left = -260.0
+	_caravan_pill.offset_right = -16.0
+	_caravan_pill.offset_top = 96.0
+	_caravan_pill.offset_bottom = 132.0
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.06, 0.07, 0.1, 0.86)
+	sb.set_border_width_all(1)
+	sb.border_color = Color(0.92, 0.78, 0.42, 0.55)
+	sb.set_corner_radius_all(8)
+	sb.content_margin_left = 12
+	sb.content_margin_right = 12
+	sb.content_margin_top = 4
+	sb.content_margin_bottom = 4
+	_caravan_pill.add_theme_stylebox_override("panel", sb)
+	_caravan_pill_label = Label.new()
+	_caravan_pill_label.add_theme_font_size_override("font_size", 18)
+	_caravan_pill_label.add_theme_color_override("font_color", Color(0.96, 0.94, 0.86))
+	_caravan_pill_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_caravan_pill_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_caravan_pill_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_caravan_pill.add_child(_caravan_pill_label)
+	add_child(_caravan_pill)
+	_caravan_pill.visible = false
+
+
+func _on_caravan_pill_location_changed(_loc: Events.LOCATION) -> void:
+	_refresh_caravan_pill()
+
+
+func _on_caravan_pill_expedition_returned(_n: int) -> void:
+	_refresh_caravan_pill()
+
+
+func _on_caravan_pill_caravan_arrived(_idx: int) -> void:
+	_refresh_caravan_pill()
+
+
+func _on_caravan_pill_caravan_pending_changed(_p: bool) -> void:
+	_refresh_caravan_pill()
+
+
+func _on_caravan_pill_caravan_dispatched(_ore: int, _cnt: int) -> void:
+	_refresh_caravan_pill()
+
+
+func _refresh_caravan_pill() -> void:
+	if _caravan_pill == null or _caravan_pill_label == null:
+		return
+	## Пилюля видна только на базе — на островах она не нужна и затирается при затемнении HUD.
+	if Events.current_location != Events.LOCATION.BASE:
+		_caravan_pill.visible = false
+		return
+	if SaveManager.caravan_pending:
+		_caravan_pill_label.text = "Караван у причала"
+		_caravan_pill_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.45))
+	else:
+		var n := CrownSystem.get_returns_until_next_caravan()
+		if n <= 0:
+			_caravan_pill_label.text = "Караван при возвращении"
+		else:
+			## «Походов до каравана: N» — нейтрально по русской множественной форме.
+			_caravan_pill_label.text = "Походов до каравана: %d" % n
+		_caravan_pill_label.add_theme_color_override("font_color", Color(0.96, 0.94, 0.86))
+	_caravan_pill.visible = true
+
+
+func _setup_combat_dim_timer() -> void:
+	_combat_dim_timer = Timer.new()
+	_combat_dim_timer.wait_time = _COMBAT_DIM_POLL_SEC
+	_combat_dim_timer.one_shot = false
+	_combat_dim_timer.autostart = false
+	_combat_dim_timer.timeout.connect(_on_combat_dim_tick)
+	add_child(_combat_dim_timer)
+
+
+func _on_location_changed_combat_dim(loc: Events.LOCATION) -> void:
+	if _combat_dim_timer == null:
+		return
+	if Events.is_adventure_location(loc):
+		_combat_dim_timer.start()
+		_on_combat_dim_tick()
+	else:
+		_combat_dim_timer.stop()
+		_apply_combat_dim(false, true)
+
+
+func _on_combat_dim_tick() -> void:
+	if not Events.is_adventure_location(Events.current_location):
+		_apply_combat_dim(false, false)
+		return
+	## Используем «вблизи героя», иначе одинокий враг на другом конце острова держит HUD в тени.
+	var engaged := SquadCombatState != null and SquadCombatState.is_engaged_near_player()
+	## Во время диалога/менюшек подсветка тоже не нужна — ресурсы пусть видны.
+	if DialogueManager and DialogueManager.is_active():
+		engaged = false
+	if get_tree().paused:
+		engaged = false
+	_apply_combat_dim(engaged, false)
+
+
+func _apply_combat_dim(active: bool, instant: bool) -> void:
+	if active == _combat_dim_active and not instant:
+		return
+	_combat_dim_active = active
+	var target_a := _COMBAT_DIM_ALPHA if active else 1.0
+	if _combat_dim_tween and _combat_dim_tween.is_valid():
+		_combat_dim_tween.kill()
+	if instant:
+		for p in _COMBAT_DIMMABLE_NODE_PATHS:
+			var c := get_node_or_null(p) as CanvasItem
+			if c:
+				c.modulate.a = target_a
+		return
+	_combat_dim_tween = create_tween().set_parallel(true)
+	for p in _COMBAT_DIMMABLE_NODE_PATHS:
+		var c := get_node_or_null(p) as CanvasItem
+		if c:
+			_combat_dim_tween.tween_property(c, "modulate:a", target_a, _COMBAT_DIM_FADE_SEC)
 
 
 func _on_location_changed_armor_hud(_loc: Events.LOCATION) -> void:
