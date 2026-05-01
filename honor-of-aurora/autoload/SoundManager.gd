@@ -835,6 +835,8 @@ func play_footstep() -> void:
 ## Награда / золото (Kenney UI, тот же сэмпл что кнопка — короткий «блик»).
 func play_pickup_gold() -> void:
 	_play_sfx(STREAM_UI_BUTTON, randf_range(1.12, 1.22), VOL_REWARD, BUS_SFX, true)
+	if Haptics != null:
+		Haptics.pulse_light()
 
 
 ## Уровень: короткий позитивный тон (menu_open + чуть выше тон).

@@ -48,6 +48,7 @@ YSortManager="*res://autoload/YSortManager.gd"
 HintToast="*res://autoload/HintToast.gd"
 EasyHints="*res://autoload/EasyHints.gd"
 PauseOverlay="*res://autoload/pause_overlay.gd"
+Haptics="*res://autoload/Haptics.gd"
 
 [display]
 

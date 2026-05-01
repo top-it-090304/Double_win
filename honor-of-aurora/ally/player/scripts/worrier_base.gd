@@ -311,6 +311,8 @@ func change_state(new_state: State):
 		State.SHIELD:
 			velocity = Vector2.ZERO
 			anim.speed_scale = move_anim_speed_scale
+			if Haptics != null:
+				Haptics.pulse_light()
 			if anim.sprite_frames and anim.sprite_frames.has_animation("shield"):
 				anim.play("shield")
 			else:
@@ -501,11 +503,15 @@ func _try_building_menu_instead_of_attack() -> bool:
 func apply_damage():
 	if attack_area == null or not is_instance_valid(attack_area):
 		return
+	var hit_any := false
 	for body in attack_area.get_overlapping_bodies():
 		if body == null or not is_instance_valid(body):
 			continue
 		if body.is_in_group("enemy") or body.is_in_group("base_sheep"):
 			GameplayFacade.try_apply_damage(body, attack_damage)
+			hit_any = true
+	if hit_any and Haptics != null:
+		Haptics.pulse_medium()
 
 
 ## Авто-цель ближайшего врага в attack_area: только на «Лёгком». Меняет last_dir, чтобы
@@ -583,6 +589,30 @@ func _on_health_changed(_current_health):
 	SaveManager.current_health = health_component.current_health if health_component else 0
 	_clear_resume_from_death_if_needed()
 	SaveManager.request_save_game_deferred()
+	_update_low_hp_warning()
+
+
+## UX: при HP <= 30% (но >0) — короткий бип-сигнал и контекстная подсказка про привал.
+## Сигнал даётся один раз за «вход в зону низкого HP», следующий — только после восстановления.
+var _low_hp_zone_armed: bool = true
+
+func _update_low_hp_warning() -> void:
+	if health_component == null:
+		return
+	var cur := int(health_component.current_health)
+	var maxv := int(max_health)
+	if maxv <= 0:
+		return
+	var ratio := float(cur) / float(maxv)
+	if cur > 0 and ratio <= 0.3:
+		if _low_hp_zone_armed:
+			_low_hp_zone_armed = false
+			if SoundManager and SoundManager.has_method("play_ui_button"):
+				SoundManager.play_ui_button()
+			if EasyHints != null:
+				EasyHints.notify_low_hp()
+	elif ratio >= 0.55:
+		_low_hp_zone_armed = true
 	
 func apply_paralysis(duration_sec: float) -> void:
 	_paralysis_time = maxf(_paralysis_time, duration_sec)
