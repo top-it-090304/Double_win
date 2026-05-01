@@ -69,7 +69,13 @@ func _on_location_changed(loc: Events.LOCATION) -> void:
 
 func _show_after_delay(text: String, duration_sec: float, delay_sec: float) -> void:
 	## Подсказку показываем чуть после загрузки сцены, чтобы не накладываться на интро-диалог.
-	var t := get_tree().create_timer(delay_sec, true, false, true)
+	## get_tree() может быть null во время смены сцены (Wayland/Aurora) — деградируем мирно.
+	var st := get_tree()
+	if st == null:
+		if HintToast != null:
+			HintToast.show_tip(text, duration_sec)
+		return
+	var t := st.create_timer(delay_sec, true, false, true)
 	t.timeout.connect(func() -> void:
 		if HintToast != null:
 			HintToast.show_tip(text, duration_sec)

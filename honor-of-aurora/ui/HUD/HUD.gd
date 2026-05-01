@@ -496,6 +496,11 @@ func _on_location_changed_combat_dim(loc: Events.LOCATION) -> void:
 
 
 func _on_combat_dim_tick() -> void:
+	## На Wayland/Aurora и во время смены сцены (телепорт) get_tree() может быть null —
+	## без ранней проверки тик из таймера падает с "Invalid access to property 'paused'".
+	var st := get_tree()
+	if st == null or not is_inside_tree():
+		return
 	if not Events.is_adventure_location(Events.current_location):
 		_apply_combat_dim(false, false)
 		return
@@ -504,7 +509,7 @@ func _on_combat_dim_tick() -> void:
 	## Во время диалога/менюшек подсветка тоже не нужна — ресурсы пусть видны.
 	if DialogueManager and DialogueManager.is_active():
 		engaged = false
-	if get_tree().paused:
+	if st.paused:
 		engaged = false
 	_apply_combat_dim(engaged, false)
 
@@ -516,7 +521,7 @@ func _apply_combat_dim(active: bool, instant: bool) -> void:
 	var target_a := _COMBAT_DIM_ALPHA if active else 1.0
 	if _combat_dim_tween and _combat_dim_tween.is_valid():
 		_combat_dim_tween.kill()
-	if instant:
+	if instant or not is_inside_tree():
 		for p in _COMBAT_DIMMABLE_NODE_PATHS:
 			var c := get_node_or_null(p) as CanvasItem
 			if c:

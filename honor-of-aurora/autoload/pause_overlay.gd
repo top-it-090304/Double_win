@@ -88,8 +88,11 @@ func open() -> void:
 		return
 	if DialogueManager and DialogueManager.is_active():
 		return
-	_was_paused_before = get_tree().paused
-	get_tree().paused = true
+	## get_tree() в автозагрузке-CanvasLayer обычно доступен, но во время смены сцены может быть null.
+	var st := get_tree()
+	_was_paused_before = st.paused if st != null else false
+	if st != null:
+		st.paused = true
 	if SoundManager and SoundManager.has_method("play_menu_open"):
 		SoundManager.play_menu_open()
 	visible = true
@@ -102,13 +105,17 @@ func close() -> void:
 	if SoundManager and SoundManager.has_method("play_menu_close"):
 		SoundManager.play_menu_close()
 	## Возвращаем пред-паузное состояние: если до открытия пауза стояла из-за диалога/меню — оставляем её.
-	get_tree().paused = _was_paused_before
+	var st := get_tree()
+	if st != null:
+		st.paused = _was_paused_before
 
 
 func _on_menu_pressed() -> void:
 	## Корректно: сначала снимаем нашу паузу, чтобы переход сцены не тормозил, и только потом меняем локацию.
 	visible = false
-	get_tree().paused = false
+	var st := get_tree()
+	if st != null:
+		st.paused = false
 	if GameManager and GameManager.has_method("defer_location_changed"):
 		GameManager.defer_location_changed(Events.LOCATION.MENU)
 
