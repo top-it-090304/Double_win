@@ -475,6 +475,25 @@ func _refresh_caravan_pill() -> void:
 	_caravan_pill.visible = true
 
 
+func _exit_tree() -> void:
+	## При смене сцены старый HUD ещё может получить отложенный сигнал Events.location_changed,
+	## когда его узлы уже не в дереве (Timer.start падает). Отключаем заранее.
+	if Events == null:
+		return
+	for sig_pair in [
+		[Events.location_changed, _on_location_changed_combat_dim],
+		[Events.location_changed, _on_caravan_pill_location_changed],
+		[Events.expedition_returned, _on_caravan_pill_expedition_returned],
+		[Events.caravan_arrived, _on_caravan_pill_caravan_arrived],
+		[Events.caravan_pending_changed, _on_caravan_pill_caravan_pending_changed],
+		[Events.caravan_dispatched, _on_caravan_pill_caravan_dispatched],
+	]:
+		var sig: Signal = sig_pair[0]
+		var cb: Callable = sig_pair[1]
+		if sig.is_connected(cb):
+			sig.disconnect(cb)
+
+
 func _setup_combat_dim_timer() -> void:
 	_combat_dim_timer = Timer.new()
 	_combat_dim_timer.wait_time = _COMBAT_DIM_POLL_SEC
@@ -485,7 +504,11 @@ func _setup_combat_dim_timer() -> void:
 
 
 func _on_location_changed_combat_dim(loc: Events.LOCATION) -> void:
-	if _combat_dim_timer == null:
+	if _combat_dim_timer == null or not is_instance_valid(_combat_dim_timer):
+		return
+	## Старый HUD при смене сцены ещё получает сигнал, но его узлы уже не в дереве —
+	## Timer.start() в этом окне падает «Timer was not added to the SceneTree».
+	if not is_inside_tree() or not _combat_dim_timer.is_inside_tree():
 		return
 	if Events.is_adventure_location(loc):
 		_combat_dim_timer.start()
