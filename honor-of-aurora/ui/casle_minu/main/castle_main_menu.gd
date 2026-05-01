@@ -1199,8 +1199,36 @@ func _refresh_crown_title_strip() -> void:
 	var grat := BalanceConfig.get_patron_title_gratitude_epithet(SaveManager.premium_ore_purchased_total)
 	if not grat.is_empty():
 		sub = "%s\n\n%s" % [sub, grat]
+	## UX: к литературному описанию добавляем операционную сводку приказа Короны (одна
+	## строка), если есть активный приказ. Игроку не приходится залезать в «Караван»,
+	## чтобы понять «что от меня хотят и сколько осталось».
+	var ops := _build_crown_order_ops_summary()
+	if not ops.is_empty():
+		sub = "%s\n\n%s" % [ops, sub]
 	_crown_title_sub_lbl.text = sub
 	_refresh_crown_mood_strip()
+
+
+## Однострочная сводка активного приказа Короны: норма / срок / награда.
+## Возвращает пустую строку, если приказа нет.
+func _build_crown_order_ops_summary() -> String:
+	var order := CrownSystem.get_current_order_info()
+	if order.is_empty():
+		return ""
+	var req := maxi(1, int(order.get("ore_required", 1)))
+	var sent := maxi(0, int(order.get("ore_sent", 0)))
+	var dl_left := maxi(0, int(order.get("deadline_remaining", 0)))
+	var dl_total := maxi(1, int(order.get("deadline_expeditions", BalanceConfig.DEFAULT_CROWN_ORDER_DEADLINE_EXPEDITIONS)))
+	var awaiting := bool(order.get("deadline_expired_awaiting_dispatch", false))
+	var line := "Канцелярия пишет: Сердцевина %d/%d" % [sent, req]
+	if awaiting:
+		line += "  ·  срок окончен — ждём отгрузку"
+	elif dl_left <= 0:
+		line += "  ·  срок завершается"
+	else:
+		line += "  ·  до срока: %d из %d" % [dl_left, dl_total]
+	line += "  ·  награда: золото жалованья и одобрение Короны"
+	return line
 
 
 func _build_crown_help_modal() -> void:
