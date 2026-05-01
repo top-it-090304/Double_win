@@ -57,6 +57,8 @@ func _on_location_changed(loc: Events.LOCATION) -> void:
 		return
 	if not Events.is_adventure_location(loc):
 		return
+	## Первый заход на адвенчуру — короткое напоминание про управление.
+	notify_first_island_arrival()
 	var key: int = int(loc)
 	if _pending_location_tip.has(key) and not _adaptive_hint_shown.has(key):
 		var text := str(_pending_location_tip[key])

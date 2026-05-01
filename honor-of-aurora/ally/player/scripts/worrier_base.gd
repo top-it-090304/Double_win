@@ -535,6 +535,12 @@ func _try_auto_target_easy() -> void:
 				best_body = body as Node2D
 	if best_body == null:
 		return
+	## Контекстный онбординг: первый замеченный «красный» враг (уровень выше героя) — показать тост.
+	if EasyHints != null and "enemy_level" in best_body:
+		var hero_lv := int(SaveManager.current_level)
+		var enemy_lv := int(best_body.get("enemy_level"))
+		if enemy_lv > hero_lv:
+			EasyHints.notify_red_enemy_seen()
 	var to_target: Vector2 = best_body.global_position - global_position
 	if to_target.length_squared() < 0.001:
 		return

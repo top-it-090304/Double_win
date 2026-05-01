@@ -100,7 +100,44 @@ func _block_sliders(block: bool) -> void:
 func _update_difficulty_desc() -> void:
 	var idx := clampi(_difficulty.selected, 0, 2)
 	var p := DifficultyConfig.get_preset_by_index(idx)
-	_difficulty_desc.text = str(p.get(DifficultyConfig.KEY_DESCRIPTION, ""))
+	_difficulty_desc.text = _build_difficulty_card_text(p)
+
+
+## Строит «инфографику строкой»: ключевые ручки сложности — у игрока перед глазами без раскопок.
+## 6 пунктов, по которым «Лёгкий», «Нормальный» и «Сложный» реально различаются.
+func _build_difficulty_card_text(p: Dictionary) -> String:
+	var rests := int(p.get(DifficultyConfig.KEY_REST_MAX_PER_EXPEDITION, 3))
+	var heal_mul := float(p.get(DifficultyConfig.KEY_REST_HEAL_RATIO_MULT, 1.0))
+	var enemy_dmg := float(p.get(DifficultyConfig.KEY_ENEMY_DAMAGE_TO_PLAYER_MULT, 1.0))
+	var armor_wear := float(p.get(DifficultyConfig.KEY_ARMOR_WEAR_MULT, 1.0))
+	var carry := float(p.get(DifficultyConfig.KEY_EXPEDITION_CARRY_CAP_MULT, 1.0))
+	var crown_pen := float(p.get(DifficultyConfig.KEY_CROWN_WALLET_PENALTY_STRENGTH, 1.0))
+	var lines: PackedStringArray = []
+	lines.append(str(p.get(DifficultyConfig.KEY_DESCRIPTION, "")))
+	lines.append("")
+	lines.append("• Привалов за поход: %d" % rests)
+	lines.append("• Лечение на привале: %s" % _difficulty_pct_label(heal_mul, true))
+	lines.append("• Урон врагов по герою: %s" % _difficulty_pct_label(enemy_dmg, false))
+	lines.append("• Износ брони: %s" % _difficulty_pct_label(armor_wear, false))
+	lines.append("• Лимит добычи с острова: %s" % _difficulty_pct_label(carry, true))
+	lines.append("• Штраф немилости Короны: %s" % _difficulty_pct_label(crown_pen, false))
+	return "\n".join(lines)
+
+
+## Возвращает «слабее на N%», «сильнее на N%», «как обычно» — компактный человеческий текст.
+## benefit_higher_is_better=true означает, что бо́льшее значение = плюс игроку (лечение, добыча).
+func _difficulty_pct_label(mult: float, benefit_higher_is_better: bool) -> String:
+	var pct := int(round((mult - 1.0) * 100.0))
+	if pct == 0:
+		return "как на Нормальном"
+	var sign := "+" if pct > 0 else "−"
+	var helps_player: bool
+	if benefit_higher_is_better:
+		helps_player = pct > 0
+	else:
+		helps_player = pct < 0
+	var word := "легче" if helps_player else "тяжелее"
+	return "%s%d%% (%s)" % [sign, abs(pct), word]
 
 
 func _on_difficulty_selected(_idx: int) -> void:
