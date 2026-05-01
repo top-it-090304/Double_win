@@ -9,6 +9,15 @@ extends Control
 var _rest_offset_base: Vector4 = Vector4.ZERO
 var _rest_offsets_cached: bool = false
 
+## Исходные anchors+offset’ы трёх главных кластеров — для зеркального переноса под леворукую раскладку.
+## Кэшируется один раз; SaveManager.touch_left_handed переключает применение.
+var _layout_base_cached: bool = false
+var _vj_anchors: Vector4 = Vector4.ZERO
+var _vj_offsets: Vector4 = Vector4.ZERO
+var _rc_anchors: Vector4 = Vector4.ZERO
+var _rc_offsets: Vector4 = Vector4.ZERO
+var _rest_anchors: Vector4 = Vector4.ZERO
+
 ## «На тапке»: видимость тач-HUD не критична каждый кадр — реже вызываем _refresh_visibility (TASK-009).
 var _slipper_refresh_tick: int = 0
 const _SLIPPER_TOUCH_REFRESH_EVERY_FRAMES: int = 3
@@ -144,19 +153,82 @@ func apply_user_touch_settings() -> void:
 	if root == null:
 		return
 	_cache_rest_offsets_from_scene_if_needed(root)
+	_cache_layout_base_if_needed(root)
 	root.scale = Vector2.ONE
 	root.modulate.a = float(SaveManager.touch_opacity_percent) / 100.0
 	var vj := root.get_node_or_null("VirtualJoystick") as Control
 	var rc := root.get_node_or_null("RightCluster") as Control
 	var rest := root.get_node_or_null("RestCampButton") as Control
+	## Леворукая раскладка: зеркалим anchors+offsets ДО масштаба, чтобы pivot lookup получил
+	## уже смещённые координаты.
+	_apply_left_handed_layout(vj, rc, rest)
+	var joystick_on_left := not SaveManager.touch_left_handed
 	if vj:
-		_apply_scaled_touch_zone(vj, true)
+		_apply_scaled_touch_zone(vj, joystick_on_left)
 	if rest:
-		_apply_scaled_touch_zone(rest, true)
+		_apply_scaled_touch_zone(rest, joystick_on_left)
 	if rc:
-		_apply_scaled_touch_zone(rc, false)
+		_apply_scaled_touch_zone(rc, not joystick_on_left)
 	_reposition_rest_above_joystick()
 	_refresh_visibility()
+
+
+func _cache_layout_base_if_needed(root: Control) -> void:
+	if _layout_base_cached:
+		return
+	var vj := root.get_node_or_null("VirtualJoystick") as Control
+	var rc := root.get_node_or_null("RightCluster") as Control
+	var rest := root.get_node_or_null("RestCampButton") as Control
+	if vj:
+		_vj_anchors = Vector4(vj.anchor_left, vj.anchor_top, vj.anchor_right, vj.anchor_bottom)
+		_vj_offsets = Vector4(vj.offset_left, vj.offset_top, vj.offset_right, vj.offset_bottom)
+	if rc:
+		_rc_anchors = Vector4(rc.anchor_left, rc.anchor_top, rc.anchor_right, rc.anchor_bottom)
+		_rc_offsets = Vector4(rc.offset_left, rc.offset_top, rc.offset_right, rc.offset_bottom)
+	if rest:
+		_rest_anchors = Vector4(rest.anchor_left, rest.anchor_top, rest.anchor_right, rest.anchor_bottom)
+	_layout_base_cached = true
+
+
+## Зеркалит горизонтальные anchors и offsets для трёх кластеров. При выключенной
+## леворукости — возвращает к исходным значениям из сцены.
+func _apply_left_handed_layout(vj: Control, rc: Control, rest: Control) -> void:
+	if not _layout_base_cached:
+		return
+	var lh := SaveManager.touch_left_handed
+	if vj:
+		_set_horizontal_layout(vj, _vj_anchors, _vj_offsets, lh)
+	if rc:
+		_set_horizontal_layout(rc, _rc_anchors, _rc_offsets, lh)
+	if rest:
+		## Привал делит горизонтальные anchors с джойстиком; offsets кэшируются отдельно.
+		_set_horizontal_layout(rest, _rest_anchors, _rest_offset_base, lh)
+
+
+func _set_horizontal_layout(c: Control, base_anchors: Vector4, base_offsets: Vector4, mirror: bool) -> void:
+	var top := base_anchors.y
+	var bottom := base_anchors.w
+	var off_top := base_offsets.y
+	var off_bot := base_offsets.w
+	if not mirror:
+		c.anchor_left = base_anchors.x
+		c.anchor_right = base_anchors.z
+		c.anchor_top = top
+		c.anchor_bottom = bottom
+		c.offset_left = base_offsets.x
+		c.offset_right = base_offsets.z
+		c.offset_top = off_top
+		c.offset_bottom = off_bot
+		return
+	## Зеркало по горизонтали: anchor_left ↔ (1 - anchor_right); offsets меняются знаком.
+	c.anchor_left = 1.0 - base_anchors.z
+	c.anchor_right = 1.0 - base_anchors.x
+	c.anchor_top = top
+	c.anchor_bottom = bottom
+	c.offset_left = -base_offsets.z
+	c.offset_right = -base_offsets.x
+	c.offset_top = off_top
+	c.offset_bottom = off_bot
 
 
 func _cache_rest_offsets_from_scene_if_needed(root: Control) -> void:

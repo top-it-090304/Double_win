@@ -42,6 +42,35 @@ func _ready() -> void:
 	_ui_scale_slider.value_changed.connect(_on_ui_scale_changed)
 	_touch_scale.value_changed.connect(_on_touch_scale_changed)
 	_touch_opacity.value_changed.connect(_on_touch_opacity_changed)
+	_inject_left_handed_checkbox()
+
+
+## Программное добавление CheckButton «Леворукая раскладка» под TouchOpacitySlider —
+## без правки tscn (выпуск перед релизом). Сохраняется в SaveManager.touch_left_handed.
+func _inject_left_handed_checkbox() -> void:
+	var inner := get_node_or_null("OuterMargin/Center/MenuCard/InnerMargin/MainVBox/Scroll/ScrollPad/Inner") as VBoxContainer
+	if inner == null:
+		return
+	if inner.get_node_or_null("LeftHandedCheck") != null:
+		return
+	var opacity := inner.get_node_or_null("TouchOpacitySlider")
+	var insert_index := opacity.get_index() + 1 if opacity else inner.get_child_count()
+	var lh := CheckButton.new()
+	lh.name = "LeftHandedCheck"
+	lh.text = "Леворукая раскладка (джойстик справа)"
+	lh.button_pressed = SaveManager.touch_left_handed
+	lh.toggled.connect(_on_left_handed_toggled)
+	inner.add_child(lh)
+	inner.move_child(lh, insert_index)
+
+
+func _on_left_handed_toggled(pressed: bool) -> void:
+	SaveManager.touch_left_handed = pressed
+	SaveManager.save_game(true)
+	## Сразу применить к активным контролам сцены, чтобы пользователь увидел перенос немедленно.
+	for tc in get_tree().get_nodes_in_group("touch_controls"):
+		if tc and tc.has_method("apply_user_touch_settings"):
+			tc.call("apply_user_touch_settings")
 
 
 func _fill_difficulty_options() -> void:

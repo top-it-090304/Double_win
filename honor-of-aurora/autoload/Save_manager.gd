@@ -80,6 +80,8 @@ var touch_mode: int = 0
 var touch_scale_percent: int = 100
 ## Прозрачность сенсорного HUD, % (25–100).
 var touch_opacity_percent: int = 52
+## Леворукая раскладка: джойстик справа, кнопки атака/щит слева. По умолчанию выключена.
+var touch_left_handed: bool = false
 ## Вибрация при уроне (Android / iOS).
 var haptic_enabled: bool = true
 ## Бонус к макс. HP героя поверх значения тира (сохраняется).
@@ -188,6 +190,7 @@ const default_data := {
 	"touch_mode" : 0,
 	"touch_scale_percent" : 100,
 	"touch_opacity_percent" : 52,
+	"touch_left_handed" : false,
 	"haptic_enabled" : true,
 	"hero_max_health_bonus" : 0,
 	"hero_speed_bonus" : 0.0,
@@ -289,6 +292,8 @@ func load_game():
 				touch_scale_percent = clampi(int(v), 70, 150)
 			elif variable == "touch_opacity_percent" and typeof(v) in [TYPE_FLOAT, TYPE_INT]:
 				touch_opacity_percent = clampi(int(v), 25, 100)
+			elif variable == "touch_left_handed":
+				touch_left_handed = bool(v)
 			elif variable == "haptic_enabled":
 				haptic_enabled = bool(v)
 			else:
@@ -751,6 +756,7 @@ const _NEW_GAME_PROGRESS_IGNORE_KEYS := {
 	"touch_mode": true,
 	"touch_scale_percent": true,
 	"touch_opacity_percent": true,
+	"touch_left_handed": true,
 	"haptic_enabled": true,
 }
 
