@@ -782,6 +782,9 @@ func handle_location_changed(new_location: Events.LOCATION):
 			SaveManager.save_game(true)
 
 	if prev_location == Events.LOCATION.BASE and Events.is_adventure_location(new_location):
+		var _isl_depart := IslandProgress.story_island_index_from_location(new_location)
+		if _isl_depart >= 1:
+			IslandProgress.reset_zone_save_for_island_if_boss_alive(_isl_depart)
 		## Караван у причала нельзя увезти на остров. Если борт ещё ждёт загрузки, при отплытии
 		## паромщик отпускает его порожним — как «Отпустить порожним» в замке. Иначе возможны
 		## рассинхроны после прерванного диалога прибытия или быстрой смены сцены.

@@ -125,6 +125,7 @@ func _ready() -> void:
 	var vp := get_viewport()
 	if vp and not vp.size_changed.is_connected(_on_viewport_size_changed_hud_scale):
 		vp.size_changed.connect(_on_viewport_size_changed_hud_scale)
+	set_process(true)
 	set_process_input(true)
 	_slipper_armor_hud_refresh_timer = Timer.new()
 	_slipper_armor_hud_refresh_timer.one_shot = true
@@ -405,6 +406,8 @@ func _setup_caravan_pill() -> void:
 	_caravan_pill = PanelContainer.new()
 	_caravan_pill.name = "CaravanCountdownPill"
 	_caravan_pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_caravan_pill.z_as_relative = false
+	_caravan_pill.z_index = -4096
 	_caravan_pill.anchor_left = 1.0
 	_caravan_pill.anchor_right = 1.0
 	_caravan_pill.anchor_top = 0.0
@@ -458,7 +461,7 @@ func _refresh_caravan_pill() -> void:
 	if _caravan_pill == null or _caravan_pill_label == null:
 		return
 	## Пилюля видна только на базе — на островах она не нужна и затирается при затемнении HUD.
-	if Events.current_location != Events.LOCATION.BASE:
+	if Events.current_location != Events.LOCATION.BASE or _caravan_pill_is_blocked_by_modal():
 		_caravan_pill.visible = false
 		return
 	if SaveManager.caravan_pending:
@@ -473,6 +476,39 @@ func _refresh_caravan_pill() -> void:
 			_caravan_pill_label.text = "Походов до каравана: %d" % n
 		_caravan_pill_label.add_theme_color_override("font_color", Color(0.96, 0.94, 0.86))
 	_caravan_pill.visible = true
+
+
+func _process(_delta: float) -> void:
+	if _caravan_pill == null:
+		return
+	if Events.current_location != Events.LOCATION.BASE:
+		return
+	var should_hide := _caravan_pill_is_blocked_by_modal()
+	if _caravan_pill.visible == should_hide:
+		_refresh_caravan_pill()
+
+
+func _caravan_pill_is_blocked_by_modal() -> bool:
+	for panel in [
+		teleport_menu,
+		castle_menu,
+		barracks_menu,
+		monastery_menu,
+		archery_menu,
+		payshop_menu,
+		squad_orders_menu,
+		debug_menu,
+		camp_codex_panel,
+	]:
+		if panel != null and is_instance_valid(panel) and panel.visible:
+			return true
+	if DialogueManager != null and DialogueManager.is_active():
+		return true
+	if CrownTitlePreview != null and CrownTitlePreview.visible:
+		return true
+	if ChestLootUi != null and ChestLootUi.is_chest_popup_open():
+		return true
+	return false
 
 
 func _exit_tree() -> void:
