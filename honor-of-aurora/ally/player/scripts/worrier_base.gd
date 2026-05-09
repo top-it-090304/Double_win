@@ -304,7 +304,8 @@ func change_state(new_state: State):
 				attack_index = (attack_index + 1) % 2
 				anim_name = "attack_1" if attack_index == 0 else "attack_2"
 			
-			anim.flip_h = last_dir.x < 0 or last_dir.y > 0
+			if absf(last_dir.x) > 0.001:
+				anim.flip_h = last_dir.x < 0
 			anim.speed_scale = attack_anim_speed_scale
 			anim.play(anim_name)
 		
