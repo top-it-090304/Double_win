@@ -2944,7 +2944,7 @@ theme_override_fonts/font = ExtResource("5_sbu3m")
 
 theme_override_font_sizes/font_size = 40
 
-text = "╨Э╨뿯▽╨╜╤П╤В╤М ╨╗╤О╨┤╨╡╨╣"
+text = "Нанять людей"
 
 icon = ExtResource("6_2llpa")
 
@@ -2976,7 +2976,7 @@ theme_override_fonts/font = ExtResource("5_sbu3m")
 
 theme_override_font_sizes/font_size = 40
 
-text = "╨г╨╗╤Г╤З╤И╨╕╤В╤М ╨╖╨┤╨뿯▽╨╜╨╕╤П"
+text = "Улучшить здания"
 
 icon = ExtResource("7_sbu3m")
 
@@ -3008,7 +3008,7 @@ theme_override_fonts/font = ExtResource("5_sbu3m")
 
 theme_override_font_sizes/font_size = 40
 
-text = "╨Ш╨╜╤Д╨╛"
+text = "Инфо"
 
 icon = ExtResource("8_2llpa")
 
@@ -3034,7 +3034,7 @@ theme_override_fonts/font = ExtResource("5_sbu3m")
 
 theme_override_font_sizes/font_size = 50
 
-text = "╨Ч╨뿯▽╨╝╨╛╨║ ╨Р╨뿯▽╤А╨╛╤А╨뿯▽"
+text = "Замок Аврора"
 
 
 
@@ -3066,25 +3066,16 @@ offset_right = 640.0
 
 offset_bottom = 300.0
 
-text = "╨Ч╨뿯▽╨╝╨╛╨║ ╨Р╨뿯▽╤А╨╛╤А╨뿯▽
+text = "Замок Аврора
 
+Здесь вы можете:
+- Нанимать лучников.
+- Улучшать здания за золото.
 
-
-╨Ч╨┤╨╡╤Б╤М ╨뿯▽╤Л ╨╝╨╛╨╢╨╡╤В╨╡:
-
-- ╨Э╨뿯▽╨╜╨╕╨╝╨뿯▽╤В╤М ╨╗╤Г╤З╨╜╨╕╨║╨╛╨뿯▽ (╨┐╨╛ ╤Ж╨╡╨╜╨╡, ╨╖╨뿯▽╨뿯▽╨╕╤Б╤П╤Й╨╡╨╣ ╨╛╤В ╤Б╨╗╨╛╨╢╨╜╨╛╤Б╤В╨╕).
-
-- ╨г╨╗╤Г╤З╤И╨뿯▽╤В╤М ╨╖╨┤╨뿯▽╨╜╨╕╤П ╨╖╨뿯▽ ╨╖╨╛╨╗╨╛╤В╨╛.
-
-
-
-╨Ы╤Г╤З╨╜╨╕╨║╨╕:
-
-- ╨б╨╗╨╡╨┤╤Г╤О╤В ╨╖╨뿯▽ ╨│╨╡╤А╨╛╨╡╨╝.
-
-- ╨Ю╤Б╤В╨뿯▽╨╜╨뿯▽╨뿯▽╨╗╨╕╨뿯▽╨뿯▽╤О╤В╤Б╤П ╨╕ ╤Б╤В╤А╨╡╨╗╤П╤О╤В ╨┐╨╛ ╨뿯▽╤А╨뿯▽╨│╨뿯▽╨╝ ╨뿯▽ ╨╖╨╛╨╜╨╡.
-
-- ╨Ю╤В╤Б╤В╤Г╨┐╨뿯▽╤О╤В ╨┐╤А╨╕ ╨┐╨╛╨╗╤Г╤З╨╡╨╜╨╕╨╕ ╤Г╤А╨╛╨╜╨뿯▽ ╨╕ ╨╖╨뿯▽╤В╨╡╨╝ ╨┐╤А╨╛╨┤╨╛╨╗╨╢╨뿯▽╤О╤В ╤Б╤В╤А╨╡╨╗╤П╤В╤М."
+Лучники:
+- Следуют за героем.
+- Останавливаются и стреляют по врагам в зоне.
+- Отступают при получении урона, затем продолжают стрелять."
 
 
 
@@ -3095,4 +3086,3 @@ text = "╨Ч╨뿯▽╨╝╨╛╨║ ╨Р╨뿯▽╤А╨╛╤А╨뿯▽
 [connection signal="pressed" from="buttons/upgreat" to="." method="_on_upgreat_pressed"]
 
 [connection signal="pressed" from="buttons/info" to="." method="_on_info_pressed"]
-

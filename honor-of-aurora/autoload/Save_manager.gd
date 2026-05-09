@@ -93,7 +93,7 @@ var premium_ore_purchased_total: int = 0
 var premium_ore_purchase_count: int = 0
 
 ## ─── Система Короны: караваны, приказы, титулы, немилость ───
-## Руда, отправленная Короне за всю игру.
+## Руда, отправленная Короне за всю службу на Авроре.
 var ore_sent_to_crown_total: int = 0
 ## Индекс текущего приказа (0 = нет активного, 1–5 = по сюжету).
 var crown_order_index: int = 0

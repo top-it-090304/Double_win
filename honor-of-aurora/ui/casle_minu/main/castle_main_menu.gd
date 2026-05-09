@@ -1503,7 +1503,7 @@ func _add_crown_help_progress_block(parent: VBoxContainer) -> void:
 		bar.max_value = float(span)
 		bar.value = float(done)
 		var need := maxi(0, next_th - sent)
-		sub.text = "Короне отдано за всю игру: %d ед. До следующего звания не хватает ещё %d." % [sent, need]
+		sub.text = "Короне отдано за всю службу на Авроре: %d ед. До следующего звания не хватает ещё %d." % [sent, need]
 	inner.add_child(cap)
 	inner.add_child(bar)
 	inner.add_child(sub)
@@ -1560,7 +1560,7 @@ func _build_crown_help_title_card(t: Dictionary, step_i: int, is_current: bool) 
 		title_row.add_child(badge_wrap)
 	col.add_child(title_row)
 	var th_l := _make_crown_help_body_label(
-		"Эта ступень — когда Короне за всю игру ушло не меньше %d ед. Сердцевины караваном." % th, 18
+		"Эта ступень — когда Короне за всю службу на Авроре ушло не меньше %d ед. Сердцевины караваном." % th, 18
 	)
 	th_l.add_theme_color_override("font_color", Color(0.65, 0.78, 0.95, 0.95))
 	col.add_child(th_l)
@@ -1642,7 +1642,7 @@ func _populate_crown_help_overview(vbox: VBoxContainer) -> void:
 	vbox.add_child(_make_crown_help_section_title("Как растёт титул"))
 	vbox.add_child(
 		_make_crown_help_body_label(
-			"Каждая отгрузка караваном добавляет к тому, что вы уже отдали Короне за всю игру. Титул смотрит на это накопление, а не на размер одной партии.",
+			"Каждая отгрузка караваном добавляет к тому, что вы уже отдали Короне за службу на Авроре. Титул смотрит на это накопление, а не на размер одной партии.",
 			19
 		)
 	)
@@ -1657,7 +1657,7 @@ func _populate_crown_help_titles(vbox: VBoxContainer) -> void:
 	intro.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_rtl_theme_line(intro)
 	intro.text = (
-		"Ниже — ступени по тому, сколько [color=#9fd4ff]Сердцевины[/color] вы за всю игру отправили Короне караваном, и какие даются бонусы: жалованье, лимит вывоза руды с острова за поход, скидки на улучшения зданий. Герб можно нажать."
+		"Ниже — ступени по тому, сколько [color=#9fd4ff]Сердцевины[/color] вы за службу на Авроре отправили Короне караваном, и какие даются бонусы: жалованье, лимит вывоза руды с острова за поход, скидки на улучшения зданий. Герб можно нажать."
 	)
 	vbox.add_child(intro)
 	var cur_idx := BalanceConfig.get_crown_title_index_for_ore_sent(SaveManager.ore_sent_to_crown_total)

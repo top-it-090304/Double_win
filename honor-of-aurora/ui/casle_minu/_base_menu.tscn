@@ -1471,7 +1471,7 @@ theme_override_colors/font_color = Color(0.286275, 0.294118, 0.364706, 1)
 theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("5_sbu3m")
 theme_override_font_sizes/font_size = 50
-text = "╨Э╨░╨╜╤П╤В╤М ╨╗╤О╨┤╨╡╨╣"
+text = "Нанять людей"
 icon = ExtResource("6_2llpa")
 flat = true
 
@@ -1487,7 +1487,7 @@ theme_override_colors/icon_hover_pressed_color = Color(0.843137, 0.819608, 0.654
 theme_override_colors/font_color = Color(0.286275, 0.294118, 0.364706, 1)
 theme_override_fonts/font = ExtResource("5_sbu3m")
 theme_override_font_sizes/font_size = 50
-text = "╨г╨╗╤Г╤З╤И╨╕╤В╤М ╨╖╨┤╨░╨╜╨╕╤П"
+text = "Улучшить здания"
 icon = ExtResource("7_sbu3m")
 flat = true
 
@@ -1503,7 +1503,7 @@ theme_override_colors/icon_hover_pressed_color = Color(0.862745, 0.858824, 0.647
 theme_override_colors/font_color = Color(0.286275, 0.294118, 0.364706, 1)
 theme_override_fonts/font = ExtResource("5_sbu3m")
 theme_override_font_sizes/font_size = 50
-text = "╨Ш╨╜╤Д╨╛"
+text = "Инфо"
 icon = ExtResource("8_2llpa")
 flat = true
 
@@ -1516,7 +1516,7 @@ offset_bottom = 146.0
 theme_override_colors/font_color = Color(0.878431, 0.87451, 0.854902, 1)
 theme_override_fonts/font = ExtResource("5_sbu3m")
 theme_override_font_sizes/font_size = 62
-text = "╨Ч╨░╨╝╨╛╨║ ╨Р╨▓╤А╨╛╤А╨░"
+text = "Замок Аврора"
 
 [node name="InfoPanel" type="Panel" parent="."]
 visible = false
@@ -1532,16 +1532,16 @@ offset_left = 20.0
 offset_top = 20.0
 offset_right = 640.0
 offset_bottom = 300.0
-text = "╨Ч╨░╨╝╨╛╨║ ╨Р╨▓╤А╨╛╤А╨░
+text = "Замок Аврора
 
-╨Ч╨┤╨╡╤Б╤М ╨▓╤Л ╨╝╨╛╨╢╨╡╤В╨╡:
-- ╨Э╨░╨╜╨╕╨╝╨░╤В╤М ╨╗╤Г╤З╨╜╨╕╨║╨╛╨▓ (╨┐╨╛ ╤Ж╨╡╨╜╨╡, ╨╖╨░╨▓╨╕╤Б╤П╤Й╨╡╨╣ ╨╛╤В ╤Б╨╗╨╛╨╢╨╜╨╛╤Б╤В╨╕).
-- ╨г╨╗╤Г╤З╤И╨░╤В╤М ╨╖╨┤╨░╨╜╨╕╤П ╨╖╨░ ╨╖╨╛╨╗╨╛╤В╨╛.
+Здесь вы можете:
+- Нанимать лучников.
+- Улучшать здания за золото.
 
-╨Ы╤Г╤З╨╜╨╕╨║╨╕:
-- ╨б╨╗╨╡╨┤╤Г╤О╤В ╨╖╨░ ╨│╨╡╤А╨╛╨╡╨╝.
-- ╨Ю╤Б╤В╨░╨╜╨░╨▓╨╗╨╕╨▓╨░╤О╤В╤Б╤П ╨╕ ╤Б╤В╤А╨╡╨╗╤П╤О╤В ╨┐╨╛ ╨▓╤А╨░╨│╨░╨╝ ╨▓ ╨╖╨╛╨╜╨╡.
-- ╨Ю╤В╤Б╤В╤Г╨┐╨░╤О╤В ╨┐╤А╨╕ ╨┐╨╛╨╗╤Г╤З╨╡╨╜╨╕╨╕ ╤Г╤А╨╛╨╜╨░ ╨╕ ╨╖╨░╤В╨╡╨╝ ╨┐╤А╨╛╨┤╨╛╨╗╨╢╨░╤О╤В ╤Б╤В╤А╨╡╨╗╤П╤В╤М."
+Лучники:
+- Следуют за героем.
+- Останавливаются и стреляют по врагам в зоне.
+- Отступают при получении урона, затем продолжают стрелять."
 
 [connection signal="pressed" from="buttons/back" to="." method="_on_back_pressed"]
 [connection signal="pressed" from="buttons/hire" to="." method="_on_hire_pressed"]
