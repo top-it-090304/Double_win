@@ -80,6 +80,10 @@ const NO_QUEUE_WHEN_BUSY: PackedStringArray = [
 	"veteran_archer_banter",
 ]
 
+const AUTO_CHAIN_DIALOGUES: Dictionary = {
+	"boss_post_5": "monk_story_6",
+}
+
 
 func _ready() -> void:
 	_load_definitions()
@@ -148,10 +152,27 @@ func _on_dialogue_ended(sequence: DialogueSequence) -> void:
 		MonkInteractiveDialogue.grant_ending_flag_after_finale()
 	if sequence.id == "veteran_story_4":
 		VeteranArcherStoryDialogue.grant_ending_flag_after_finale()
+	_try_auto_chain_dialogue_after(sequence.id)
 	PostFinaleWorld.dialogue_maybe_trigger_ending(sequence.id)
 	if sequence.id in ["heal_banter", "healer_idle_fallback", "monk_interact_hub", "veteran_archer_banter", "veteran_archer_hub", "rest_quota_exhausted"]:
 		sequence.lines.clear()
 	call_deferred("_flush_pending_dialogue_queue")
+
+
+func _try_auto_chain_dialogue_after(dialogue_id: String) -> void:
+	if not AUTO_CHAIN_DIALOGUES.has(dialogue_id):
+		return
+	var next_id := str(AUTO_CHAIN_DIALOGUES[dialogue_id])
+	if next_id.is_empty():
+		return
+	call_deferred("_deferred_start_auto_chain_dialogue", next_id)
+
+
+func _deferred_start_auto_chain_dialogue(dialogue_id: String) -> void:
+	if DialogueManager.is_active():
+		return
+	if can_play(dialogue_id):
+		try_start(dialogue_id)
 
 
 func _flush_pending_dialogue_queue() -> void:

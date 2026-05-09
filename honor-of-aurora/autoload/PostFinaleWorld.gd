@@ -10,8 +10,9 @@ const WATER_DRAMATIC_TINT_SEC := 10.0
 const WATER_TINT_MULT := Color(2.75, 0.36, 0.30, 1.0)
 const _DRAMATIC_DONE_FLAG := "post_finale_water_dramatic_done"
 const _META_WATER_BASE := &"post_finale_water_base_modulate"
-const ENDING_ZOOM := Vector2(0.32, 0.32)
-const ENDING_ZOOM_SEC := 4.5
+const ENDING_ZOOM := Vector2(0.48, 0.48)
+const ENDING_ZOOM_SEC := 4.0
+const ENDING_CREDITS_START_AFTER_SEC := 2.2
 ## Пауза с полным экраном заголовка на облаках перед уходом в меню.
 const ENDING_TITLE_HOLD_SEC := 5.0
 const _ENDING_OVERLAY_SCENE: PackedScene = preload("res://ui/transitions/menu_start_transition_overlay.tscn")
@@ -119,11 +120,16 @@ func _clear_all_enemies_soon() -> void:
 func dialogue_maybe_trigger_ending(dialogue_id: String) -> void:
 	if _ending_started:
 		return
-	if dialogue_id != "monk_story_6":
-		return
-	if not StoryState.has_flag("monk_story_6_done"):
-		return
-	_start_ending_sequence()
+	match dialogue_id:
+		"monk_story_6":
+			if not StoryState.has_flag("monk_story_6_done"):
+				return
+		"monk_finale_refused":
+			if not StoryState.has_flag("monk_finale_refused_done"):
+				return
+		_:
+			return
+	call_deferred("_start_ending_sequence")
 
 
 func _on_dialogue_started_credits(sequence: DialogueSequence) -> void:
@@ -166,9 +172,6 @@ func _on_dialogue_ended_credits(sequence: DialogueSequence) -> void:
 	if sequence == null or sequence.id != "monk_finale_refused":
 		return
 	_refusal_skip_narrator_timer = true
-	if _ending_started:
-		return
-	call_deferred("_start_ending_sequence")
 
 
 func _start_ending_sequence() -> void:
@@ -184,7 +187,7 @@ func _start_ending_sequence() -> void:
 	var tw := create_tween()
 	tw.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	tw.tween_property(cam, "zoom", ENDING_ZOOM, ENDING_ZOOM_SEC)
-	await tw.finished
+	await get_tree().create_timer(minf(ENDING_CREDITS_START_AFTER_SEC, ENDING_ZOOM_SEC)).timeout
 	await _show_ending_title_then_menu()
 
 
@@ -203,11 +206,6 @@ func _show_ending_title_then_menu() -> void:
 	get_tree().root.add_child(overlay)
 	await overlay.play_cover()
 	await get_tree().create_timer(ENDING_TITLE_HOLD_SEC).timeout
-	if is_instance_valid(overlay) and overlay.has_method("play_exit"):
-		await overlay.play_exit()
-	else:
-		if is_instance_valid(overlay):
-			overlay.queue_free()
 	player_movement_locked = false
 	## Сундук с благодарностью в главном меню (герой при boss_kill == 5 настраивается в menu_scene).
 	## Явные поля сохранения + story_flags; одна запись до смены сцены. await — handle_location_changed корутина.
@@ -215,6 +213,11 @@ func _show_ending_title_then_menu() -> void:
 	SaveManager.story_flags["menu_post_finale_thanks_unlocked"] = true
 	SaveManager.save_game(true)
 	await GameManager.handle_location_changed(Events.LOCATION.MENU)
+	if is_instance_valid(overlay) and overlay.has_method("play_exit"):
+		await overlay.play_exit()
+	else:
+		if is_instance_valid(overlay):
+			overlay.queue_free()
 
 
 func _ensure_vignette() -> void:
@@ -300,4 +303,3 @@ func _collect_water_layers(n: Node, out: Array[TileMapLayer]) -> void:
 			out.append(n as TileMapLayer)
 	for c in n.get_children():
 		_collect_water_layers(c, out)
-
