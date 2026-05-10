@@ -27,7 +27,7 @@
 Готовые сборки лежат в корне репозитория:
 
 - `Honor of Aurora.apk` — Android.
-- `ru.marsel.honorofaurora-1.0.0-1.armv7hl.rpm` — ОС «Аврора».
+- `ru.marsel.honorofaurora-10052026-6.armv7hl.rpm` — ОС «Аврора».
 
 Исходники Godot-проекта находятся в [`honor-of-aurora/`](honor-of-aurora/) (`project.godot`).
 
@@ -44,7 +44,7 @@
 
 ### ОС «Аврора»
 
-1. Скачайте файл `ru.marsel.honorofaurora-1.0.0-1.armv7hl.rpm`.
+1. Скачайте файл `ru.marsel.honorofaurora-10052026-6.armv7hl.rpm`.
 2. Установите RPM штатным способом для устройства/SDK ОС «Аврора».
 3. Запустите приложение после установки.
 
@@ -154,7 +154,7 @@ Double_win/
 ├── screen_shots/                            # скриншоты игры
 ├── CHANGELOG_LORE.md                        # канон и нарративные решения
 ├── Honor of Aurora.apk                      # Android-сборка
-├── ru.marsel.honorofaurora-1.0.0-1.armv7hl.rpm  # сборка для ОС «Аврора»
+├── ru.marsel.honorofaurora-10052026-6.armv7hl.rpm  # сборка для ОС «Аврора»
 ├── LICENSE
 └── README.md
 ```
