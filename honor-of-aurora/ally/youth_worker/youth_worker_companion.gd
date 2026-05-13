@@ -334,11 +334,11 @@ func _sync_youth_base_worker_job() -> void:
 	if StoryState.has_flag("worker_youth_dead"):
 		return
 	if StoryState.has_flag("worker_youth_works_on_base"):
-		set_worker_job_from_dialogue("ore")
+		set_worker_job_from_dialogue(SaveManager.base_worker_job, false)
 	elif StoryState.has_flag("worker_youth_recruited"):
 		set_worker_job_from_dialogue("none")
 	elif StoryState.has_flag("worker_youth_intro_done"):
-		set_worker_job_from_dialogue("meat")
+		set_worker_job_from_dialogue(SaveManager.base_worker_job, false)
 	else:
 		set_worker_job_from_dialogue("none")
 

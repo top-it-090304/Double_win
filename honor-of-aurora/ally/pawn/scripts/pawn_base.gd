@@ -14,7 +14,7 @@ enum MeatWorkerPhase { CHASE, TO_CASTLE }
 
 enum WoodWorkerPhase { CHASE_TREE, CHOPPING, TO_LOG, TO_CASTLE }
 
-var _worker_job: WorkerJob = WorkerJob.ORE
+var _worker_job: WorkerJob = WorkerJob.MEAT
 var _pawn_cosmetic_busy: bool = false
 
 var _base_worker_state: BaseWorkerState = BaseWorkerState.IDLE
@@ -85,6 +85,7 @@ func _ready() -> void:
 			attack_area.collision_mask = 1
 		attack_area.monitoring = true
 		_ore_baseline_attack_monitoring = attack_area.monitoring
+	set_worker_job_from_dialogue(SaveManager.base_worker_job, false)
 
 
 func _on_base_island_meat_collected() -> void:
@@ -297,7 +298,7 @@ func _rebuild_nav_server_path() -> void:
 	_srv_path_idx = 0
 
 
-func set_worker_job_from_dialogue(key: String) -> void:
+func set_worker_job_from_dialogue(key: String, persist: bool = true) -> void:
 	var j := WorkerJob.ORE
 	match key:
 		"none", "clear", "idle":
@@ -308,6 +309,9 @@ func set_worker_job_from_dialogue(key: String) -> void:
 			j = WorkerJob.WOOD
 		"ore", _:
 			j = WorkerJob.ORE
+	if persist:
+		SaveManager.base_worker_job = _worker_job_name_for_enum(j)
+		SaveManager.save_game(true)
 	if _worker_job == j:
 		return
 	_worker_job = j
@@ -315,8 +319,8 @@ func set_worker_job_from_dialogue(key: String) -> void:
 	_cancel_base_worker()
 
 
-func get_worker_job_name() -> String:
-	match _worker_job:
+func _worker_job_name_for_enum(job: WorkerJob) -> String:
+	match job:
 		WorkerJob.MEAT:
 			return "meat"
 		WorkerJob.WOOD:
@@ -325,6 +329,10 @@ func get_worker_job_name() -> String:
 			return "none"
 		_:
 			return "ore"
+
+
+func get_worker_job_name() -> String:
+	return _worker_job_name_for_enum(_worker_job)
 
 
 func is_assigned_to_ore_mining() -> bool:

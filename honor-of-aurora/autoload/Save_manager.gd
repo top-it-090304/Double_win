@@ -133,6 +133,8 @@ var rest_used_this_expedition: int = 0
 var expedition_ore_collected: int = 0
 var expedition_wood_collected: int = 0
 var expedition_meat_collected: int = 0
+## Текущее задание базовых рабочих: по умолчанию мясо; меняется через меню приказов и переживает смену сцен.
+var base_worker_job: String = "meat"
 
 ## Кэш тяжёлого build_codex_seen_state на один кадр (см. invalidate_codex_state_build_cache).
 var _codex_state_cache_frame: int = -1000000
@@ -147,7 +149,7 @@ const _CODEX_UI_KEY := "_codex_ui"
 const GAME_SAVE_FILE := "user://game_save_file.save"
 ## Режим «На тапке» (TASK-012): минимум секунд между «мягкими» записями на диск (HP/кодекс); критичные — save_game(true).
 const SLIPPER_SAVE_MIN_INTERVAL_SEC := 3.0
-const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "opened_chest_ids", "chest_rolled_tiers", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "dialogue_text_scale_percent", "auto_fit_phone_ui", "max_fps", "performance_mode", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus", "premium_ore_purchased_total", "premium_ore_purchase_count", "ore_sent_to_crown_total", "crown_order_index", "crown_order_ore_sent", "crown_returns_remaining", "caravan_arrival_queued", "crown_deadline_expired_awaiting_dispatch", "crown_orders_failed", "crown_displeasure", "crown_title_index", "caravan_pending", "caravan_sent_count", "crown_favor", "armor_durability", "world_ambience_night", "teleport_usage_count", "menu_epilogue_spawn_player_pending", "menu_post_finale_thanks_unlocked"]
+const SAVE_DATA = ["gold", "meat_count", "wood_count", "ore_count", "boss_kill", "current_health", "current_level", "current_exp", "archer_count", "lancer_count", "pawn_count", "death_count", "expedition_return_count", "was_on_adventure_before_menu", "resume_game_location", "resume_player_position_x", "resume_player_position_y", "resume_from_death", "story_flags", "island_zone_state", "opened_chest_ids", "chest_rolled_tiers", "building_levels", "volume_music", "volume_sfx", "volume_ui", "volume_dialogue", "difficulty_id", "ui_scale_percent", "dialogue_text_scale_percent", "auto_fit_phone_ui", "max_fps", "performance_mode", "touch_mode", "touch_scale_percent", "touch_opacity_percent", "haptic_enabled", "hero_max_health_bonus", "hero_speed_bonus", "premium_ore_purchased_total", "premium_ore_purchase_count", "ore_sent_to_crown_total", "crown_order_index", "crown_order_ore_sent", "crown_returns_remaining", "caravan_arrival_queued", "crown_deadline_expired_awaiting_dispatch", "crown_orders_failed", "crown_displeasure", "crown_title_index", "caravan_pending", "caravan_sent_count", "crown_favor", "armor_durability", "world_ambience_night", "teleport_usage_count", "menu_epilogue_spawn_player_pending", "menu_post_finale_thanks_unlocked", "base_worker_job"]
 const default_data := {
 	"gold" : 10,
 	"meat_count" : 0,
@@ -213,6 +215,7 @@ const default_data := {
 	"teleport_usage_count" : 0,
 	"menu_epilogue_spawn_player_pending" : false,
 	"menu_post_finale_thanks_unlocked" : false,
+	"base_worker_job" : "meat",
 }
 
 
@@ -240,10 +243,16 @@ func _migrate_crown_deadline_awaiting_flag(game_data: Dictionary) -> void:
 	crown_deadline_expired_awaiting_dispatch = crown_order_index > 0 and crown_returns_remaining <= 0
 
 
+func _normalize_base_worker_job() -> void:
+	if not ["ore", "meat", "wood", "none"].has(base_worker_job):
+		base_worker_job = "meat"
+
+
 func load_game():
 	if not FileAccess.file_exists(GAME_SAVE_FILE):
 		current_health = HeroProgression.get_tier_for_level(current_level).max_health
 		building_levels = DEFAULT_BUILDING_LEVELS.duplicate()
+		_normalize_base_worker_job()
 		_normalize_settings_fields()
 		apply_window_and_engine_settings()
 		invalidate_codex_state_build_cache()
@@ -415,6 +424,7 @@ func load_game():
 	if not game_data.has("performance_mode"):
 		performance_mode = PerformancePreset.Mode.MEDIUM
 
+	_normalize_base_worker_job()
 	_normalize_settings_fields()
 	apply_window_and_engine_settings()
 	invalidate_codex_state_build_cache()

@@ -15,13 +15,41 @@ func get_mine_tier() -> int:
 	return SaveManager.get_building_tier("Mine")
 
 
+func _base_resource_worker_count() -> int:
+	var count := SaveManager.pawn_count
+	if (
+		not StoryState.has_flag("worker_youth_dead")
+		and StoryState.has_flag("worker_youth_works_on_base")
+		and not StoryState.has_flag("worker_youth_promoted_archer")
+		and not StoryState.has_flag("worker_youth_promoted_lancer")
+	):
+		count += 1
+	return count
+
+
 func harvest_mine_on_expedition_return() -> int:
-	var pawns_on_base := SaveManager.pawn_count
-	var ore := BalanceConfig.get_mine_ore_per_return(get_mine_tier(), pawns_on_base)
-	if ore > 0:
-		GameManager.add_ore(ore)
-		Events.mine_harvested.emit(ore)
-	return ore
+	var workers_on_base := _base_resource_worker_count()
+	var base_ore := BalanceConfig.get_mine_ore_per_return(get_mine_tier(), 0)
+	if base_ore > 0:
+		GameManager.add_ore(base_ore)
+		Events.mine_harvested.emit(base_ore)
+	if workers_on_base <= 0:
+		return base_ore
+	var total_ore_with_workers := BalanceConfig.get_mine_ore_per_return(get_mine_tier(), workers_on_base)
+	var worker_bonus := maxi(0, total_ore_with_workers - base_ore)
+	if worker_bonus <= 0:
+		return base_ore
+	match SaveManager.base_worker_job:
+		"ore":
+			GameManager.add_ore(worker_bonus)
+			Events.mine_harvested.emit(worker_bonus)
+		"wood":
+			GameManager.add_wood(worker_bonus)
+		"meat":
+			GameManager.add_meat(worker_bonus)
+		_:
+			return base_ore
+	return base_ore + worker_bonus
 
 
 ## ═══════════════════════════════════════════════════════
